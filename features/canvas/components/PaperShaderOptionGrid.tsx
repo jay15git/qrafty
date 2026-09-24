@@ -112,11 +112,11 @@ function InsertPaperShaderOptionTile({
 
 export function PaperShaderOptionGrid({
   columns = 3,
-  dataSlot = "desktop-paper-shader-grid",
+  dataSlot = "canvas-paper-shader-grid",
   onSelect,
-  scrollAreaDataSlot = "desktop-paper-shader-grid-scroll-area",
+  scrollAreaDataSlot = "canvas-paper-shader-grid-scroll-area",
   selectedShaderId,
-  shelfDataSlot = "desktop-paper-shader-grid-shelf",
+  shelfDataSlot = "canvas-paper-shader-grid-shelf",
   variant,
 }: PaperShaderOptionGridProps) {
   const shaders = getAllPaperShaderDefinitions();

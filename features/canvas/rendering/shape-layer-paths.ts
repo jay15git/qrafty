@@ -1,8 +1,8 @@
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared";
+import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
 import { QR_BACKGROUND_SHAPES } from "@/features/qr/styles/background-shapes";
 
 export function getShapeStrokeViewBoxScale(
-  layer: Pick<DraftingCanvasLayer, "height" | "width">,
+  layer: Pick<CanvasLayer, "height" | "width">,
   viewBoxWidth: number,
   viewBoxHeight: number,
 ) {
@@ -13,7 +13,7 @@ export function getShapeStrokeViewBoxScale(
   return Math.min(viewBoxWidth / layer.width, viewBoxHeight / layer.height);
 }
 
-export function getShapeSvgPath(shapeId: NonNullable<DraftingCanvasLayer["shapeId"]>) {
+export function getShapeSvgPath(shapeId: NonNullable<CanvasLayer["shapeId"]>) {
   if (shapeId === "rect") {
     return '<rect x="8" y="8" width="84" height="84" rx="8" ry="8" />';
   }

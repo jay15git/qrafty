@@ -8,18 +8,18 @@ import {
   normalizeDraftingLayerBorderSides,
   normalizeImageSourceMode,
   normalizeLayerCornerRadiusFields,
-  normalizeSharedDraftingCanvasLayerFields,
-  type DraftingCanvasLayer,
+  normalizeSharedCanvasLayerFields,
+  type CanvasLayer,
   type NormalizeDraftingLayerContext,
 } from "@/features/canvas/model/layers/shared";
 
-export function normalizeImageDraftingCanvasLayer(
+export function normalizeImageCanvasLayer(
   context: NormalizeDraftingLayerContext & { kind: "image" },
-): DraftingCanvasLayer {
+): CanvasLayer {
   const { fallback, value } = context;
 
   return {
-    ...normalizeSharedDraftingCanvasLayerFields(context),
+    ...normalizeSharedCanvasLayerFields(context),
     borderSides: normalizeDraftingLayerBorderSides(value.borderSides, fallback.borderSides),
     ...normalizeLayerCornerRadiusFields(value, fallback, DEFAULT_DRAFTING_IMAGE_LAYER.cornerRadius),
     imageFit:
@@ -36,7 +36,7 @@ export function normalizeImageDraftingCanvasLayer(
       fallback.illustrationColorStops,
     ),
     kind: "image",
-  } satisfies DraftingCanvasLayer;
+  } satisfies CanvasLayer;
 }
 
 function normalizeIllustrationColorStops(

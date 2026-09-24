@@ -1,4 +1,4 @@
-import type { InspectorModel } from "@/features/shell/hooks/use-toolbar-inspector-model";
+import type { SettingsModel } from "@/features/shell/hooks/use-toolbar-settings-model";
 import type { SettingsSectionId } from "@/features/shell/inspector/settings-panel-meta";
 import type { QrInputType } from "@/features/qr/content/input-options";
 import type { PatternSettings, PatternSettingsPatch } from "@/features/shell/model/toolbar-types";
@@ -10,18 +10,18 @@ import type { PatternSettings, PatternSettingsPatch } from "@/features/shell/mod
  */
 export type MobileFamilySnapshot = {
   contentType: QrInputType;
-  contentValues: InspectorModel["actualContentValues"];
+  contentValues: SettingsModel["actualContentValues"];
   pattern: PatternSettings;
-  logo: InspectorModel["actualLogoSettings"];
-  corners: InspectorModel["actualCornersSettings"];
-  shape: InspectorModel["actualShapeSettings"];
-  motion: InspectorModel["actualMotionSettings"];
-  image: InspectorModel["actualImageSettings"];
-  background: InspectorModel["actualBackgroundSettings"];
-  layers: InspectorModel["actualLayersSettings"];
+  logo: SettingsModel["actualLogoSettings"];
+  corners: SettingsModel["actualCornersSettings"];
+  shape: SettingsModel["actualShapeSettings"];
+  motion: SettingsModel["actualMotionSettings"];
+  image: SettingsModel["actualImageSettings"];
+  background: SettingsModel["actualBackgroundSettings"];
+  layers: SettingsModel["actualLayersSettings"];
 };
 
-export function captureFamilySnapshot(model: InspectorModel): MobileFamilySnapshot {
+export function captureFamilySnapshot(model: SettingsModel): MobileFamilySnapshot {
   return {
     contentType: model.actualContentType,
     contentValues: model.actualContentValues,
@@ -67,8 +67,8 @@ function patternRestorePatch(p: PatternSettings): PatternSettingsPatch {
 }
 
 function cornersRestorePatch(
-  c: InspectorModel["actualCornersSettings"],
-): Partial<InspectorModel["actualCornersSettings"]> {
+  c: SettingsModel["actualCornersSettings"],
+): Partial<SettingsModel["actualCornersSettings"]> {
   return {
     cornerSquareType: c.cornerSquareType,
     cornerDotType: c.cornerDotType,
@@ -84,8 +84,8 @@ function cornersRestorePatch(
 }
 
 function logoRestorePatch(
-  l: InspectorModel["actualLogoSettings"],
-): Partial<InspectorModel["actualLogoSettings"]> {
+  l: SettingsModel["actualLogoSettings"],
+): Partial<SettingsModel["actualLogoSettings"]> {
   return l.colorMode === "gradient"
     ? { colorMode: "gradient", gradient: l.gradient }
     : { colorMode: "solid", solidColor: l.solidColor };
@@ -94,8 +94,8 @@ function logoRestorePatch(
 /** Shape rail edits: shape id, padding, and the shape's own fill — `cardFill`
  *  belongs to Background, and sending it would stomp styleMode to solid. */
 function shapeRestorePatch(
-  s: InspectorModel["actualShapeSettings"],
-): Partial<InspectorModel["actualShapeSettings"]> {
+  s: SettingsModel["actualShapeSettings"],
+): Partial<SettingsModel["actualShapeSettings"]> {
   return {
     backgroundShapeId: s.backgroundShapeId,
     shapePadding: s.shapePadding,
@@ -110,7 +110,7 @@ function shapeRestorePatch(
 export function restoreFamilySnapshot(
   family: SettingsSectionId,
   snapshot: MobileFamilySnapshot,
-  model: InspectorModel,
+  model: SettingsModel,
 ) {
   switch (family) {
     case "Content":

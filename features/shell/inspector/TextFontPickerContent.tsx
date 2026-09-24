@@ -12,15 +12,15 @@ import {
   loadDraftingFontPreview,
   resolveDraftingFont,
 } from "@/features/canvas/model/fonts";
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared";
+import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
 
 export function TextFontPickerContent({
   layer,
   onPatch,
   onSelect,
 }: {
-  layer: DraftingCanvasLayer;
-  onPatch: (patch: Partial<DraftingCanvasLayer>) => void;
+  layer: CanvasLayer;
+  onPatch: (patch: Partial<CanvasLayer>) => void;
   onSelect?: () => void;
 }) {
   const selectedFont = resolveDraftingFont({
@@ -35,7 +35,7 @@ export function TextFontPickerContent({
     void loadDraftingFont(selectedFont.id);
   }, [selectedFont.id]);
 
-  function patchTextLayer(patch: Partial<DraftingCanvasLayer>) {
+  function patchTextLayer(patch: Partial<CanvasLayer>) {
     onPatch({ ...patch, textRuns: undefined });
   }
 

@@ -26,9 +26,9 @@ import {
 import { HugeiconsIcon } from "@hugeicons/react";
 
 import { ScrollArea } from "@/components/ui/scroll-area";
-import type { ThemeMode } from "@/features/shell/components/FloatingToolbar";
+import type { ThemeMode } from "@/features/shell/components/WorkspaceChrome";
 import { MOBILE_LAYER_TOOLBAR_GAP_PX } from "@/features/shell/components/mobile-layer-toolbar-sync";
-import type { InspectorModel } from "@/features/shell/hooks/use-toolbar-inspector-model";
+import type { SettingsModel } from "@/features/shell/hooks/use-toolbar-settings-model";
 import { InspectorThemeContext } from "@/features/shell/inspector/theme-context";
 import {
   useMobileDrawerNavigation,
@@ -40,14 +40,14 @@ import { LAYER_FILTER_EFFECT_KINDS } from "@/features/canvas/model/layer-effects
 import { TextFontPickerContent } from "@/features/shell/inspector/TextFontPickerContent";
 import {
   DEFAULT_DRAFTING_TEXT_LAYER,
-  type DraftingCanvasLayer,
+  type CanvasLayer,
 } from "@/features/canvas/model/layers/shared";
 import {
   FillColorToolbarButton,
-  LayerFloatingToolbarSettings,
+  FloatingLayerToolbarSettings,
   TextAlignmentSettings,
   TextSizeSettings,
-} from "@/features/canvas/components/LayerFloatingToolbarSettings";
+} from "@/features/canvas/components/FloatingLayerToolbarSettings";
 import {
   getTextLayerFillCssValue,
   patchTextLayerFillFromPicker,
@@ -206,7 +206,7 @@ function MobileLayerPanelButton({
 
 const PANEL_ICON_CLASS = "size-4 shrink-0";
 
-type MobilePanelController = InspectorModel["controller"];
+type MobilePanelController = SettingsModel["controller"];
 
 function panelHugeIcon(icon: Parameters<typeof HugeiconsIcon>[0]["icon"]) {
   return (
@@ -434,7 +434,7 @@ function hasMobilePanelTools(controller: MobilePanelController): boolean {
   return canInsert || hasLayout || hasTransform || hasBorder || hasEffects || hasShadows;
 }
 
-function MobileLayerPanelTools({ model, theme }: { model: InspectorModel; theme: ThemeMode }) {
+function MobileLayerPanelTools({ model, theme }: { model: SettingsModel; theme: ThemeMode }) {
   const controller = model.controller;
 
   if (!hasMobilePanelTools(controller)) {
@@ -459,8 +459,8 @@ function MobileLayerTextTools({
   onPatch,
   theme,
 }: {
-  layer: DraftingCanvasLayer;
-  onPatch: (patch: Partial<DraftingCanvasLayer>) => void;
+  layer: CanvasLayer;
+  onPatch: (patch: Partial<CanvasLayer>) => void;
   theme: ThemeMode;
 }) {
   const mobileNav = useMobileDrawerNavigation();
@@ -468,7 +468,7 @@ function MobileLayerTextTools({
   if (isDraftingEmojiLayer(layer)) {
     return (
       <div className="flex shrink-0 items-center gap-0.5" data-slot="mobile-layer-toolbar-settings">
-        <LayerFloatingToolbarSettings layer={layer} onPatch={onPatch} theme={theme} />
+        <FloatingLayerToolbarSettings layer={layer} onPatch={onPatch} theme={theme} />
       </div>
     );
   }
@@ -488,7 +488,7 @@ function MobileLayerTextTools({
         ? AlignRightIcon
         : AlignLeftIcon;
 
-  function patchText(patch: Partial<DraftingCanvasLayer>) {
+  function patchText(patch: Partial<CanvasLayer>) {
     onPatch({ ...patch, textRuns: undefined });
   }
 
@@ -572,8 +572,8 @@ function MobileLayerSpecificTools({
   onPatch,
   theme,
 }: {
-  layer: DraftingCanvasLayer;
-  onPatch: (patch: Partial<DraftingCanvasLayer>) => void;
+  layer: CanvasLayer;
+  onPatch: (patch: Partial<CanvasLayer>) => void;
   theme: ThemeMode;
 }) {
   if (layer.kind === "text") {
@@ -582,7 +582,7 @@ function MobileLayerSpecificTools({
 
   return (
     <div className="flex shrink-0 items-center gap-0.5" data-slot="mobile-layer-toolbar-settings">
-      <LayerFloatingToolbarSettings layer={layer} onPatch={onPatch} theme={theme} />
+      <FloatingLayerToolbarSettings layer={layer} onPatch={onPatch} theme={theme} />
     </div>
   );
 }
@@ -592,7 +592,7 @@ export function MobileLayerToolbar({
   onToolbarHeightChange,
   theme,
 }: {
-  model: InspectorModel;
+  model: SettingsModel;
   onToolbarHeightChange: (height: number) => void;
   theme: ThemeMode;
 }) {

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 import type { QraftyState } from "@/features/qr/model/state";
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared";
+import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
 import { analyzeQraftyScannability } from "@/features/qr/scan-safety/analyze-qrafty-scannability";
 import type { ScanSafetyScene } from "@/features/qr/scan-safety/rasterize-preview";
 import { getQraftyQrExpectedText } from "@/features/qr/scan-safety/qr-grid";
@@ -22,7 +22,7 @@ type UseQrScanSafetyOptions = {
   contentIsValid?: boolean;
   enabled?: boolean;
   /** Selected QR canvas layer. */
-  layer?: DraftingCanvasLayer;
+  layer?: CanvasLayer;
   /** Export-equivalent scene used to render the QR crop. */
   scene?: ScanSafetyScene;
 };

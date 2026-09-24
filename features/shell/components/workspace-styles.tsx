@@ -6,7 +6,7 @@ const WORKSPACE_SURFACE_STYLES = `
         height: 100%;
       }
 
-      [data-slot="workspace"] [data-slot="drafting-surface"] {
+      [data-slot="workspace"] [data-slot="canvas-root"] {
         position: absolute;
         inset: 0;
         height: 100dvh;
@@ -20,86 +20,86 @@ const WORKSPACE_SURFACE_STYLES = `
         background: var(--canvas-page-bg);
       }
 
-      [data-slot="workspace"] [data-slot="drafting-surface"] > * {
+      [data-slot="workspace"] [data-slot="canvas-root"] > * {
         grid-row: 1;
         grid-column: 1;
         min-height: 0;
         min-width: 0;
       }
 
-      [data-slot="workspace"] [data-slot="desktop-canvas-viewport"] {
+      [data-slot="workspace"] [data-slot="canvas-viewport"] {
         overscroll-behavior: auto;
       }
 
-      [data-slot="workspace"] [data-slot="desktop-compose-surface"] {
+      [data-slot="workspace"] [data-slot="canvas-surface"] {
         overscroll-behavior: none;
       }
 
-      [data-slot="workspace"] [data-slot="desktop-compose-surface"],
-      [data-slot="workspace"] [data-slot="desktop-compose-canvas"],
-      [data-slot="workspace"] [data-slot="desktop-compose-canvas"] [data-layer-id],
-      [data-slot="workspace"] [data-slot="drafting-layer-resize-frame"],
-      [data-slot="workspace"] [data-slot="drafting-layer-multi-select-frame"] {
+      [data-slot="workspace"] [data-slot="canvas-surface"],
+      [data-slot="workspace"] [data-slot="canvas"],
+      [data-slot="workspace"] [data-slot="canvas"] [data-layer-id],
+      [data-slot="workspace"] [data-slot="canvas-layer-resize-frame"],
+      [data-slot="workspace"] [data-slot="canvas-layer-multi-select-frame"] {
         touch-action: none;
       }
 
-      [data-slot="workspace"] [data-slot="drafting-surface"]:focus,
-      [data-slot="workspace"] [data-slot="drafting-surface"]:focus-visible,
-      [data-slot="workspace"] [data-slot="desktop-compose-surface"]:focus,
-      [data-slot="workspace"] [data-slot="desktop-compose-surface"]:focus-visible,
+      [data-slot="workspace"] [data-slot="canvas-root"]:focus,
+      [data-slot="workspace"] [data-slot="canvas-root"]:focus-visible,
+      [data-slot="workspace"] [data-slot="canvas-surface"]:focus,
+      [data-slot="workspace"] [data-slot="canvas-surface"]:focus-visible,
       [data-slot="workspace"] [data-slot="qr-pane"]:focus,
       [data-slot="workspace"] [data-slot="qr-pane"]:focus-visible,
-      [data-slot="workspace"] [data-slot="desktop-compose-canvas"]:focus,
-      [data-slot="workspace"] [data-slot="desktop-compose-canvas"]:focus-visible {
+      [data-slot="workspace"] [data-slot="canvas"]:focus,
+      [data-slot="workspace"] [data-slot="canvas"]:focus-visible {
         outline: none !important;
       }
 
-      [data-slot="drafting-layer-resize-frame"],
-      [data-slot="drafting-layer-multi-select-frame"] {
+      [data-slot="canvas-layer-resize-frame"],
+      [data-slot="canvas-layer-multi-select-frame"] {
         --canvas-resize-corner-hit: 16px;
         --canvas-resize-edge-hit: 8px;
       }
 
       @media (pointer: coarse) {
-        [data-slot="drafting-layer-resize-frame"],
-        [data-slot="drafting-layer-multi-select-frame"] {
+        [data-slot="canvas-layer-resize-frame"],
+        [data-slot="canvas-layer-multi-select-frame"] {
           --canvas-resize-corner-hit: 28px;
           --canvas-resize-edge-hit: 22px;
         }
 
-        [data-slot="drafting-layer-resize-handle"],
-        [data-slot="drafting-layer-rotate-handle"] {
+        [data-slot="canvas-layer-resize-handle"],
+        [data-slot="canvas-layer-rotate-handle"] {
           width: var(--canvas-resize-corner-hit) !important;
           height: var(--canvas-resize-corner-hit) !important;
         }
 
-        [data-slot="drafting-layer-resize-handle-knob"],
-        [data-slot="drafting-layer-rotate-handle-knob"] {
+        [data-slot="canvas-layer-resize-handle-knob"],
+        [data-slot="canvas-layer-rotate-handle-knob"] {
           width: 10px;
           height: 10px;
         }
       }
 
-      [data-slot="workspace"][data-shell-theme="light"] [data-slot="drafting-surface"] {
+      [data-slot="workspace"][data-shell-theme="light"] [data-slot="canvas-root"] {
         background: var(--canvas-bg, #f0f1f2);
       }
 
-      [data-slot="workspace"][data-shell-theme="dark"] [data-slot="drafting-surface"] {
+      [data-slot="workspace"][data-shell-theme="dark"] [data-slot="canvas-root"] {
         background: var(--canvas-bg);
       }
 
-      [data-slot="workspace"][data-shell-theme="dark"] [data-slot="floating-inspector"] {
+      [data-slot="workspace"][data-shell-theme="dark"] [data-slot="desktop-settings-panel-host"] {
         --scroll-edge-fade-color: #000000;
       }
 
-      [data-slot="workspace"][data-shell-theme="light"] [data-slot="desktop-compose-surface"] {
+      [data-slot="workspace"][data-shell-theme="light"] [data-slot="canvas-surface"] {
         background-color: var(--canvas-bg, #f0f1f2) !important;
         border: 0 !important;
         border-radius: 0 !important;
         box-shadow: 0 8px 8px rgb(var(--canvas-ink-rgb) / 0.08) !important;
       }
 
-      [data-slot="workspace"][data-shell-theme="dark"] [data-slot="desktop-compose-surface"] {
+      [data-slot="workspace"][data-shell-theme="dark"] [data-slot="canvas-surface"] {
         background-color: var(--canvas-bg, #000000) !important;
         border: 0 !important;
         border-radius: 0 !important;
@@ -107,7 +107,7 @@ const WORKSPACE_SURFACE_STYLES = `
       }
 
 
-      [data-slot="workspace"] [data-slot="floating-toolbar-root"] {
+      [data-slot="workspace"] [data-slot="chrome-root"] {
         position: absolute;
         inset: 0;
         z-index: 60;
@@ -123,14 +123,14 @@ const WORKSPACE_SURFACE_STYLES = `
       [data-slot="workspace"][data-shell-theme="light"] [data-toolbar-appearance="glass"]:not(
           [data-slot="dynamic-island"],
           [data-slot="utility-toolbar"],
-          [data-slot="desktop-compose-toolbar"]
+          [data-slot="canvas-toolbar"]
         ) {
         background: var(--canvas-page-bg) !important;
         border-color: rgb(var(--canvas-ink-rgb) / 0.16) !important;
         box-shadow: 0 4px 8px rgb(var(--canvas-ink-rgb) / 0.08) !important;
       }
 
-      body:has([data-slot="workspace"]) button:not(:disabled):not([data-slot="draggable-list-handle"]):not([data-slot="drafting-layer-resize-handle"]):not([data-slot="drafting-layer-resize-edge"]),
+      body:has([data-slot="workspace"]) button:not(:disabled):not([data-slot="draggable-list-handle"]):not([data-slot="canvas-layer-resize-handle"]):not([data-slot="canvas-layer-resize-edge"]),
       body:has([data-slot="workspace"]) summary,
       body:has([data-slot="workspace"]) select:not(:disabled),
       body:has([data-slot="workspace"]) input[type="color"] {
@@ -150,7 +150,7 @@ const WORKSPACE_SURFACE_STYLES = `
       }
 
       [data-slot="workspace"] [data-slot="floating-toolbar"],
-      [data-slot="workspace"] [data-slot="floating-inspector"],
+      [data-slot="workspace"] [data-slot="desktop-settings-panel-host"],
       [data-slot="workspace"] [data-slot="action-toolbar"],
       [data-slot="workspace"] [data-slot="resize-toolbar"],
       [data-slot="workspace"] [data-slot="document-toolbar"],
@@ -160,7 +160,7 @@ const WORKSPACE_SURFACE_STYLES = `
       [data-slot="workspace"] [data-slot="top-chrome"],
       [data-slot="workspace"] [data-slot="dynamic-island"],
       [data-slot="workspace"] [data-slot="theme-toggle"],
-      [data-slot="workspace"] [data-slot="left-toolbar-shell"] {
+      [data-slot="workspace"] [data-slot="desktop-settings-shell"] {
         pointer-events: auto;
       }
 
@@ -172,8 +172,8 @@ const WORKSPACE_SURFACE_STYLES = `
         rotate: none !important;
       }
 
-      body:has([data-slot="workspace"]) [data-slot="drafting-layer-floating-toolbar"][data-toolbar-appearance="glass"] button,
-      body:has([data-slot="workspace"]) [data-slot="drafting-layer-context-menu"][data-toolbar-appearance="glass"] button {
+      body:has([data-slot="workspace"]) [data-slot="canvas-layer-floating-toolbar"][data-toolbar-appearance="glass"] button,
+      body:has([data-slot="workspace"]) [data-slot="canvas-layer-context-menu"][data-toolbar-appearance="glass"] button {
         transform: none !important;
         translate: none !important;
         scale: none !important;
@@ -190,10 +190,10 @@ const WORKSPACE_SURFACE_STYLES = `
         rotate: none !important;
       }
 
-      body:has([data-slot="workspace"]) [data-slot="drafting-layer-floating-toolbar"][data-toolbar-appearance="glass"] button:hover,
-      body:has([data-slot="workspace"]) [data-slot="drafting-layer-floating-toolbar"][data-toolbar-appearance="glass"] button:active,
-      body:has([data-slot="workspace"]) [data-slot="drafting-layer-context-menu"][data-toolbar-appearance="glass"] button:hover,
-      body:has([data-slot="workspace"]) [data-slot="drafting-layer-context-menu"][data-toolbar-appearance="glass"] button:active {
+      body:has([data-slot="workspace"]) [data-slot="canvas-layer-floating-toolbar"][data-toolbar-appearance="glass"] button:hover,
+      body:has([data-slot="workspace"]) [data-slot="canvas-layer-floating-toolbar"][data-toolbar-appearance="glass"] button:active,
+      body:has([data-slot="workspace"]) [data-slot="canvas-layer-context-menu"][data-toolbar-appearance="glass"] button:hover,
+      body:has([data-slot="workspace"]) [data-slot="canvas-layer-context-menu"][data-toolbar-appearance="glass"] button:active {
         transform: none !important;
         translate: none !important;
         scale: none !important;
@@ -204,7 +204,7 @@ const WORKSPACE_SIDEBAR_STYLES = `
 
       /* Settings sidebar — glass chrome resets icon-button transforms so
          no press/hover scale sneaks back in. */
-      [data-slot="workspace"] [data-slot="left-toolbar-shell"] button {
+      [data-slot="workspace"] [data-slot="desktop-settings-shell"] button {
         transform: none !important;
         translate: none !important;
         scale: none !important;
@@ -216,7 +216,7 @@ const WORKSPACE_SIDEBAR_STYLES = `
       [data-slot="workspace"] [data-slot="dynamic-island"][data-toolbar-appearance="glass"],
       [data-slot="workspace"] [data-slot="action-toolbar"][data-toolbar-appearance="glass"],
       [data-slot="workspace"] [data-slot="resize-toolbar"][data-toolbar-appearance="glass"],
-      [data-slot="workspace"] [data-slot="desktop-compose-toolbar"][data-toolbar-appearance="glass"] {
+      [data-slot="workspace"] [data-slot="canvas-toolbar"][data-toolbar-appearance="glass"] {
         cursor: pointer;
       }
 
@@ -230,13 +230,13 @@ const WORKSPACE_SIDEBAR_STYLES = `
       }
 
       [data-slot="workspace"] [data-slot="dynamic-island"] button:is([aria-pressed="true"], [data-state="open"]),
-      [data-slot="floating-toolbar-root"] [data-slot="dynamic-island"] button:is([aria-pressed="true"], [data-state="open"]) {
+      [data-slot="chrome-root"] [data-slot="dynamic-island"] button:is([aria-pressed="true"], [data-state="open"]) {
         position: relative !important;
         overflow: visible !important;
       }
 
       [data-slot="workspace"] [data-slot="dynamic-island"] button:is([aria-pressed="true"], [data-state="open"])::after,
-      [data-slot="floating-toolbar-root"] [data-slot="dynamic-island"] button:is([aria-pressed="true"], [data-state="open"])::after {
+      [data-slot="chrome-root"] [data-slot="dynamic-island"] button:is([aria-pressed="true"], [data-state="open"])::after {
         content: "";
         position: absolute;
         bottom: 3px;
@@ -256,7 +256,7 @@ const WORKSPACE_SIDEBAR_STYLES = `
         border-radius: 10px !important;
       }
 
-      [data-slot="workspace"] [data-slot="desktop-compose-toolbar"][data-toolbar-appearance="glass"] button {
+      [data-slot="workspace"] [data-slot="canvas-toolbar"][data-toolbar-appearance="glass"] button {
         --compose-toolbar-fg: rgba(255, 255, 255, 0.78);
         --compose-toolbar-fg-hover: rgba(255, 255, 255, 0.96);
         position: relative !important;
@@ -271,16 +271,16 @@ const WORKSPACE_SIDEBAR_STYLES = `
         transition: color 180ms ease !important;
       }
 
-      [data-slot="workspace"] [data-slot="desktop-compose-toolbar"][data-toolbar-appearance="glass"] button::before {
+      [data-slot="workspace"] [data-slot="canvas-toolbar"][data-toolbar-appearance="glass"] button::before {
         content: none !important;
       }
 
-      [data-slot="workspace"] [data-slot="desktop-compose-toolbar"][data-toolbar-appearance="glass"] button > svg {
+      [data-slot="workspace"] [data-slot="canvas-toolbar"][data-toolbar-appearance="glass"] button > svg {
         position: relative;
         z-index: 1;
       }
 
-      [data-slot="workspace"] [data-slot="desktop-compose-toolbar"][data-toolbar-appearance="glass"] button:hover {
+      [data-slot="workspace"] [data-slot="canvas-toolbar"][data-toolbar-appearance="glass"] button:hover {
         background: transparent !important;
         color: var(--compose-toolbar-fg-hover) !important;
         transform: none !important;
@@ -289,14 +289,14 @@ const WORKSPACE_SIDEBAR_STYLES = `
         rotate: none !important;
       }
 
-      [data-slot="workspace"] [data-slot="desktop-compose-toolbar"][data-toolbar-appearance="glass"] button:active {
+      [data-slot="workspace"] [data-slot="canvas-toolbar"][data-toolbar-appearance="glass"] button:active {
         transform: none !important;
         translate: none !important;
         scale: none !important;
         rotate: none !important;
       }
 
-      [data-slot="workspace"] [data-slot="desktop-compose-toolbar"][data-toolbar-appearance="glass"] button[aria-pressed="true"] {
+      [data-slot="workspace"] [data-slot="canvas-toolbar"][data-toolbar-appearance="glass"] button[aria-pressed="true"] {
         background: transparent !important;
         color: var(--compose-toolbar-fg-hover) !important;
         box-shadow: none !important;
@@ -305,8 +305,8 @@ const WORKSPACE_SIDEBAR_STYLES = `
       [data-slot="workspace"][data-shell-theme="light"] [data-slot="resize-toolbar"],
       [data-slot="workspace"][data-shell-theme="light"] [data-slot="document-toolbar"],
       [data-slot="workspace"][data-shell-theme="light"] [data-slot="action-toolbar"],
-      [data-slot="workspace"][data-shell-theme="light"] [data-slot="drafting-layer-size-value"],
-      [data-slot="workspace"][data-shell-theme="light"] [data-slot="drafting-layer-rotation-value"] {
+      [data-slot="workspace"][data-shell-theme="light"] [data-slot="canvas-layer-size-value"],
+      [data-slot="workspace"][data-shell-theme="light"] [data-slot="canvas-layer-rotation-value"] {
         background: var(--glass-bg) !important;
         border-color: var(--glass-border) !important;
         color: var(--chrome-fg) !important;
@@ -315,7 +315,7 @@ const WORKSPACE_SIDEBAR_STYLES = `
 
       [data-slot="workspace"][data-shell-theme="light"] [data-slot="utility-toolbar"],
       [data-slot="workspace"][data-shell-theme="light"] [data-slot="dynamic-island"],
-      [data-slot="workspace"][data-shell-theme="light"] [data-slot="desktop-compose-toolbar"][data-toolbar-appearance="glass"] {
+      [data-slot="workspace"][data-shell-theme="light"] [data-slot="canvas-toolbar"][data-toolbar-appearance="glass"] {
         background: transparent !important;
         border-color: transparent !important;
         color: var(--chrome-fg) !important;
@@ -334,8 +334,8 @@ const WORKSPACE_CANVAS_MORPH_STYLES = `
          Width and height, NEVER a scale: a scaled box drags its
          corner radius with it. Numbers from Bencho's Aspect block —
          520ms, cubic-bezier(0.22, 1, 0.36, 1). */
-      [data-slot="desktop-compose-canvas"][data-ratio-morph="true"] [data-slot="desktop-compose-artboard-stage"],
-      [data-slot="desktop-compose-canvas"][data-ratio-morph="true"] [data-slot="desktop-compose-artboard"] {
+      [data-slot="canvas"][data-ratio-morph="true"] [data-slot="canvas-artboard-stage"],
+      [data-slot="canvas"][data-ratio-morph="true"] [data-slot="canvas-artboard"] {
         transition:
           width 520ms cubic-bezier(0.22, 1, 0.36, 1),
           height 520ms cubic-bezier(0.22, 1, 0.36, 1),
@@ -343,8 +343,8 @@ const WORKSPACE_CANVAS_MORPH_STYLES = `
           transform 520ms cubic-bezier(0.22, 1, 0.36, 1) !important;
       }
 
-      [data-slot="desktop-compose-canvas"][data-ratio-morph="true"] [data-layer-id],
-      [data-slot="desktop-compose-canvas"][data-ratio-morph="true"] [data-layer-ids] {
+      [data-slot="canvas"][data-ratio-morph="true"] [data-layer-id],
+      [data-slot="canvas"][data-ratio-morph="true"] [data-layer-ids] {
         transition:
           left 520ms cubic-bezier(0.22, 1, 0.36, 1),
           top 520ms cubic-bezier(0.22, 1, 0.36, 1),
@@ -355,10 +355,10 @@ const WORKSPACE_CANVAS_MORPH_STYLES = `
       }
 
       @media (prefers-reduced-motion: reduce) {
-        [data-slot="desktop-compose-canvas"][data-ratio-morph="true"] [data-slot="desktop-compose-artboard-stage"],
-        [data-slot="desktop-compose-canvas"][data-ratio-morph="true"] [data-slot="desktop-compose-artboard"],
-        [data-slot="desktop-compose-canvas"][data-ratio-morph="true"] [data-layer-id],
-        [data-slot="desktop-compose-canvas"][data-ratio-morph="true"] [data-layer-ids] {
+        [data-slot="canvas"][data-ratio-morph="true"] [data-slot="canvas-artboard-stage"],
+        [data-slot="canvas"][data-ratio-morph="true"] [data-slot="canvas-artboard"],
+        [data-slot="canvas"][data-ratio-morph="true"] [data-layer-id],
+        [data-slot="canvas"][data-ratio-morph="true"] [data-layer-ids] {
           transition-duration: 1ms !important;
         }
       }
@@ -371,7 +371,7 @@ const WORKSPACE_CANVAS_MORPH_STYLES = `
 
       [data-slot="workspace"][data-shell-theme="dark"] [data-slot="utility-toolbar"],
       [data-slot="workspace"][data-shell-theme="dark"] [data-slot="dynamic-island"],
-      [data-slot="workspace"][data-shell-theme="dark"] [data-slot="desktop-compose-toolbar"][data-toolbar-appearance="glass"] {
+      [data-slot="workspace"][data-shell-theme="dark"] [data-slot="canvas-toolbar"][data-toolbar-appearance="glass"] {
         background: transparent !important;
         border-color: transparent !important;
         box-shadow: none !important;
@@ -390,13 +390,13 @@ const WORKSPACE_CANVAS_MORPH_STYLES = `
       [data-slot="workspace"][data-shell-theme="light"] [data-slot="dynamic-island"] button,
       [data-slot="workspace"][data-shell-theme="light"] [data-slot="theme-toggle"],
       [data-slot="workspace"][data-shell-theme="light"] [data-slot="action-toolbar"] button,
-      [data-slot="workspace"][data-shell-theme="light"] [data-slot="drafting-layer-size-value"],
-      [data-slot="workspace"][data-shell-theme="light"] [data-slot="drafting-layer-rotation-value"],
-      [data-slot="workspace"][data-shell-theme="light"] [data-slot="desktop-compose-toolbar"][data-toolbar-appearance="glass"] button {
+      [data-slot="workspace"][data-shell-theme="light"] [data-slot="canvas-layer-size-value"],
+      [data-slot="workspace"][data-shell-theme="light"] [data-slot="canvas-layer-rotation-value"],
+      [data-slot="workspace"][data-shell-theme="light"] [data-slot="canvas-toolbar"][data-toolbar-appearance="glass"] button {
         color: var(--chrome-fg) !important;
       }
 
-      [data-slot="workspace"][data-shell-theme="light"] [data-slot="desktop-compose-toolbar"][data-toolbar-appearance="glass"] button:hover {
+      [data-slot="workspace"][data-shell-theme="light"] [data-slot="canvas-toolbar"][data-toolbar-appearance="glass"] button:hover {
         background: transparent !important;
         color: var(--glass-button-hover-fg) !important;
       }
@@ -415,7 +415,7 @@ const WORKSPACE_CANVAS_MORPH_STYLES = `
         color: var(--glass-button-hover-fg) !important;
       }
 
-      [data-slot="workspace"][data-shell-theme="light"] [data-slot="desktop-compose-toolbar"][data-toolbar-appearance="glass"] button[aria-pressed="true"] {
+      [data-slot="workspace"][data-shell-theme="light"] [data-slot="canvas-toolbar"][data-toolbar-appearance="glass"] button[aria-pressed="true"] {
         background: transparent !important;
         color: var(--glass-button-hover-fg) !important;
         box-shadow: none !important;
@@ -435,12 +435,12 @@ const WORKSPACE_CANVAS_MORPH_STYLES = `
         box-shadow: var(--tooltip-shadow-sm) !important;
       }
 
-      body:has([data-slot="workspace"][data-shell-theme="light"]) [data-slot="desktop-compose-toolbar"][data-toolbar-appearance="glass"] button:hover {
+      body:has([data-slot="workspace"][data-shell-theme="light"]) [data-slot="canvas-toolbar"][data-toolbar-appearance="glass"] button:hover {
         background: transparent !important;
         color: var(--glass-button-hover-fg) !important;
       }
 
-      body:has([data-slot="workspace"][data-shell-theme="light"]) [data-slot="desktop-compose-toolbar"][data-toolbar-appearance="glass"] button[aria-pressed="true"] {
+      body:has([data-slot="workspace"][data-shell-theme="light"]) [data-slot="canvas-toolbar"][data-toolbar-appearance="glass"] button[aria-pressed="true"] {
         background: transparent !important;
         color: var(--glass-button-hover-fg) !important;
         box-shadow: none !important;
@@ -451,8 +451,8 @@ const WORKSPACE_CANVAS_MORPH_STYLES = `
       }
 
 
-      body:has([data-slot="workspace"][data-shell-theme="dark"]) [data-slot="drafting-layer-size-value"],
-      body:has([data-slot="workspace"][data-shell-theme="dark"]) [data-slot="drafting-layer-rotation-value"] {
+      body:has([data-slot="workspace"][data-shell-theme="dark"]) [data-slot="canvas-layer-size-value"],
+      body:has([data-slot="workspace"][data-shell-theme="dark"]) [data-slot="canvas-layer-rotation-value"] {
         border-color: var(--glass-border) !important;
         box-shadow: var(--glass-shadow) !important;
       }
@@ -516,11 +516,11 @@ const WORKSPACE_CANVAS_MORPH_STYLES = `
 
       @media (max-width: 1100px) {
         [data-slot="workspace"] [data-slot="dynamic-island"],
-        [data-slot="floating-toolbar-root"] [data-slot="dynamic-island"] {
+        [data-slot="chrome-root"] [data-slot="dynamic-island"] {
           max-width: calc(100vw - 15rem);
         }
 
-        [data-slot="workspace"] [data-slot="desktop-compose-surface"] {
+        [data-slot="workspace"] [data-slot="canvas-surface"] {
           border-radius: 0 !important;
         }
       }

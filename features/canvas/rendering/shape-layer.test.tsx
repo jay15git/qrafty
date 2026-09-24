@@ -3,7 +3,7 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
-import { patchDraftingCanvasLayer } from "@/features/canvas/model/layers/patch";
+import { patchCanvasLayer } from "@/features/canvas/model/layers/patch";
 import { createDraftingShapeLayer } from "@/features/canvas/model/layers/factories";
 import { patchShapeLayerFillFromPicker } from "@/features/canvas/rendering/layer-fill";
 import { DraftingShapeLayerContent } from "@/features/canvas/rendering/shape-layer";
@@ -21,7 +21,7 @@ describe("DraftingShapeLayerContent", () => {
   });
 
   it("preserves shapeId through insert normalization", () => {
-    const inserted = patchDraftingCanvasLayer(
+    const inserted = patchCanvasLayer(
       {
         ...createDraftingShapeLayer("preview", "hexagon"),
         id: "preview:shape:123",
@@ -63,7 +63,7 @@ describe("DraftingShapeLayerContent", () => {
         ],
       },
     });
-    const gradientLayer = patchDraftingCanvasLayer(
+    const gradientLayer = patchCanvasLayer(
       layer,
       patchShapeLayerFillFromPicker(
         layer,

@@ -2,7 +2,7 @@ import { zipSync } from "fflate";
 
 import type { QrFileExtension } from "@/features/qr/model/types";
 import type { DraftingCardState } from "@/features/canvas/model/card-state";
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared";
+import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
 import type { QraftyState } from "@/features/qr/model/state";
 import {
   buildWorkspaceExportPayload,
@@ -24,7 +24,7 @@ export type RunWorkspaceExportOptions = {
   backgroundColor?: string;
   cardState: DraftingCardState;
   extension: QrFileExtension;
-  layers: DraftingCanvasLayer[];
+  layers: CanvasLayer[];
   mediaKind: "photo" | "video";
   name: string;
   nodeId: string;
@@ -157,7 +157,7 @@ export async function runWorkspaceBatchExport({
   cardState: DraftingCardState;
   extension: QrFileExtension;
   items: Array<{ layerId: string; name: string; state: QraftyState }>;
-  layers: DraftingCanvasLayer[];
+  layers: CanvasLayer[];
   name: string;
   nodeId: string;
   qualityPercent: number;

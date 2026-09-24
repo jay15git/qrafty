@@ -16,7 +16,7 @@ import {
   type LayerRow,
   type LayersSettings,
 } from "@/features/shell/model/toolbar-types";
-import { isMandatoryLayerRow } from "@/features/canvas/components/drafting-canvas-operations";
+import { isMandatoryLayerRow } from "@/features/canvas/components/canvas-operations";
 import { cn } from "@/lib/utils";
 
 type LayerReorderEntry = { id: string };

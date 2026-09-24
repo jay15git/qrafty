@@ -1,8 +1,8 @@
 import { clampBackgroundShapeTilt, type BackgroundShapeOptions } from "@/features/qr/model/state";
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared";
+import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
 
 type LayerTransformInput = Pick<
-  DraftingCanvasLayer,
+  CanvasLayer,
   "height" | "rotation" | "tiltX" | "tiltY" | "width" | "x" | "y"
 >;
 
@@ -65,7 +65,7 @@ export function getBackgroundShapeTiltInnerStyle(
 }
 
 export function getLayerPlacementTransform(
-  layer: LayerTransformInput & Pick<DraftingCanvasLayer, "scaleX" | "scaleY">,
+  layer: LayerTransformInput & Pick<CanvasLayer, "scaleX" | "scaleY">,
 ) {
   const rotation = Number.isFinite(layer.rotation) ? layer.rotation : 0;
   const scaleX = layer.scaleX ?? 1;
@@ -77,7 +77,7 @@ export function getLayerPlacementTransform(
   return `${translation}${scale}${rotationPart}`;
 }
 
-export function getLayerTiltPerspectiveStyle(layer: Pick<DraftingCanvasLayer, "tiltX" | "tiltY">) {
+export function getLayerTiltPerspectiveStyle(layer: Pick<CanvasLayer, "tiltX" | "tiltY">) {
   return getBackgroundShapeTiltPerspectiveStyle({
     tiltX: layer.tiltX ?? 0,
     tiltY: layer.tiltY ?? 0,
@@ -85,7 +85,7 @@ export function getLayerTiltPerspectiveStyle(layer: Pick<DraftingCanvasLayer, "t
 }
 
 export function getLayerTiltInnerStyle(
-  layer: Pick<DraftingCanvasLayer, "tiltX" | "tiltY">,
+  layer: Pick<CanvasLayer, "tiltX" | "tiltY">,
 ): Pick<BackgroundShapeTiltContainerStyle, "transform" | "transformOrigin" | "transformStyle"> {
   return getBackgroundShapeTiltInnerStyle({
     tiltX: layer.tiltX ?? 0,

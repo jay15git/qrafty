@@ -2,7 +2,7 @@ import type { SceneIr, SceneIrFontRef } from "@qrafty/qr-internal/codegen";
 
 import type { QraftyState } from "@/features/qr/model/state";
 import type { DraftingCardState } from "@/features/canvas/model/card-state";
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared";
+import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
 import type { SceneCompositionState } from "@/features/canvas/model/scene-templates";
 import type { SceneBackground } from "@/features/canvas/model/scene-templates";
 import {
@@ -19,7 +19,7 @@ import {
 
 export type BuildSceneIrOptions = {
   cardState: DraftingCardState;
-  layers: DraftingCanvasLayer[];
+  layers: CanvasLayer[];
   sceneComposition?: SceneCompositionState;
   state: QraftyState;
   qrMarkup: string;
@@ -27,14 +27,14 @@ export type BuildSceneIrOptions = {
   shaderSnapshots?: Record<string, string>;
 };
 
-function findCardLayer(layers: DraftingCanvasLayer[]) {
+function findCardLayer(layers: CanvasLayer[]) {
   return layers.find((layer) => layer.kind === "card" && layer.isVisible) ?? null;
 }
 
-function collectFontRefs(layers: DraftingCanvasLayer[]): SceneIrFontRef[] {
+function collectFontRefs(layers: CanvasLayer[]): SceneIrFontRef[] {
   const fontIds = new Set<string>();
 
-  const walk = (items: DraftingCanvasLayer[]) => {
+  const walk = (items: CanvasLayer[]) => {
     for (const layer of items) {
       if (layer.kind === "text" && layer.fontId) {
         fontIds.add(layer.fontId);

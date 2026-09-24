@@ -4,7 +4,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { createDefaultQraftyState } from "@/features/qr/model/state";
 import { createDefaultDraftingCardState } from "@/features/canvas/model/card-state";
 import { createDefaultDraftingLayers } from "@/features/canvas/model/layers/card-qr";
-import { PaneDocumentCardLayer } from "@/features/canvas/components/PaneLayerViews";
+import { CanvasDocumentCardLayer } from "@/features/canvas/components/CanvasLayerViews";
 
 describe("card border overlay", () => {
   it("renders an inner border overlay when the card has a border", () => {
@@ -27,7 +27,7 @@ describe("card border overlay", () => {
     const [cardLayer] = createDefaultDraftingLayers("node-1", qrState, cardState);
 
     const html = renderToStaticMarkup(
-      <PaneDocumentCardLayer
+      <CanvasDocumentCardLayer
         cardState={cardState}
         isImageFilterMode={false}
         isImageMode={false}
@@ -37,7 +37,7 @@ describe("card border overlay", () => {
       />,
     );
 
-    expect(html).toContain('data-slot="desktop-compose-card-border"');
+    expect(html).toContain('data-slot="canvas-card-border"');
     expect(html).toContain("border:8px solid");
   });
 });

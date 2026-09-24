@@ -9,7 +9,7 @@ import {
   InsertMenuRootPanel,
   InsertMenuShapePanel,
 } from "@/features/canvas/components/insert-menu/InsertMenuPanels";
-import type { ThemeMode } from "@/features/shell/components/FloatingToolbar";
+import type { ThemeMode } from "@/features/shell/components/WorkspaceChrome";
 import { InsertMenuScroll } from "@/features/canvas/components/insert-menu/InsertMenuScroll";
 import { INSERT_MENU_PANEL_CONTENT_CLASS } from "@/features/canvas/components/insert-menu/insert-menu-styles";
 import {
@@ -18,10 +18,7 @@ import {
   type IllustrationSet,
   type IllustrationSetId,
 } from "@/features/canvas/assets/illustration-sets";
-import type {
-  DraftingCanvasLayer,
-  DraftingElementShapeId,
-} from "@/features/canvas/model/layers/shared";
+import type { CanvasLayer, DraftingElementShapeId } from "@/features/canvas/model/layers/shared";
 import {
   createDraftingImageLayer,
   createDraftingShapeLayer,
@@ -31,7 +28,7 @@ import { createDraftingEmojiLayer } from "@/features/canvas/model/layer-floating
 
 type InsertMenuPanelStackProps = {
   nodeId: string;
-  onInsertLayer: (layer: DraftingCanvasLayer) => void;
+  onInsertLayer: (layer: CanvasLayer) => void;
   canAddQrCode?: boolean;
   onAddQrCode?: () => void;
   onBrowseWallpapers?: () => void;

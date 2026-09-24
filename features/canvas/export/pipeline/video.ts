@@ -18,7 +18,7 @@ import { WorkspaceShaderCaptureSession } from "@/features/canvas/export/pipeline
 import { buildDashboardQrNodePayload } from "@/features/qr/rendering/qr-svg-render";
 import { createDraftingQrArtworkState } from "@/features/canvas/rendering/qr-artwork";
 import type { DraftingCardState } from "@/features/canvas/model/card-state";
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared";
+import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
 import type { QraftyState } from "@/features/qr/model/state";
 import type {
   VideoExportDuration,
@@ -174,9 +174,9 @@ export async function exportWorkspaceVideo({
   state,
 }: {
   abortSignal?: AbortSignal;
-  cardLayer: DraftingCanvasLayer;
+  cardLayer: CanvasLayer;
   cardState: DraftingCardState;
-  layers: DraftingCanvasLayer[];
+  layers: CanvasLayer[];
   name: string;
   nodeId: string;
   onProgress?: (progress: WorkspaceVideoExportProgress) => void;

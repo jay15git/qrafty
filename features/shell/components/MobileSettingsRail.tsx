@@ -13,7 +13,7 @@ import {
   clearMobileWorkspaceChromeInsets,
   syncMobileWorkspaceChromeInsets,
 } from "@/features/shell/components/mobile-layer-toolbar-sync";
-import type { InspectorModel } from "@/features/shell/hooks/use-toolbar-inspector-model";
+import type { SettingsModel } from "@/features/shell/hooks/use-toolbar-settings-model";
 import { InspectorThemeContext } from "@/features/shell/inspector/theme-context";
 import { MobileDrawerNavigationProvider } from "@/features/shell/inspector/MobileDrawerNavigationContext";
 import { MobileInspectorDensityContext } from "@/features/shell/inspector/MobileInspectorDensityContext";
@@ -102,7 +102,7 @@ const MOBILE_FAMILY_FOOTERS: Partial<Record<SettingsSectionId, ComponentType<Mob
     Background: MobileBackgroundRailFooter,
   };
 
-export function MobileSettingsRail({ model }: { model: InspectorModel }) {
+export function MobileSettingsRail({ model }: { model: SettingsModel }) {
   const theme = model.actualTheme;
   const modelRef = useLatestModel(model);
   // Pre-edit state per section touched this session — X replays all of them,

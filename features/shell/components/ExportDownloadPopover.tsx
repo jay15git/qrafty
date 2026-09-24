@@ -5,7 +5,7 @@ import { useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { DownloadButton } from "@/features/shell/components/DownloadButton";
-import type { InspectorModel, ThemeMode } from "@/features/shell/components/FloatingToolbar";
+import type { SettingsModel, ThemeMode } from "@/features/shell/components/WorkspaceChrome";
 import { ExportSettingsPanel } from "@/features/shell/inspector/ExportSettingsPanel";
 import { InspectorThemeContext } from "@/features/shell/inspector/theme-context";
 import { cn } from "@/lib/utils";
@@ -16,7 +16,7 @@ export function ExportDownloadPopover({
   model,
   theme,
 }: {
-  model: InspectorModel;
+  model: SettingsModel;
   theme: ThemeMode;
 }) {
   const [open, setOpen] = useState(false);
@@ -47,7 +47,7 @@ export function ExportDownloadPopover({
           chevron
           cueSize="comfortable"
           className="min-h-0"
-          data-slot="inspector-scroll-area"
+          data-slot="settings-scroll-area"
           scrollFade
           viewportClassName="px-3 py-3"
         >

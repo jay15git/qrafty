@@ -1,4 +1,4 @@
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared";
+import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
 
 export type LayerToolbarCapabilities = {
   maxEffects: number;
@@ -9,7 +9,7 @@ const DEFAULT_CAPABILITIES: LayerToolbarCapabilities = {
 };
 
 export function getLayerToolbarCapabilities(
-  layer: DraftingCanvasLayer | null | undefined,
+  layer: CanvasLayer | null | undefined,
 ): LayerToolbarCapabilities {
   if (!layer) {
     return DEFAULT_CAPABILITIES;

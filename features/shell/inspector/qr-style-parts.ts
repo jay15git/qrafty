@@ -1,4 +1,4 @@
-import type { InspectorModel } from "@/features/shell/hooks/use-toolbar-inspector-model";
+import type { SettingsModel } from "@/features/shell/hooks/use-toolbar-settings-model";
 import type { StylePreviewKind } from "@/features/qr/components/StylePreview";
 import type { QraftyCornerDotStyle, QraftyDataModulesStyle } from "@/features/qr/model/state";
 import type { QrFinderPatternOuterStyle } from "@/features/qr/model/types";
@@ -21,8 +21,8 @@ type QrStylePartDefinition = {
   label: string;
   previewKind: StylePreviewKind;
   options: ReadonlyArray<{ label: string; value: string }>;
-  readSelected: (model: InspectorModel) => string;
-  applySelected: (model: InspectorModel, value: string) => void;
+  readSelected: (model: SettingsModel) => string;
+  applySelected: (model: SettingsModel, value: string) => void;
 };
 
 /**

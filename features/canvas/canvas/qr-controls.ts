@@ -1,15 +1,15 @@
 import { DEFAULT_BRAND_ICON_COLOR } from "@/features/qr/assets/brand-icon-svg";
 import { clampQrBackgroundRound, getAssetValue, type QraftyState } from "@/features/qr/model/state";
-import { DEFAULT_DRAFTING_STUDIO_STATE } from "@/features/canvas/components/drafting-canvas.constants";
-import type { DraftingCanvasSetters } from "@/features/canvas/components/drafting-canvas-reducer";
-import { formatValueSegmentsText } from "@/features/canvas/components/drafting-canvas-operations";
+import { DEFAULT_DRAFTING_STUDIO_STATE } from "@/features/canvas/components/canvas.constants";
+import type { CanvasSurfaceSetters } from "@/features/canvas/components/canvas-reducer";
+import { formatValueSegmentsText } from "@/features/canvas/components/canvas-operations";
 
 /**
  * The control-sync interface for QR state: given a `QraftyState`, push every
  * derived value into the reducer-backed control setters. Pure — no React.
  */
 export type QrControls = Pick<
-  DraftingCanvasSetters,
+  CanvasSurfaceSetters,
   | "setSelectedAriaLabel"
   | "setSelectedBackgroundAssetSourceMode"
   | "setSelectedBackgroundColor"

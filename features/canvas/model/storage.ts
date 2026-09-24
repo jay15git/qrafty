@@ -4,11 +4,11 @@ import {
 } from "@/features/canvas/model/document";
 import { parseDraftingWorkspaceDocument } from "@/features/canvas/model/document/parse";
 
-const DB_NAME = "qrafty-drafting-workspace";
+const DB_NAME = "qrafty-canvas-workspace";
 const DB_VERSION = 1;
 const STORE_NAME = "drafts";
 const DRAFT_ID = "new";
-const LOCAL_STORAGE_KEY = "qrafty:drafting-workspace:new";
+const LOCAL_STORAGE_KEY = "qrafty:canvas-workspace:new";
 
 type StoredDraftingWorkspaceRecord = {
   document: unknown;

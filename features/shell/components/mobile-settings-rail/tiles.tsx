@@ -1,7 +1,7 @@
 import { Pipette } from "lucide-react";
 import { Suspense } from "react";
 
-import type { InspectorModel } from "@/features/shell/hooks/use-toolbar-inspector-model";
+import type { SettingsModel } from "@/features/shell/hooks/use-toolbar-settings-model";
 import {
   SETTINGS_FILL_OPTION_TILE,
   SETTINGS_FILL_OPTION_TILE_INNER,
@@ -192,7 +192,7 @@ export function MobileElementsSectionButton({
   model,
   onOpenSection,
 }: {
-  model: InspectorModel;
+  model: SettingsModel;
   onOpenSection: () => void;
 }) {
   const navigation = useMobileDrawerNavigation();

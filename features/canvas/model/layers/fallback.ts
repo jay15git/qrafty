@@ -15,12 +15,12 @@ import {
   DEFAULT_DRAFTING_TEXT_LAYER,
   getDraftingCardLayerId,
   getDraftingQrLayerId,
-  type DraftingCanvasLayer,
-  type DraftingCanvasLayerKind,
+  type CanvasLayer,
+  type CanvasLayerKind,
   type DraftingLayerStateByNodeId,
 } from "@/features/canvas/model/layers/shared";
 
-export function cloneDraftingCanvasLayer(layer: DraftingCanvasLayer): DraftingCanvasLayer {
+export function cloneCanvasLayer(layer: CanvasLayer): CanvasLayer {
   return {
     ...layer,
     borderSides: layer.borderSides
@@ -31,7 +31,7 @@ export function cloneDraftingCanvasLayer(layer: DraftingCanvasLayer): DraftingCa
           top: { ...layer.borderSides.top },
         }
       : undefined,
-    children: layer.children?.map(cloneDraftingCanvasLayer),
+    children: layer.children?.map(cloneCanvasLayer),
     layerFilters: (layer.layerFilters ?? []).map((filter) => ({ ...filter })),
     outline: { ...(layer.outline ?? DEFAULT_DRAFTING_OUTLINE) },
     shadow: { ...(layer.shadow ?? DEFAULT_DRAFTING_LAYER_SHADOW) },
@@ -52,12 +52,12 @@ export function cloneDraftingLayerStateByNodeId(
   return Object.fromEntries(
     Object.entries(layersByNodeId).map(([nodeId, layers]) => [
       nodeId,
-      layers.map(cloneDraftingCanvasLayer),
+      layers.map(cloneCanvasLayer),
     ]),
   );
 }
 
-const FALLBACK_LAYER_NAMES: Record<DraftingCanvasLayerKind, string> = {
+const FALLBACK_LAYER_NAMES: Record<CanvasLayerKind, string> = {
   card: "Card",
   qr: "QR code",
   text: "Text",
@@ -67,7 +67,7 @@ const FALLBACK_LAYER_NAMES: Record<DraftingCanvasLayerKind, string> = {
   group: "Group",
 };
 
-function fallbackLayerId(nodeId: string, kind: DraftingCanvasLayerKind) {
+function fallbackLayerId(nodeId: string, kind: CanvasLayerKind) {
   if (kind === "card") {
     return getDraftingCardLayerId(nodeId);
   }
@@ -85,7 +85,7 @@ function fallbackLayerId(nodeId: string, kind: DraftingCanvasLayerKind) {
 
 /** Kind-specific fields for `createFallbackLayer`. Everything not listed
  * here keeps the shared defaults in the base literal. */
-function fallbackLayerKindDefaults(kind: DraftingCanvasLayerKind): Partial<DraftingCanvasLayer> {
+function fallbackLayerKindDefaults(kind: CanvasLayerKind): Partial<CanvasLayer> {
   switch (kind) {
     case "text":
       return {
@@ -147,10 +147,7 @@ function fallbackLayerKindDefaults(kind: DraftingCanvasLayerKind): Partial<Draft
   }
 }
 
-export function createFallbackLayer(
-  nodeId: string,
-  kind: DraftingCanvasLayerKind,
-): DraftingCanvasLayer {
+export function createFallbackLayer(nodeId: string, kind: CanvasLayerKind): CanvasLayer {
   const defaultShadow = { ...DEFAULT_DRAFTING_LAYER_SHADOW };
 
   return {
@@ -202,7 +199,7 @@ export function createFallbackLayer(
   };
 }
 
-export function createDraftingLayerInstanceId(nodeId: string, kind: DraftingCanvasLayerKind) {
+export function createDraftingLayerInstanceId(nodeId: string, kind: CanvasLayerKind) {
   const randomId =
     typeof crypto !== "undefined" && "randomUUID" in crypto
       ? crypto.randomUUID()

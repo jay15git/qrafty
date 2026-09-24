@@ -10,7 +10,7 @@ import {
   type DraftingFilterEffect,
   type DraftingFilterType,
 } from "@/features/canvas/model/filters";
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared";
+import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
 
 export type LayerShadowEffectKind = "drop-shadow" | "inner-shadow";
 
@@ -121,7 +121,7 @@ function isPlaceholderShadowLayer(shadow: DraftingShadowLayerState) {
 }
 
 export function listLayerEffects(
-  layer: Partial<Pick<DraftingCanvasLayer, "layerFilters" | "shadows">>,
+  layer: Partial<Pick<CanvasLayer, "layerFilters" | "shadows">>,
 ): LayerEffectItem[] {
   const shadows = (layer.shadows ?? []).filter((shadow) => !isPlaceholderShadowLayer(shadow));
   const filters = layer.layerFilters ?? [];
@@ -148,7 +148,7 @@ export function createLayerEffect(kind: LayerEffectKind): LayerEffectItem {
   );
 }
 
-export function serializeLayerEffects(effects: LayerEffectItem[]): Partial<DraftingCanvasLayer> {
+export function serializeLayerEffects(effects: LayerEffectItem[]): Partial<CanvasLayer> {
   const shadows = effects.flatMap((item) => (isLayerShadowEffectItem(item) ? [item.shadow] : []));
   const layerFilters = effects.flatMap((item) => (item.source === "filter" ? [item.filter] : []));
 
@@ -174,10 +174,10 @@ export function serializeLayerEffects(effects: LayerEffectItem[]): Partial<Draft
 }
 
 export function patchLayerShadowEffect(
-  layer: Partial<Pick<DraftingCanvasLayer, "layerFilters" | "shadows">>,
+  layer: Partial<Pick<CanvasLayer, "layerFilters" | "shadows">>,
   effectId: string,
   patch: Partial<DraftingShadowLayerState>,
-): Partial<DraftingCanvasLayer> {
+): Partial<CanvasLayer> {
   return serializeLayerEffects(
     listLayerEffects(layer).map((item) => {
       if (item.id !== effectId || item.source !== "shadow") {
@@ -190,7 +190,7 @@ export function patchLayerShadowEffect(
 }
 
 export function getLayerFilterAmount(
-  layer: Partial<Pick<DraftingCanvasLayer, "layerFilters" | "shadows">>,
+  layer: Partial<Pick<CanvasLayer, "layerFilters" | "shadows">>,
   kind: LayerFilterEffectKind,
 ): number {
   const type = FILTER_TYPE_BY_KIND[kind];
@@ -204,10 +204,10 @@ export function getLayerFilterAmount(
 }
 
 export function setLayerFilterAmount(
-  layer: Partial<Pick<DraftingCanvasLayer, "layerFilters" | "shadows">>,
+  layer: Partial<Pick<CanvasLayer, "layerFilters" | "shadows">>,
   kind: LayerFilterEffectKind,
   amount: number,
-): Partial<DraftingCanvasLayer> {
+): Partial<CanvasLayer> {
   const type = FILTER_TYPE_BY_KIND[kind];
   const range = DRAFTING_FILTER_RANGES[type];
   const clamped = Math.min(range.max, Math.max(range.min, amount));
@@ -234,7 +234,7 @@ export function setLayerFilterAmount(
 }
 
 export function getLayerShadowOpacity(
-  layer: Partial<Pick<DraftingCanvasLayer, "layerFilters" | "shadows">>,
+  layer: Partial<Pick<CanvasLayer, "layerFilters" | "shadows">>,
   kind: LayerShadowEffectKind,
 ): number {
   const shadow = getLayerShadowByKind(layer, kind);
@@ -246,10 +246,10 @@ export function getLayerShadowOpacity(
 }
 
 export function setLayerShadowOpacity(
-  layer: Partial<Pick<DraftingCanvasLayer, "layerFilters" | "shadows">>,
+  layer: Partial<Pick<CanvasLayer, "layerFilters" | "shadows">>,
   kind: LayerShadowEffectKind,
   opacity: number,
-): Partial<DraftingCanvasLayer> {
+): Partial<CanvasLayer> {
   const clamped = Math.min(100, Math.max(0, opacity));
   const activeShadows = (layer.shadows ?? []).filter((shadow) => !isPlaceholderShadowLayer(shadow));
   const otherShadows = activeShadows.filter((shadow) =>
@@ -284,7 +284,7 @@ export function setLayerShadowOpacity(
 }
 
 function getLayerShadowByKind(
-  layer: Partial<Pick<DraftingCanvasLayer, "shadows">>,
+  layer: Partial<Pick<CanvasLayer, "shadows">>,
   kind: LayerShadowEffectKind,
 ) {
   return (layer.shadows ?? []).find(

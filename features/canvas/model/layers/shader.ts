@@ -9,20 +9,20 @@ import {
   isRecord,
   normalizeDraftingLayerBorderSides,
   normalizeLayerCornerRadiusFields,
-  normalizeSharedDraftingCanvasLayerFields,
+  normalizeSharedCanvasLayerFields,
   readFiniteNumber,
-  type DraftingCanvasLayer,
+  type CanvasLayer,
   type NormalizeDraftingLayerContext,
 } from "@/features/canvas/model/layers/shared";
 
-export function normalizeShaderDraftingCanvasLayer(
+export function normalizeShaderCanvasLayer(
   context: NormalizeDraftingLayerContext & { kind: "shader" },
-): DraftingCanvasLayer {
+): CanvasLayer {
   const { fallback, value } = context;
   const fallbackPaperShader = fallback.paperShader ?? createDefaultDraftingCardPaperShader();
 
   return {
-    ...normalizeSharedDraftingCanvasLayerFields(context),
+    ...normalizeSharedCanvasLayerFields(context),
     borderSides: normalizeDraftingLayerBorderSides(value.borderSides, fallback.borderSides),
     ...normalizeLayerCornerRadiusFields(
       value,
@@ -31,7 +31,7 @@ export function normalizeShaderDraftingCanvasLayer(
     ),
     kind: "shader",
     paperShader: normalizeLayerPaperShader(value.paperShader, fallbackPaperShader),
-  } satisfies DraftingCanvasLayer;
+  } satisfies CanvasLayer;
 }
 
 function normalizeLayerPaperShader(

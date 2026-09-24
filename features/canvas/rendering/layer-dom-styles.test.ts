@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { patchDraftingCanvasLayer } from "@/features/canvas/model/layers/patch";
+import { patchCanvasLayer } from "@/features/canvas/model/layers/patch";
 import { createDraftingTextLayer } from "@/features/canvas/model/layers/factories";
 import { getTextLayerStyle } from "@/features/canvas/rendering/layer-dom-styles";
 import type { QraftyGradient } from "@/features/qr/model/state";
@@ -25,7 +25,7 @@ describe("getTextLayerStyle", () => {
   });
 
   it("clips gradient fills to the text glyphs", () => {
-    const layer = patchDraftingCanvasLayer(createDraftingTextLayer("preview"), {
+    const layer = patchCanvasLayer(createDraftingTextLayer("preview"), {
       fillGradient: gradient,
       fillMode: "gradient",
     });
@@ -38,7 +38,7 @@ describe("getTextLayerStyle", () => {
   });
 
   it("ignores disabled gradients", () => {
-    const layer = patchDraftingCanvasLayer(createDraftingTextLayer("preview"), {
+    const layer = patchCanvasLayer(createDraftingTextLayer("preview"), {
       fillGradient: { ...gradient, enabled: false },
       fillMode: "gradient",
     });

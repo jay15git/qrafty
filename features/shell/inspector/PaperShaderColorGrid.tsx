@@ -10,7 +10,7 @@ import {
   SETTINGS_FILL_OPTION_TILE_INNER,
 } from "@/features/shell/inspector/SettingsPreviewTiles";
 import { SettingsAccordionColorPicker } from "@/features/shell/inspector/settings-ui";
-import { SettingsOptionShelf } from "@/features/shell/inspector/MobileSettingsRail";
+import { MobileOptionShelf } from "@/features/shell/inspector/MobileOptionRail";
 import { cn } from "@/lib/utils";
 import {
   formatPaperShaderParamLabel,
@@ -104,7 +104,7 @@ export function PaperShaderColorGrid({
   }
 
   return (
-    <SettingsOptionShelf
+    <MobileOptionShelf
       ariaLabel="Shader colors"
       dataSlot="paper-shader-color-grid"
       gridClassName="ds-paper-shader-color-grid"
@@ -154,6 +154,6 @@ export function PaperShaderColorGrid({
           />
         );
       })}
-    </SettingsOptionShelf>
+    </MobileOptionShelf>
   );
 }

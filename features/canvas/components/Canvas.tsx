@@ -2,42 +2,42 @@
 
 import { useCallback, useState } from "react";
 
-import type { DraftingLayerInteractionProps } from "@/features/canvas/components/canvas-control-props";
+import type { CanvasLayerInteractionProps } from "@/features/canvas/components/canvas-control-props";
 import {
-  type DraftingPane,
-  type DraftingPaneCanvasTool,
-  type DraftingPaneToolbarVariant,
-} from "@/features/canvas/components/DraftingPaneCanvas";
-import type { ThemeMode } from "@/features/shell/components/FloatingToolbar";
+  type CanvasBoardPane,
+  type CanvasBoardTool,
+  type CanvasBoardToolbarVariant,
+} from "@/features/canvas/components/CanvasBoard";
+import type { ThemeMode } from "@/features/shell/components/WorkspaceChrome";
 
-import { DraftingPaneCanvas } from "@/features/canvas/components/DraftingPaneCanvas";
+import { CanvasBoard } from "@/features/canvas/components/CanvasBoard";
 import { Tooltip as TooltipPrimitive } from "radix-ui";
 
 export type {
-  DraftingPaneCanvasTool,
-  DraftingPaneToolbarVariant,
-} from "@/features/canvas/components/DraftingPaneCanvas";
+  CanvasBoardTool,
+  CanvasBoardToolbarVariant,
+} from "@/features/canvas/components/CanvasBoard";
 
 const MIN_PREVIEW_ZOOM = 0.1;
 const MAX_PREVIEW_ZOOM = 4;
 
 type CanvasProps = {
-  panes: DraftingPane[];
-  activePaneId: string;
-  onPaneSelect: (paneId: string) => void;
-  onPaneQrClick: (paneId: string) => void;
-  onLayerChange?: DraftingLayerInteractionProps["onLayerChange"];
-  onLayerAction?: DraftingLayerInteractionProps["onLayerAction"];
-  onLayerCopy?: DraftingLayerInteractionProps["onLayerCopy"];
-  onLayerPaste?: DraftingLayerInteractionProps["onLayerPaste"];
-  onLayerSelect?: DraftingLayerInteractionProps["onLayerSelect"];
-  onLayerSelectionChange?: DraftingLayerInteractionProps["onLayerSelectionChange"];
-  activeCanvasTool?: DraftingPaneCanvasTool | null;
-  onAddTextLayerAt?: (paneId: string, point: { x: number; y: number }) => void;
-  onCanvasToolChange?: (tool: DraftingPaneCanvasTool | null) => void;
+  boards: CanvasBoardPane[];
+  activeBoardId: string;
+  onBoardSelect: (boardId: string) => void;
+  onBoardQrClick: (boardId: string) => void;
+  onLayerChange?: CanvasLayerInteractionProps["onLayerChange"];
+  onLayerAction?: CanvasLayerInteractionProps["onLayerAction"];
+  onLayerCopy?: CanvasLayerInteractionProps["onLayerCopy"];
+  onLayerPaste?: CanvasLayerInteractionProps["onLayerPaste"];
+  onLayerSelect?: CanvasLayerInteractionProps["onLayerSelect"];
+  onLayerSelectionChange?: CanvasLayerInteractionProps["onLayerSelectionChange"];
+  activeCanvasTool?: CanvasBoardTool | null;
+  onAddTextLayerAt?: (boardId: string, point: { x: number; y: number }) => void;
+  onCanvasToolChange?: (tool: CanvasBoardTool | null) => void;
   selectedLayerId?: string | null;
   selectedLayerIds?: string[];
-  toolbarVariant?: DraftingPaneToolbarVariant;
+  toolbarVariant?: CanvasBoardToolbarVariant;
   layerEditingEnabled?: boolean;
   previewLocked?: boolean;
   fitCanvasToViewport?: boolean;
@@ -49,10 +49,10 @@ function clampPreviewZoom(value: number) {
 }
 
 export function Canvas({
-  panes,
-  activePaneId,
-  onPaneSelect,
-  onPaneQrClick,
+  boards,
+  activeBoardId,
+  onBoardSelect,
+  onBoardQrClick,
   onLayerChange,
   onLayerAction,
   onLayerCopy,
@@ -73,19 +73,19 @@ export function Canvas({
   const [zoomLevels, setZoomLevels] = useState<Record<string, number>>({});
   const [panOffsets, setPanOffsets] = useState<Record<string, { x: number; y: number }>>({});
 
-  const activePane = panes.find((pane) => pane.id === activePaneId) ?? panes[0];
+  const activeBoard = boards.find((board) => board.id === activeBoardId) ?? boards[0];
 
-  const handlePaneZoom = useCallback((paneId: string, nextZoom: number) => {
+  const handleBoardZoom = useCallback((boardId: string, nextZoom: number) => {
     setZoomLevels((current) => ({
       ...current,
-      [paneId]: clampPreviewZoom(nextZoom),
+      [boardId]: clampPreviewZoom(nextZoom),
     }));
   }, []);
 
-  const handlePanePan = useCallback((paneId: string, nextPan: { x: number; y: number }) => {
+  const handleBoardPan = useCallback((boardId: string, nextPan: { x: number; y: number }) => {
     setPanOffsets((current) => ({
       ...current,
-      [paneId]: nextPan,
+      [boardId]: nextPan,
     }));
   }, []);
 
@@ -93,12 +93,12 @@ export function Canvas({
     <TooltipPrimitive.Provider delayDuration={0}>
       <div className="relative flex h-full w-full flex-col">
         <div className="relative min-h-0 flex-1">
-          {!activePane ? (
+          {!activeBoard ? (
             <div className="grid h-full place-items-center text-sm font-medium text-[var(--canvas-ink-muted)]">
               No QR codes
             </div>
           ) : (
-            <DraftingPaneCanvas
+            <CanvasBoard
               activeCanvasTool={activeCanvasTool}
               fitCanvasToViewport={fitCanvasToViewport}
               interaction={{
@@ -106,7 +106,7 @@ export function Canvas({
                 isSelected: true,
                 isSnapTarget: false,
               }}
-              draggingPaneId={null}
+              draggingBoardId={null}
               layerEditingEnabled={layerEditingEnabled}
               onAddTextLayerAt={onAddTextLayerAt}
               onCanvasToolChange={onCanvasToolChange}
@@ -116,18 +116,18 @@ export function Canvas({
               onLayerPaste={onLayerPaste}
               onLayerSelect={onLayerSelect}
               onLayerSelectionChange={onLayerSelectionChange}
-              onPaneDragEnd={() => undefined}
-              onPaneDragLeave={() => undefined}
-              onPaneDragOver={() => undefined}
-              onPaneDragStart={() => undefined}
-              onPaneDrop={() => undefined}
-              onPanePan={handlePanePan}
-              onPaneQrClick={onPaneQrClick}
-              onPaneSelect={onPaneSelect}
-              onPaneZoom={handlePaneZoom}
-              pane={activePane}
-              panePan={panOffsets[activePane.id] ?? { x: 0, y: 0 }}
-              paneZoom={zoomLevels[activePane.id] ?? 1}
+              onBoardDragEnd={() => undefined}
+              onBoardDragLeave={() => undefined}
+              onBoardDragOver={() => undefined}
+              onBoardDragStart={() => undefined}
+              onBoardDrop={() => undefined}
+              onBoardPan={handleBoardPan}
+              onBoardQrClick={onBoardQrClick}
+              onBoardSelect={onBoardSelect}
+              onBoardZoom={handleBoardZoom}
+              board={activeBoard}
+              boardPan={panOffsets[activeBoard.id] ?? { x: 0, y: 0 }}
+              boardZoom={zoomLevels[activeBoard.id] ?? 1}
               previewLocked={previewLocked}
               selectedLayerId={selectedLayerId}
               selectedLayerIds={selectedLayerIds}

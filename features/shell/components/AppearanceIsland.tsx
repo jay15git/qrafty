@@ -20,13 +20,13 @@ import {
   LayerTransformPanel,
 } from "@/features/shell/components/LayerSettingsPanel";
 import { ToolbarPopoverContent } from "@/features/shell/components/ToolbarPopover";
-import type { ThemeMode } from "@/features/shell/components/FloatingToolbar";
+import type { ThemeMode } from "@/features/shell/components/WorkspaceChrome";
 import { InsertMenuPopoverContent } from "@/features/canvas/components/insert-menu/InsertMenuPopoverContent";
 import type { AppearanceSnapshot } from "@/features/shell/model/appearance";
 import { getLayerToolbarCapabilities } from "@/features/shell/model/layer-toolbar-capabilities";
 import { TooltipNavbar, type TooltipItem } from "@/components/ui/tooltip-navbar";
 import { LAYER_FILTER_EFFECT_KINDS } from "@/features/canvas/model/layer-effects";
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared";
+import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
 import type { SizeTemplate } from "@/features/canvas/model/size-templates";
 import type { CardSizeSettings } from "@/features/shell/model/card-size-settings";
 
@@ -34,22 +34,22 @@ const ICON_CLASS = "size-4 shrink-0";
 
 type DynamicIslandProps = {
   appearance?: AppearanceSnapshot | null;
-  appearanceLayer?: DraftingCanvasLayer | null;
+  appearanceLayer?: CanvasLayer | null;
   canAddQrCode?: boolean;
 
   insertNodeId?: string;
 
   onAddQrCode?: () => void;
-  onAppearancePatch?: (patch: Partial<DraftingCanvasLayer>) => void;
+  onAppearancePatch?: (patch: Partial<CanvasLayer>) => void;
   onBrowseWallpapers?: () => void;
-  onElementLayerPatch?: (patch: Partial<DraftingCanvasLayer>) => void;
-  onInsertLayer?: (layer: DraftingCanvasLayer) => void;
+  onElementLayerPatch?: (patch: Partial<CanvasLayer>) => void;
+  onInsertLayer?: (layer: CanvasLayer) => void;
 
-  onTransformLayerPatch?: (patch: Partial<DraftingCanvasLayer>) => void;
+  onTransformLayerPatch?: (patch: Partial<CanvasLayer>) => void;
   onSelectSizeTemplate?: (template: SizeTemplate) => void;
   onSizeChange?: (patch: Partial<CardSizeSettings>) => void;
-  selectedElementLayer?: DraftingCanvasLayer | null;
-  selectedTransformLayer?: DraftingCanvasLayer | null;
+  selectedElementLayer?: CanvasLayer | null;
+  selectedTransformLayer?: CanvasLayer | null;
   sizePresetId?: string;
   sizeSettings?: CardSizeSettings;
   theme?: ThemeMode;
@@ -61,14 +61,14 @@ type IslandItemInput = Omit<DynamicIslandProps, "theme"> & {
 
 type IslandFlags = {
   canInsert: boolean;
-  effectsLayer: DraftingCanvasLayer | null;
+  effectsLayer: CanvasLayer | null;
   effectsPatch: DynamicIslandProps["onAppearancePatch"];
   hasBorder: boolean;
   hasEffects: boolean;
   hasShadows: boolean;
   hasStyle: boolean;
   hasTransform: boolean;
-  shadowsLayer: DraftingCanvasLayer | null;
+  shadowsLayer: CanvasLayer | null;
   shadowsPatch: DynamicIslandProps["onAppearancePatch"];
 };
 

@@ -8,22 +8,22 @@ import {
   normalizeImageSourceMode,
   normalizeLayerCornerRadiusFields,
   normalizeShapeFillGradient,
-  normalizeSharedDraftingCanvasLayerFields,
+  normalizeSharedCanvasLayerFields,
   readFiniteNumber,
-  type DraftingCanvasLayer,
+  type CanvasLayer,
   type DraftingElementShapeId,
   type DraftingShapeFillMode,
   type DraftingShapePrimitiveId,
   type NormalizeDraftingLayerContext,
 } from "@/features/canvas/model/layers/shared";
 
-export function normalizeShapeDraftingCanvasLayer(
+export function normalizeShapeCanvasLayer(
   context: NormalizeDraftingLayerContext & { kind: "shape" },
-): DraftingCanvasLayer {
+): CanvasLayer {
   const { fallback, value } = context;
 
   return {
-    ...normalizeSharedDraftingCanvasLayerFields(context),
+    ...normalizeSharedCanvasLayerFields(context),
     borderSides: normalizeDraftingLayerBorderSides(value.borderSides, fallback.borderSides),
     ...normalizeLayerCornerRadiusFields(value, fallback, DEFAULT_DRAFTING_SHAPE_LAYER.cornerRadius),
     fill: normalizeHexColor(value.fill, fallback.fill ?? DEFAULT_DRAFTING_SHAPE_LAYER.fill),
@@ -58,7 +58,7 @@ export function normalizeShapeDraftingCanvasLayer(
       0,
       64,
     ),
-  } satisfies DraftingCanvasLayer;
+  } satisfies CanvasLayer;
 }
 
 function normalizeShapeFillMode(

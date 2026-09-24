@@ -50,47 +50,47 @@ afterEach(() => {
 });
 
 describe("Canvas", () => {
-  it("renders a single canvas pane", async () => {
-    const workspace = renderWorkspace({ paneCount: 1 });
+  it("renders a single canvas board", async () => {
+    const workspace = renderWorkspace({ boardCount: 1 });
 
     await act(async () => {
       await flushPromises();
     });
 
-    expect(getPaneCanvases(workspace.container)).toHaveLength(1);
-    expect(workspace.container.querySelector('[data-slot="drafting-pane-layout"]')).toBeNull();
+    expect(getBoardCanvases(workspace.container)).toHaveLength(1);
+    expect(workspace.container.querySelector('[data-slot="canvas-board-layout"]')).toBeNull();
   });
 
   it("uses a fixed white workspace canvas in free edit mode", async () => {
     const workspace = renderWorkspace({
       layerEditingEnabled: true,
-      paneCount: 1,
+      boardCount: 1,
       previewLocked: false,
       toolbarVariant: "zoom",
     });
-    const [pane] = getPaneCanvases(workspace.container, 1);
+    const [board] = getBoardCanvases(workspace.container, 1);
 
     await act(async () => {
       await flushPromises();
     });
 
-    expect(pane.getAttribute("data-canvas-appearance")).toBe("workspace");
-    expect(pane.getAttribute("data-preview-locked")).toBe("false");
-    expect(pane.className).toContain("bg-[var(--canvas-bg,#f0f1f2)]");
-    expect(pane.querySelector('[data-slot="free-edit-artboard"]')).not.toBeNull();
+    expect(board.getAttribute("data-canvas-appearance")).toBe("workspace");
+    expect(board.getAttribute("data-preview-locked")).toBe("false");
+    expect(board.className).toContain("bg-[var(--canvas-bg,#f0f1f2)]");
+    expect(board.querySelector('[data-slot="free-edit-artboard"]')).not.toBeNull();
     expect(workspace.container.querySelector('[data-slot="resize-toolbar"]')).toBeNull();
   });
 
   it("blocks preview wheel zoom when preview is locked", async () => {
     const workspace = renderWorkspace({
-      paneCount: 1,
+      boardCount: 1,
       previewLocked: true,
       toolbarVariant: "zoom",
     });
-    const [pane] = getPaneCanvases(workspace.container, 1);
-    const viewport = pane.querySelector('[data-slot="template-edit-zone"]') as HTMLElement;
+    const [board] = getBoardCanvases(workspace.container, 1);
+    const viewport = board.querySelector('[data-slot="template-edit-zone"]') as HTMLElement;
 
-    expect(pane.getAttribute("data-preview-locked")).toBe("true");
+    expect(board.getAttribute("data-preview-locked")).toBe("true");
     expect(workspace.container.querySelector('[data-slot="resize-toolbar"]')).toBeNull();
     expect(workspace.container.querySelector('button[aria-label="Pan canvas"]')).toBeNull();
 
@@ -101,7 +101,7 @@ describe("Canvas", () => {
     const transformBefore = viewport.style.transform;
 
     await act(async () => {
-      pane.dispatchEvent(
+      board.dispatchEvent(
         new WheelEvent("wheel", {
           bubbles: true,
           cancelable: true,
@@ -115,12 +115,12 @@ describe("Canvas", () => {
   });
 
   it("zooms the active preview with the mouse wheel", async () => {
-    const workspace = renderWorkspace({ paneCount: 1 });
-    const [pane] = getPaneCanvases(workspace.container, 1);
-    const viewport = pane.firstElementChild as HTMLElement;
+    const workspace = renderWorkspace({ boardCount: 1 });
+    const [board] = getBoardCanvases(workspace.container, 1);
+    const viewport = board.firstElementChild as HTMLElement;
 
     await act(async () => {
-      pane.dispatchEvent(
+      board.dispatchEvent(
         new WheelEvent("wheel", {
           bubbles: true,
           cancelable: true,
@@ -134,18 +134,18 @@ describe("Canvas", () => {
   });
 
   it("zooms the active preview with a two finger pinch", async () => {
-    const workspace = renderWorkspace({ paneCount: 1 });
-    const [pane] = getPaneCanvases(workspace.container, 1);
-    const viewport = pane.firstElementChild as HTMLElement;
+    const workspace = renderWorkspace({ boardCount: 1 });
+    const [board] = getBoardCanvases(workspace.container, 1);
+    const viewport = board.firstElementChild as HTMLElement;
 
     await act(async () => {
-      pane.dispatchEvent(
+      board.dispatchEvent(
         createTouchEvent("touchstart", [
           { clientX: 0, clientY: 0 },
           { clientX: 100, clientY: 0 },
         ]),
       );
-      pane.dispatchEvent(
+      board.dispatchEvent(
         createTouchEvent("touchmove", [
           { clientX: 0, clientY: 0 },
           { clientX: 150, clientY: 0 },
@@ -158,14 +158,14 @@ describe("Canvas", () => {
   });
 
   it("does not pan empty canvas space while the select tool is active", async () => {
-    const workspace = renderWorkspace({ activeCanvasTool: "select", paneCount: 1 });
-    const [pane] = getPaneCanvases(workspace.container, 1);
-    const viewport = pane.firstElementChild as HTMLElement;
+    const workspace = renderWorkspace({ activeCanvasTool: "select", boardCount: 1 });
+    const [board] = getBoardCanvases(workspace.container, 1);
+    const viewport = board.firstElementChild as HTMLElement;
 
     await act(async () => {
-      pane.dispatchEvent(createPointerEvent("pointerdown", 100, 120));
-      pane.dispatchEvent(createPointerEvent("pointermove", 140, 145));
-      pane.dispatchEvent(createPointerEvent("pointerup", 140, 145));
+      board.dispatchEvent(createPointerEvent("pointerdown", 100, 120));
+      board.dispatchEvent(createPointerEvent("pointermove", 140, 145));
+      board.dispatchEvent(createPointerEvent("pointerup", 140, 145));
       await flushPromises();
     });
 
@@ -173,14 +173,14 @@ describe("Canvas", () => {
   });
 
   it("pans the active preview by dragging empty canvas space with the pan tool", async () => {
-    const workspace = renderWorkspace({ activeCanvasTool: "pan", paneCount: 1 });
-    const [pane] = getPaneCanvases(workspace.container, 1);
-    const viewport = pane.firstElementChild as HTMLElement;
+    const workspace = renderWorkspace({ activeCanvasTool: "pan", boardCount: 1 });
+    const [board] = getBoardCanvases(workspace.container, 1);
+    const viewport = board.firstElementChild as HTMLElement;
 
     await act(async () => {
-      pane.dispatchEvent(createPointerEvent("pointerdown", 100, 120));
-      pane.dispatchEvent(createPointerEvent("pointermove", 140, 145));
-      pane.dispatchEvent(createPointerEvent("pointerup", 140, 145));
+      board.dispatchEvent(createPointerEvent("pointerdown", 100, 120));
+      board.dispatchEvent(createPointerEvent("pointermove", 140, 145));
+      board.dispatchEvent(createPointerEvent("pointerup", 140, 145));
       await flushPromises();
     });
 
@@ -189,13 +189,11 @@ describe("Canvas", () => {
 
   it("does not zoom desktop compose content with wheel", async () => {
     const workspace = renderWorkspace({
-      paneCount: 1,
+      boardCount: 1,
       toolbarVariant: "zoom",
     });
-    const [pane] = getPaneCanvases(workspace.container, 1);
-    const contentZoom = pane.querySelector(
-      '[data-slot="desktop-compose-content-zoom"]',
-    ) as HTMLElement;
+    const [board] = getBoardCanvases(workspace.container, 1);
+    const contentZoom = board.querySelector('[data-slot="canvas-content-zoom"]') as HTMLElement;
 
     await act(async () => {
       await flushPromises();
@@ -204,7 +202,7 @@ describe("Canvas", () => {
     const transformBefore = contentZoom?.style.transform ?? "";
 
     await act(async () => {
-      pane.dispatchEvent(
+      board.dispatchEvent(
         new WheelEvent("wheel", {
           bubbles: true,
           cancelable: true,
@@ -215,27 +213,25 @@ describe("Canvas", () => {
     });
 
     expect(contentZoom?.style.transform ?? "").toBe(transformBefore);
-    expect(pane.className).toContain("touch-none");
+    expect(board.className).toContain("touch-none");
   });
 
   it("pinch-zooms desktop compose content", async () => {
     const workspace = renderWorkspace({
-      paneCount: 1,
+      boardCount: 1,
       toolbarVariant: "zoom",
     });
-    const [pane] = getPaneCanvases(workspace.container, 1);
-    const contentZoom = pane.querySelector(
-      '[data-slot="desktop-compose-content-zoom"]',
-    ) as HTMLElement;
+    const [board] = getBoardCanvases(workspace.container, 1);
+    const contentZoom = board.querySelector('[data-slot="canvas-content-zoom"]') as HTMLElement;
 
     await act(async () => {
-      pane.dispatchEvent(
+      board.dispatchEvent(
         createTouchEvent("touchstart", [
           { clientX: 0, clientY: 0 },
           { clientX: 100, clientY: 0 },
         ]),
       );
-      pane.dispatchEvent(
+      board.dispatchEvent(
         createTouchEvent("touchmove", [
           { clientX: 0, clientY: 0 },
           { clientX: 150, clientY: 0 },
@@ -249,22 +245,20 @@ describe("Canvas", () => {
 
   it("pans empty canvas with a touch drag in desktop zoom mode", async () => {
     const workspace = renderWorkspace({
-      paneCount: 1,
+      boardCount: 1,
       toolbarVariant: "zoom",
     });
-    const [pane] = getPaneCanvases(workspace.container, 1);
-    const contentZoom = pane.querySelector(
-      '[data-slot="desktop-compose-content-zoom"]',
-    ) as HTMLElement;
+    const [board] = getBoardCanvases(workspace.container, 1);
+    const contentZoom = board.querySelector('[data-slot="canvas-content-zoom"]') as HTMLElement;
 
     await act(async () => {
       await flushPromises();
     });
 
     await act(async () => {
-      pane.dispatchEvent(createPointerEvent("pointerdown", 100, 120, "touch"));
-      pane.dispatchEvent(createPointerEvent("pointermove", 140, 145, "touch"));
-      pane.dispatchEvent(createPointerEvent("pointerup", 140, 145, "touch"));
+      board.dispatchEvent(createPointerEvent("pointerdown", 100, 120, "touch"));
+      board.dispatchEvent(createPointerEvent("pointermove", 140, 145, "touch"));
+      board.dispatchEvent(createPointerEvent("pointerup", 140, 145, "touch"));
       await flushPromises();
     });
 
@@ -273,23 +267,21 @@ describe("Canvas", () => {
 
   it("pans only compose content in desktop zoom mode while the card stays fixed", async () => {
     const workspace = renderWorkspace({
-      paneCount: 1,
+      boardCount: 1,
       toolbarVariant: "zoom",
     });
-    const [pane] = getPaneCanvases(workspace.container, 1);
-    const artboard = pane.querySelector('[data-slot="free-edit-artboard"]') as HTMLElement;
-    const contentZoom = pane.querySelector(
-      '[data-slot="desktop-compose-content-zoom"]',
-    ) as HTMLElement;
+    const [board] = getBoardCanvases(workspace.container, 1);
+    const artboard = board.querySelector('[data-slot="free-edit-artboard"]') as HTMLElement;
+    const contentZoom = board.querySelector('[data-slot="canvas-content-zoom"]') as HTMLElement;
 
     await act(async () => {
       await flushPromises();
     });
 
     await act(async () => {
-      pane.dispatchEvent(createPointerEvent("pointerdown", 100, 120, "touch"));
-      pane.dispatchEvent(createPointerEvent("pointermove", 140, 145, "touch"));
-      pane.dispatchEvent(createPointerEvent("pointerup", 140, 145, "touch"));
+      board.dispatchEvent(createPointerEvent("pointerdown", 100, 120, "touch"));
+      board.dispatchEvent(createPointerEvent("pointermove", 140, 145, "touch"));
+      board.dispatchEvent(createPointerEvent("pointerup", 140, 145, "touch"));
       await flushPromises();
     });
 
@@ -299,27 +291,27 @@ describe("Canvas", () => {
 
   it("clears selected layer when pressing empty canvas space", async () => {
     const onLayerSelect = vi.fn();
-    const workspace = renderWorkspace({ activeCanvasTool: "select", onLayerSelect, paneCount: 1 });
-    const [pane] = getPaneCanvases(workspace.container, 1);
+    const workspace = renderWorkspace({ activeCanvasTool: "select", onLayerSelect, boardCount: 1 });
+    const [board] = getBoardCanvases(workspace.container, 1);
 
     await act(async () => {
-      pane.dispatchEvent(createPointerEvent("pointerdown", 100, 120));
+      board.dispatchEvent(createPointerEvent("pointerdown", 100, 120));
       await flushPromises();
     });
 
-    expect(onLayerSelect).toHaveBeenCalledWith("pane-1", null);
+    expect(onLayerSelect).toHaveBeenCalledWith("board-1", null);
   });
 
   it("does not pan when dragging a layer", async () => {
-    const workspace = renderWorkspace({ activeCanvasTool: "select", paneCount: 1 });
-    const [pane] = getPaneCanvases(workspace.container, 1);
-    const viewport = pane.firstElementChild as HTMLElement;
+    const workspace = renderWorkspace({ activeCanvasTool: "select", boardCount: 1 });
+    const [board] = getBoardCanvases(workspace.container, 1);
+    const viewport = board.firstElementChild as HTMLElement;
     const layer = getQrNodes(workspace.container)[0];
 
     await act(async () => {
       layer?.dispatchEvent(createPointerEvent("pointerdown", 100, 120));
-      pane.dispatchEvent(createPointerEvent("pointermove", 140, 145));
-      pane.dispatchEvent(createPointerEvent("pointerup", 140, 145));
+      board.dispatchEvent(createPointerEvent("pointermove", 140, 145));
+      board.dispatchEvent(createPointerEvent("pointerup", 140, 145));
       await flushPromises();
     });
 
@@ -327,10 +319,10 @@ describe("Canvas", () => {
   });
 
   it("pans when dragging a layer with the pan tool active", async () => {
-    const workspace = renderWorkspace({ activeCanvasTool: "pan", paneCount: 1 });
-    const [pane] = getPaneCanvases(workspace.container, 1);
-    const viewport = pane.firstElementChild as HTMLElement;
-    const panOverlay = pane.querySelector('[data-slot="drafting-pan-overlay"]');
+    const workspace = renderWorkspace({ activeCanvasTool: "pan", boardCount: 1 });
+    const [board] = getBoardCanvases(workspace.container, 1);
+    const viewport = board.firstElementChild as HTMLElement;
+    const panOverlay = board.querySelector('[data-slot="canvas-pan-overlay"]');
 
     await act(async () => {
       panOverlay?.dispatchEvent(createPointerEvent("pointerdown", 100, 120));
@@ -345,12 +337,12 @@ describe("Canvas", () => {
   it("shows a text cursor overlay above layer resize cursors while placing text", async () => {
     const onAddTextLayerAt = vi.fn();
     const onCanvasToolChange = vi.fn();
-    const panes = createPanes(1);
+    const boards = createBoards(1);
     const workspace = renderWorkspace({
       activeCanvasTool: "text",
       onAddTextLayerAt,
       onCanvasToolChange,
-      panes,
+      boards,
       selectedLayerId: "preview:qr",
       selectedLayerIds: ["preview:qr"],
       toolbarVariant: "default",
@@ -360,18 +352,16 @@ describe("Canvas", () => {
       await flushPromises();
     });
 
-    const pane = getPaneCanvases(workspace.container, 1)[0];
-    const overlay = pane.querySelector('[data-slot="drafting-text-placement-overlay"]');
+    const board = getBoardCanvases(workspace.container, 1)[0];
+    const overlay = board.querySelector('[data-slot="canvas-text-placement-overlay"]');
 
     expect(overlay).not.toBeNull();
     expect(overlay?.className).toContain("cursor-text");
     expect(overlay?.className).toContain("z-[var(--z-compose-toolbar)]");
-    expect(pane.querySelector('[data-slot="drafting-layer-resize-handle"]')?.className).toContain(
+    expect(board.querySelector('[data-slot="canvas-layer-resize-handle"]')?.className).toContain(
       "cursor-",
     );
-    expect(
-      workspace.container.querySelector('[data-slot="desktop-compose-toolbar-anchor"]'),
-    ).toBeNull();
+    expect(workspace.container.querySelector('[data-slot="canvas-toolbar-anchor"]')).toBeNull();
 
     await act(async () => {
       overlay?.dispatchEvent(
@@ -385,22 +375,22 @@ describe("Canvas", () => {
       await flushPromises();
     });
 
-    expect(onAddTextLayerAt).toHaveBeenCalledWith("pane-1", { x: 100, y: 120 });
+    expect(onAddTextLayerAt).toHaveBeenCalledWith("board-1", { x: 100, y: 120 });
     expect(onCanvasToolChange).toHaveBeenCalledWith(null);
   });
 
-  it("reflects workspace canvas appearance on the pane canvas", async () => {
+  it("reflects workspace canvas appearance on the board canvas", async () => {
     const workspace = renderWorkspace({
       toolbarVariant: "zoom",
     });
-    const pane = getPaneCanvases(workspace.container, 1)[0];
+    const board = getBoardCanvases(workspace.container, 1)[0];
 
     await act(async () => {
       await flushPromises();
     });
 
-    expect(pane?.getAttribute("data-canvas-appearance")).toBe("workspace");
-    expect(pane?.style.backgroundImage).toBe("none");
+    expect(board?.getAttribute("data-canvas-appearance")).toBe("workspace");
+    expect(board?.style.backgroundImage).toBe("none");
   });
 
   it("keeps the canvas grid toggle out of the non-desktop toolbar", () => {
@@ -420,8 +410,8 @@ describe("Canvas", () => {
   });
 
   it("hides selected layer chrome while the pan tool is active", async () => {
-    const panes = createPanes(1);
-    const unselectedWorkspace = renderWorkspace({ activeCanvasTool: "select", panes });
+    const boards = createBoards(1);
+    const unselectedWorkspace = renderWorkspace({ activeCanvasTool: "select", boards });
 
     await act(async () => {
       await flushPromises();
@@ -435,7 +425,7 @@ describe("Canvas", () => {
 
     const selectWorkspace = renderWorkspace({
       activeCanvasTool: "select",
-      panes,
+      boards,
       selectedLayerId,
       selectedLayerIds: selectedLayerId ? [selectedLayerId] : [],
     });
@@ -445,15 +435,15 @@ describe("Canvas", () => {
     });
 
     expect(
-      selectWorkspace.container.querySelector('[data-slot="drafting-layer-resize-frame"]'),
+      selectWorkspace.container.querySelector('[data-slot="canvas-layer-resize-frame"]'),
     ).not.toBeNull();
     expect(
-      selectWorkspace.container.querySelector('[data-slot="drafting-layer-floating-toolbar"]'),
+      selectWorkspace.container.querySelector('[data-slot="canvas-layer-floating-toolbar"]'),
     ).not.toBeNull();
 
     const panWorkspace = renderWorkspace({
       activeCanvasTool: "pan",
-      panes,
+      boards,
       selectedLayerId,
       selectedLayerIds: selectedLayerId ? [selectedLayerId] : [],
     });
@@ -463,17 +453,15 @@ describe("Canvas", () => {
     });
 
     expect(
-      panWorkspace.container.querySelector('[data-slot="drafting-layer-resize-frame"]'),
+      panWorkspace.container.querySelector('[data-slot="canvas-layer-resize-frame"]'),
     ).toBeNull();
     expect(
-      panWorkspace.container.querySelector('[data-slot="drafting-layer-floating-toolbar"]'),
+      panWorkspace.container.querySelector('[data-slot="canvas-layer-floating-toolbar"]'),
     ).toBeNull();
     expect(
-      panWorkspace.container.querySelector('[data-slot="drafting-layer-size-value"]'),
+      panWorkspace.container.querySelector('[data-slot="canvas-layer-size-value"]'),
     ).toBeNull();
-    expect(
-      panWorkspace.container.querySelector('[data-slot="drafting-pan-overlay"]'),
-    ).not.toBeNull();
+    expect(panWorkspace.container.querySelector('[data-slot="canvas-pan-overlay"]')).not.toBeNull();
   });
 });
 
@@ -482,8 +470,8 @@ function renderWorkspace({
   onCanvasToolChange,
   onAddTextLayerAt,
   onLayerSelect,
-  paneCount = 2,
-  panes = createPanes(paneCount),
+  boardCount = 2,
+  boards = createBoards(boardCount),
   selectedLayerId,
   selectedLayerIds,
   toolbarVariant,
@@ -493,9 +481,9 @@ function renderWorkspace({
   activeCanvasTool?: ComponentProps<typeof Canvas>["activeCanvasTool"];
   onCanvasToolChange?: ComponentProps<typeof Canvas>["onCanvasToolChange"];
   onAddTextLayerAt?: ComponentProps<typeof Canvas>["onAddTextLayerAt"];
-  onLayerSelect?: (paneId: string, layerId: string | null) => void;
-  paneCount?: number;
-  panes?: ReturnType<typeof createPanes>;
+  onLayerSelect?: (boardId: string, layerId: string | null) => void;
+  boardCount?: number;
+  boards?: ReturnType<typeof createBoards>;
   selectedLayerId?: ComponentProps<typeof Canvas>["selectedLayerId"];
   selectedLayerIds?: ComponentProps<typeof Canvas>["selectedLayerIds"];
   toolbarVariant?: ComponentProps<typeof Canvas>["toolbarVariant"];
@@ -505,17 +493,17 @@ function renderWorkspace({
   const container = document.createElement("div");
   const root = createRoot(container);
 
-  function render(nextPanes = panes) {
+  function render(nextBoards = boards) {
     root.render(
       <Canvas
-        activePaneId="pane-1"
+        activeBoardId="board-1"
         activeCanvasTool={activeCanvasTool}
-        onPaneQrClick={() => undefined}
-        onPaneSelect={() => undefined}
+        onBoardQrClick={() => undefined}
+        onBoardSelect={() => undefined}
         onLayerSelect={onLayerSelect}
         onCanvasToolChange={onCanvasToolChange}
         onAddTextLayerAt={onAddTextLayerAt}
-        panes={nextPanes}
+        boards={nextBoards}
         selectedLayerId={selectedLayerId}
         selectedLayerIds={selectedLayerIds}
         toolbarVariant={toolbarVariant}
@@ -540,7 +528,7 @@ function renderWorkspace({
   return { container, render };
 }
 
-function createPanes(_paneCount = 1) {
+function createBoards(_paneCount = 1) {
   const state = {
     ...createDefaultQraftyState(),
     data: "https://1.example",
@@ -549,10 +537,10 @@ function createPanes(_paneCount = 1) {
   return [
     {
       cardState: createDefaultDraftingCardState(),
-      id: "pane-1",
+      id: "board-1",
       name: "QR Code",
       qrStateByLayerId: {
-        "pane-1:qr": state,
+        "board-1:qr": state,
       },
       state,
     },
@@ -560,17 +548,17 @@ function createPanes(_paneCount = 1) {
 }
 
 function getQrNodes(parent: ParentNode) {
-  return Array.from(parent.querySelectorAll('[data-slot="desktop-compose-node"]')) as HTMLElement[];
+  return Array.from(parent.querySelectorAll('[data-slot="canvas-node"]')) as HTMLElement[];
 }
 
-function getPaneCanvases(parent: ParentNode, expectedCount = 1) {
-  const panes = Array.from(
-    parent.querySelectorAll('[data-slot="desktop-compose-surface"]'),
+function getBoardCanvases(parent: ParentNode, expectedCount = 1) {
+  const boards = Array.from(
+    parent.querySelectorAll('[data-slot="canvas-surface"]'),
   ) as HTMLElement[];
 
-  expect(panes).toHaveLength(expectedCount);
+  expect(boards).toHaveLength(expectedCount);
 
-  return panes;
+  return boards;
 }
 
 function stubPortraitOrientation(matches: boolean) {

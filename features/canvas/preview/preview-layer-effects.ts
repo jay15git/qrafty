@@ -1,7 +1,7 @@
 import type { CSSProperties } from "react";
 
 import { cornerRadiiToCss, resolveLayerCornerRadii } from "@/features/canvas/model/corner-radius";
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared";
+import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
 import type { DraftingCardShadowState } from "@/features/canvas/model/card-state";
 import type { DraftingShadowLayerState } from "@/features/canvas/model/effects";
 import {
@@ -40,7 +40,7 @@ function scalePreviewShadow(
 }
 
 export function getPreviewLayerEffectStyle(
-  layer: DraftingCanvasLayer,
+  layer: CanvasLayer,
   options: PreviewLayerEffectOptions = {},
 ): CSSProperties {
   const previewScale = options.previewScale ?? 1;

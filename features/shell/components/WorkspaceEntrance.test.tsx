@@ -45,7 +45,7 @@ describe("WorkspaceEntrance", () => {
   it("stays loading until the workspace canvas is ready", () => {
     mount(
       <WorkspaceEntrance theme="dark">
-        <div data-slot="drafting-workspace-loading">Loading</div>
+        <div data-slot="canvas-workspace-loading">Loading</div>
       </WorkspaceEntrance>,
       container,
     );
@@ -54,10 +54,10 @@ describe("WorkspaceEntrance", () => {
     expect(root?.getAttribute("data-entrance")).toBe("loading");
   });
 
-  it("reveals once drafting-surface is mounted and loading is gone", () => {
+  it("reveals once canvas-root is mounted and loading is gone", () => {
     mount(
       <WorkspaceEntrance theme="dark">
-        <div data-slot="drafting-surface">Canvas</div>
+        <div data-slot="canvas-root">Canvas</div>
       </WorkspaceEntrance>,
       container,
     );
@@ -71,7 +71,7 @@ describe("WorkspaceEntrance", () => {
 
     mount(
       <WorkspaceEntrance theme="light">
-        <div data-slot="drafting-surface">Canvas</div>
+        <div data-slot="canvas-root">Canvas</div>
       </WorkspaceEntrance>,
       container,
     );

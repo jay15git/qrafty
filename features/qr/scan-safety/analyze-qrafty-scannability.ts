@@ -1,7 +1,7 @@
 import decodeQR from "qr/decode.js";
 
 import type { QraftyState } from "@/features/qr/model/state";
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared";
+import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
 import { getQraftyQrModuleGrid } from "@/features/qr/scan-safety/qr-grid";
 import {
   rasterizeQraftyScanPreview,
@@ -26,7 +26,7 @@ export async function analyzeQraftyScannability(
     layer,
     scene,
   }: {
-    layer: DraftingCanvasLayer;
+    layer: CanvasLayer;
     scene: ScanSafetyScene;
   },
 ): Promise<string | null> {

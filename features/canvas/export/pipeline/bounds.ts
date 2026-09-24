@@ -1,4 +1,4 @@
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared";
+import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
 
 export type ArtboardBounds = {
   height: number;
@@ -12,7 +12,7 @@ export type OutputDimensions = {
   width: number;
 };
 
-export function getArtboardExportBounds(cardLayer: DraftingCanvasLayer): ArtboardBounds {
+export function getArtboardExportBounds(cardLayer: CanvasLayer): ArtboardBounds {
   return {
     height: Math.max(1, Math.round(cardLayer.height)),
     minX: cardLayer.x,

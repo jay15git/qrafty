@@ -1,7 +1,7 @@
 import type { CSSProperties } from "react";
 import Image from "next/image";
 
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared";
+import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
 import { usePreviewRuntime } from "@/features/canvas/preview/preview-context";
 import {
   buildRoundedRectPath,
@@ -23,7 +23,7 @@ function getInnerStrokeClipId(layerId: string) {
   return `${layerId}-inner-stroke-clip`;
 }
 
-function getShapeDefinition(shapeId: NonNullable<DraftingCanvasLayer["shapeId"]>) {
+function getShapeDefinition(shapeId: NonNullable<CanvasLayer["shapeId"]>) {
   if (shapeId === "rect" || shapeId === "ellipse" || shapeId === "line" || shapeId === "arrow") {
     return null;
   }
@@ -31,7 +31,7 @@ function getShapeDefinition(shapeId: NonNullable<DraftingCanvasLayer["shapeId"]>
   return QR_BACKGROUND_SHAPES.find((shape) => shape.id === shapeId) ?? null;
 }
 
-function getShapeFillStyle(layer: DraftingCanvasLayer): CSSProperties {
+function getShapeFillStyle(layer: CanvasLayer): CSSProperties {
   if (layer.fillMode === "none") {
     return { backgroundColor: "transparent" };
   }
@@ -51,11 +51,11 @@ function getShapeFillStyle(layer: DraftingCanvasLayer): CSSProperties {
   };
 }
 
-function getShapePathFill(layer: DraftingCanvasLayer) {
+function getShapePathFill(layer: CanvasLayer) {
   return resolveShapeSvgFill(layer);
 }
 
-function renderShapeGradientDefs(layer: DraftingCanvasLayer) {
+function renderShapeGradientDefs(layer: CanvasLayer) {
   if (!shouldRenderShapeFillGradient(layer) || !layer.fillGradient) {
     return null;
   }
@@ -63,10 +63,7 @@ function renderShapeGradientDefs(layer: DraftingCanvasLayer) {
   return <ShapeFillGradientDefs gradient={layer.fillGradient} layerId={layer.id} />;
 }
 
-function renderPrimitiveShape(
-  shapeId: "arrow" | "ellipse" | "line" | "rect",
-  layer: DraftingCanvasLayer,
-) {
+function renderPrimitiveShape(shapeId: "arrow" | "ellipse" | "line" | "rect", layer: CanvasLayer) {
   const stroke = layer.stroke ?? "#171717";
   const strokeWidth = layer.strokeWidth ?? 0;
   const strokeWidthVb = strokeWidth * getShapeStrokeViewBoxScale(layer, 100, 100);
@@ -169,7 +166,7 @@ function renderPrimitiveShape(
   return null;
 }
 
-export function DraftingShapeLayerContent({ layer }: { layer: DraftingCanvasLayer }) {
+export function DraftingShapeLayerContent({ layer }: { layer: CanvasLayer }) {
   const shapeId = layer.shapeId ?? "rounded-square";
   const definition = getShapeDefinition(shapeId);
   const fillStyle = getShapeFillStyle(layer);
@@ -216,7 +213,7 @@ export function DraftingShapeLayerContent({ layer }: { layer: DraftingCanvasLaye
   return null;
 }
 
-export function DraftingImageLayerContent({ layer }: { layer: DraftingCanvasLayer }) {
+export function DraftingImageLayerContent({ layer }: { layer: CanvasLayer }) {
   const { artboardScale } = usePreviewRuntime();
   const imageValue = layer.imageValue;
   const cornerStyle = cornerRadiiToCss(resolveLayerCornerRadii(layer, 0));

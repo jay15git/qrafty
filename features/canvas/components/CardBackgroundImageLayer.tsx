@@ -103,7 +103,7 @@ export function CardBackgroundImageLayer({
       {incoming ? (
         <div
           aria-hidden="true"
-          data-slot="desktop-compose-card-image-incoming"
+          data-slot="canvas-card-image-incoming"
           className={cn("pointer-events-none absolute inset-0 z-[1]", className)}
           style={{
             ...buildImageBackgroundStyle(incoming.url, fit),
@@ -115,7 +115,7 @@ export function CardBackgroundImageLayer({
       ) : null}
       <div
         aria-hidden="true"
-        data-slot="desktop-compose-card-image"
+        data-slot="canvas-card-image"
         className={cn(
           "pointer-events-none absolute inset-0",
           incoming ? "z-0" : "z-[1]",

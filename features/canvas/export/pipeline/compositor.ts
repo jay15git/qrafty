@@ -3,7 +3,7 @@ import { clampBackgroundShapeTilt } from "@/features/qr/model/state";
 import { rasterizeSvgMarkupToCanvas } from "@/features/qr/rendering/svg-raster";
 import type { QrFileExtension } from "@/features/qr/model/types";
 import type { DraftingCardState } from "@/features/canvas/model/card-state";
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared";
+import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
 import type { QraftyState } from "@/features/qr/model/state";
 import { buildRoundedRectPath, resolveCornerRadii } from "@/features/canvas/model/corner-radius";
 import {
@@ -43,10 +43,10 @@ import {
 
 export type CompositorRenderOptions = {
   backgroundColor?: string;
-  cardLayer: DraftingCanvasLayer;
+  cardLayer: CanvasLayer;
   cardState: DraftingCardState;
   extension?: Exclude<QrFileExtension, "svg">;
-  layers: DraftingCanvasLayer[];
+  layers: CanvasLayer[];
   mode: ExportClockMode;
   nodeId: string;
   qrMarkup: string;
@@ -71,7 +71,7 @@ async function loadRasterBitmap(url: string) {
 
 function applyLayerCanvasTransform(
   context: CanvasRenderingContext2D,
-  layer: DraftingCanvasLayer,
+  layer: CanvasLayer,
   bounds: { minX: number; minY: number },
   renderScale = 1,
 ) {
@@ -105,10 +105,10 @@ function wrapLayeredSvgMarkup(
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${bounds.width}" height="${bounds.height}" viewBox="${bounds.minX} ${bounds.minY} ${bounds.width} ${bounds.height}"><defs>${fontDefs}${defs}</defs>${body}</svg>`;
 }
 
-function collectFontRefsFromLayers(layers: DraftingCanvasLayer[]) {
+function collectFontRefsFromLayers(layers: CanvasLayer[]) {
   const fontIds = new Set<string>();
 
-  const walk = (items: DraftingCanvasLayer[]) => {
+  const walk = (items: CanvasLayer[]) => {
     for (const layer of items) {
       if (layer.kind === "text" && layer.fontId) {
         fontIds.add(layer.fontId);
@@ -144,7 +144,7 @@ async function rasterizeLayerBatch({
   bounds: { height: number; minX: number; minY: number; width: number };
   cardState: DraftingCardState;
   fontDefs: string;
-  layers: DraftingCanvasLayer[];
+  layers: CanvasLayer[];
   nodeId: string;
   outputHeight: number;
   outputWidth: number;
@@ -170,7 +170,7 @@ async function rasterizeLayerBatch({
 
 function clipCardRoundedRect(
   context: CanvasRenderingContext2D,
-  layer: DraftingCanvasLayer,
+  layer: CanvasLayer,
   cardState: DraftingCardState,
   renderScale = 1,
 ) {
@@ -187,10 +187,7 @@ function clipCardRoundedRect(
   context.clip(clipPath);
 }
 
-function resolveShaderBitmap(
-  layer: DraftingCanvasLayer,
-  shaderBitmaps: Record<string, ImageBitmap>,
-) {
+function resolveShaderBitmap(layer: CanvasLayer, shaderBitmaps: Record<string, ImageBitmap>) {
   return (
     shaderBitmaps[layer.id] ??
     (layer.kind === "card" ? shaderBitmaps.card : undefined) ??
@@ -202,7 +199,7 @@ function resolveShaderBitmap(
 
 function drawCanvasFace(
   context: CanvasRenderingContext2D,
-  layer: DraftingCanvasLayer,
+  layer: CanvasLayer,
   cardState: DraftingCardState,
   bounds: { minX: number; minY: number },
   shaderBitmaps: Record<string, ImageBitmap>,
@@ -328,10 +325,10 @@ export async function renderWorkspaceCompositorCanvas({
       context.fillRect(0, 0, canvas.width, canvas.height);
     }
 
-    let svgBatch: DraftingCanvasLayer[] = [];
+    let svgBatch: CanvasLayer[] = [];
     const drawOps: Array<
-      | { kind: "svg"; canvas?: HTMLCanvasElement; layers: DraftingCanvasLayer[] }
-      | { kind: "canvas"; layer: DraftingCanvasLayer }
+      | { kind: "svg"; canvas?: HTMLCanvasElement; layers: CanvasLayer[] }
+      | { kind: "canvas"; layer: CanvasLayer }
     > = [];
 
     const flushSvgBatch = () => {

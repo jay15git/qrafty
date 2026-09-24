@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import type { InspectorModel } from "@/features/shell/hooks/use-toolbar-inspector-model";
+import type { SettingsModel } from "@/features/shell/hooks/use-toolbar-settings-model";
 import { LayersPopoverContent } from "@/features/shell/components/LayersPopoverContent";
 import { useMobileInspectorDensity } from "@/features/shell/inspector/MobileInspectorDensityContext";
 import { SettingsRowPopover } from "@/features/shell/inspector/settings-ui";
@@ -10,7 +10,7 @@ import { InsertMenuPanelStack } from "@/features/canvas/components/insert-menu/I
 
 const SECTION_STACK = "ds-section-stack";
 
-export function ElementsSection({ model }: { model: InspectorModel }) {
+export function ElementsSection({ model }: { model: SettingsModel }) {
   const [addElementOpen, setAddElementOpen] = useState(false);
   const mobileDensity = useMobileInspectorDensity();
   const controller = model.controller;

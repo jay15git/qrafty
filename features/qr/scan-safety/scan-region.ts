@@ -1,4 +1,4 @@
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared";
+import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
 import { clampBackgroundShapeTilt } from "@/features/qr/model/state";
 
 export type ScanRegionBounds = {
@@ -9,7 +9,7 @@ export type ScanRegionBounds = {
 };
 
 function transformLayerPoint(
-  layer: Pick<DraftingCanvasLayer, "height" | "rotation" | "tiltX" | "tiltY" | "width" | "x" | "y">,
+  layer: Pick<CanvasLayer, "height" | "rotation" | "tiltX" | "tiltY" | "width" | "x" | "y">,
   point: { x: number; y: number },
 ) {
   const centerX = layer.width / 2;
@@ -31,7 +31,7 @@ function transformLayerPoint(
 }
 
 export function getTransformedLayerBounds(
-  layer: Pick<DraftingCanvasLayer, "height" | "rotation" | "tiltX" | "tiltY" | "width" | "x" | "y">,
+  layer: Pick<CanvasLayer, "height" | "rotation" | "tiltX" | "tiltY" | "width" | "x" | "y">,
 ): ScanRegionBounds {
   const points = [
     { x: 0, y: 0 },
@@ -53,11 +53,8 @@ export function getTransformedLayerBounds(
 }
 
 export function resolveQrScanRegion(
-  qrLayer: Pick<
-    DraftingCanvasLayer,
-    "height" | "rotation" | "tiltX" | "tiltY" | "width" | "x" | "y"
-  >,
-  cardLayer: Pick<DraftingCanvasLayer, "height" | "width" | "x" | "y">,
+  qrLayer: Pick<CanvasLayer, "height" | "rotation" | "tiltX" | "tiltY" | "width" | "x" | "y">,
+  cardLayer: Pick<CanvasLayer, "height" | "width" | "x" | "y">,
 ): ScanRegionBounds {
   const bounds = getTransformedLayerBounds(qrLayer);
   const padding = Math.max(bounds.width, bounds.height) * 0.25;

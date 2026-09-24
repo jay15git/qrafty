@@ -6,7 +6,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MobileLayerToolbar } from "@/features/shell/components/MobileLayerToolbar";
 import { createDraftingShapeLayer } from "@/features/canvas/model/layers/factories";
 import { getAppearanceSnapshot } from "@/features/shell/model/appearance";
-import type { InspectorModel } from "@/features/shell/hooks/use-toolbar-inspector-model";
+import type { SettingsModel } from "@/features/shell/hooks/use-toolbar-settings-model";
 import type { ToolbarController } from "@/features/shell/model/toolbar-types";
 import {
   MobileDrawerNavigationProvider,
@@ -31,14 +31,14 @@ function NavigationProbe({
   return null;
 }
 
-function createModel(controllerOverrides: Partial<ToolbarController> = {}): InspectorModel {
+function createModel(controllerOverrides: Partial<ToolbarController> = {}): SettingsModel {
   return {
     actualActiveTool: "content",
     actualTheme: "dark",
     onActiveToolChange: vi.fn(),
     onThemeChange: vi.fn(),
     controller: createController(controllerOverrides, NODE_ID),
-  } as unknown as InspectorModel;
+  } as unknown as SettingsModel;
 }
 
 describe("MobileLayerToolbar", () => {

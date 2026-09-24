@@ -27,7 +27,7 @@ import {
 } from "@/features/shell/inspector/SettingsPreviewTiles";
 import { GradientInterpRow, GradientTypeRow } from "@/features/shell/inspector/GradientControls";
 import { SegmentTabs } from "@/features/shell/inspector/SettingsSegmentTabs";
-import { SettingsOptionShelf } from "@/features/shell/inspector/MobileSettingsRail";
+import { MobileOptionShelf } from "@/features/shell/inspector/MobileOptionRail";
 import { cn } from "@/lib/utils";
 import { blobUrlToDataUrl } from "@qrafty/qr-internal/scene";
 import type { DotsColorMode } from "@/features/qr/model/state";
@@ -373,7 +373,7 @@ function ModulePatternPicker({
 }) {
   return (
     <div className="flex w-full min-w-0 flex-col gap-2">
-      <SettingsOptionShelf
+      <MobileOptionShelf
         activeKey={selectedPreset}
         ariaLabel="Pattern options"
         dataSlot="fill-picker-pattern-grid"
@@ -401,7 +401,7 @@ function ModulePatternPicker({
             </button>
           );
         })}
-      </SettingsOptionShelf>
+      </MobileOptionShelf>
       <PaletteColorStopList colors={selectedPalette} onPaletteColorChange={onPaletteColorChange} />
     </div>
   );

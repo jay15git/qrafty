@@ -1,4 +1,4 @@
-import type { ToolbarToolId } from "@/features/shell/components/FloatingToolbar";
+import type { ToolbarToolId } from "@/features/shell/components/WorkspaceChrome";
 
 const TOOLBAR_TOOL_IDS: ToolbarToolId[] = [
   "layout",

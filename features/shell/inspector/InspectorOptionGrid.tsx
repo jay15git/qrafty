@@ -191,7 +191,7 @@ export function InspectorAnimatedOptionGrid({
         {selection ? (
           <m.div
             key={selection.key}
-            data-slot="inspector-option-selection-indicator"
+            data-slot="settings-option-selection-indicator"
             className="pointer-events-none absolute z-0 rounded-[7px] border-2 border-[var(--option-selected-border)] bg-[var(--option-selected-bg)] shadow-[var(--option-selected-shadow)] backdrop-blur-[16px]"
             style={{
               left: selection.rect.left,
@@ -301,13 +301,13 @@ export function InspectorScrollArea({ children }: { children: ReactNode }) {
     <ScrollArea
       chevron
       cueSize="comfortable"
-      data-slot="inspector-scroll-area"
+      data-slot="settings-scroll-area"
       persistKey="inspector-body"
       scrollFade
       className="ds-scroll-area min-h-0 min-w-0 w-full max-w-full flex-1"
       viewportClassName="min-w-0"
     >
-      <div className="min-w-0 w-full max-w-full" data-slot="inspector-scroll">
+      <div className="min-w-0 w-full max-w-full" data-slot="settings-scroll">
         {children}
       </div>
     </ScrollArea>

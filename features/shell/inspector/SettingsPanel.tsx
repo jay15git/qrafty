@@ -20,7 +20,7 @@ import { cuelumeAttrs } from "@/features/shell/audio/cuelume";
 import { BrandMark } from "@/features/shell/components/BrandMark";
 import { KeyboardShortcutsPopoverContent } from "@/features/shell/components/KeyboardShortcutsPopover";
 import { RedoIcon, UndoIcon } from "@/features/shell/components/toolbar-icons";
-import type { InspectorModel } from "@/features/shell/hooks/use-toolbar-inspector-model";
+import type { SettingsModel } from "@/features/shell/hooks/use-toolbar-settings-model";
 import { useCuelume } from "@/features/shell/hooks/use-cuelume";
 import {
   SETTINGS_SECTIONS,
@@ -103,7 +103,7 @@ const SCAN_BADGE_TONE_CLASS = {
   muted: "text-[var(--muted)]",
 } as const;
 
-function SettingsPanelHeader({ model }: { model: InspectorModel }) {
+function SettingsPanelHeader({ model }: { model: SettingsModel }) {
   const controller = model.controller;
   const badge = scanSafetyBadge(controller?.scanSafetyResult);
 
@@ -144,7 +144,7 @@ function SettingsPanelHeader({ model }: { model: InspectorModel }) {
   );
 }
 
-function SettingsPanelFooter({ model }: { model: InspectorModel }) {
+function SettingsPanelFooter({ model }: { model: SettingsModel }) {
   const { soundsEnabled, toggleSoundsEnabled } = useCuelume();
   const themeTransition = useOptionalBlurFadeThemeTransition();
   const theme = model.actualTheme;
@@ -193,7 +193,7 @@ function SettingsPanelFooter({ model }: { model: InspectorModel }) {
 
 type SettingsPanelProps = {
   fillHeight?: boolean;
-  model: InspectorModel;
+  model: SettingsModel;
   openSection?: string;
   onOpenSectionChange?: (section: string | undefined) => void;
 };

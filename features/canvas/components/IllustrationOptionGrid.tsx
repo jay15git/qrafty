@@ -13,7 +13,7 @@ type IllustrationOptionGridProps = {
 
 export function IllustrationOptionGrid({
   assets,
-  dataSlot = "drafting-illustration-option-grid",
+  dataSlot = "canvas-illustration-option-grid",
   onSelect,
   variant,
 }: IllustrationOptionGridProps) {

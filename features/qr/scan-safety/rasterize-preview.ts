@@ -1,7 +1,7 @@
 import type { QraftyState } from "@/features/qr/model/state";
 import type { QrFileExtension } from "@/features/qr/model/types";
 import type { DraftingCardState } from "@/features/canvas/model/card-state";
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared";
+import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
 import {
   getLossyRasterEncoderQuality,
   isRasterExportExtension,
@@ -15,7 +15,7 @@ export type ScanSafetyScene = {
   backgroundColor?: string;
   cardState: DraftingCardState;
   extension: QrFileExtension;
-  layers: DraftingCanvasLayer[];
+  layers: CanvasLayer[];
   nodeId: string;
   qualityPercent: number;
   targetDimensions?: { height: number; width: number };
@@ -49,7 +49,7 @@ function canvasToBlob(
  */
 export async function rasterizeQraftyScanPreview(
   state: QraftyState,
-  layer: DraftingCanvasLayer,
+  layer: CanvasLayer,
   scene: ScanSafetyScene,
 ): Promise<ImageData> {
   const cardLayer = scene.layers.find((entry) => entry.kind === "card" && entry.isVisible);

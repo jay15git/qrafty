@@ -1,6 +1,6 @@
-/* Element-inspector tokens — scoped to floating-inspector side panels. */
+/* Element-inspector tokens — scoped to desktop-settings-panel-host side panels. */
 
-[data-slot="floating-inspector"] {
+[data-slot="desktop-settings-panel-host"] {
   /* Type scale, spacing, and control dimensions come from the shared
      inspector scale block in inspector.css. */
   --bg: #161616;
@@ -40,7 +40,7 @@
   color: var(--fg-secondary);
 }
 
-[data-shell-theme="light"] [data-slot="floating-inspector"] {
+[data-shell-theme="light"] [data-slot="desktop-settings-panel-host"] {
   --bg: #ffffff;
   --surface: #fafafa;
   --control: #f5f5f5;
@@ -63,33 +63,33 @@
   --surface-2: var(--surface);
 }
 
-[data-slot="floating-inspector"] .ds-input-bg,
-[data-slot="floating-inspector"] :is(input, textarea, select):not([type="color"]) {
+[data-slot="desktop-settings-panel-host"] .ds-input-bg,
+[data-slot="desktop-settings-panel-host"] :is(input, textarea, select):not([type="color"]) {
   border: none !important;
   border-radius: var(--radius-control) !important;
   background: var(--control) !important;
 }
 
-[data-slot="floating-inspector"] [data-slot="inspector-dropdown-menu"],
-[data-slot="floating-inspector"] .ds-morph-filter[data-open="true"] {
+[data-slot="desktop-settings-panel-host"] [data-slot="settings-dropdown-menu"],
+[data-slot="desktop-settings-panel-host"] .ds-morph-filter[data-open="true"] {
   border: none !important;
   box-shadow: var(--popover-shadow) !important;
 }
 
-[data-slot="floating-inspector"] :is(input, textarea, select) {
+[data-slot="desktop-settings-panel-host"] :is(input, textarea, select) {
   background-color: var(--control) !important;
   border-color: transparent !important;
   color: currentColor !important;
   box-shadow: none !important;
 }
 
-[data-slot="floating-inspector"] :is(input, textarea, select):focus,
-[data-slot="floating-inspector"] :is(input, textarea, select):focus-visible {
+[data-slot="desktop-settings-panel-host"] :is(input, textarea, select):focus,
+[data-slot="desktop-settings-panel-host"] :is(input, textarea, select):focus-visible {
   border-color: transparent !important;
   box-shadow: inset 0 0 0 1px var(--focus) !important;
 }
 
-[data-shell-theme="light"] [data-slot="floating-inspector"] input::placeholder,
-[data-shell-theme="light"] [data-slot="floating-inspector"] textarea::placeholder {
+[data-shell-theme="light"] [data-slot="desktop-settings-panel-host"] input::placeholder,
+[data-shell-theme="light"] [data-slot="desktop-settings-panel-host"] textarea::placeholder {
   color: var(--fg-muted) !important;
 }

@@ -4,7 +4,7 @@ import type { DraftingCardState } from "@/features/canvas/model/card-state";
 import { cornerRadiiToCss, resolveLayerCornerRadii } from "@/features/canvas/model/corner-radius";
 import {
   DEFAULT_DRAFTING_TEXT_LAYER,
-  type DraftingCanvasLayer,
+  type CanvasLayer,
   type DraftingTextRun,
 } from "@/features/canvas/model/layers/shared";
 import { layoutDraftingText } from "@/features/canvas/rendering/text-layout";
@@ -28,7 +28,7 @@ import {
 import { toQraftyQrConfig } from "@/features/qr/adapters/qrafty-config";
 import type { QraftyState } from "@/features/qr/model/state";
 import { getDraftingQrLayerLayout } from "@/features/qr/rendering/svg-extension";
-import { buildDraftingQrBackgroundSvgPayload } from "@/features/canvas/components/drafting-qr-background";
+import { buildCanvasQrBackgroundSvgPayload } from "@/features/canvas/components/canvas-qr-background";
 
 import {
   collectIllustrationAssetPaths,
@@ -55,7 +55,7 @@ export async function buildLayeredDomParts({
   state,
 }: {
   cardState: DraftingCardState;
-  layers: DraftingCanvasLayer[];
+  layers: CanvasLayer[];
   qrMarkup: string;
   state: QraftyState;
 }): Promise<LayeredDomParts> {
@@ -71,7 +71,7 @@ export async function buildLayeredDomParts({
 }
 
 function getDraftingLayerDomNode(
-  layer: DraftingCanvasLayer,
+  layer: CanvasLayer,
   cardState: DraftingCardState,
   qrMarkup: string,
   state: QraftyState,
@@ -108,7 +108,7 @@ function getDraftingLayerDomNode(
 }
 
 function getDraftingGroupLayerDom(
-  layer: DraftingCanvasLayer,
+  layer: CanvasLayer,
   cardState: DraftingCardState,
   qrMarkup: string,
   state: QraftyState,
@@ -137,10 +137,7 @@ function getDraftingGroupLayerDom(
   };
 }
 
-function getDraftingCardLayerDom(
-  layer: DraftingCanvasLayer,
-  cardState: DraftingCardState,
-): DomLayerNode {
+function getDraftingCardLayerDom(layer: CanvasLayer, cardState: DraftingCardState): DomLayerNode {
   return {
     kind: "card",
     id: layer.id,
@@ -159,7 +156,7 @@ function getDraftingCardLayerDom(
   };
 }
 
-function getDraftingTextLayerDom(layer: DraftingCanvasLayer): DomLayerNode {
+function getDraftingTextLayerDom(layer: CanvasLayer): DomLayerNode {
   const textStyle = serializeCssProperties(
     getTextLayerStyle(layer) as Record<string, string | number>,
   );
@@ -188,7 +185,7 @@ function getDraftingTextLayerDom(layer: DraftingCanvasLayer): DomLayerNode {
   };
 }
 
-function getDraftingImageLayerDom(layer: DraftingCanvasLayer): DomLayerNode {
+function getDraftingImageLayerDom(layer: CanvasLayer): DomLayerNode {
   const imageValue =
     getCachedIllustrationDisplaySrc(layer.imageValue, layer.illustrationColorStops) ??
     layer.imageValue ??
@@ -222,7 +219,7 @@ function getDraftingImageLayerDom(layer: DraftingCanvasLayer): DomLayerNode {
   };
 }
 
-function getDraftingShapeLayerDom(layer: DraftingCanvasLayer): DomLayerNode {
+function getDraftingShapeLayerDom(layer: CanvasLayer): DomLayerNode {
   const shapeId = layer.shapeId ?? "rounded-square";
   const definition = QR_BACKGROUND_SHAPES.find((shape) => shape.id === shapeId);
   const fill = layer.fillMode === "none" ? "none" : escapeXml(layer.fill ?? "#E8E8E8");
@@ -269,7 +266,7 @@ function getDraftingShapeLayerDom(layer: DraftingCanvasLayer): DomLayerNode {
 }
 
 function buildDraftingQrForegroundDomNode(
-  layer: DraftingCanvasLayer,
+  layer: CanvasLayer,
   state: QraftyState,
 ): DomLayerNode | null {
   const layout = getDraftingQrLayerLayout(layer.width, state, layer.height);
@@ -306,11 +303,11 @@ function buildDraftingQrForegroundDomNode(
 }
 
 function getDraftingQrLayerDom(
-  layer: DraftingCanvasLayer,
+  layer: CanvasLayer,
   _qrMarkup: string,
   state: QraftyState,
 ): DomLayerNode {
-  const background = buildDraftingQrBackgroundSvgPayload(layer, state);
+  const background = buildCanvasQrBackgroundSvgPayload(layer, state);
   const foreground = buildDraftingQrForegroundDomNode(layer, state);
   const children: DomLayerNode[] = [];
 
@@ -361,11 +358,11 @@ function getDraftingQrLayerDom(
   };
 }
 
-function getDraftingTextContent(layer: DraftingCanvasLayer) {
+function getDraftingTextContent(layer: CanvasLayer) {
   return layoutDraftingText(layer).lines.join("\n");
 }
 
-function getDraftingTextRunsHtml(layer: DraftingCanvasLayer) {
+function getDraftingTextRunsHtml(layer: CanvasLayer) {
   return getDraftingTextLayerRuns(layer)
     .map((run) => {
       const style = cssPropertiesToInlineStyle(getTextRunStyle(layer, run));
@@ -374,7 +371,7 @@ function getDraftingTextRunsHtml(layer: DraftingCanvasLayer) {
     .join("");
 }
 
-function getDraftingTextLayerRuns(layer: DraftingCanvasLayer): DraftingTextRun[] {
+function getDraftingTextLayerRuns(layer: CanvasLayer): DraftingTextRun[] {
   const text = layer.text ?? "";
 
   if (!layer.textRuns?.length || layer.textRuns.map((run) => run.text).join("") !== text) {

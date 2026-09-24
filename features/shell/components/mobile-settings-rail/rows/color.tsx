@@ -1,7 +1,7 @@
 import { Suspense, useContext, useState } from "react";
 
 import { parseFill } from "@/components/ui/fill-picker/lib/gradient";
-import type { InspectorModel } from "@/features/shell/hooks/use-toolbar-inspector-model";
+import type { SettingsModel } from "@/features/shell/hooks/use-toolbar-settings-model";
 import { useMobileDrawerNavigation } from "@/features/shell/inspector/MobileDrawerNavigationContext";
 import { DOTS_PALETTE_PRESETS } from "@/features/shell/inspector/pattern-palettes";
 import { PaletteColorBarPreview } from "@/features/shell/inspector/PaletteColorBarPreview";
@@ -30,7 +30,7 @@ import { MobileRailImageOptions, MobileRailPickerTile, MobileRailSwatchTile } fr
  * below. The palette is kept in local state because detail content is frozen
  * at open time and can't re-read the model as the user picks colors.
  */
-function MobileRailPatternPaletteDetail({ model }: { model: InspectorModel }) {
+function MobileRailPatternPaletteDetail({ model }: { model: SettingsModel }) {
   const [palette, setPalette] = useState(() => [...model.actualPatternSettings.dotsPalette]);
 
   const applyColor = (index: number, color: string) => {

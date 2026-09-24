@@ -7,7 +7,7 @@ import { useState, type ComponentProps } from "react";
 import { Kbd } from "@/components/kbd";
 import { PopoverContent } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { InspectorSection } from "@/features/shell/components/InspectorControls";
+import { InspectorSection } from "@/features/shell/components/SettingsControls";
 import { DRAFTING_KEYBOARD_SHORTCUT_GROUPS } from "@/features/canvas/model/keyboard-shortcuts";
 import { cn } from "@/lib/utils";
 

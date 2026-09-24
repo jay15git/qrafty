@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
 import { useState } from "react";
 
 import { EmojiPicker, EmojiPickerContent, EmojiPickerSearch } from "@/components/ui/emoji-picker";
-import type { ThemeMode } from "@/features/shell/components/FloatingToolbar";
+import type { ThemeMode } from "@/features/shell/components/WorkspaceChrome";
 import { ImageCropper } from "@/components/ui/image-cropper";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -197,7 +197,7 @@ export function InsertMenuRootPanel({
           <InsertMenuRootOptionTile
             label="Emoji"
             previews={INSERT_MENU_EMOJI_FAN_PREVIEWS}
-            slot="drafting-insert-menu-emoji"
+            slot="canvas-insert-menu-emoji"
             onClick={onOpenEmojiPanel}
           />
           <InsertMenuRootOptionTile
@@ -210,7 +210,7 @@ export function InsertMenuRootPanel({
               key={set.id}
               label={set.label}
               previews={INSERT_MENU_ILLUSTRATION_SET_PREVIEWS[set.id]}
-              slot={`drafting-insert-menu-illustration-${set.id}`}
+              slot={`canvas-insert-menu-illustration-${set.id}`}
               onClick={() => onOpenIllustrationSet(set.id)}
             />
           ))}
@@ -219,7 +219,7 @@ export function InsertMenuRootPanel({
               disabled={!canAddQrCode}
               label={canAddQrCode ? "QR code" : "Max 10 QR codes"}
               previews={INSERT_MENU_QR_PREVIEWS}
-              slot="drafting-insert-menu-add-qr"
+              slot="canvas-insert-menu-add-qr"
               onClick={onAddQrCode}
             />
           ) : null}
@@ -241,7 +241,7 @@ export function InsertMenuRootPanel({
       <InsertMenuActionButton
         isPopover={isPopover}
         onClick={onOpenEmojiPanel}
-        slot="drafting-insert-menu-emoji"
+        slot="canvas-insert-menu-emoji"
       >
         <SmileIcon className="size-4 shrink-0" data-icon="inline-start" />
         Emoji
@@ -254,7 +254,7 @@ export function InsertMenuRootPanel({
         <InsertMenuActionButton
           isPopover={isPopover}
           key={set.id}
-          slot={`drafting-insert-menu-illustration-${set.id}`}
+          slot={`canvas-insert-menu-illustration-${set.id}`}
           onClick={() => onOpenIllustrationSet(set.id)}
         >
           <PenLineIcon className="size-4 shrink-0" data-icon="inline-start" />
@@ -266,7 +266,7 @@ export function InsertMenuRootPanel({
           disabled={!canAddQrCode}
           isPopover={isPopover}
           onClick={onAddQrCode}
-          slot="drafting-insert-menu-add-qr"
+          slot="canvas-insert-menu-add-qr"
         >
           <CopyPlusIcon className="size-4 shrink-0" data-icon="inline-start" />
           {canAddQrCode ? "QR code" : "Maximum 10 QR codes reached"}
@@ -289,7 +289,7 @@ export function InsertMenuShapePanel({
     <div className="space-y-3">
       <InsertMenuPanelHeader isPopover={isPopover} title="Shape" onBack={onBack} />
       <ElementShapeOptionGrid
-        decorativeDataSlot="drafting-insert-decorative-shape-grid"
+        decorativeDataSlot="canvas-insert-decorative-shape-grid"
         variant={isPopover ? "insert-desktop" : "insert-drafting"}
         onSelect={onSelectShape}
       />
@@ -321,7 +321,7 @@ export function InsertMenuImagePanel({
         <InsertMenuActionButton
           isPopover={isPopover}
           onClick={onBrowseWallpapers}
-          slot="drafting-insert-menu-browse-wallpapers"
+          slot="canvas-insert-menu-browse-wallpapers"
         >
           <ImageIcon className="size-4 shrink-0" data-icon="inline-start" />
           Browse wallpapers
@@ -406,7 +406,7 @@ export function InsertMenuIllustrationSetPanel({
       <InsertMenuPanelHeader isPopover={isPopover} title={set.label} onBack={onBack} />
       <IllustrationOptionGrid
         assets={set.assets}
-        dataSlot="drafting-illustration-option-grid"
+        dataSlot="canvas-illustration-option-grid"
         variant={isPopover ? "insert-desktop" : "insert-drafting"}
         onSelect={onSelectAsset}
       />
@@ -432,7 +432,7 @@ export function InsertMenuEmojiPanel({
           : "h-[22rem] ds-squircle-sm border border-[var(--canvas-line)] bg-[var(--panel-bg)]",
       )}
       columns={8}
-      data-slot="drafting-insert-menu-emoji-picker"
+      data-slot="canvas-insert-menu-emoji-picker"
       onEmojiSelect={({ emoji }) => onSelectEmoji(emoji)}
     >
       <EmojiPickerSearch

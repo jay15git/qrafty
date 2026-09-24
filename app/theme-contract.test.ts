@@ -36,7 +36,7 @@ describe("theme contract", () => {
   it("keeps workspace chrome on scoped monochrome utility tokens", () => {
     const checkedFiles = [
       "features/canvas/components/Canvas.tsx",
-      "features/canvas/components/Pane.tsx",
+      "features/canvas/components/Artboard.tsx",
       "features/canvas/components/insert-menu/InsertMenuPopoverContent.tsx",
     ];
     const disallowedColorTokens =

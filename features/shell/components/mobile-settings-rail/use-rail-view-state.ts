@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState, type ComponentType } from "react";
 
-import type { InspectorModel } from "@/features/shell/hooks/use-toolbar-inspector-model";
+import type { SettingsModel } from "@/features/shell/hooks/use-toolbar-settings-model";
 import type { SettingsSectionId } from "@/features/shell/inspector/settings-panel-meta";
 import type { QrStylePartId } from "@/features/shell/inspector/qr-style-parts";
 
@@ -17,7 +17,7 @@ import { defaultFamilyMode } from "./rail-modes";
  */
 export function useRailViewState(
   openFamily: SettingsSectionId | null,
-  model: InspectorModel,
+  model: SettingsModel,
   familyFooters: Partial<Record<SettingsSectionId, ComponentType<MobileRailRowProps>>>,
 ) {
   // Selected Style part — the QR row shows its catalogue, the tabs track it.

@@ -104,7 +104,7 @@ function InspectorElementShapeOptionTile({
 }
 
 export function ElementShapeOptionGrid({
-  decorativeDataSlot = "drafting-element-shape-decorative-grid",
+  decorativeDataSlot = "canvas-element-shape-decorative-grid",
   onSelect,
   optionsDataSlot,
   selectedShapeId = DEFAULT_DRAFTING_SHAPE_LAYER.shapeId,

@@ -2,16 +2,16 @@ import {
   DEFAULT_DRAFTING_OUTLINE,
   legacyShadowToShadowLayer,
 } from "@/features/canvas/model/effects";
-import { cloneDraftingCanvasLayer } from "@/features/canvas/model/layers/fallback";
+import { cloneCanvasLayer } from "@/features/canvas/model/layers/fallback";
 import { getLayerBounds, normalizeLayerZIndexes } from "@/features/canvas/model/layers/operations";
-import { patchDraftingCanvasLayer } from "@/features/canvas/model/layers/patch";
+import { patchCanvasLayer } from "@/features/canvas/model/layers/patch";
 import {
   DEFAULT_DRAFTING_LAYER_SHADOW,
-  type DraftingCanvasLayer,
+  type CanvasLayer,
 } from "@/features/canvas/model/layers/shared";
 
-export function groupDraftingCanvasLayers(
-  layers: DraftingCanvasLayer[],
+export function groupCanvasLayers(
+  layers: CanvasLayer[],
   selectedLayerIds: string[],
   options: { groupId: string; name: string },
 ) {
@@ -20,17 +20,17 @@ export function groupDraftingCanvasLayers(
   const bounds = getLayerBounds(selectedLayers);
 
   if (!bounds || selectedLayers.length < 2) {
-    return layers.map(cloneDraftingCanvasLayer);
+    return layers.map(cloneCanvasLayer);
   }
 
   const lowestZIndex = Math.min(...selectedLayers.map((layer) => layer.zIndex));
-  const groupLayer = patchDraftingCanvasLayer(
+  const groupLayer = patchCanvasLayer(
     {
       blur: 0,
       children: selectedLayers
         .sort((a, b) => a.zIndex - b.zIndex)
         .map((layer, index) =>
-          patchDraftingCanvasLayer(cloneDraftingCanvasLayer(layer), {
+          patchCanvasLayer(cloneCanvasLayer(layer), {
             x: layer.x - bounds.left,
             y: layer.y - bounds.top,
             zIndex: index,
@@ -60,23 +60,21 @@ export function groupDraftingCanvasLayers(
 
   return normalizeLayerZIndexes(
     [
-      ...layers.flatMap((layer) =>
-        selectedIdSet.has(layer.id) ? [] : [cloneDraftingCanvasLayer(layer)],
-      ),
+      ...layers.flatMap((layer) => (selectedIdSet.has(layer.id) ? [] : [cloneCanvasLayer(layer)])),
       groupLayer,
     ].sort((a, b) => a.zIndex - b.zIndex),
   );
 }
 
-export function ungroupDraftingCanvasLayer(layers: DraftingCanvasLayer[], groupLayerId: string) {
+export function ungroupCanvasLayer(layers: CanvasLayer[], groupLayerId: string) {
   const groupLayer = layers.find((layer) => layer.id === groupLayerId && layer.kind === "group");
 
   if (!groupLayer?.children?.length) {
-    return layers.map(cloneDraftingCanvasLayer);
+    return layers.map(cloneCanvasLayer);
   }
 
   const restoredChildren = groupLayer.children.map((child) =>
-    patchDraftingCanvasLayer(cloneDraftingCanvasLayer(child), {
+    patchCanvasLayer(cloneCanvasLayer(child), {
       nodeId: groupLayer.nodeId,
       x: groupLayer.x + child.x,
       y: groupLayer.y + child.y,
@@ -86,9 +84,7 @@ export function ungroupDraftingCanvasLayer(layers: DraftingCanvasLayer[], groupL
 
   return normalizeLayerZIndexes(
     [
-      ...layers.flatMap((layer) =>
-        layer.id === groupLayerId ? [] : [cloneDraftingCanvasLayer(layer)],
-      ),
+      ...layers.flatMap((layer) => (layer.id === groupLayerId ? [] : [cloneCanvasLayer(layer)])),
       ...restoredChildren,
     ].sort((a, b) => a.zIndex - b.zIndex),
   );

@@ -1,7 +1,7 @@
 "use client";
 
 import { Switch } from "@/components/ui/switch";
-import { InspectorLabel, InspectorSection } from "@/features/shell/components/InspectorControls";
+import { InspectorLabel, InspectorSection } from "@/features/shell/components/SettingsControls";
 import { SettingsFillPopover, SettingsSlider } from "@/features/shell/inspector/settings-ui";
 import { fillPreviewHex } from "@/features/shell/inspector/FillPicker.utils";
 import {
@@ -12,14 +12,14 @@ import {
   type LayerShadowEffectItem,
 } from "@/features/canvas/model/layer-effects";
 import type { DraftingShadowLayerState } from "@/features/canvas/model/effects";
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared";
+import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
 
 export function ShadowsList({
   layer,
   onPatch,
 }: {
-  layer: DraftingCanvasLayer;
-  onPatch: (patch: Partial<DraftingCanvasLayer>) => void;
+  layer: CanvasLayer;
+  onPatch: (patch: Partial<CanvasLayer>) => void;
 }) {
   const effects = listLayerEffects(layer);
   const shadowEffects = effects.filter(

@@ -1,5 +1,5 @@
 import type { Fill } from "@/components/ui/fill-picker/public-api";
-import type { InspectorModel } from "@/features/shell/hooks/use-toolbar-inspector-model";
+import type { SettingsModel } from "@/features/shell/hooks/use-toolbar-settings-model";
 import {
   applyPatternModuleFill,
   applyPatternModuleImageUrl,
@@ -11,7 +11,7 @@ import {
 } from "@/features/shell/inspector/settings-bridge";
 import type { PatternSettings } from "@/features/shell/model/toolbar-types";
 
-function unifiedQrSettings(model: InspectorModel): UnifiedQrFillSettings {
+function unifiedQrSettings(model: SettingsModel): UnifiedQrFillSettings {
   return {
     pattern: model.actualPatternSettings,
     corners: model.actualCornersSettings,
@@ -19,7 +19,7 @@ function unifiedQrSettings(model: InspectorModel): UnifiedQrFillSettings {
   };
 }
 
-function applyUnifiedPatches(model: InspectorModel, patches: UnifiedQrFillPatches) {
+function applyUnifiedPatches(model: SettingsModel, patches: UnifiedQrFillPatches) {
   if (model.onUnifiedQrFillSettingsChange) {
     model.onUnifiedQrFillSettingsChange(patches);
     return;
@@ -30,7 +30,7 @@ function applyUnifiedPatches(model: InspectorModel, patches: UnifiedQrFillPatche
 }
 
 /** Applies a fill to module dots — fans out to eye/frame/logo when unified. */
-export function applyQrFill(model: InspectorModel, fill: Fill) {
+export function applyQrFill(model: SettingsModel, fill: Fill) {
   if (model.actualPatternSettings.gradientLinkMode === "unified") {
     applyUnifiedPatches(model, applyUnifiedQrFill(fill, unifiedQrSettings(model)));
     return;
@@ -39,7 +39,7 @@ export function applyQrFill(model: InspectorModel, fill: Fill) {
 }
 
 /** Dots-palette fills are module-only, but unified mode still syncs the rest. */
-export function applyQrPalette(model: InspectorModel, preset: { label: string; colors: string[] }) {
+export function applyQrPalette(model: SettingsModel, preset: { label: string; colors: string[] }) {
   applyQrPalettePatch(model, {
     dotsColorMode: "palette",
     dotsPalette: [...preset.colors],
@@ -48,7 +48,7 @@ export function applyQrPalette(model: InspectorModel, preset: { label: string; c
 }
 
 export function applyQrImageFill(
-  model: InspectorModel,
+  model: SettingsModel,
   imageUrl: string,
   sourceMode: PatternSettings["moduleFillImageSourceMode"],
 ) {
@@ -63,7 +63,7 @@ export function applyQrImageFill(
 }
 
 /** Palette-mode patches are module-only, but unified mode still syncs the rest. */
-export function applyQrPalettePatch(model: InspectorModel, patch: Partial<PatternSettings>) {
+export function applyQrPalettePatch(model: SettingsModel, patch: Partial<PatternSettings>) {
   if (model.actualPatternSettings.gradientLinkMode === "unified") {
     applyUnifiedPatches(model, applyUnifiedQrModulePatternPatch(patch, unifiedQrSettings(model)));
     return;

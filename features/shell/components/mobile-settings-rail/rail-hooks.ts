@@ -92,7 +92,7 @@ export function useMobileDrawerHeight(drawerOpen: boolean) {
         setDrawerHeight(0);
         return;
       }
-      const el = document.querySelector<HTMLElement>('[data-slot="mobile-family-drawer-root"]');
+      const el = document.querySelector<HTMLElement>('[data-slot="mobile-settings-drawer-root"]');
       if (!el) {
         // The portal mounts a beat after `drawerOpen` flips — retry briefly.
         if (retries < 10) {

@@ -5,7 +5,7 @@ import { createRoot } from "react-dom/client";
 import { afterEach, describe, expect, it } from "vitest";
 
 import { createDefaultQraftyState, clampQrSize } from "@/features/qr/model/state";
-import { DraftingQrBackground } from "@/features/canvas/components/QrBackground";
+import { CanvasQrBackground } from "@/features/canvas/components/QrBackground";
 import { createDefaultDraftingCardState } from "@/features/canvas/model/card-state";
 import { createDefaultDraftingLayers } from "@/features/canvas/model/layers/card-qr";
 
@@ -19,7 +19,7 @@ afterEach(() => {
   document.body.innerHTML = "";
 });
 
-describe("DraftingQrBackground", () => {
+describe("CanvasQrBackground", () => {
   it("renders the background card shape as a direct inline svg in preview", () => {
     const state = {
       ...createDefaultQraftyState(),
@@ -34,7 +34,7 @@ describe("DraftingQrBackground", () => {
     ).filter((entry) => entry.kind === "qr");
     const { container } = renderBackground(layer, state);
 
-    const background = container.querySelector('[data-slot="drafting-qr-background"]');
+    const background = container.querySelector('[data-slot="canvas-qr-background"]');
 
     expect(background?.firstElementChild?.tagName.toLowerCase()).toBe("svg");
     expect(background?.querySelector(":scope > div")).toBeNull();
@@ -43,14 +43,14 @@ describe("DraftingQrBackground", () => {
 });
 
 function renderBackground(
-  layer: Parameters<typeof DraftingQrBackground>[0]["layer"],
-  state: Parameters<typeof DraftingQrBackground>[0]["state"],
+  layer: Parameters<typeof CanvasQrBackground>[0]["layer"],
+  state: Parameters<typeof CanvasQrBackground>[0]["state"],
 ) {
   const container = document.createElement("div");
   const root = createRoot(container);
 
   act(() => {
-    root.render(<DraftingQrBackground layer={layer} state={state} />);
+    root.render(<CanvasQrBackground layer={layer} state={state} />);
   });
 
   cleanupCallbacks.push(() => {

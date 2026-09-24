@@ -1,6 +1,6 @@
 import {
   DEFAULT_DRAFTING_TEXT_LAYER,
-  type DraftingCanvasLayer,
+  type CanvasLayer,
 } from "@/features/canvas/model/layers/shared";
 import { getDraftingFontCssFamily } from "@/features/canvas/model/fonts";
 
@@ -12,7 +12,7 @@ export type DraftingTextLayout = {
   lines: string[];
 };
 
-function getDraftingTextLineHeight(layer: DraftingCanvasLayer): number {
+function getDraftingTextLineHeight(layer: CanvasLayer): number {
   const raw = layer.lineHeight ?? DEFAULT_DRAFTING_TEXT_LAYER.lineHeight;
 
   if (!Number.isFinite(raw)) {
@@ -22,7 +22,7 @@ function getDraftingTextLineHeight(layer: DraftingCanvasLayer): number {
   return Math.max(0.6, Math.min(4, raw));
 }
 
-function getDraftingTextLetterSpacing(layer: DraftingCanvasLayer): number {
+function getDraftingTextLetterSpacing(layer: CanvasLayer): number {
   const raw = layer.letterSpacing ?? DEFAULT_DRAFTING_TEXT_LAYER.letterSpacing;
 
   if (!Number.isFinite(raw)) {
@@ -32,18 +32,18 @@ function getDraftingTextLetterSpacing(layer: DraftingCanvasLayer): number {
   return raw;
 }
 
-export function getDraftingTextFontFamily(layer: DraftingCanvasLayer): string {
+export function getDraftingTextFontFamily(layer: CanvasLayer): string {
   return getDraftingFontCssFamily({
     fontFamily: layer.fontFamily,
     fontId: layer.fontId,
   });
 }
 
-function getDraftingTextFont(layer: DraftingCanvasLayer): string {
+function getDraftingTextFont(layer: CanvasLayer): string {
   return `${layer.fontStyle ?? DEFAULT_DRAFTING_TEXT_LAYER.fontStyle} ${layer.fontWeight ?? DEFAULT_DRAFTING_TEXT_LAYER.fontWeight} ${layer.fontSize ?? DEFAULT_DRAFTING_TEXT_LAYER.fontSize}px ${getDraftingTextFontFamily(layer)}`;
 }
 export function layoutDraftingText(
-  layer: DraftingCanvasLayer,
+  layer: CanvasLayer,
   ctx?: CanvasRenderingContext2D | null,
 ): DraftingTextLayout {
   const measure = ctx ?? getMeasureContext();
@@ -134,7 +134,7 @@ function getMeasureContext(): CanvasRenderingContext2D | null {
 
 function measureDraftingTextLineWidthWithContext(
   ctx: CanvasRenderingContext2D,
-  layer: DraftingCanvasLayer,
+  layer: CanvasLayer,
   line: string,
 ): number {
   if (!line) {
@@ -157,7 +157,7 @@ function measureDraftingTextLineWidthWithContext(
 
 function splitDraftingTextTokenToFit(
   ctx: CanvasRenderingContext2D,
-  layer: DraftingCanvasLayer,
+  layer: CanvasLayer,
   token: string,
   maxWidth: number,
 ): string[] {
@@ -188,7 +188,7 @@ function splitDraftingTextTokenToFit(
   return parts;
 }
 
-function roughWrapText(layer: DraftingCanvasLayer, paragraphs: string[]): string[] {
+function roughWrapText(layer: CanvasLayer, paragraphs: string[]): string[] {
   const fontSize = layer.fontSize ?? DEFAULT_DRAFTING_TEXT_LAYER.fontSize;
   const maxChars = Math.max(
     1,

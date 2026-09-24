@@ -113,7 +113,7 @@ function PaperShaderFallback({ color }: { color: string }) {
   return (
     <div
       aria-hidden="true"
-      data-slot="desktop-compose-card-paper-shader-fallback"
+      data-slot="canvas-card-paper-shader-fallback"
       style={{
         backgroundColor: color,
         borderRadius: "inherit",
@@ -439,7 +439,7 @@ export const DraftingCardPaperShaderLayer = memo(
       return (
         <div
           aria-hidden="true"
-          data-slot="desktop-compose-card-paper-shader-snapshot"
+          data-slot="canvas-card-paper-shader-snapshot"
           style={{
             backgroundImage: `url("${pausedSnapshotUrl}")`,
             backgroundPosition: "center",
@@ -461,7 +461,7 @@ export const DraftingCardPaperShaderLayer = memo(
       <DraftingCardPaperShaderRenderer
         key={`${shaderMountKey}:${recoverEpoch}`}
         captureFrames={captureFrames}
-        dataSlot="desktop-compose-card-paper-shader"
+        dataSlot="canvas-card-paper-shader"
         dataExportShader={paperShader.shaderId}
         ignoreVisibilityGate={ignoreVisibilityGate}
         layoutHeight={layoutHeight}

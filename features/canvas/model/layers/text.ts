@@ -9,9 +9,9 @@ import {
   isRecord,
   normalizeHexColor,
   normalizeShapeFillGradient,
-  normalizeSharedDraftingCanvasLayerFields,
+  normalizeSharedCanvasLayerFields,
   readFiniteNumber,
-  type DraftingCanvasLayer,
+  type CanvasLayer,
   type DraftingShapeFillMode,
   type DraftingTextAlign,
   type DraftingTextFontWeight,
@@ -19,9 +19,9 @@ import {
   type NormalizeDraftingLayerContext,
 } from "@/features/canvas/model/layers/shared";
 
-export function normalizeTextDraftingCanvasLayer(
+export function normalizeTextCanvasLayer(
   context: NormalizeDraftingLayerContext & { kind: "text" },
-): DraftingCanvasLayer {
+): CanvasLayer {
   const { fallback, value } = context;
   const text =
     typeof value.text === "string"
@@ -29,7 +29,7 @@ export function normalizeTextDraftingCanvasLayer(
       : (fallback.text ?? DEFAULT_DRAFTING_TEXT_LAYER.text);
 
   return {
-    ...normalizeSharedDraftingCanvasLayerFields(context),
+    ...normalizeSharedCanvasLayerFields(context),
     fill: normalizeHexColor(value.fill, fallback.fill ?? DEFAULT_DRAFTING_TEXT_LAYER.fill),
     fillGradient: normalizeShapeFillGradient(value.fillGradient, fallback.fillGradient),
     fillMode: normalizeTextFillMode(value.fillMode, fallback.fillMode),
@@ -66,7 +66,7 @@ export function normalizeTextDraftingCanvasLayer(
       typeof value.underline === "boolean"
         ? value.underline
         : (fallback.underline ?? DEFAULT_DRAFTING_TEXT_LAYER.underline),
-  } satisfies DraftingCanvasLayer;
+  } satisfies CanvasLayer;
 }
 
 function normalizeTextFillMode(
@@ -90,7 +90,7 @@ function normalizeTextAlign(value: unknown, fallback: unknown): DraftingTextAlig
     : DEFAULT_DRAFTING_TEXT_LAYER.textAlign;
 }
 
-function normalizeTextFontFamily(value: Record<string, unknown>, fallback: DraftingCanvasLayer) {
+function normalizeTextFontFamily(value: Record<string, unknown>, fallback: CanvasLayer) {
   if (typeof value.fontFamily === "string" && value.fontFamily.trim()) {
     return typeof value.fontId === "string"
       ? resolveDraftingFont({ fontFamily: value.fontFamily, fontId: value.fontId }).family
@@ -106,7 +106,7 @@ function normalizeTextFontFamily(value: Record<string, unknown>, fallback: Draft
   return DEFAULT_DRAFTING_TEXT_LAYER.fontFamily;
 }
 
-function normalizeTextFontId(value: Record<string, unknown>, fallback: DraftingCanvasLayer) {
+function normalizeTextFontId(value: Record<string, unknown>, fallback: CanvasLayer) {
   if (typeof value.fontId === "string" && getDraftingFontById(value.fontId)) {
     return value.fontId;
   }

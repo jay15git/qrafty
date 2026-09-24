@@ -197,7 +197,7 @@ export function CardBackgroundLayers({
         >
           <div
             aria-hidden="true"
-            data-slot="desktop-compose-card-fill"
+            data-slot="canvas-card-fill"
             className="size-full"
             style={{
               ...fillStyle,

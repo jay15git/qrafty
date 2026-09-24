@@ -13,7 +13,7 @@ import {
   type DraftingWorkspaceDocumentV1,
 } from "@/features/canvas/model/document";
 import { normalizeDraftingWorkspaceDocument } from "@/features/canvas/model/document/normalize";
-import { normalizeDraftingCanvasLayers } from "@/features/canvas/model/layers/card-qr";
+import { normalizeCanvasLayers } from "@/features/canvas/model/layers/card-qr";
 import { getDraftingQrLayerId } from "@/features/canvas/model/layers/shared";
 import { type DraftingLayerStateByNodeId } from "@/features/canvas/model/layers/shared";
 import { DASHBOARD_QR_NODE_ID } from "@/features/qr/rendering/compose-scene";
@@ -78,7 +78,7 @@ export function parseDraftingWorkspaceDocument(value: unknown): DraftingWorkspac
   for (const nodeId of orderedNodeIds) {
     qrStateByNodeId[nodeId] = parseQrState(rawQrStateByNodeId[nodeId]);
     cardStateByNodeId[nodeId] = parseCardState(rawCardStateByNodeId[nodeId]);
-    layerStateByNodeId[nodeId] = normalizeDraftingCanvasLayers(
+    layerStateByNodeId[nodeId] = normalizeCanvasLayers(
       nodeId,
       rawLayerStateByNodeId[nodeId],
       qrStateByNodeId[nodeId],

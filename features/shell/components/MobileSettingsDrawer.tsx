@@ -21,7 +21,7 @@ import {
   type ViewsRegistry,
 } from "@/components/ui/family-drawer";
 import { getMobileDrawerMaxHeightPx } from "@/features/shell/components/mobile-family-drawer-viewport";
-import type { InspectorModel } from "@/features/shell/hooks/use-toolbar-inspector-model";
+import type { SettingsModel } from "@/features/shell/hooks/use-toolbar-settings-model";
 import {
   getSettingsSectionLabel,
   type SettingsSectionId,
@@ -44,7 +44,7 @@ export const MOBILE_DRAWER_SECTION_VIEW = "section";
 export const MOBILE_DRAWER_DETAIL_VIEW = "setting-detail";
 
 type MobileDrawerViewProps = {
-  model: InspectorModel;
+  model: SettingsModel;
   onDiscard: () => void;
   onSave: () => void;
   section: SettingsSectionId | null;
@@ -135,7 +135,7 @@ function FamilyDrawerViewBridge({ children, view }: { children: ReactNode; view:
 }
 
 /** Detail page pushed on top of a section — pickers, insert menus, layer tools. */
-function MobileSettingDetailView({ model, onSave }: { model: InspectorModel; onSave: () => void }) {
+function MobileSettingDetailView({ model, onSave }: { model: SettingsModel; onSave: () => void }) {
   const navigation = useMobileDrawerNavigation();
   const theme = model.actualTheme;
   const title = navigation?.detailPayload?.title ?? "Setting";
@@ -179,7 +179,7 @@ function MobileSettingsSectionView({
   section,
   title,
 }: {
-  model: InspectorModel;
+  model: SettingsModel;
   onDiscard: () => void;
   onSave: () => void;
   section: SettingsSectionId;
@@ -207,7 +207,7 @@ export function MobileSettingsDrawer({
   section,
   view,
 }: {
-  model: InspectorModel;
+  model: SettingsModel;
   onClose: () => void;
   /** X in the header — replays the session snapshots, then closes. */
   onDiscard: () => void;
@@ -287,7 +287,7 @@ export function MobileSettingsDrawer({
           className="ds-root shadow-none"
           data-shell-theme={theme}
           data-mobile-inspector=""
-          data-slot="mobile-family-drawer-root"
+          data-slot="mobile-settings-drawer-root"
           data-theme={theme}
           maxHeight={maxHeight}
           variant="card"

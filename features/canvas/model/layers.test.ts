@@ -6,9 +6,9 @@ import {
   DEFAULT_DRAFTING_TEXT_LAYER,
   isProtectedDraftingLayerId,
   DEFAULT_DRAFTING_LAYER_SHADOW,
-  type DraftingCanvasLayer,
+  type CanvasLayer,
 } from "@/features/canvas/model/layers/shared";
-import { cloneDraftingCanvasLayer } from "@/features/canvas/model/layers/fallback";
+import { cloneCanvasLayer } from "@/features/canvas/model/layers/fallback";
 import {
   clampLayerGeometryToCanvas,
   createDefaultDraftingLayers,
@@ -16,7 +16,7 @@ import {
   getDraftingCardInsetLayout,
   layoutDraftingCardInsetLayers,
   hasCustomDraftingQrPlacement,
-  normalizeDraftingCanvasLayers,
+  normalizeCanvasLayers,
 } from "@/features/canvas/model/layers/card-qr";
 import {
   createDraftingImageLayer,
@@ -25,16 +25,13 @@ import {
   createDraftingTextLayer,
 } from "@/features/canvas/model/layers/factories";
 import {
-  alignDraftingCanvasLayers,
-  cloneDraftingCanvasLayersForPaste,
-  distributeDraftingCanvasLayers,
+  alignCanvasLayers,
+  cloneCanvasLayersForPaste,
+  distributeCanvasLayers,
   getDraftingMarqueeSelection,
-  reorderDraftingCanvasLayer,
+  reorderCanvasLayer,
 } from "@/features/canvas/model/layers/operations";
-import {
-  groupDraftingCanvasLayers,
-  ungroupDraftingCanvasLayer,
-} from "@/features/canvas/model/layers/group";
+import { groupCanvasLayers, ungroupCanvasLayer } from "@/features/canvas/model/layers/group";
 import { createDefaultDraftingCardState } from "@/features/canvas/model/card-state";
 import { DEFAULT_DRAFTING_OUTLINE } from "@/features/canvas/model/effects";
 import { createDefaultQraftyState } from "@/features/qr/model/state";
@@ -85,9 +82,7 @@ describe("drafting layer state actions", () => {
       padding: 0,
       bottomSpace: 0,
     };
-    const layers = createDefaultDraftingLayers("preview", qrState, cardState).map(
-      cloneDraftingCanvasLayer,
-    );
+    const layers = createDefaultDraftingLayers("preview", qrState, cardState).map(cloneCanvasLayer);
 
     expect(hasCustomDraftingQrPlacement(layers, "preview", qrState, cardState)).toBe(false);
 
@@ -196,14 +191,16 @@ describe("drafting layer state actions", () => {
   it("moves a layer through the z-index stack", () => {
     const layers = [createLayer("card", 0), createLayer("qr", 1), createLayer("badge", 2)];
 
-    expect(reorderDraftingCanvasLayer(layers, "card", "front").map((layer) => layer.id)).toEqual([
+    expect(reorderCanvasLayer(layers, "card", "front").map((layer) => layer.id)).toEqual([
       "qr",
       "badge",
       "card",
     ]);
-    expect(
-      reorderDraftingCanvasLayer(layers, "badge", "backward").map((layer) => layer.id),
-    ).toEqual(["card", "badge", "qr"]);
+    expect(reorderCanvasLayer(layers, "badge", "backward").map((layer) => layer.id)).toEqual([
+      "card",
+      "badge",
+      "qr",
+    ]);
   });
 
   it("aligns selected layers to their combined bounds", () => {
@@ -212,11 +209,11 @@ describe("drafting layer state actions", () => {
       createLayer("qr", 1, { height: 30, width: 30, x: 70, y: 80 }),
     ];
 
-    expect(alignDraftingCanvasLayers(layers, ["card", "qr"], "center-x")).toMatchObject([
+    expect(alignCanvasLayers(layers, ["card", "qr"], "center-x")).toMatchObject([
       { id: "card", x: 10 },
       { id: "qr", x: 45 },
     ]);
-    expect(alignDraftingCanvasLayers(layers, ["card", "qr"], "bottom")).toMatchObject([
+    expect(alignCanvasLayers(layers, ["card", "qr"], "bottom")).toMatchObject([
       { id: "card", y: 20 },
       { id: "qr", y: 90 },
     ]);
@@ -229,7 +226,7 @@ describe("drafting layer state actions", () => {
       createLayer("c", 2, { width: 10, x: 40 }),
     ];
 
-    expect(distributeDraftingCanvasLayers(layers, ["a", "b", "c"], "horizontal")).toMatchObject([
+    expect(distributeCanvasLayers(layers, ["a", "b", "c"], "horizontal")).toMatchObject([
       { id: "a", x: 0 },
       { id: "b", x: 40 },
       { id: "c", x: 80 },
@@ -239,7 +236,7 @@ describe("drafting layer state actions", () => {
   it("clones pasted layers with fresh ids and places them above the current stack", () => {
     const layers = [createLayer("card", 0), createLayer("qr", 1, { x: 20, y: 30 })];
 
-    const pasted = cloneDraftingCanvasLayersForPaste({
+    const pasted = cloneCanvasLayersForPaste({
       layers,
       nodeId: "preview",
       offset: { x: 24, y: 24 },
@@ -260,7 +257,7 @@ describe("drafting layer state actions", () => {
       createLayer("qr", 1, { height: 40, width: 40, x: 40, y: 50 }),
     ];
 
-    const grouped = groupDraftingCanvasLayers(layers, ["card", "qr"], {
+    const grouped = groupCanvasLayers(layers, ["card", "qr"], {
       groupId: "group-1",
       name: "Group 1",
     });
@@ -279,7 +276,7 @@ describe("drafting layer state actions", () => {
       { id: "qr", x: 30, y: 30 },
     ]);
 
-    expect(ungroupDraftingCanvasLayer(grouped, "group-1")).toMatchObject([
+    expect(ungroupCanvasLayer(grouped, "group-1")).toMatchObject([
       { id: "card", x: 10, y: 20 },
       { id: "qr", x: 40, y: 50 },
     ]);
@@ -342,7 +339,7 @@ describe("drafting layer state actions", () => {
   });
 
   it("falls invalid text layer values back to simple defaults", () => {
-    const normalized = normalizeDraftingCanvasLayers(
+    const normalized = normalizeCanvasLayers(
       "preview",
       [
         createLayer("card", 0),
@@ -395,7 +392,7 @@ describe("drafting layer state actions", () => {
   });
 
   it("normalizes missing and invalid layer geometry without changing layer order", () => {
-    const normalized = normalizeDraftingCanvasLayers(
+    const normalized = normalizeCanvasLayers(
       "preview",
       [
         {
@@ -442,7 +439,7 @@ describe("drafting layer state actions", () => {
   });
 
   it("normalizes layer tilt values into the supported range", () => {
-    const normalized = normalizeDraftingCanvasLayers(
+    const normalized = normalizeCanvasLayers(
       "preview",
       [
         {
@@ -462,7 +459,7 @@ describe("drafting layer state actions", () => {
   });
 
   it("normalizes group children with shared layer defaults", () => {
-    const normalized = normalizeDraftingCanvasLayers(
+    const normalized = normalizeCanvasLayers(
       "preview",
       [
         createLayer("card", 0),
@@ -519,7 +516,7 @@ describe("drafting layer state actions", () => {
   });
 
   it("preserves legacy text font families without a registry font id", () => {
-    const normalized = normalizeDraftingCanvasLayers(
+    const normalized = normalizeCanvasLayers(
       "preview",
       [
         createLayer("card", 0),
@@ -546,7 +543,7 @@ describe("drafting layer state actions", () => {
   });
 
   it("preserves valid legacy text runs during normalization", () => {
-    const normalized = normalizeDraftingCanvasLayers(
+    const normalized = normalizeCanvasLayers(
       "preview",
       [
         createLayer("card", 0),
@@ -615,7 +612,7 @@ describe("drafting layer state actions", () => {
   });
 
   it("normalizes shader layers from persisted payloads", () => {
-    const normalized = normalizeDraftingCanvasLayers(
+    const normalized = normalizeCanvasLayers(
       "preview",
       [
         {
@@ -659,14 +656,14 @@ describe("drafting layer state actions", () => {
 
   it("clones shader layer paperShader state deeply", () => {
     const shaderLayer = createDraftingShaderLayer("preview", "mesh-gradient");
-    const clone = cloneDraftingCanvasLayer(shaderLayer);
+    const clone = cloneCanvasLayer(shaderLayer);
 
     expect(clone.paperShader).not.toBe(shaderLayer.paperShader);
     expect(clone.paperShader?.params).not.toBe(shaderLayer.paperShader?.params);
   });
 
   it("normalizes image and shape layers from persisted payloads", () => {
-    const normalized = normalizeDraftingCanvasLayers(
+    const normalized = normalizeCanvasLayers(
       "preview",
       [
         {
@@ -728,7 +725,7 @@ describe("drafting layer state actions", () => {
       text: "Table 7",
       zIndex: 2,
     });
-    const pasted = cloneDraftingCanvasLayersForPaste({
+    const pasted = cloneCanvasLayersForPaste({
       layers: [textLayer],
       nodeId: "preview-2",
       offset: { x: 10, y: 12 },
@@ -745,15 +742,11 @@ describe("drafting layer state actions", () => {
       zIndex: 3,
     });
 
-    const grouped = groupDraftingCanvasLayers(
-      [createLayer("card", 0), textLayer],
-      ["card", "text-1"],
-      {
-        groupId: "group-1",
-        name: "Group",
-      },
-    );
-    const restored = ungroupDraftingCanvasLayer(grouped, "group-1");
+    const grouped = groupCanvasLayers([createLayer("card", 0), textLayer], ["card", "text-1"], {
+      groupId: "group-1",
+      name: "Group",
+    });
+    const restored = ungroupCanvasLayer(grouped, "group-1");
 
     expect(restored.find((layer) => layer.kind === "text")).toMatchObject({
       fill: "#123456",
@@ -765,8 +758,8 @@ describe("drafting layer state actions", () => {
 function createLayer(
   id: string,
   zIndex: number,
-  overrides: Partial<DraftingCanvasLayer> = {},
-): DraftingCanvasLayer {
+  overrides: Partial<CanvasLayer> = {},
+): CanvasLayer {
   return {
     blur: 0,
     height: 40,

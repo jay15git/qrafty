@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import { PopoverClose, PopoverContent } from "@/components/ui/popover";
-import type { ThemeMode } from "@/features/shell/components/FloatingToolbar";
+import type { ThemeMode } from "@/features/shell/components/WorkspaceChrome";
 import { useMobileInspectorDensity } from "@/features/shell/inspector/MobileInspectorDensityContext";
 import { SettingsPopoverCloseButton } from "@/features/shell/inspector/settings-ui";
 import { InsertMenuPanelStack } from "@/features/canvas/components/insert-menu/InsertMenuPanelStack";
@@ -55,7 +55,7 @@ export function InsertMenuPopoverContent({
             )
           : "w-[min(24rem,calc(100vw-2rem))] space-y-3 border-[var(--canvas-line)] bg-[var(--panel-bg)] p-3"
       }
-      data-slot={isPopover ? "desktop-insert-menu-popover" : "drafting-insert-menu"}
+      data-slot={isPopover ? "canvas-insert-menu-popover" : "canvas-insert-menu"}
       data-mobile-inspector={isPopover && mobileDensity ? "" : undefined}
       data-theme={isPopover ? theme : undefined}
       side={popoverSide}

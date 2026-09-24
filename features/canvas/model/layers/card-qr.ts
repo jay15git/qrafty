@@ -10,14 +10,14 @@ import {
 } from "@/features/canvas/model/effects";
 import { getQrRenderedDimensions } from "@/features/qr/rendering/svg-extension";
 import { clampQrSize, type QraftyState } from "@/features/qr/model/state";
-import { normalizeDraftingCanvasLayer } from "@/features/canvas/model/layers/normalize";
-import { patchDraftingCanvasLayer } from "@/features/canvas/model/layers/patch";
+import { normalizeCanvasLayer } from "@/features/canvas/model/layers/normalize";
+import { patchCanvasLayer } from "@/features/canvas/model/layers/patch";
 import {
   createAdditionalDraftingQrLayerId,
   DEFAULT_DRAFTING_LAYER_SHADOW,
   getDraftingCardLayerId,
   getDraftingQrLayerId,
-  type DraftingCanvasLayer,
+  type CanvasLayer,
 } from "@/features/canvas/model/layers/shared";
 
 export function createDraftingQrLayer(
@@ -26,10 +26,10 @@ export function createDraftingQrLayer(
   cardState: Pick<DraftingCardState, "bottomSpace" | "height" | "padding" | "sizeMode" | "width">,
   options: {
     id?: string;
-    nearLayer?: Pick<DraftingCanvasLayer, "height" | "width" | "x" | "y">;
+    nearLayer?: Pick<CanvasLayer, "height" | "width" | "x" | "y">;
     zIndex?: number;
   } = {},
-): DraftingCanvasLayer {
+): CanvasLayer {
   const qrDimensions = fitQrSizeInCard(qrState, cardState);
   const nearLayer = options.nearLayer;
   const offset = 40;
@@ -87,9 +87,9 @@ export function fitQrSizeInCard(
 }
 
 export function clampLayerGeometryToCanvas(
-  layer: Pick<DraftingCanvasLayer, "height" | "width" | "x" | "y">,
+  layer: Pick<CanvasLayer, "height" | "width" | "x" | "y">,
   cardState: Pick<DraftingCardState, "height" | "width">,
-): Pick<DraftingCanvasLayer, "height" | "width" | "x" | "y"> {
+): Pick<CanvasLayer, "height" | "width" | "x" | "y"> {
   const canvasLeft = -cardState.width / 2;
   const canvasTop = -cardState.height / 2;
   const width = Math.min(Math.max(1, layer.width), cardState.width);
@@ -160,14 +160,14 @@ export function getDraftingCardInsetLayout(
   };
 }
 
-function hasAuthoredLayerComposition(layers: DraftingCanvasLayer[]): boolean {
+function hasAuthoredLayerComposition(layers: CanvasLayer[]): boolean {
   return layers.some(
     (layer) => layer.isVisible && (layer.kind === "shape" || layer.kind === "image"),
   );
 }
 
 export function hasCustomDraftingQrPlacement(
-  layers: DraftingCanvasLayer[],
+  layers: CanvasLayer[],
   nodeId: string,
   qrState: QraftyState,
   cardState: Pick<DraftingCardState, "bottomSpace" | "height" | "padding" | "sizeMode" | "width">,
@@ -196,11 +196,11 @@ export type LayoutDraftingCardInsetLayersOptions = {
 };
 
 export function layoutDraftingCardInsetLayers(
-  layers: DraftingCanvasLayer[],
+  layers: CanvasLayer[],
   qrState: QraftyState,
   cardState: Pick<DraftingCardState, "bottomSpace" | "height" | "padding" | "sizeMode" | "width">,
   options?: LayoutDraftingCardInsetLayersOptions,
-): DraftingCanvasLayer[] {
+): CanvasLayer[] {
   const nodeId = layers.find((layer) => layer.kind === "qr")?.nodeId ?? layers[0]?.nodeId;
   const layout = getDraftingCardInsetLayout(qrState, cardState);
   const preserveQrPlacement =
@@ -209,7 +209,7 @@ export function layoutDraftingCardInsetLayers(
 
   return layers.map((layer) => {
     if (layer.kind === "card") {
-      return patchDraftingCanvasLayer(layer, layout.card);
+      return patchCanvasLayer(layer, layout.card);
     }
 
     if (layer.kind === "qr") {
@@ -217,7 +217,7 @@ export function layoutDraftingCardInsetLayers(
         return layer;
       }
 
-      return patchDraftingCanvasLayer(layer, layout.qr);
+      return patchCanvasLayer(layer, layout.qr);
     }
 
     return layer;
@@ -228,7 +228,7 @@ export function createDefaultDraftingLayers(
   nodeId: string,
   qrState: QraftyState,
   cardState: DraftingCardState,
-): DraftingCanvasLayer[] {
+): CanvasLayer[] {
   const qrDimensions = fitQrSizeInCard(qrState, cardState);
   const layout = getDraftingCardInsetLayout(qrState, cardState);
 
@@ -278,12 +278,12 @@ export function createDefaultDraftingLayers(
   ];
 }
 
-export function normalizeDraftingCanvasLayers(
+export function normalizeCanvasLayers(
   nodeId: string,
   value: unknown,
   qrState: QraftyState,
   cardState: DraftingCardState,
-): DraftingCanvasLayer[] {
+): CanvasLayer[] {
   const fallback = createDefaultDraftingLayers(nodeId, qrState, cardState);
 
   if (!Array.isArray(value)) {
@@ -291,8 +291,8 @@ export function normalizeDraftingCanvasLayers(
   }
 
   const normalized = value
-    .map((layer) => normalizeDraftingCanvasLayer(nodeId, layer, fallback))
-    .filter((layer): layer is DraftingCanvasLayer => Boolean(layer));
+    .map((layer) => normalizeCanvasLayer(nodeId, layer, fallback))
+    .filter((layer): layer is CanvasLayer => Boolean(layer));
 
   const hasCard = normalized.some((layer) => layer.kind === "card");
   const hasQr = normalized.some((layer) => layer.kind === "qr");
@@ -302,10 +302,7 @@ export function normalizeDraftingCanvasLayers(
     .map((layer) => migrateLegacyQrLayerShadow(layer, qrState));
 }
 
-function migrateLegacyQrLayerShadow(
-  layer: DraftingCanvasLayer,
-  qrState: QraftyState,
-): DraftingCanvasLayer {
+function migrateLegacyQrLayerShadow(layer: CanvasLayer, qrState: QraftyState): CanvasLayer {
   if (layer.kind !== "qr") {
     return layer;
   }
@@ -318,7 +315,7 @@ function migrateLegacyQrLayerShadow(
     return layer;
   }
 
-  return patchDraftingCanvasLayer(layer, {
+  return patchCanvasLayer(layer, {
     shadow: shadowFromBackgroundShapeOptions(qrState.backgroundShapeOptions),
   });
 }

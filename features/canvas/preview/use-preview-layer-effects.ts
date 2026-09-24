@@ -2,11 +2,11 @@
 
 import { useMemo } from "react";
 
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared";
+import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
 import { usePreviewRuntime } from "@/features/canvas/preview/preview-context";
 import { getPreviewLayerEffectStyle } from "@/features/canvas/preview/preview-layer-effects";
 
-export function useDraftingLayerEffectStyle(layer: DraftingCanvasLayer) {
+export function useCanvasLayerEffectStyle(layer: CanvasLayer) {
   const { artboardScale } = usePreviewRuntime();
 
   return useMemo(

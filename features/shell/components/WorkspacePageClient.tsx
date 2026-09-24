@@ -3,7 +3,7 @@
 import { useSearchParams } from "next/navigation";
 
 import { Workspace } from "@/features/shell/components/Workspace";
-import type { ThemeMode, ToolbarToolId } from "@/features/shell/components/FloatingToolbar";
+import type { ThemeMode, ToolbarToolId } from "@/features/shell/components/WorkspaceChrome";
 
 type WorkspacePageClientProps = {
   fontClassName: string;

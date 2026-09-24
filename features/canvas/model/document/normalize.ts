@@ -14,8 +14,8 @@ import {
   getDraftingQrLayerId,
   getQrCanvasLayers,
 } from "@/features/canvas/model/layers/shared";
-import { cloneDraftingCanvasLayer } from "@/features/canvas/model/layers/fallback";
-import { type DraftingCanvasLayer } from "@/features/canvas/model/layers/shared";
+import { cloneCanvasLayer } from "@/features/canvas/model/layers/fallback";
+import { type CanvasLayer } from "@/features/canvas/model/layers/shared";
 import { DASHBOARD_QR_NODE_ID } from "@/features/qr/rendering/compose-scene";
 import { type QrInputType } from "@/features/qr/content/input-options";
 import { createDefaultSceneComposition } from "@/features/canvas/model/scene-templates";
@@ -68,7 +68,7 @@ function foldExtraNodesIntoPrimaryLayers(
   orderedNodeIds: string[],
   primaryNode: string,
   primaryNodeId: string,
-  primaryLayers: DraftingCanvasLayer[],
+  primaryLayers: CanvasLayer[],
   primaryCardState: ReturnType<typeof createDefaultDraftingCardState>,
   qrStateByLayerId: DraftingQrStateByLayerId,
   contentTypeByLayerId: Record<string, QrInputType>,
@@ -133,7 +133,7 @@ export function normalizeDraftingWorkspaceDocument(
       document.qrStateByNodeId[primaryNode] ?? createDefaultDraftingWorkspaceQrState(),
       primaryCardState,
     )
-  ).map(cloneDraftingCanvasLayer);
+  ).map(cloneCanvasLayer);
   const qrStateByLayerId: DraftingQrStateByLayerId = {};
   const contentTypeByLayerId: Record<string, QrInputType> = {};
 

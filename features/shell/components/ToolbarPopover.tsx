@@ -46,7 +46,7 @@ export function ToolbarPopoverContent({
         "flex h-full min-h-0 flex-1 flex-col overflow-hidden",
         flush ? "p-0" : "px-3 py-3",
       )}
-      data-slot="inspector-scroll"
+      data-slot="settings-scroll"
     >
       {children}
     </div>
@@ -55,11 +55,11 @@ export function ToolbarPopoverContent({
       chevron
       cueSize="comfortable"
       className="min-h-0"
-      data-slot="inspector-scroll-area"
+      data-slot="settings-scroll-area"
       scrollFade
       viewportClassName={flush ? "p-0" : "px-3 py-3"}
     >
-      <div data-slot="inspector-scroll">{children}</div>
+      <div data-slot="settings-scroll">{children}</div>
     </ScrollArea>
   );
 

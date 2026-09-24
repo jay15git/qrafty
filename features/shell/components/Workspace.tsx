@@ -1,12 +1,12 @@
 "use client";
 
-import { DraftingCanvas } from "@/features/canvas/components/DraftingCanvas";
+import { CanvasSurface } from "@/features/canvas/components/CanvasSurface";
 import BlurFadeThemeTransition from "@/components/ui/BlurFadeThemeTransition";
 import {
-  FloatingToolbar,
+  WorkspaceChrome,
   type ThemeMode,
   type ToolbarToolId,
-} from "@/features/shell/components/FloatingToolbar";
+} from "@/features/shell/components/WorkspaceChrome";
 import { useWorkspaceThemeSync } from "@/features/shell/hooks/use-workspace-theme-sync";
 import { InspectorThemeContext } from "@/features/shell/inspector/theme-context";
 import "@/features/canvas/workspace-tokens.css";
@@ -60,14 +60,14 @@ export function Workspace({
         <CuelumeProvider>
           <BlurFadeThemeTransition theme={theme} onThemeChange={setTheme}>
             <WorkspaceEntrance theme={theme}>
-              <DraftingCanvas
+              <CanvasSurface
                 theme={theme}
                 fontClassName={fontClassName}
                 initialActiveTool={initialActiveTool}
                 onThemeChange={setTheme}
-                paneToolbarVariant="zoom"
+                boardToolbarVariant="zoom"
                 renderOverlay={(controller) => (
-                  <FloatingToolbar controller={controller} theme={theme} onThemeChange={setTheme} />
+                  <WorkspaceChrome controller={controller} theme={theme} onThemeChange={setTheme} />
                 )}
               />
             </WorkspaceEntrance>

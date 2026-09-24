@@ -15,12 +15,12 @@ import {
 } from "@/features/canvas/model/card-state";
 import type { PaperShaderId } from "@/features/canvas/rendering/paper-shader-definitions";
 import type {
-  DraftingCanvasLayer,
+  CanvasLayer,
   DraftingTextAlign,
   DraftingTextFontStyle,
   DraftingTextFontWeight,
 } from "@/features/canvas/model/layers/shared";
-import type { DraftingLayerMenuAction } from "@/features/canvas/components/pane-layer-chrome.constants";
+import type { CanvasLayerMenuAction } from "@/features/canvas/components/canvas-layer-chrome.constants";
 import type { AppearanceSnapshot } from "@/features/shell/model/appearance";
 import {
   validateStaticQrContent,
@@ -42,7 +42,7 @@ import {
 import { type QrInputType } from "@/features/qr/content/input-options";
 import type { SceneLayoutPreset } from "@/features/canvas/model/scene-templates";
 import type { ScanSafetyResult } from "@/features/qr/scan-safety/types";
-import type { DraftingPaneCanvasTool } from "@/features/canvas/components/DraftingPaneCanvas";
+import type { CanvasBoardTool } from "@/features/canvas/components/CanvasBoard";
 
 type ToolbarGroup = "QR" | "Add" | "Manage";
 export type ComposeSidebarPanel = "wallpapers" | null;
@@ -294,26 +294,26 @@ export type ToolbarController = {
   textSettings: TextSettings;
   insertNodeId?: string;
   composeSidebarPanel?: ComposeSidebarPanel;
-  selectedElementLayer?: DraftingCanvasLayer | null;
+  selectedElementLayer?: CanvasLayer | null;
   selectedLayerIds?: string[];
-  selectedTransformLayer?: DraftingCanvasLayer | null;
-  selectedAppearanceLayer?: DraftingCanvasLayer | null;
+  selectedTransformLayer?: CanvasLayer | null;
+  selectedAppearanceLayer?: CanvasLayer | null;
   appearanceSnapshot?: AppearanceSnapshot | null;
-  onInsertLayer?: (layer: DraftingCanvasLayer) => void;
-  canvasTool?: DraftingPaneCanvasTool | null;
-  onCanvasToolChange?: (tool: DraftingPaneCanvasTool | null) => void;
+  onInsertLayer?: (layer: CanvasLayer) => void;
+  canvasTool?: CanvasBoardTool | null;
+  onCanvasToolChange?: (tool: CanvasBoardTool | null) => void;
   canAddQrCode?: boolean;
   onAddQrCode?: () => void;
-  onAddTextLayerAt?: (paneId: string, point: { x: number; y: number }) => void;
+  onAddTextLayerAt?: (boardId: string, point: { x: number; y: number }) => void;
   canRemoveQrCode?: boolean;
   onRemoveQrCode?: () => void;
   onOpenComposeSidebar?: (panel: "wallpapers") => void;
   onCloseComposeSidebar?: () => void;
   onSelectWallpaper?: (imagePath: string) => void;
   onCanvasBackgroundTabChange?: (tab: "shader" | "image" | "color") => void;
-  onElementLayerPatch?: (patch: Partial<DraftingCanvasLayer>) => void;
-  onAppearancePatch?: (patch: Partial<DraftingCanvasLayer>) => void;
-  onTransformLayerPatch?: (patch: Partial<DraftingCanvasLayer>) => void;
+  onElementLayerPatch?: (patch: Partial<CanvasLayer>) => void;
+  onAppearancePatch?: (patch: Partial<CanvasLayer>) => void;
+  onTransformLayerPatch?: (patch: Partial<CanvasLayer>) => void;
   onActiveToolChange: (toolId: ToolbarToolId) => void;
   onRedo?: () => void;
   onSave?: () => void;
@@ -351,7 +351,7 @@ export type ToolbarController = {
   onLayersSettingsChange: (patch: Partial<LayersSettings>) => void;
   onLayersReorder?: (orderedIds: string[]) => void;
   onLayerDelete?: (layerId: string) => void;
-  onLayerMenuAction?: (action: DraftingLayerMenuAction) => void;
+  onLayerMenuAction?: (action: CanvasLayerMenuAction) => void;
   onLayerCopy?: () => void;
   canCopyLayers?: boolean;
   canDeleteLayer?: (layerId: string) => boolean;

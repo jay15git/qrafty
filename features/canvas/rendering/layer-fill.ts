@@ -9,10 +9,10 @@ import {
 import {
   DEFAULT_DRAFTING_SHAPE_LAYER,
   DEFAULT_DRAFTING_TEXT_LAYER,
-  type DraftingCanvasLayer,
+  type CanvasLayer,
 } from "@/features/canvas/model/layers/shared";
 
-export function getShapeLayerFillCssValue(layer: DraftingCanvasLayer) {
+export function getShapeLayerFillCssValue(layer: CanvasLayer) {
   if (layer.fillMode === "gradient" && layer.fillGradient) {
     return qraftyGradientToFillCss(layer.fillGradient);
   }
@@ -21,10 +21,10 @@ export function getShapeLayerFillCssValue(layer: DraftingCanvasLayer) {
 }
 
 export function patchShapeLayerFillFromPicker(
-  layer: DraftingCanvasLayer,
+  layer: CanvasLayer,
   fill: Fill,
   css: string,
-): Partial<DraftingCanvasLayer> {
+): Partial<CanvasLayer> {
   const fallbackGradient = layer.fillGradient ?? DEFAULT_DESKTOP_SHAPE_SETTINGS.shapeGradient;
 
   if (fill.kind === "gradient") {
@@ -41,7 +41,7 @@ export function patchShapeLayerFillFromPicker(
   };
 }
 
-export function getTextLayerFillCssValue(layer: DraftingCanvasLayer) {
+export function getTextLayerFillCssValue(layer: CanvasLayer) {
   if (layer.fillMode === "gradient" && layer.fillGradient) {
     return qraftyGradientToFillCss(layer.fillGradient);
   }
@@ -50,10 +50,10 @@ export function getTextLayerFillCssValue(layer: DraftingCanvasLayer) {
 }
 
 export function patchTextLayerFillFromPicker(
-  layer: DraftingCanvasLayer,
+  layer: CanvasLayer,
   fill: Fill,
   css: string,
-): Partial<DraftingCanvasLayer> {
+): Partial<CanvasLayer> {
   const fallbackGradient = layer.fillGradient ?? DEFAULT_DESKTOP_SHAPE_SETTINGS.shapeGradient;
 
   if (fill.kind === "gradient") {
@@ -74,11 +74,11 @@ export function getShapeLayerGradientId(layerId: string) {
   return `${layerId.replace(/[^\w-]+/g, "-")}-shape-fill-gradient`;
 }
 
-export function shouldRenderShapeFillGradient(layer: DraftingCanvasLayer) {
+export function shouldRenderShapeFillGradient(layer: CanvasLayer) {
   return layer.fillMode === "gradient" && layer.fillGradient?.enabled !== false;
 }
 
-export function resolveShapeSvgFill(layer: DraftingCanvasLayer): string {
+export function resolveShapeSvgFill(layer: CanvasLayer): string {
   if (layer.fillMode === "none") {
     return "none";
   }

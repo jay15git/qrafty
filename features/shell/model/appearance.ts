@@ -11,7 +11,7 @@ import type {
 import type { DraftingFilterEffect } from "@/features/canvas/model/filters";
 import {
   DEFAULT_DRAFTING_SHAPE_LAYER,
-  type DraftingCanvasLayer,
+  type CanvasLayer,
 } from "@/features/canvas/model/layers/shared";
 import {
   layerSupportsCornerRadius,
@@ -25,7 +25,7 @@ import {
 
 export type AppearanceBorderSnapshot = DraftingBorderSideValue;
 
-export type AppearancePatch = Partial<DraftingCanvasLayer> & {
+export type AppearancePatch = Partial<CanvasLayer> & {
   border?: AppearanceBorderSnapshot;
 };
 
@@ -60,7 +60,7 @@ function qrHasBorderableBackdrop(options?: {
 }
 
 function getLayerBorderSnapshot(
-  layer: DraftingCanvasLayer,
+  layer: CanvasLayer,
   options?: {
     cardBorder?: DraftingCardBorderState;
     qrBackgroundShapeId?: string;
@@ -104,7 +104,7 @@ function getLayerBorderSnapshot(
 }
 
 export function getAppearanceSnapshot(
-  layer: DraftingCanvasLayer,
+  layer: CanvasLayer,
   options?: {
     cardBorder?: DraftingCardBorderState;
     cardCornerRadius?: number;
@@ -178,12 +178,12 @@ export type AppearancePatchResult = {
   cardCornerRadius?: number;
   cardCornerRadii?: DraftingCornerRadiiState;
   cardShadow?: Partial<DraftingCardShadowState>;
-  layerPatch: Partial<DraftingCanvasLayer>;
+  layerPatch: Partial<CanvasLayer>;
   qrBackgroundShapeOptions?: Partial<BackgroundShapeOptions>;
 };
 
 export function buildAppearancePatch(
-  layer: DraftingCanvasLayer,
+  layer: CanvasLayer,
   patch: AppearancePatch,
   options?: {
     cardBorder?: unknown;
@@ -192,7 +192,7 @@ export function buildAppearancePatch(
     qrBackgroundShapeOptions?: BackgroundShapeOptions;
   },
 ): AppearancePatchResult {
-  const layerPatch: Partial<DraftingCanvasLayer> = {};
+  const layerPatch: Partial<CanvasLayer> = {};
   let cardBorder: DraftingCardBorderState | undefined;
   let qrBackgroundShapeOptions: Partial<BackgroundShapeOptions> | undefined;
 

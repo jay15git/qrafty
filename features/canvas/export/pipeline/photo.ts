@@ -8,7 +8,7 @@ import {
 } from "@/features/qr/export/raster-export";
 import type { QrFileExtension } from "@/features/qr/model/types";
 import type { DraftingCardState } from "@/features/canvas/model/card-state";
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared";
+import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
 import type { QraftyState } from "@/features/qr/model/state";
 import { createDraftingQrArtworkState } from "@/features/canvas/rendering/qr-artwork";
 import { inlineSvgImageHrefs } from "@/features/canvas/export/pipeline/assets";
@@ -27,9 +27,9 @@ import {
 } from "@/features/canvas/export/pipeline/shader-snapshots";
 
 export type RenderWorkspaceSvgOptions = {
-  cardLayer: DraftingCanvasLayer;
+  cardLayer: CanvasLayer;
   cardState: DraftingCardState;
-  layers: DraftingCanvasLayer[];
+  layers: CanvasLayer[];
   mode: ExportClockMode;
   name: string;
   nodeId: string;
@@ -134,10 +134,10 @@ export async function renderWorkspaceRasterBlob({
   videoTimeMs = 0,
 }: {
   backgroundColor?: string;
-  cardLayer: DraftingCanvasLayer;
+  cardLayer: CanvasLayer;
   cardState: DraftingCardState;
   extension: Exclude<QrFileExtension, "svg">;
-  layers: DraftingCanvasLayer[];
+  layers: CanvasLayer[];
   mode: ExportClockMode;
   nodeId: string;
   qualityPercent: number;

@@ -5,7 +5,7 @@ import {
   createDefaultDraftingCardState,
   type DraftingCardState,
 } from "@/features/canvas/model/card-state";
-import { patchDraftingCanvasLayer } from "@/features/canvas/model/layers/patch";
+import { patchCanvasLayer } from "@/features/canvas/model/layers/patch";
 import { createDefaultDraftingLayers } from "@/features/canvas/model/layers/card-qr";
 import {
   createDraftingShaderLayer,
@@ -201,7 +201,7 @@ describe("layered svg z-order", () => {
     const state = createDefaultQraftyState();
     const cardState = createDefaultDraftingCardState();
     const layers = createDefaultDraftingLayers("node", state, cardState);
-    const textLayer = patchDraftingCanvasLayer(
+    const textLayer = patchCanvasLayer(
       createDraftingTextLayer("node", {
         fillGradient: {
           enabled: true,

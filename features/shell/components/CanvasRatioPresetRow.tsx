@@ -6,10 +6,7 @@ import { PopoverClose, PopoverContent } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { findBrandIconById } from "@/features/qr/assets/brand-icons";
 import { getSizeTemplateSections, type SizeTemplate } from "@/features/canvas/model/size-templates";
-import {
-  InspectorNumberField,
-  InspectorValueGrid,
-} from "@/features/shell/components/InspectorShell";
+import { SettingsNumberField, SettingsValueGrid } from "@/features/shell/components/SettingsRows";
 import { SettingsPopoverCloseButton } from "@/features/shell/inspector/settings-ui";
 import type { CardSizeSettings } from "@/features/shell/model/card-size-settings";
 import { cn } from "@/lib/utils";
@@ -129,22 +126,22 @@ function CanvasCustomSizeFields({
       >
         Custom
       </h3>
-      <InspectorValueGrid>
-        <InspectorNumberField
+      <SettingsValueGrid>
+        <SettingsNumberField
           fill
           label="Width"
           min={1}
           value={sizeSettings.cardWidth}
           onChange={(cardWidth) => applySize({ cardWidth })}
         />
-        <InspectorNumberField
+        <SettingsNumberField
           fill
           label="Height"
           min={1}
           value={sizeSettings.cardHeight}
           onChange={(cardHeight) => applySize({ cardHeight })}
         />
-      </InspectorValueGrid>
+      </SettingsValueGrid>
     </section>
   );
 }
@@ -185,11 +182,11 @@ export function CanvasRatioPresetPopoverContent({
         chevron
         className="min-h-0"
         cueSize="comfortable"
-        data-slot="inspector-scroll-area"
+        data-slot="settings-scroll-area"
         scrollFade
         viewportClassName="px-3 py-3"
       >
-        <div className="space-y-3" data-slot="inspector-scroll">
+        <div className="space-y-3" data-slot="settings-scroll">
           {sizeSettings && onSizeChange ? (
             <CanvasCustomSizeFields sizeSettings={sizeSettings} onSizeChange={onSizeChange} />
           ) : null}

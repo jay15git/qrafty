@@ -11,7 +11,7 @@ import type {
   LogoSettings,
   PatternSettings,
   ShapeSettings,
-} from "@/features/shell/components/FloatingToolbar";
+} from "@/features/shell/components/WorkspaceChrome";
 import type { QraftyGradient } from "@/features/qr/model/state";
 import {
   clampQraftyGradientCenter,

@@ -53,7 +53,7 @@ export function isQrTimeVarying(state: QraftyState) {
 
 export function sceneHasVideoExportContent(
   cardState: import("@/features/canvas/model/card-state").DraftingCardState,
-  layers: import("@/features/canvas/model/layers/shared").DraftingCanvasLayer[],
+  layers: import("@/features/canvas/model/layers/shared").CanvasLayer[],
   state: QraftyState,
 ) {
   if (isQrTimeVarying(state)) {

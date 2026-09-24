@@ -8,7 +8,7 @@ const INSET_PADDING_PROPERTIES = new Set(["padding", "padding-bottom"]);
 
 export function MobileWorkspaceInsetTransitionBridge() {
   useEffect(() => {
-    const inset = document.querySelector<HTMLElement>('[data-slot="drafting-workspace-inset"]');
+    const inset = document.querySelector<HTMLElement>('[data-slot="canvas-workspace-inset"]');
 
     if (!inset) {
       return;

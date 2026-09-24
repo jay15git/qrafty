@@ -2,11 +2,11 @@
 
 import { useMemo } from "react";
 
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared";
+import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
 import type { QraftyState } from "@/features/qr/model/state";
-import { buildDraftingQrBackgroundSvgPayload } from "@/features/canvas/components/drafting-qr-background";
+import { buildCanvasQrBackgroundSvgPayload } from "@/features/canvas/components/canvas-qr-background";
 
-function getDraftingQrBackgroundFrame(layer: DraftingCanvasLayer) {
+function getDraftingQrBackgroundFrame(layer: CanvasLayer) {
   return {
     height: layer.height,
     width: layer.width,
@@ -15,15 +15,9 @@ function getDraftingQrBackgroundFrame(layer: DraftingCanvasLayer) {
   };
 }
 
-export function DraftingQrBackground({
-  layer,
-  state,
-}: {
-  layer: DraftingCanvasLayer;
-  state: QraftyState;
-}) {
+export function CanvasQrBackground({ layer, state }: { layer: CanvasLayer; state: QraftyState }) {
   const frame = getDraftingQrBackgroundFrame(layer);
-  const payload = useMemo(() => buildDraftingQrBackgroundSvgPayload(layer, state), [layer, state]);
+  const payload = useMemo(() => buildCanvasQrBackgroundSvgPayload(layer, state), [layer, state]);
 
   if (!payload) {
     return null;
@@ -34,7 +28,7 @@ export function DraftingQrBackground({
       aria-hidden="true"
       className="pointer-events-none absolute z-0 overflow-visible"
       data-background-shape={payload.shapeId}
-      data-slot="drafting-qr-background"
+      data-slot="canvas-qr-background"
       style={{
         height: frame.height,
         left: frame.x,

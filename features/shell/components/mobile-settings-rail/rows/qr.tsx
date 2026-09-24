@@ -1,6 +1,6 @@
 import { useContext } from "react";
 
-import type { InspectorModel } from "@/features/shell/hooks/use-toolbar-inspector-model";
+import type { SettingsModel } from "@/features/shell/hooks/use-toolbar-settings-model";
 import {
   QR_STYLE_PART_DEFINITIONS,
   type QrStylePartId,
@@ -29,7 +29,7 @@ const QR_STYLE_PART_OPTIONS: MobileRailOption[] = [
  * the part row. Picking a tile applies it straight to the QR, so the rail stays
  * a quick-pick surface and the drawer is only needed for the long tail.
  */
-function QrStylePartOptions({ model, partId }: { model: InspectorModel; partId: QrStylePartId }) {
+function QrStylePartOptions({ model, partId }: { model: SettingsModel; partId: QrStylePartId }) {
   const part = QR_STYLE_PART_DEFINITIONS[partId];
   const selected = part.readSelected(model);
 

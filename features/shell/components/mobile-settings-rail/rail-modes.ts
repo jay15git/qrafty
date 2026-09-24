@@ -1,4 +1,4 @@
-import type { InspectorModel } from "@/features/shell/hooks/use-toolbar-inspector-model";
+import type { SettingsModel } from "@/features/shell/hooks/use-toolbar-settings-model";
 import type { LockedFillPickerMode } from "@/features/shell/inspector/FillPicker";
 import {
   isPatternModuleImageFill,
@@ -60,7 +60,7 @@ export function qrFillModeFromPattern(settings: PatternSettings): string {
   return "solid";
 }
 
-export function sceneFillModeFromModel(model: InspectorModel): string {
+export function sceneFillModeFromModel(model: SettingsModel): string {
   const styleMode = model.actualBackgroundSettings.styleMode;
   if (styleMode === "image" || styleMode === "image-filter") {
     return "image";
@@ -81,7 +81,7 @@ export function sceneFillModeFromModel(model: InspectorModel): string {
 /** The mode a family's pills should light up before anything is browsed. */
 export function defaultFamilyMode(
   family: SettingsSectionId,
-  model: InspectorModel,
+  model: SettingsModel,
 ): string | undefined {
   if (family === "Color") {
     return qrFillModeFromPattern(model.actualPatternSettings);

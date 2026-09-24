@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 
-import type { ThemeMode } from "@/features/shell/components/FloatingToolbar";
+import type { ThemeMode } from "@/features/shell/components/WorkspaceChrome";
 import { previewDrawerResize } from "@/features/canvas/preview/preview-drawer-resize";
 
 import "./workspace-entrance.css";
@@ -45,8 +45,8 @@ function isMobileChromeInsetsReady() {
 
 function getWorkspaceReadiness(root: HTMLElement) {
   const surfaceReady =
-    root.querySelector('[data-slot="drafting-surface"]') !== null &&
-    root.querySelector('[data-slot="drafting-workspace-loading"]') === null;
+    root.querySelector('[data-slot="canvas-root"]') !== null &&
+    root.querySelector('[data-slot="canvas-workspace-loading"]') === null;
 
   if (!surfaceReady) {
     return "surface-pending" as const;

@@ -95,11 +95,11 @@ describe("resolveScrollPersistKey", () => {
   it("prefixes data-slot with the nearest scope", () => {
     expect(
       resolveScrollPersistKey({
-        dataSlot: "desktop-shape-preset-shelf-scroll-area",
+        dataSlot: "canvas-shape-preset-shelf-scroll-area",
         scope: "settings:Shape",
         reactId: ":r1:",
       }),
-    ).toBe("settings:Shape:desktop-shape-preset-shelf-scroll-area");
+    ).toBe("settings:Shape:canvas-shape-preset-shelf-scroll-area");
   });
 });
 

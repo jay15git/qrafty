@@ -12,7 +12,7 @@ import { DOTS_PALETTE_PRESETS } from "@/features/shell/inspector/pattern-palette
 import { isGradientFill } from "@/features/shell/inspector/FillPicker.utils";
 import { getActiveFillPresetForStoredValue } from "@/features/shell/inspector/settings-fill-preset-match";
 import { SETTINGS_FILL_PRESETS } from "@/features/shell/inspector/settings-fill-presets";
-import { SettingsOptionShelf } from "@/features/shell/inspector/MobileSettingsRail";
+import { MobileOptionShelf } from "@/features/shell/inspector/MobileOptionRail";
 import { PaletteColorBarPreview } from "@/features/shell/inspector/PaletteColorBarPreview";
 import {
   SETTINGS_FILL_OPTION_TILE_INNER,
@@ -140,7 +140,7 @@ export function SettingsFillOptionGrid({
   );
 
   return (
-    <SettingsOptionShelf
+    <MobileOptionShelf
       activeKey={activePreset ?? undefined}
       ariaLabel="Fill options"
       dataSlot="fill-option-grid"
@@ -178,7 +178,7 @@ export function SettingsFillOptionGrid({
           </button>
         );
       })}
-    </SettingsOptionShelf>
+    </MobileOptionShelf>
   );
 }
 
@@ -204,7 +204,7 @@ export function SettingsPatternOptionGrid({
   );
 
   return (
-    <SettingsOptionShelf
+    <MobileOptionShelf
       activeKey={activePreset?.label}
       ariaLabel="Pattern options"
       dataSlot="pattern-option-grid"
@@ -235,7 +235,7 @@ export function SettingsPatternOptionGrid({
           </button>
         );
       })}
-    </SettingsOptionShelf>
+    </MobileOptionShelf>
   );
 }
 
@@ -259,7 +259,7 @@ export function SettingsImageOptionGrid({
   const customImageUrl = selectedPath && !isSceneWallpaperPath(selectedPath) ? selectedPath : "";
 
   return (
-    <SettingsOptionShelf
+    <MobileOptionShelf
       activeKey={selectedPath}
       ariaLabel="Image options"
       dataSlot="image-option-grid"
@@ -300,6 +300,6 @@ export function SettingsImageOptionGrid({
           </button>
         );
       })}
-    </SettingsOptionShelf>
+    </MobileOptionShelf>
   );
 }

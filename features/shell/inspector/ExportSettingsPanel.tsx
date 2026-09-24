@@ -4,7 +4,7 @@ import { AnimatePresence, m } from "motion/react";
 
 import { Loader } from "@/features/shell/components/motion/loader";
 import { EASE_OUT } from "@/lib/ease";
-import { InspectorElasticSliderRow } from "@/features/shell/components/InspectorShell";
+import { SettingsSliderRow } from "@/features/shell/components/SettingsRows";
 import {
   SegmentTabs,
   SettingsPrimaryButton,
@@ -15,7 +15,7 @@ import type {
   ExportSettings,
   ToolbarController,
 } from "@/features/shell/model/toolbar-types";
-import type { InspectorModel } from "@/features/shell/hooks/use-toolbar-inspector-model";
+import type { SettingsModel } from "@/features/shell/hooks/use-toolbar-settings-model";
 import {
   clampVideoExportDuration,
   type VideoExportLongEdge,
@@ -116,7 +116,7 @@ function VideoExportControls({
           })
         }
       />
-      <InspectorElasticSliderRow
+      <SettingsSliderRow
         label="Duration"
         max={VIDEO_EXPORT_MAX_DURATION_SECONDS}
         min={VIDEO_EXPORT_MIN_DURATION_SECONDS}
@@ -210,7 +210,7 @@ function ExportDownloadButton({
   );
 }
 
-export function ExportSettingsPanel({ model }: { model: InspectorModel }) {
+export function ExportSettingsPanel({ model }: { model: SettingsModel }) {
   const { actualExportSettings, controller, onExportSettingsChange } = model;
   const mediaTab = mediaKindToTab(actualExportSettings.mediaKind);
   const isVideoExport = actualExportSettings.mediaKind === "video";

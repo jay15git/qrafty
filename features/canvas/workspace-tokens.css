@@ -71,11 +71,11 @@
   line-height: 1.45;
 }
 
-[data-slot="workspace"] [data-slot="drafting-surface"] {
+[data-slot="workspace"] [data-slot="canvas-root"] {
   border-color: transparent;
   isolation: isolate;
 }
 
-[data-slot="workspace"] [data-slot="drafting-surface"]::before {
+[data-slot="workspace"] [data-slot="canvas-root"]::before {
   display: none;
 }

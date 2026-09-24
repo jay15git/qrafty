@@ -36,8 +36,7 @@ import {
 } from "@/features/canvas/model/corner-radius";
 import type { DraftingIllustrationColorStop } from "@/features/canvas/assets/illustration-recolor";
 
-export type DraftingCanvasLayerKind =
-  "card" | "group" | "image" | "qr" | "shader" | "shape" | "text";
+export type CanvasLayerKind = "card" | "group" | "image" | "qr" | "shader" | "shape" | "text";
 export type DraftingImageSourceMode = "none" | "upload" | "url";
 export type DraftingImageFit = "contain" | "cover";
 export type DraftingShapeFillMode = "gradient" | "image" | "none" | "solid";
@@ -58,13 +57,13 @@ export type DraftingTextRun = {
   underline?: boolean;
 };
 
-export type DraftingCanvasLayer = {
+export type CanvasLayer = {
   blur: number;
   borderSides?: DraftingPerSideBorderState;
   height: number;
   id: string;
   isVisible: boolean;
-  kind: DraftingCanvasLayerKind;
+  kind: CanvasLayerKind;
   cornerRadius?: number;
   cornerRadii?: DraftingCornerRadiiState;
   fill?: string;
@@ -107,10 +106,10 @@ export type DraftingCanvasLayer = {
   x: number;
   y: number;
   zIndex: number;
-  children?: DraftingCanvasLayer[];
+  children?: CanvasLayer[];
 };
 
-export type DraftingLayerStateByNodeId = Record<string, DraftingCanvasLayer[]>;
+export type DraftingLayerStateByNodeId = Record<string, CanvasLayer[]>;
 export type DraftingLayerReorderAction = "back" | "backward" | "forward" | "front";
 export type DraftingLayerAlignAction =
   "bottom" | "center-x" | "center-y" | "left" | "right" | "top";
@@ -149,7 +148,7 @@ export const DEFAULT_DRAFTING_IMAGE_LAYER = {
   imageFit: "cover",
   imageSource: "none",
   imageValue: "",
-} as const satisfies Partial<DraftingCanvasLayer>;
+} as const satisfies Partial<CanvasLayer>;
 
 export const DEFAULT_DRAFTING_SHAPE_LAYER = {
   cornerRadius: 16,
@@ -160,11 +159,11 @@ export const DEFAULT_DRAFTING_SHAPE_LAYER = {
   strokeOpacity: 100,
   strokeStyle: "solid",
   strokeWidth: 0,
-} as const satisfies Partial<DraftingCanvasLayer>;
+} as const satisfies Partial<CanvasLayer>;
 
 export const DEFAULT_DRAFTING_SHADER_LAYER = {
   cornerRadius: 0,
-} as const satisfies Partial<DraftingCanvasLayer>;
+} as const satisfies Partial<CanvasLayer>;
 
 export function getDraftingCardLayerId(nodeId: string) {
   return `${nodeId}${DRAFTING_CARD_LAYER_SUFFIX}`;
@@ -190,17 +189,15 @@ export function isDraftingQrLayerId(layerId: string | null | undefined) {
   return /:qr(?::|$)/.test(layerId);
 }
 
-function isQrCanvasLayer(
-  layer: Pick<DraftingCanvasLayer, "kind">,
-): layer is DraftingCanvasLayer & { kind: "qr" } {
+function isQrCanvasLayer(layer: Pick<CanvasLayer, "kind">): layer is CanvasLayer & { kind: "qr" } {
   return layer.kind === "qr";
 }
 
-export function getQrCanvasLayers(layers: DraftingCanvasLayer[]) {
+export function getQrCanvasLayers(layers: CanvasLayer[]) {
   return layers.filter(isQrCanvasLayer);
 }
 
-function canDeleteQrLayer(layerId: string, layers: DraftingCanvasLayer[]) {
+function canDeleteQrLayer(layerId: string, layers: CanvasLayer[]) {
   if (!isDraftingQrLayerId(layerId)) {
     return false;
   }
@@ -208,7 +205,7 @@ function canDeleteQrLayer(layerId: string, layers: DraftingCanvasLayer[]) {
   return getQrCanvasLayers(layers).length > 1;
 }
 
-export function isLayerDeletable(layerId: string, layers: DraftingCanvasLayer[]) {
+export function isLayerDeletable(layerId: string, layers: CanvasLayer[]) {
   if (isDraftingCardLayerId(layerId)) {
     return false;
   }
@@ -222,7 +219,7 @@ export function isLayerDeletable(layerId: string, layers: DraftingCanvasLayer[])
 
 export function isProtectedDraftingLayerId(
   layerId: string | null | undefined,
-  layers?: DraftingCanvasLayer[],
+  layers?: CanvasLayer[],
 ) {
   if (isDraftingCardLayerId(layerId)) {
     return true;
@@ -236,22 +233,22 @@ export function isProtectedDraftingLayerId(
 }
 
 export type NormalizeDraftingLayerContext = {
-  fallback: DraftingCanvasLayer;
-  fallbackLayers: DraftingCanvasLayer[];
+  fallback: CanvasLayer;
+  fallbackLayers: CanvasLayer[];
   height: number;
-  kind: DraftingCanvasLayerKind;
+  kind: CanvasLayerKind;
   nodeId: string;
   value: Record<string, unknown>;
   width: number;
 };
 
-export function normalizeSharedDraftingCanvasLayerFields({
+export function normalizeSharedCanvasLayerFields({
   fallback,
   height,
   nodeId,
   value,
   width,
-}: NormalizeDraftingLayerContext): Omit<DraftingCanvasLayer, "kind"> {
+}: NormalizeDraftingLayerContext): Omit<CanvasLayer, "kind"> {
   const legacyBlur = clamp(readFiniteNumber(value.blur, fallback.blur), 0, 96);
   const layerFilters = normalizeDraftingLayerFilters(
     value.layerFilters,
@@ -305,7 +302,7 @@ export function normalizeSharedDraftingCanvasLayerFields({
 
 export function normalizeLayerCornerRadiusFields(
   value: Record<string, unknown>,
-  fallback: DraftingCanvasLayer,
+  fallback: CanvasLayer,
   defaultRadius: number,
 ) {
   const legacyCornerRadius = clamp(

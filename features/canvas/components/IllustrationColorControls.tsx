@@ -2,7 +2,7 @@
 
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import type { Fill } from "@/components/ui/fill-picker/public-api";
-import type { ThemeMode } from "@/features/shell/components/FloatingToolbar";
+import type { ThemeMode } from "@/features/shell/components/WorkspaceChrome";
 import { fillPreviewHex } from "@/features/shell/inspector/FillPicker.utils";
 import { InspectorThemeContext } from "@/features/shell/inspector/theme-context";
 import { useMobileDrawerNavigation } from "@/features/shell/inspector/MobileDrawerNavigationContext";
@@ -18,7 +18,7 @@ import {
 } from "@/features/canvas/assets/illustration-recolor";
 import { useIllustrationSvgMarkup } from "@/features/canvas/assets/use-illustration-svg";
 import { cornerRadiiToCss, resolveLayerCornerRadii } from "@/features/canvas/model/corner-radius";
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared";
+import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
 import { cn } from "@/lib/utils";
 
 function patchIllustrationStops(
@@ -40,8 +40,8 @@ export function IllustrationFloatingColorControl({
   onPatch,
   theme,
 }: {
-  layer: DraftingCanvasLayer;
-  onPatch: (patch: Partial<DraftingCanvasLayer>) => void;
+  layer: CanvasLayer;
+  onPatch: (patch: Partial<CanvasLayer>) => void;
   theme: ThemeMode;
 }) {
   const mobileDensity = useMobileInspectorDensity();
@@ -72,7 +72,7 @@ export function IllustrationFloatingColorControl({
     return (
       <div
         className="flex size-9 shrink-0 items-center justify-center"
-        data-slot="drafting-layer-floating-toolbar-color"
+        data-slot="canvas-layer-floating-toolbar-color"
         onPointerDown={(event) => event.stopPropagation()}
       >
         <InspectorThemeContext.Provider value={theme}>
@@ -125,7 +125,7 @@ export function IllustrationFloatingColorControl({
     return (
       <div
         className="flex size-9 shrink-0 items-center justify-center"
-        data-slot="drafting-layer-floating-toolbar-color"
+        data-slot="canvas-layer-floating-toolbar-color"
         onPointerDown={(event) => event.stopPropagation()}
       >
         <InspectorThemeContext.Provider value={theme}>
@@ -155,7 +155,7 @@ export function IllustrationFloatingColorControl({
   return (
     <div
       className="flex size-9 shrink-0 items-center justify-center"
-      data-slot="drafting-layer-floating-toolbar-color"
+      data-slot="canvas-layer-floating-toolbar-color"
       onPointerDown={(event) => event.stopPropagation()}
     >
       <InspectorThemeContext.Provider value={theme}>
@@ -193,8 +193,8 @@ export function IllustrationInspectorColorSection({
   layer,
   onPatch,
 }: {
-  layer: DraftingCanvasLayer;
-  onPatch: (patch: Partial<DraftingCanvasLayer>) => void;
+  layer: CanvasLayer;
+  onPatch: (patch: Partial<CanvasLayer>) => void;
 }) {
   const markup = useIllustrationSvgMarkup(layer.imageValue);
   const sourceColors = markup ? extractSvgPaintColors(markup) : [];
@@ -238,7 +238,7 @@ export function IllustrationInspectorColorSection({
   );
 }
 
-export function IllustrationLayerImage({ layer }: { layer: DraftingCanvasLayer }) {
+export function IllustrationLayerImage({ layer }: { layer: CanvasLayer }) {
   const imageValue = layer.imageValue ?? "";
   const markup = useIllustrationSvgMarkup(imageValue);
   const src =

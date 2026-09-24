@@ -1,4 +1,4 @@
-body:has([data-slot="floating-toolbar-root"]) {
+body:has([data-slot="chrome-root"]) {
   --glass-bg: rgba(29, 29, 29, 0.95);
   --glass-border: rgba(255, 255, 255, 0.06);
   --glass-fg: rgba(255, 255, 255, 0.72);
@@ -27,7 +27,7 @@ body:has([data-slot="floating-toolbar-root"]) {
   --chrome-fg: var(--glass-fg);
 }
 
-body:has([data-slot="floating-toolbar-root"][data-shell-theme="light"]) {
+body:has([data-slot="chrome-root"][data-shell-theme="light"]) {
   --glass-bg: rgba(255, 255, 255, 0.78);
   --glass-border: rgba(15, 23, 42, 0.12);
   --glass-fg: rgba(15, 23, 42, 0.68);
@@ -58,20 +58,20 @@ body:has([data-slot="floating-toolbar-root"][data-shell-theme="light"]) {
   --chrome-fg: rgba(15, 23, 42, 0.76);
 }
 
-[data-slot="inspector-filter-trigger"] {
+[data-slot="settings-filter-trigger"] {
   color: var(--fg-tertiary) !important;
 }
 
-[data-slot="inspector-filter-trigger"]:hover,
-[data-slot="inspector-filter-trigger"][data-state="open"] {
+[data-slot="settings-filter-trigger"]:hover,
+[data-slot="settings-filter-trigger"][data-state="open"] {
   color: var(--fg-secondary) !important;
 }
 
-[data-slot="inspector-filter-trigger"] span {
+[data-slot="settings-filter-trigger"] span {
   color: inherit !important;
 }
 
-[data-slot~="inspector-filter-menu"] {
+[data-slot~="settings-filter-menu"] {
   background-color: var(--elevated) !important;
   border-color: var(--dropdown-border) !important;
   color: var(--fg-secondary) !important;
@@ -79,56 +79,56 @@ body:has([data-slot="floating-toolbar-root"][data-shell-theme="light"]) {
   --tw-ring-color: transparent !important;
 }
 
-[data-slot~="inspector-filter-menu"] [data-slot="dropdown-menu-radio-item"] {
+[data-slot~="settings-filter-menu"] [data-slot="dropdown-menu-radio-item"] {
   color: var(--fg-tertiary) !important;
 }
 
-[data-slot~="inspector-filter-menu"]
+[data-slot~="settings-filter-menu"]
   [data-slot="dropdown-menu-radio-item"]:is(:focus, [data-highlighted]) {
   background-color: var(--control-hover) !important;
   color: var(--fg-secondary) !important;
 }
 
-[data-slot~="inspector-filter-menu"] [data-slot="dropdown-menu-radio-item"][data-state="checked"] {
+[data-slot~="settings-filter-menu"] [data-slot="dropdown-menu-radio-item"][data-state="checked"] {
   background-color: var(--option-selected-bg) !important;
   color: var(--fg-secondary) !important;
 }
 
-[data-slot~="inspector-filter-menu"]
+[data-slot~="settings-filter-menu"]
   [data-slot="dropdown-menu-radio-item"][data-state="checked"]:is(:focus, [data-highlighted]) {
   background-color: var(--option-selected-bg) !important;
   color: var(--fg-secondary) !important;
 }
 
-[data-slot~="inspector-filter-menu"] .bg-hover {
+[data-slot~="settings-filter-menu"] .bg-hover {
   left: 0 !important;
   width: 100% !important;
   background-color: var(--control-hover) !important;
 }
 
-[data-slot~="inspector-filter-menu"] .bg-active {
+[data-slot~="settings-filter-menu"] .bg-active {
   left: 0 !important;
   width: 100% !important;
   background-color: var(--option-selected-bg) !important;
 }
 
-[data-slot~="inspector-filter-menu"] .text-muted-foreground {
+[data-slot~="settings-filter-menu"] .text-muted-foreground {
   color: var(--fg-tertiary) !important;
 }
 
-[data-slot~="inspector-filter-menu"] .text-foreground,
-[data-slot~="inspector-filter-menu"] [role="menuitemradio"]:hover .text-muted-foreground {
+[data-slot~="settings-filter-menu"] .text-foreground,
+[data-slot~="settings-filter-menu"] [role="menuitemradio"]:hover .text-muted-foreground {
   color: var(--fg-primary) !important;
 }
 
-[data-slot~="inspector-filter-menu"] [role="menu"] {
+[data-slot~="settings-filter-menu"] [role="menu"] {
   background-color: transparent !important;
   box-shadow: none !important;
 }
 
-[data-slot="floating-inspector"]
+[data-slot="desktop-settings-panel-host"]
   .ds-morph-filter[data-open="true"]
-  [data-slot~="inspector-filter-menu"] {
+  [data-slot~="settings-filter-menu"] {
   --foreground: var(--fg-primary);
   --muted-foreground: var(--fg-tertiary);
   --background: var(--elevated);
@@ -139,9 +139,9 @@ body:has([data-slot="floating-toolbar-root"][data-shell-theme="light"]) {
 }
 
 [data-shell-theme="light"]
-  [data-slot="floating-inspector"]
+  [data-slot="desktop-settings-panel-host"]
   .ds-morph-filter[data-open="true"]
-  [data-slot~="inspector-filter-menu"] {
+  [data-slot~="settings-filter-menu"] {
   --control-hover: rgba(15, 23, 42, 0.06);
   --option-selected-bg: rgba(15, 23, 42, 0.08);
 }
@@ -162,7 +162,7 @@ body:has([data-slot="floating-toolbar-root"][data-shell-theme="light"]) {
   color-scheme: dark;
 }
 
-body:has([data-slot="floating-toolbar-root"][data-shell-theme="light"]) .tooltip-content,
+body:has([data-slot="chrome-root"][data-shell-theme="light"]) .tooltip-content,
 body:has([data-slot="workspace"][data-shell-theme="light"]) .tooltip-content {
   border-radius: 9999px !important;
   background: var(--tooltip-bg) !important;
@@ -170,7 +170,7 @@ body:has([data-slot="workspace"][data-shell-theme="light"]) .tooltip-content {
   box-shadow: var(--tooltip-shadow) !important;
 }
 
-body:has([data-slot="floating-toolbar-root"][data-shell-theme="dark"]) .tooltip-content,
+body:has([data-slot="chrome-root"][data-shell-theme="dark"]) .tooltip-content,
 body:has([data-slot="workspace"][data-shell-theme="dark"]) .tooltip-content {
   border-radius: 9999px !important;
   background: var(--tooltip-bg) !important;
@@ -306,7 +306,7 @@ body:has([data-slot="workspace"][data-shell-theme="dark"]) .tooltip-content {
   background-color: color-mix(in srgb, var(--option-selected-fg, #fff) 12%, transparent);
 }
 
-body:has([data-slot="floating-toolbar-root"][data-shell-theme="light"])
+body:has([data-slot="chrome-root"][data-shell-theme="light"])
   [data-slot^="appearance-"][data-slot$="-popover"],
 body:has([data-slot="workspace"][data-shell-theme="light"])
   [data-slot^="appearance-"][data-slot$="-popover"] {
@@ -334,7 +334,7 @@ body:has([data-slot="workspace"][data-shell-theme="light"])
   box-shadow: none !important;
 }
 
-[data-slot="floating-inspector"] [data-shape-option-preview="true"] {
+[data-slot="desktop-settings-panel-host"] [data-shape-option-preview="true"] {
   background: var(--shape-preview-bg, rgba(0, 0, 0, 0.88)) !important;
   border-color: var(--shape-preview-border, rgba(255, 255, 255, 0.18)) !important;
   color: var(--shape-preview-fg, #f8fafc) !important;
@@ -345,7 +345,9 @@ body:has([data-slot="workspace"][data-shell-theme="light"])
   --style-preview-border: rgba(15, 23, 42, 0.11);
 }
 
-[data-shell-theme="light"] [data-slot="floating-inspector"] [data-shape-option-preview="true"] {
+[data-shell-theme="light"]
+  [data-slot="desktop-settings-panel-host"]
+  [data-shape-option-preview="true"] {
   --shape-preview-bg: rgba(255, 255, 255, 0.86);
   --shape-preview-border: rgba(15, 23, 42, 0.14);
   --shape-preview-fg: #18181b;
@@ -412,12 +414,12 @@ body:has([data-slot="workspace"][data-shell-theme="light"])
   color: var(--toolbar-fg-active);
 }
 
-[data-shell-theme="dark"] [data-slot="floating-inspector"] {
+[data-shell-theme="dark"] [data-slot="desktop-settings-panel-host"] {
   --scroll-edge-fade-color: var(--bg);
   --scroll-edge-chevron-color: rgba(255, 255, 255, 0.45);
 }
 
-[data-slot="mobile-family-drawer-root"] [data-slot="scroll-area"] {
+[data-slot="mobile-settings-drawer-root"] [data-slot="scroll-area"] {
   --scroll-edge-fade-color: var(--bg);
   --scroll-edge-chevron-color: var(--muted);
 }
@@ -463,7 +465,7 @@ body:has([data-slot^="appearance-"][data-slot$="-popover"])
   color: var(--fg-secondary) !important;
 }
 
-[data-slot="floating-inspector"] :is(input, textarea, select) {
+[data-slot="desktop-settings-panel-host"] :is(input, textarea, select) {
   background-color: var(--control) !important;
   border-color: transparent !important;
   color: currentColor !important;
@@ -489,13 +491,13 @@ body:has([data-slot^="appearance-"][data-slot$="-popover"])
   color: var(--fg-tertiary);
 }
 
-[data-slot="floating-inspector"] :is(input, textarea, select):focus,
-[data-slot="floating-inspector"] :is(input, textarea, select):focus-visible {
+[data-slot="desktop-settings-panel-host"] :is(input, textarea, select):focus,
+[data-slot="desktop-settings-panel-host"] :is(input, textarea, select):focus-visible {
   border-color: transparent !important;
   box-shadow: inset 0 0 0 1px var(--focus) !important;
 }
 
-[data-shell-theme="light"] [data-slot="floating-inspector"] input::placeholder,
-[data-shell-theme="light"] [data-slot="floating-inspector"] textarea::placeholder {
+[data-shell-theme="light"] [data-slot="desktop-settings-panel-host"] input::placeholder,
+[data-shell-theme="light"] [data-slot="desktop-settings-panel-host"] textarea::placeholder {
   color: var(--fg-muted) !important;
 }

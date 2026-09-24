@@ -5,8 +5,8 @@ import { useCallback, useRef, useState } from "react";
 import { playSound } from "@/features/shell/audio/cuelume";
 import {
   DEFAULT_DOWNLOAD_NAME,
-  type DraftingDownloadExtension,
-} from "@/features/canvas/components/drafting-canvas.constants";
+  type CanvasDownloadExtension,
+} from "@/features/canvas/components/canvas.constants";
 import {
   resolveVideoOutputDimensions,
   type OutputDimensions,
@@ -18,10 +18,10 @@ import {
   type WorkspaceExportProgress,
 } from "@/features/canvas/export/pipeline";
 import type {
-  DraftingCanvasLayer,
+  CanvasLayer,
   DraftingLayerStateByNodeId,
 } from "@/features/canvas/model/layers/shared";
-import { cloneDraftingCanvasLayer } from "@/features/canvas/model/layers/fallback";
+import { cloneCanvasLayer } from "@/features/canvas/model/layers/fallback";
 import { createDefaultDraftingLayers } from "@/features/canvas/model/layers/card-qr";
 import type { DraftingCardState } from "@/features/canvas/model/card-state";
 import type { DraftingQrStateByNodeId } from "@/features/canvas/model/document";
@@ -38,7 +38,7 @@ export function useWorkspaceExport({
   exportMediaKind,
   layerStateByNodeId,
   qrCanvasLayers,
-  qrPaneNamesById,
+  qrBoardNamesById,
   qrStateByLayerId,
   rasterPhotoLongEdge,
   setDownloadError,
@@ -49,12 +49,12 @@ export function useWorkspaceExport({
   activeQrNodeId: string;
   canDownload: boolean;
   cardState: DraftingCardState;
-  downloadExtension: DraftingDownloadExtension;
+  downloadExtension: CanvasDownloadExtension;
   downloadTarget: string;
   exportMediaKind: string;
   layerStateByNodeId: DraftingLayerStateByNodeId;
-  qrCanvasLayers: DraftingCanvasLayer[];
-  qrPaneNamesById: Map<string, string>;
+  qrCanvasLayers: CanvasLayer[];
+  qrBoardNamesById: Map<string, string>;
   qrStateByLayerId: DraftingQrStateByNodeId;
   rasterPhotoLongEdge: VideoExportLongEdge | undefined;
   setDownloadError: (error: string | null) => void;
@@ -72,7 +72,7 @@ export function useWorkspaceExport({
   const abortControllerRef = useRef<AbortController | null>(null);
 
   const resolveTargetDimensions = useCallback(
-    (cardLayer: DraftingCanvasLayer): OutputDimensions | undefined => {
+    (cardLayer: CanvasLayer): OutputDimensions | undefined => {
       if (rasterPhotoLongEdge) {
         return resolveVideoOutputDimensions(cardLayer.width, cardLayer.height, rasterPhotoLongEdge);
       }
@@ -163,7 +163,7 @@ export function useWorkspaceExport({
 
         const items = qrCanvasLayers.map((layer) => ({
           layerId: layer.id,
-          name: qrPaneNamesById.get(layer.id) ?? "QR Code",
+          name: qrBoardNamesById.get(layer.id) ?? "QR Code",
           state: layer.id === activeQrLayerId ? state : (qrStateByLayerId[layer.id] ?? state),
         }));
 
@@ -194,12 +194,12 @@ export function useWorkspaceExport({
 
         await runExport({
           layers: exportLayers.map((entry) =>
-            cloneDraftingCanvasLayer({
+            cloneCanvasLayer({
               ...entry,
               isVisible: entry.kind === "card" || entry.id === layerId ? entry.isVisible : false,
             }),
           ),
-          name: qrPaneNamesById.get(layerId) ?? "QR Code",
+          name: qrBoardNamesById.get(layerId) ?? "QR Code",
           state: exportState,
         });
       } else if (downloadTarget === "surface") {
@@ -237,7 +237,7 @@ export function useWorkspaceExport({
     inProgress,
     layerStateByNodeId,
     qrCanvasLayers,
-    qrPaneNamesById,
+    qrBoardNamesById,
     qrStateByLayerId,
     resolveTargetDimensions,
     setDownloadError,

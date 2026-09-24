@@ -1,4 +1,4 @@
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared";
+import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
 import {
   DRAFTING_FONT_CATEGORY_FALLBACKS,
   DRAFTING_FONT_CATEGORY_ORDER,
@@ -266,9 +266,9 @@ export function loadDraftingFontPreview(fontId: string | null | undefined) {
   document.head.appendChild(link);
 }
 
-export async function ensureDraftingFontsForLayers(layers: readonly DraftingCanvasLayer[]) {
+export async function ensureDraftingFontsForLayers(layers: readonly CanvasLayer[]) {
   const fontIds = new Set<string>();
-  const visit = (layer: DraftingCanvasLayer) => {
+  const visit = (layer: CanvasLayer) => {
     if (layer.kind === "text") {
       fontIds.add(resolveDraftingFont({ fontFamily: layer.fontFamily, fontId: layer.fontId }).id);
     }

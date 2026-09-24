@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { formatFill } from "@/components/ui/fill-picker/public-api";
 import { fillFromHex } from "@/features/shell/inspector/FillPicker.utils";
-import { patchDraftingCanvasLayer } from "@/features/canvas/model/layers/patch";
+import { patchCanvasLayer } from "@/features/canvas/model/layers/patch";
 import {
   createDraftingShapeLayer,
   createDraftingTextLayer,
@@ -52,7 +52,7 @@ describe("shape-fill", () => {
       },
       gradientCss,
     );
-    const nextLayer = patchDraftingCanvasLayer(layer, patch);
+    const nextLayer = patchCanvasLayer(layer, patch);
 
     expect(nextLayer.fillMode).toBe("gradient");
     expect(nextLayer.fillGradient?.enabled).toBe(true);
@@ -68,7 +68,7 @@ describe("shape-fill", () => {
       { kind: "color", color: { l: 0.6, c: 0.2, h: 10, alpha: 1 } },
       solidCss,
     );
-    const nextLayer = patchDraftingCanvasLayer(layer, patch);
+    const nextLayer = patchCanvasLayer(layer, patch);
 
     expect(nextLayer.fillMode).toBe("solid");
     expect(nextLayer.fill).toBe("#FF3366");
@@ -93,7 +93,7 @@ describe("text-fill", () => {
     const layer = createDraftingTextLayer("preview");
     const gradientCss = formatFill(gradientFill);
     const patch = patchTextLayerFillFromPicker(layer, gradientFill, gradientCss);
-    const nextLayer = patchDraftingCanvasLayer(layer, patch);
+    const nextLayer = patchCanvasLayer(layer, patch);
 
     expect(nextLayer.fillMode).toBe("gradient");
     expect(nextLayer.fillGradient?.enabled).toBe(true);
@@ -109,7 +109,7 @@ describe("text-fill", () => {
       { kind: "color", color: { l: 0.6, c: 0.2, h: 10, alpha: 1 } },
       solidCss,
     );
-    const nextLayer = patchDraftingCanvasLayer(layer, patch);
+    const nextLayer = patchCanvasLayer(layer, patch);
 
     expect(nextLayer.fillMode).toBe("solid");
     expect(nextLayer.fill).toBe("#FF3366");

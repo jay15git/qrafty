@@ -1,11 +1,11 @@
 import { Link2, Unlink2 } from "lucide-react";
 import { INSPECTOR_SECTION_GAP_CLASS } from "@/features/shell/components/inspector-tokens";
-import { InspectorLabel, InspectorSection } from "@/features/shell/components/InspectorControls";
+import { InspectorLabel, InspectorSection } from "@/features/shell/components/SettingsControls";
 import {
-  InspectorElasticSliderRow,
-  InspectorNumberField,
-  InspectorValueGrid,
-} from "@/features/shell/components/InspectorShell";
+  SettingsSliderRow,
+  SettingsNumberField,
+  SettingsValueGrid,
+} from "@/features/shell/components/SettingsRows";
 import { InspectorThemeContext } from "@/features/shell/inspector/theme-context";
 import { SettingsFillPopover, SettingsSlider } from "@/features/shell/inspector/settings-ui";
 import { fillPreviewHex } from "@/features/shell/inspector/FillPicker.utils";
@@ -14,7 +14,7 @@ import type {
   AppearancePatch,
   AppearanceSnapshot,
 } from "@/features/shell/model/appearance";
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared";
+import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
 import {
   DRAFTING_CORNER_RADIUS_KEYS,
   DRAFTING_CORNER_RADIUS_MAX,
@@ -52,7 +52,7 @@ export function AppearanceBorderControls({
         <BorderColorRow appearance={appearance} onPatch={onPatch} />
       </InspectorThemeContext.Provider>
       <div className="mt-2 grid gap-2">
-        <InspectorElasticSliderRow
+        <SettingsSliderRow
           label="Width"
           max={64}
           min={0}
@@ -60,7 +60,7 @@ export function AppearanceBorderControls({
           valueLabel={`${Math.round(border.width)}`}
           onChange={(width) => emit({ width })}
         />
-        <InspectorElasticSliderRow
+        <SettingsSliderRow
           label="Opacity"
           max={100}
           min={0}
@@ -110,7 +110,7 @@ function AppearanceOpacityControls({
 }: {
   appearance: AppearanceSnapshot;
   className?: string;
-  onPatch: (patch: Partial<DraftingCanvasLayer>) => void;
+  onPatch: (patch: Partial<CanvasLayer>) => void;
   useSettingsSlider?: boolean;
 }) {
   const opacityPercent = Math.round(appearance.opacity * 100);
@@ -129,7 +129,7 @@ function AppearanceOpacityControls({
           onChange={(next) => onPatch({ opacity: next / 100 })}
         />
       ) : (
-        <InspectorElasticSliderRow
+        <SettingsSliderRow
           label="Opacity"
           max={100}
           min={0}
@@ -149,7 +149,7 @@ export function AppearanceRadiusControls({
 }: {
   appearance: AppearanceSnapshot;
   className?: string;
-  onPatch: (patch: Partial<DraftingCanvasLayer>) => void;
+  onPatch: (patch: Partial<CanvasLayer>) => void;
 }) {
   if (!appearance.supportsCornerRadius) {
     return null;
@@ -198,7 +198,7 @@ export function AppearanceRadiusControls({
       </div>
 
       {radii.linked ? (
-        <InspectorElasticSliderRow
+        <SettingsSliderRow
           label="All corners"
           max={DRAFTING_CORNER_RADIUS_MAX}
           min={0}
@@ -207,9 +207,9 @@ export function AppearanceRadiusControls({
           onChange={(value) => updateCorner("topLeft", value)}
         />
       ) : (
-        <InspectorValueGrid>
+        <SettingsValueGrid>
           {DRAFTING_CORNER_RADIUS_KEYS.map((corner) => (
-            <InspectorNumberField
+            <SettingsNumberField
               key={corner}
               label={
                 corner === "topLeft"
@@ -226,7 +226,7 @@ export function AppearanceRadiusControls({
               onChange={(value) => updateCorner(corner, value)}
             />
           ))}
-        </InspectorValueGrid>
+        </SettingsValueGrid>
       )}
     </InspectorSection>
   );

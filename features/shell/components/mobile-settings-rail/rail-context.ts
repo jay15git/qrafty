@@ -1,6 +1,6 @@
 import { createContext, useEffect, useRef, type ReactNode } from "react";
 
-import type { InspectorModel } from "@/features/shell/hooks/use-toolbar-inspector-model";
+import type { SettingsModel } from "@/features/shell/hooks/use-toolbar-settings-model";
 import type { QrStylePartId } from "@/features/shell/inspector/qr-style-parts";
 
 export type MobileRailOption = {
@@ -14,7 +14,7 @@ export type MobileRailOption = {
 };
 
 export type MobileRailRowProps = {
-  model: InspectorModel;
+  model: SettingsModel;
   /** Opens the family drawer on this family's section (long-tail controls). */
   openDrawer: () => void;
 };
@@ -23,7 +23,7 @@ export type MobileRailRowProps = {
  * Detail callbacks run after the row re-rendered, so they must read the latest
  * model — the ReactNode handed to `openDetail` captures props at open time.
  */
-export function useLatestModel(model: InspectorModel) {
+export function useLatestModel(model: SettingsModel) {
   const ref = useRef(model);
   useEffect(() => {
     ref.current = model;

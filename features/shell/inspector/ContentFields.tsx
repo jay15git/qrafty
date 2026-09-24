@@ -279,7 +279,7 @@ export function ContentFields({
             <div
               key={`${contentType}-${leftField.id}-${rightField.id}`}
               className="grid min-w-0 grid-cols-2 gap-2"
-              data-slot="inspector-content-field-row"
+              data-slot="settings-content-field-row"
             >
               <ContentFieldRow field={leftField} onContentValueChange={handleFieldChange} />
               <ContentFieldRow field={rightField} onContentValueChange={handleFieldChange} />

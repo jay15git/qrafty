@@ -4,16 +4,13 @@ import {
 } from "@/features/canvas/model/effects";
 import { syncBlurFilter, syncLegacyBlurFromFilters } from "@/features/canvas/model/filters";
 import { buildCornerRadiusLayerPatch } from "@/features/canvas/model/corner-radius";
-import { normalizeDraftingCanvasLayer } from "@/features/canvas/model/layers/normalize";
+import { normalizeCanvasLayer } from "@/features/canvas/model/layers/normalize";
 import {
   normalizeDraftingLayerShadow,
-  type DraftingCanvasLayer,
+  type CanvasLayer,
 } from "@/features/canvas/model/layers/shared";
 
-export function patchDraftingCanvasLayer(
-  layer: DraftingCanvasLayer,
-  patch: Partial<DraftingCanvasLayer>,
-): DraftingCanvasLayer {
+export function patchCanvasLayer(layer: CanvasLayer, patch: Partial<CanvasLayer>): CanvasLayer {
   const merged = { ...layer, ...patch };
 
   if (patch.shadow && !patch.shadows) {
@@ -54,5 +51,5 @@ export function patchDraftingCanvasLayer(
     merged.cornerRadii = cornerRadiusPatch.cornerRadii;
   }
 
-  return normalizeDraftingCanvasLayer(layer.nodeId, merged, [layer]) ?? layer;
+  return normalizeCanvasLayer(layer.nodeId, merged, [layer]) ?? layer;
 }

@@ -2,18 +2,18 @@
 
 import { useMemo, useSyncExternalStore } from "react";
 
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared";
-import { cloneDraftingCanvasLayer } from "@/features/canvas/model/layers/fallback";
+import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
+import { cloneCanvasLayer } from "@/features/canvas/model/layers/fallback";
 import type { DraftingCardState } from "@/features/canvas/model/card-state";
 import type { DraftingQrStateByLayerId } from "@/features/canvas/model/document";
-import type { DraftingDownloadTarget } from "@/features/canvas/components/drafting-canvas-operations";
-import type { DraftingDownloadExtension } from "@/features/canvas/components/drafting-canvas.constants";
+import type { CanvasDownloadTarget } from "@/features/canvas/components/canvas-operations";
+import type { CanvasDownloadExtension } from "@/features/canvas/components/canvas.constants";
 import type { OutputDimensions } from "@/features/canvas/export/pipeline/bounds";
 import { previewSession } from "@/features/canvas/preview/preview-session";
 import { useQrScanSafety } from "@/features/qr/hooks/use-qr-scan-safety";
 import type { QraftyState } from "@/features/qr/model/state";
 
-type ResolveTargetDimensions = (cardLayer: DraftingCanvasLayer) => OutputDimensions | undefined;
+type ResolveTargetDimensions = (cardLayer: CanvasLayer) => OutputDimensions | undefined;
 
 /**
  * Builds the scan-safety probe for the workspace: which QR layer is being
@@ -34,17 +34,17 @@ export function useCanvasScanSafety({
   selectedDownloadExtension,
   selectedDownloadTarget,
 }: {
-  activeCanvasLayers: DraftingCanvasLayer[];
+  activeCanvasLayers: CanvasLayer[];
   activeQrLayerId: string;
   activeQrNodeId: string;
   draftingQraftyState: QraftyState;
-  qrCanvasLayers: DraftingCanvasLayer[];
+  qrCanvasLayers: CanvasLayer[];
   qrStateByLayerId: DraftingQrStateByLayerId;
   resolveTargetDimensions: ResolveTargetDimensions;
   selectedCardState: DraftingCardState;
   selectedContentIsValid: boolean;
-  selectedDownloadExtension: DraftingDownloadExtension;
-  selectedDownloadTarget: DraftingDownloadTarget;
+  selectedDownloadExtension: CanvasDownloadExtension;
+  selectedDownloadTarget: CanvasDownloadTarget;
 }) {
   const isPreviewInteracting = useSyncExternalStore(
     previewSession.subscribe,
@@ -77,7 +77,7 @@ export function useCanvasScanSafety({
       selectedDownloadTarget === "surface"
         ? activeCanvasLayers
         : activeCanvasLayers.map((layer) =>
-            cloneDraftingCanvasLayer({
+            cloneCanvasLayer({
               ...layer,
               isVisible:
                 layer.kind === "card" || layer.id === scanSafetyQrLayer?.id

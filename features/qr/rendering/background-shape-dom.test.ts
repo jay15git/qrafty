@@ -3,7 +3,7 @@
 import { describe, expect, it } from "vitest";
 
 import { createDefaultQraftyState, clampQrSize } from "@/features/qr/model/state";
-import { buildDraftingQrBackgroundSvgPayload } from "@/features/canvas/components/drafting-qr-background";
+import { buildCanvasQrBackgroundSvgPayload } from "@/features/canvas/components/canvas-qr-background";
 import { createDefaultDraftingLayers } from "@/features/canvas/model/layers/card-qr";
 import { createDefaultDraftingCardState } from "@/features/canvas/model/card-state";
 
@@ -21,7 +21,7 @@ describe("background shape svg payload", () => {
       createDefaultDraftingCardState(),
     ).filter((entry) => entry.kind === "qr");
 
-    const payload = buildDraftingQrBackgroundSvgPayload(layer, state);
+    const payload = buildCanvasQrBackgroundSvgPayload(layer, state);
 
     expect(payload?.shapeId).toBe("flower");
     expect(payload?.markup).toContain("<svg");
@@ -52,7 +52,7 @@ describe("background shape svg payload", () => {
       createDefaultDraftingCardState(),
     ).filter((entry) => entry.kind === "qr");
 
-    const payload = buildDraftingQrBackgroundSvgPayload(layer, state);
+    const payload = buildCanvasQrBackgroundSvgPayload(layer, state);
     const markup = payload?.markup ?? "";
 
     expect(markup).toContain("linearGradient");
@@ -78,14 +78,14 @@ describe("background shape svg payload", () => {
       createDefaultDraftingCardState(),
     ).filter((entry) => entry.kind === "qr");
 
-    const fullSize = buildDraftingQrBackgroundSvgPayload(layer, state);
+    const fullSize = buildCanvasQrBackgroundSvgPayload(layer, state);
     const resizeScale = 0.6;
     const resizedLayer = {
       ...layer,
       width: Math.round(layer.width * resizeScale),
       height: Math.round(layer.height * resizeScale),
     };
-    const resized = buildDraftingQrBackgroundSvgPayload(resizedLayer, state);
+    const resized = buildCanvasQrBackgroundSvgPayload(resizedLayer, state);
 
     expect(resized?.width).toBeCloseTo((fullSize?.width ?? 0) * resizeScale, 0);
     expect(resized?.height).toBeCloseTo((fullSize?.height ?? 0) * resizeScale, 0);
@@ -116,7 +116,7 @@ describe("background shape svg payload", () => {
 
     for (const size of [100, 50, 30, 24]) {
       const resizedLayer = { ...layer, width: size, height: size };
-      const payload = buildDraftingQrBackgroundSvgPayload(resizedLayer, state);
+      const payload = buildCanvasQrBackgroundSvgPayload(resizedLayer, state);
 
       expect(payload?.width).toBe(size);
       expect(payload?.height).toBe(size);
@@ -138,7 +138,7 @@ describe("background shape svg payload", () => {
       createDefaultDraftingCardState(),
     ).filter((entry) => entry.kind === "qr");
 
-    const payload = buildDraftingQrBackgroundSvgPayload(layer, state);
+    const payload = buildCanvasQrBackgroundSvgPayload(layer, state);
 
     expect(payload).toBeNull();
   });
@@ -160,7 +160,7 @@ describe("background shape svg payload", () => {
       createDefaultDraftingCardState(),
     ).filter((entry) => entry.kind === "qr");
 
-    const payload = buildDraftingQrBackgroundSvgPayload(layer, state);
+    const payload = buildCanvasQrBackgroundSvgPayload(layer, state);
 
     expect(payload?.shapeId).toBe("rect");
     expect(payload?.markup).toContain("<rect");

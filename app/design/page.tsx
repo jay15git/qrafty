@@ -25,7 +25,7 @@ export default async function DesktopPage() {
 
   return (
     <main
-      data-slot="desktop-page"
+      data-slot="design-page"
       className={cn(
         satoshi.className,
         "h-dvh min-h-0 overflow-hidden",

@@ -1,6 +1,6 @@
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared";
+import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
 
-export function hasDraftingLayerShadow(layer: DraftingCanvasLayer) {
+export function hasDraftingLayerShadow(layer: CanvasLayer) {
   return (
     layer.shadow.visible !== false &&
     layer.shadow.opacity > 0 &&

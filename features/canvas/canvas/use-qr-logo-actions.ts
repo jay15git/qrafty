@@ -22,7 +22,7 @@ import {
 } from "@/features/qr/model/actions";
 import type { QraftyGradient, QraftyState } from "@/features/qr/model/state";
 import type { LogoSettingsPatch } from "@/features/shell/model/toolbar-types";
-import type { DraftingAssetSourceMode } from "@/features/canvas/components/drafting-canvas-reducer";
+import type { CanvasAssetSourceMode } from "@/features/canvas/components/canvas-reducer";
 
 export function useQrLogoActions({
   commitState,
@@ -38,7 +38,7 @@ export function useQrLogoActions({
   selectedLogoColorMode: "solid" | "gradient";
   selectedLogoGradient: QraftyGradient;
   selectedLogoPresetId: string | undefined;
-  setLogoAssetSourceMode: (mode: DraftingAssetSourceMode) => void;
+  setLogoAssetSourceMode: (mode: CanvasAssetSourceMode) => void;
   state: QraftyState;
 }) {
   const iconstackSvgCacheRef = useRef<Map<string, string>>(new Map());
@@ -164,7 +164,7 @@ export function useQrLogoActions({
     );
   };
 
-  const clearLogoPreset = (nextSourceMode: DraftingAssetSourceMode) => {
+  const clearLogoPreset = (nextSourceMode: CanvasAssetSourceMode) => {
     const clearedState = applyAssetNoneSelection(state, "logo");
 
     setLogoAssetSourceMode(nextSourceMode);

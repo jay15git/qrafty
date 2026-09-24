@@ -9,7 +9,7 @@
   --rail-button-bg: #161616;
 }
 
-[data-slot="mobile-family-drawer-root"].ds-root {
+[data-slot="mobile-settings-drawer-root"].ds-root {
   min-height: 0;
   height: auto;
   background: var(--bg);
@@ -18,17 +18,17 @@
   bottom: max(1rem, env(safe-area-inset-bottom, 0px), var(--mobile-drawer-keyboard-inset, 0px));
 }
 
-[data-slot="mobile-family-drawer-root"].ds-root[data-theme="light"] {
+[data-slot="mobile-settings-drawer-root"].ds-root[data-theme="light"] {
   color-scheme: light;
   --muted: var(--control);
 }
 
-[data-slot="mobile-family-drawer-root"].ds-root[data-theme="dark"] {
+[data-slot="mobile-settings-drawer-root"].ds-root[data-theme="dark"] {
   color-scheme: dark;
   --muted: var(--surface);
 }
 
-[data-slot="mobile-family-drawer-root"] {
+[data-slot="mobile-settings-drawer-root"] {
   width: calc(
     100% - max(1rem, env(safe-area-inset-left, 0px)) - max(1rem, env(safe-area-inset-right, 0px))
   );
@@ -39,7 +39,7 @@
   margin-right: 0;
 }
 
-[data-slot="mobile-family-drawer-root"] .ds-root:not([data-slot="mobile-family-drawer-root"]) {
+[data-slot="mobile-settings-drawer-root"] .ds-root:not([data-slot="mobile-settings-drawer-root"]) {
   min-height: 0;
   background: transparent;
   color: var(--fg);
@@ -56,9 +56,9 @@
 /* ── Mobile token scale ─────────────────────────────────────────── */
 
 /* Beat inspector portal token reset on nested .ds-root / .ds-portal-surface. */
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector],
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] *,
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector]
+[data-slot="mobile-settings-drawer-root"][data-mobile-inspector],
+[data-slot="mobile-settings-drawer-root"][data-mobile-inspector] *,
+[data-slot="mobile-settings-drawer-root"][data-mobile-inspector]
   :is(.ds-root, .ds-portal-surface, .ds-popover-content, .ds-fill-popover),
 [data-slot="mobile-layer-toolbar"][data-mobile-inspector],
 [data-slot="mobile-layer-toolbar"][data-mobile-inspector] *,
@@ -91,40 +91,41 @@
   --type-caption: 0.8125rem;
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-type-label,
+[data-slot="mobile-settings-drawer-root"][data-mobile-inspector] .ds-type-label,
 .ds-portal-surface[data-mobile-inspector] .ds-type-label {
   font-size: var(--type-value);
   line-height: 1.35;
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-type-value,
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-type-body,
+[data-slot="mobile-settings-drawer-root"][data-mobile-inspector] .ds-type-value,
+[data-slot="mobile-settings-drawer-root"][data-mobile-inspector] .ds-type-body,
 .ds-portal-surface[data-mobile-inspector] .ds-type-value,
 .ds-portal-surface[data-mobile-inspector] .ds-type-body {
   line-height: 1.35;
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-type-meta,
+[data-slot="mobile-settings-drawer-root"][data-mobile-inspector] .ds-type-meta,
 .ds-portal-surface[data-mobile-inspector] .ds-type-meta {
   line-height: 1.35;
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-settings-row,
+[data-slot="mobile-settings-drawer-root"][data-mobile-inspector] .ds-settings-row,
 .ds-portal-surface[data-mobile-inspector] .ds-settings-row {
   min-height: var(--control-height);
   height: auto;
   border-radius: var(--radius-md);
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-settings-input,
+[data-slot="mobile-settings-drawer-root"][data-mobile-inspector] .ds-settings-input,
 .ds-portal-surface[data-mobile-inspector] .ds-settings-input {
   min-height: var(--control-height);
   font-size: var(--type-value);
   border-radius: var(--radius-md);
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-settings-primary,
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-settings-row.ds-settings-primary,
+[data-slot="mobile-settings-drawer-root"][data-mobile-inspector] .ds-settings-primary,
+[data-slot="mobile-settings-drawer-root"][data-mobile-inspector]
+  .ds-settings-row.ds-settings-primary,
 .ds-portal-surface[data-mobile-inspector] .ds-settings-primary,
 .ds-portal-surface[data-mobile-inspector] .ds-settings-row.ds-settings-primary {
   min-height: var(--control-height);
@@ -132,7 +133,7 @@
   font-size: var(--type-value);
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-tabs,
+[data-slot="mobile-settings-drawer-root"][data-mobile-inspector] .ds-tabs,
 .ds-portal-surface[data-mobile-inspector] .ds-tabs {
   min-height: var(--tab-height);
   height: auto;
@@ -140,8 +141,9 @@
 
 /* Inactive tabs keep the full foreground color on mobile — no muted fade.
    Selected-tab color rules still take precedence. */
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-tab:not([aria-selected="true"]),
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector]
+[data-slot="mobile-settings-drawer-root"][data-mobile-inspector]
+  .ds-tab:not([aria-selected="true"]),
+[data-slot="mobile-settings-drawer-root"][data-mobile-inspector]
   .ds-segment-tab:not([aria-selected="true"]),
 .ds-portal-surface[data-mobile-inspector] .ds-tab:not([aria-selected="true"]),
 .ds-portal-surface[data-mobile-inspector] .ds-segment-tab:not([aria-selected="true"]),
@@ -151,15 +153,15 @@
   color: var(--fg);
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-tab,
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-segment-tab,
+[data-slot="mobile-settings-drawer-root"][data-mobile-inspector] .ds-tab,
+[data-slot="mobile-settings-drawer-root"][data-mobile-inspector] .ds-segment-tab,
 .ds-portal-surface[data-mobile-inspector] .ds-tab,
 .ds-portal-surface[data-mobile-inspector] .ds-segment-tab {
   min-height: var(--tab-height);
   font-size: var(--type-caption);
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-content-type-tab-bar,
+[data-slot="mobile-settings-drawer-root"][data-mobile-inspector] .ds-content-type-tab-bar,
 .ds-portal-surface[data-mobile-inspector] .ds-content-type-tab-bar,
 .ds-root[data-mobile-inspector] .ds-content-type-tab-bar {
   gap: var(--space-stack);
@@ -169,7 +171,7 @@
 
 /* Content-type tabs read as icon-over-label circles, matching the settings
    rail. The sliding pill is retired for this bar. */
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector]
+[data-slot="mobile-settings-drawer-root"][data-mobile-inspector]
   .ds-content-type-tab-bar
   .ds-tabs-pill,
 .ds-portal-surface[data-mobile-inspector] .ds-content-type-tab-bar .ds-tabs-pill,
@@ -177,7 +179,7 @@
   display: none;
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-content-type-segment-tab,
+[data-slot="mobile-settings-drawer-root"][data-mobile-inspector] .ds-content-type-segment-tab,
 .ds-portal-surface[data-mobile-inspector] .ds-content-type-segment-tab,
 .ds-root[data-mobile-inspector] .ds-content-type-segment-tab {
   width: 4rem;
@@ -192,7 +194,7 @@
   background: transparent;
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-content-type-segment-icon,
+[data-slot="mobile-settings-drawer-root"][data-mobile-inspector] .ds-content-type-segment-icon,
 .ds-portal-surface[data-mobile-inspector] .ds-content-type-segment-icon,
 .ds-root[data-mobile-inspector] .ds-content-type-segment-icon {
   box-sizing: border-box;
@@ -204,7 +206,7 @@
   background: var(--rail-button-bg, #ffffff);
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-content-type-segment-label,
+[data-slot="mobile-settings-drawer-root"][data-mobile-inspector] .ds-content-type-segment-label,
 .ds-portal-surface[data-mobile-inspector] .ds-content-type-segment-label,
 .ds-root[data-mobile-inspector] .ds-content-type-segment-label {
   font-size: var(--type-caption);
@@ -212,7 +214,7 @@
   color: var(--muted);
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector]
+[data-slot="mobile-settings-drawer-root"][data-mobile-inspector]
   .ds-content-type-segment-tab[aria-selected="true"]
   .ds-content-type-segment-label,
 .ds-portal-surface[data-mobile-inspector]
@@ -224,27 +226,27 @@
   color: var(--fg);
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-option-tile,
+[data-slot="mobile-settings-drawer-root"][data-mobile-inspector] .ds-option-tile,
 .ds-portal-surface[data-mobile-inspector] .ds-option-tile {
   border-radius: var(--radius-xs);
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-option-scroll-chip,
+[data-slot="mobile-settings-drawer-root"][data-mobile-inspector] .ds-option-scroll-chip,
 .ds-portal-surface[data-mobile-inspector] .ds-option-scroll-chip {
   min-height: var(--control-height);
   height: var(--control-height);
   font-size: var(--type-caption);
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-preset-item,
+[data-slot="mobile-settings-drawer-root"][data-mobile-inspector] .ds-preset-item,
 .ds-portal-surface[data-mobile-inspector] .ds-preset-item {
   min-height: var(--control-height);
   height: var(--control-height);
   font-size: var(--type-caption);
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-preview-tile,
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-preview-tile-size,
+[data-slot="mobile-settings-drawer-root"][data-mobile-inspector] .ds-preview-tile,
+[data-slot="mobile-settings-drawer-root"][data-mobile-inspector] .ds-preview-tile-size,
 .ds-portal-surface[data-mobile-inspector] .ds-preview-tile,
 .ds-portal-surface[data-mobile-inspector] .ds-preview-tile-size {
   width: var(--preview-tile);
@@ -254,19 +256,19 @@
   border-radius: var(--radius-xs);
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-logo-icon-picker-search-icon,
+[data-slot="mobile-settings-drawer-root"][data-mobile-inspector] .ds-logo-icon-picker-search-icon,
 .ds-portal-surface[data-mobile-inspector] .ds-logo-icon-picker-search-icon {
   width: 1rem;
   height: 1rem;
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-logo-icon-picker-icon,
+[data-slot="mobile-settings-drawer-root"][data-mobile-inspector] .ds-logo-icon-picker-icon,
 .ds-portal-surface[data-mobile-inspector] .ds-logo-icon-picker-icon {
   width: 1.375rem;
   height: 1.375rem;
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector]
+[data-slot="mobile-settings-drawer-root"][data-mobile-inspector]
   .ds-logo-icon-picker
   .ds-settings-input,
 .ds-portal-surface[data-mobile-inspector] .ds-logo-icon-picker .ds-settings-input {
@@ -275,18 +277,18 @@
   padding-inline: calc(var(--row-px) + 1.25rem) var(--row-px);
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-logo-icon-picker-grid,
+[data-slot="mobile-settings-drawer-root"][data-mobile-inspector] .ds-logo-icon-picker-grid,
 .ds-portal-surface[data-mobile-inspector] .ds-logo-icon-picker-grid {
   gap: 0.5rem;
   padding-inline: 0;
 }
 
 /* Grid columns size the tiles — beat the fixed .ds-preview-tile width. */
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector]
+[data-slot="mobile-settings-drawer-root"][data-mobile-inspector]
   .ds-logo-icon-picker-grid
   .ds-logo-icon-picker-tile,
 .ds-portal-surface[data-mobile-inspector] .ds-logo-icon-picker-grid .ds-logo-icon-picker-tile,
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector]
+[data-slot="mobile-settings-drawer-root"][data-mobile-inspector]
   .ds-logo-icon-picker-grid
   .ds-logo-icon-picker-skeleton,
 .ds-portal-surface[data-mobile-inspector] .ds-logo-icon-picker-grid .ds-logo-icon-picker-skeleton {
@@ -296,12 +298,12 @@
   min-height: 0;
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] [data-slot="switch"],
+[data-slot="mobile-settings-drawer-root"][data-mobile-inspector] [data-slot="switch"],
 .ds-portal-surface[data-mobile-inspector] [data-slot="switch"] {
   transform: scale(1.2);
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector]
+[data-slot="mobile-settings-drawer-root"][data-mobile-inspector]
   .ds-insert-menu-popover
   .ds-settings-row,
 .ds-portal-surface[data-mobile-inspector] .ds-insert-menu-popover .ds-settings-row {
@@ -309,28 +311,26 @@
 }
 
 /* Layer inspector + wallpapers under drawer host */
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector]
-  [data-slot="wallpaper-inspector"]
+[data-slot="mobile-settings-drawer-root"][data-mobile-inspector]
+  [data-slot="wallpaper-panel"]
   button,
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector]
-  [data-slot="element-inspector"]
-  input,
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector]
-  [data-slot="element-inspector"]
+[data-slot="mobile-settings-drawer-root"][data-mobile-inspector] [data-slot="element-panel"] input,
+[data-slot="mobile-settings-drawer-root"][data-mobile-inspector]
+  [data-slot="element-panel"]
   textarea,
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector]
-  [data-slot="element-inspector"]
+[data-slot="mobile-settings-drawer-root"][data-mobile-inspector]
+  [data-slot="element-panel"]
   button {
   min-height: var(--control-height);
 }
 
 /* Content field pairs stack on narrow drawer */
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector]
-  [data-slot="inspector-content-field-row"] {
+[data-slot="mobile-settings-drawer-root"][data-mobile-inspector]
+  [data-slot="settings-content-field-row"] {
   grid-template-columns: minmax(0, 1fr);
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-mobile-drawer-nested-header {
+[data-slot="mobile-settings-drawer-root"][data-mobile-inspector] .ds-mobile-drawer-nested-header {
   display: grid;
   grid-template-columns: var(--nested-header-hit) minmax(0, 1fr) var(--nested-header-hit);
   align-items: center;
@@ -340,7 +340,7 @@
   --nested-header-hit: 2.75rem;
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector]
+[data-slot="mobile-settings-drawer-root"][data-mobile-inspector]
   .ds-mobile-drawer-nested-header__title {
   margin: 0;
   min-width: 0;
@@ -354,7 +354,7 @@
   color: var(--foreground, var(--fg));
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-mobile-drawer-back {
+[data-slot="mobile-settings-drawer-root"][data-mobile-inspector] .ds-mobile-drawer-back {
   display: flex;
   width: var(--nested-header-hit, var(--icon-hit));
   height: var(--nested-header-hit, var(--icon-hit));
@@ -369,12 +369,12 @@
     color 150ms;
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-mobile-drawer-back:hover {
+[data-slot="mobile-settings-drawer-root"][data-mobile-inspector] .ds-mobile-drawer-back:hover {
   background: var(--accent, var(--control-hover));
   color: var(--foreground, var(--fg));
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-mobile-drawer-body {
+[data-slot="mobile-settings-drawer-root"][data-mobile-inspector] .ds-mobile-drawer-body {
   padding-bottom: max(1.25rem, env(safe-area-inset-bottom, 0px));
 }
 
@@ -404,13 +404,13 @@
   overscroll-behavior-x: contain;
 }
 
-[data-mobile-inspector] [data-slot="inspector-scrubbable-number"] {
+[data-mobile-inspector] [data-slot="settings-scrubbable-number"] {
   touch-action: pan-y;
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] [data-slot="layer-row"],
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector]
-  [data-slot="wallpaper-inspector"]
+[data-slot="mobile-settings-drawer-root"][data-mobile-inspector] [data-slot="layer-row"],
+[data-slot="mobile-settings-drawer-root"][data-mobile-inspector]
+  [data-slot="wallpaper-panel"]
   button {
   min-height: var(--control-height);
   font-size: var(--type-value);
@@ -453,7 +453,7 @@
 
 [data-slot="mobile-layer-toolbar"][data-mobile-inspector]
   [data-slot="mobile-layer-toolbar-settings"]
-  [data-slot="drafting-layer-floating-toolbar-button"] {
+  [data-slot="canvas-layer-floating-toolbar-button"] {
   width: var(--icon-hit);
   height: var(--icon-hit);
   border-radius: 9999px;
@@ -463,29 +463,29 @@
 
 [data-slot="mobile-layer-toolbar"][data-mobile-inspector]
   [data-slot="mobile-layer-toolbar-settings"]
-  [data-slot="drafting-layer-floating-toolbar-button"]:hover {
+  [data-slot="canvas-layer-floating-toolbar-button"]:hover {
   background: var(--control);
   color: var(--fg);
 }
 
 [data-slot="mobile-layer-toolbar"][data-mobile-inspector]
   [data-slot="mobile-layer-toolbar-settings"]
-  [data-slot="drafting-layer-floating-toolbar-button"][aria-pressed="true"] {
+  [data-slot="canvas-layer-floating-toolbar-button"][aria-pressed="true"] {
   background: var(--control);
   color: var(--fg);
 }
 
 [data-slot="mobile-layer-toolbar"][data-mobile-inspector]
-  [data-slot="drafting-layer-floating-toolbar-color"]
+  [data-slot="canvas-layer-floating-toolbar-color"]
   button,
 [data-slot="mobile-layer-toolbar"][data-mobile-inspector]
-  [data-slot="drafting-layer-floating-toolbar-color"]
+  [data-slot="canvas-layer-floating-toolbar-color"]
   [data-slot="fill-swatch-button"] {
   width: var(--icon-hit);
   height: var(--icon-hit);
 }
 
-.ds-portal-surface[data-mobile-inspector] [data-slot="drafting-layer-text-size-settings"] button {
+.ds-portal-surface[data-mobile-inspector] [data-slot="canvas-layer-text-size-settings"] button {
   min-height: var(--control-height);
   font-size: var(--type-value);
   color: var(--fg);
@@ -493,18 +493,18 @@
 }
 
 .ds-portal-surface[data-mobile-inspector]
-  [data-slot="drafting-layer-text-size-settings"]
+  [data-slot="canvas-layer-text-size-settings"]
   button:hover,
 .ds-portal-surface[data-mobile-inspector]
-  [data-slot="drafting-layer-text-size-settings"]
+  [data-slot="canvas-layer-text-size-settings"]
   button[aria-pressed="true"] {
   background: var(--control);
   color: var(--fg);
 }
 
 .ds-portal-surface[data-mobile-inspector]
-  [data-slot="drafting-layer-text-typography-settings"]
-  [data-slot="drafting-layer-floating-toolbar-button"] {
+  [data-slot="canvas-layer-text-typography-settings"]
+  [data-slot="canvas-layer-floating-toolbar-button"] {
   width: var(--icon-hit);
   height: var(--icon-hit);
   border-radius: var(--radius-sm);
@@ -512,11 +512,11 @@
 }
 
 .ds-portal-surface[data-mobile-inspector]
-  [data-slot="drafting-layer-text-typography-settings"]
-  [data-slot="drafting-layer-floating-toolbar-button"]:hover,
+  [data-slot="canvas-layer-text-typography-settings"]
+  [data-slot="canvas-layer-floating-toolbar-button"]:hover,
 .ds-portal-surface[data-mobile-inspector]
-  [data-slot="drafting-layer-text-typography-settings"]
-  [data-slot="drafting-layer-floating-toolbar-button"][aria-pressed="true"] {
+  [data-slot="canvas-layer-text-typography-settings"]
+  [data-slot="canvas-layer-floating-toolbar-button"][aria-pressed="true"] {
   background: var(--control);
   color: var(--fg);
 }
@@ -623,7 +623,7 @@
 
 /* Sliding tabs: no track, the selected tab carries the grey pill and the
    pill slides between tabs. Sized for a docked bar, not a control row. */
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-mobile-tab-dock .ds-tabs {
+[data-slot="mobile-settings-drawer-root"][data-mobile-inspector] .ds-mobile-tab-dock .ds-tabs {
   min-height: 0;
   height: auto;
   gap: 0.25rem;
@@ -631,22 +631,24 @@
   background: transparent;
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-mobile-tab-dock .ds-tabs-pill {
+[data-slot="mobile-settings-drawer-root"][data-mobile-inspector] .ds-mobile-tab-dock .ds-tabs-pill {
   inset-block: 0;
   border-radius: 9999px;
   corner-shape: round;
   background: var(--control);
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector]
+[data-slot="mobile-settings-drawer-root"][data-mobile-inspector]
   .ds-mobile-tab-dock
   .ds-tabs
   > [role="tab"] {
   margin-inline: 0;
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector] .ds-mobile-tab-dock .ds-segment-tab,
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector]
+[data-slot="mobile-settings-drawer-root"][data-mobile-inspector]
+  .ds-mobile-tab-dock
+  .ds-segment-tab,
+[data-slot="mobile-settings-drawer-root"][data-mobile-inspector]
   .ds-mobile-tab-dock
   .ds-content-type-segment-tab {
   min-height: 2.5rem;
@@ -659,13 +661,13 @@
   color: var(--muted);
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector]
+[data-slot="mobile-settings-drawer-root"][data-mobile-inspector]
   .ds-mobile-tab-dock
   .ds-segment-tab[aria-selected="true"] {
   color: var(--fg);
 }
 
-[data-slot="mobile-family-drawer-root"][data-mobile-inspector]
+[data-slot="mobile-settings-drawer-root"][data-mobile-inspector]
   .ds-mobile-tab-dock
   .ds-content-type-segment-label {
   font-size: var(--type-caption);

@@ -38,11 +38,11 @@
 }
 
 /* loading — hide until ready */
-[data-slot="entrance-root"][data-entrance="loading"] [data-slot="drafting-surface"],
-[data-slot="entrance-root"][data-entrance="loading"] [data-slot="left-toolbar-shell"],
+[data-slot="entrance-root"][data-entrance="loading"] [data-slot="canvas-root"],
+[data-slot="entrance-root"][data-entrance="loading"] [data-slot="desktop-settings-shell"],
 [data-slot="entrance-root"][data-entrance="loading"] [data-slot="dynamic-island"],
 [data-slot="entrance-root"][data-entrance="loading"] [data-slot="utility-toolbar"],
-[data-slot="entrance-root"][data-entrance="loading"] [data-slot="mobile-workspace-top-bar"],
+[data-slot="entrance-root"][data-entrance="loading"] [data-slot="mobile-top-bar"],
 [data-slot="entrance-root"][data-entrance="loading"] [data-slot="mobile-settings-rail-root"] {
   opacity: 0;
   pointer-events: none;
@@ -50,17 +50,17 @@
 
 /* no layout shift during entrance — inset padding must not animate */
 [data-slot="workspace"]:has([data-slot="entrance-root"]:not([data-entrance="done"]))
-  [data-slot="drafting-workspace-inset"] {
+  [data-slot="canvas-workspace-inset"] {
   transition: none !important;
 }
 
 /* revealing — staggered blur + fade */
-[data-slot="entrance-root"][data-entrance="revealing"] [data-slot="drafting-surface"] {
+[data-slot="entrance-root"][data-entrance="revealing"] [data-slot="canvas-root"] {
   animation: entrance-fade-canvas var(--entrance-dur) var(--entrance-ease)
     var(--entrance-stagger-canvas) both;
 }
 
-[data-slot="entrance-root"][data-entrance="revealing"] [data-slot="left-toolbar-shell"] {
+[data-slot="entrance-root"][data-entrance="revealing"] [data-slot="desktop-settings-shell"] {
   animation: entrance-fade-chrome var(--entrance-dur) var(--entrance-ease)
     var(--entrance-stagger-sidebar) both;
 }
@@ -75,7 +75,7 @@
     var(--entrance-stagger-utility) both;
 }
 
-[data-slot="entrance-root"][data-entrance="revealing"] [data-slot="mobile-workspace-top-bar"] {
+[data-slot="entrance-root"][data-entrance="revealing"] [data-slot="mobile-top-bar"] {
   animation: entrance-fade-chrome var(--entrance-dur) var(--entrance-ease)
     var(--entrance-stagger-mobile-bar) both;
 }
@@ -86,11 +86,11 @@
 }
 
 /* done — lock final state (opacity + filter only, never touch transform) */
-[data-slot="entrance-root"][data-entrance="done"] [data-slot="drafting-surface"],
-[data-slot="entrance-root"][data-entrance="done"] [data-slot="left-toolbar-shell"],
+[data-slot="entrance-root"][data-entrance="done"] [data-slot="canvas-root"],
+[data-slot="entrance-root"][data-entrance="done"] [data-slot="desktop-settings-shell"],
 [data-slot="entrance-root"][data-entrance="done"] [data-slot="dynamic-island"],
 [data-slot="entrance-root"][data-entrance="done"] [data-slot="utility-toolbar"],
-[data-slot="entrance-root"][data-entrance="done"] [data-slot="mobile-workspace-top-bar"],
+[data-slot="entrance-root"][data-entrance="done"] [data-slot="mobile-top-bar"],
 [data-slot="entrance-root"][data-entrance="done"] [data-slot="mobile-settings-rail-root"] {
   opacity: 1;
   filter: none;

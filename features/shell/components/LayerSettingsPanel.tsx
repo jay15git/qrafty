@@ -11,12 +11,12 @@ import { ShadowsList } from "@/features/shell/components/ShadowsList";
 import {
   LayerStyleInspector,
   TransformSection,
-} from "@/features/shell/components/ElementInspector";
-import type { ThemeMode } from "@/features/shell/components/FloatingToolbar";
+} from "@/features/shell/components/ElementSettingsPanel";
+import type { ThemeMode } from "@/features/shell/components/WorkspaceChrome";
 import type { AppearancePatch, AppearanceSnapshot } from "@/features/shell/model/appearance";
 import { InspectorThemeContext } from "@/features/shell/inspector/theme-context";
 import type { LayerEffectKind } from "@/features/canvas/model/layer-effects";
-import type { DraftingCanvasLayer } from "@/features/canvas/model/layers/shared";
+import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
 import "@/features/shell/inspector/inspector.css";
 
 function LayerSettingsPanelShell({
@@ -46,8 +46,8 @@ export function LayerStylePanel({
   onPatch,
   theme,
 }: {
-  layer: DraftingCanvasLayer;
-  onPatch: (patch: Partial<DraftingCanvasLayer>) => void;
+  layer: CanvasLayer;
+  onPatch: (patch: Partial<CanvasLayer>) => void;
   theme: ThemeMode;
 }) {
   return (
@@ -67,10 +67,10 @@ export function LayerEffectsPanel({
   variant,
 }: {
   effectKinds?: readonly LayerEffectKind[];
-  layer: DraftingCanvasLayer;
+  layer: CanvasLayer;
   layerOpacity?: number;
   onLayerOpacityChange?: (opacity: number) => void;
-  onPatch: (patch: Partial<DraftingCanvasLayer>) => void;
+  onPatch: (patch: Partial<CanvasLayer>) => void;
   theme: ThemeMode;
   variant?: "default" | "flat";
 }) {
@@ -93,8 +93,8 @@ export function LayerShadowsPanel({
   onPatch,
   theme,
 }: {
-  layer: DraftingCanvasLayer;
-  onPatch: (patch: Partial<DraftingCanvasLayer>) => void;
+  layer: CanvasLayer;
+  onPatch: (patch: Partial<CanvasLayer>) => void;
   theme: ThemeMode;
 }) {
   return (
@@ -110,8 +110,8 @@ export function LayerTransformPanel({
   theme,
   variant,
 }: {
-  layer: DraftingCanvasLayer;
-  onPatch: (patch: Partial<DraftingCanvasLayer>) => void;
+  layer: CanvasLayer;
+  onPatch: (patch: Partial<CanvasLayer>) => void;
   theme: ThemeMode;
   variant?: "default" | "flat";
 }) {
