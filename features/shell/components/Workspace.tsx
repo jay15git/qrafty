@@ -15,7 +15,7 @@ import { WorkspaceEntrance } from "@/features/shell/components/WorkspaceEntrance
 import { CuelumeProvider } from "@/features/shell/hooks/use-cuelume";
 import { WORKSPACE_MOBILE_QUERY, useMediaQuery } from "@/lib/hooks/use-media-query";
 import { cn } from "@/lib/utils";
-import { useState, type CSSProperties } from "react";
+import { useState } from "react";
 
 type WorkspaceProps = {
   fontClassName?: string;
@@ -34,13 +34,6 @@ export function Workspace({
   const [theme, setTheme] = useState<ThemeMode>(initialTheme);
   const isMobileWorkspace = useMediaQuery(WORKSPACE_MOBILE_QUERY);
   useWorkspaceThemeSync(theme, setTheme);
-  const workspaceTone = {
-    "--canvas-shell": theme === "light" ? "#f0f1f2" : "#000000",
-    "--canvas-page-bg": theme === "light" ? "#f0f1f2" : "#000000",
-    "--canvas-bg": theme === "light" ? "#f0f1f2" : "#000000",
-    "--canvas-surface-bg": theme === "light" ? "#f0f1f2" : "#000000",
-  } as CSSProperties;
-
   return (
     <section
       aria-label="Workspace"
@@ -48,12 +41,10 @@ export function Workspace({
       data-mobile-workspace={isMobileWorkspace ? "true" : "false"}
       data-slot="workspace"
       data-vercel-git-commit-sha={DEPLOYMENT_COMMIT_SHA}
-      style={workspaceTone}
       className={cn(
         fontClassName,
         theme === "dark" && "dark",
-        "relative h-dvh min-h-0 overflow-hidden transition-colors duration-200",
-        theme === "light" ? "bg-[#f0f1f2] text-neutral-950" : "bg-(--canvas-page-bg) text-white",
+        "relative h-dvh min-h-0 overflow-hidden bg-(--canvas-bg) text-(--canvas-ink) transition-colors duration-[var(--motion-ui)]",
       )}
     >
       <SettingsThemeContext.Provider value={theme}>

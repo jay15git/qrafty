@@ -106,7 +106,7 @@ export const DesktopAccordionFieldSelect = React.forwardRef<
             "ds-popover-content ds-portal-surface overflow-hidden p-0 ds-squircle-md",
           )}
           data-theme={portalSurface.portaledSurfaceDataTheme}
-          positionerClassName="z-[20002]"
+          positionerClassName="z-[var(--z-popover-top)]"
         >
           {options.map((option, index) => (
             <SelectItem key={option.value} index={index} value={option.value}>

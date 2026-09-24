@@ -92,7 +92,7 @@ function Tooltip({
               side={side}
               sideOffset={sideOffset}
               forceMount
-              className="z-50"
+              className="z-[var(--z-modal)]"
             >
               <m.div
                 className={cn(

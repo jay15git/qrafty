@@ -13,6 +13,7 @@ import {
 } from "react";
 
 import type { CanvasBoardPane, CanvasBoardTool } from "@/features/canvas/components/CanvasBoard";
+import { isTouchLikePointer } from "@/features/canvas/components/canvas-interaction-utils";
 import { WORKSPACE_MOBILE_QUERY } from "@/lib/hooks/use-media-query";
 import {
   computeTemplatePreviewFit,
@@ -32,10 +33,6 @@ const MIN_PREVIEW_ZOOM = 0.1;
 const MAX_PREVIEW_ZOOM = 4;
 const WHEEL_ZOOM_SENSITIVITY = 0.001;
 const TOUCH_PAN_THRESHOLD_PX = 8;
-
-function isTouchLikePointer(event: { pointerType: string }) {
-  return event.pointerType === "touch" || event.pointerType === "pen";
-}
 
 function lockCanvasPanCursor() {
   document.documentElement.classList.add(CANVAS_PAN_CURSOR_LOCK_CLASS);

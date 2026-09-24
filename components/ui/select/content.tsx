@@ -162,7 +162,7 @@ export const SelectContent = forwardRef<HTMLDivElement, SelectContentProps>(
           align="start"
           sideOffset={6}
           alignItemWithTrigger={false}
-          className={cn("z-50 outline-none", positionerClassName)}
+          className={cn("z-[var(--z-modal)] outline-none", positionerClassName)}
         >
           <m.div
             className={popupMotionClass}

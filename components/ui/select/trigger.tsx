@@ -11,7 +11,7 @@ import { useSize, type SizeVariant } from "@/lib/size-context";
 const triggerVariants = cva(
   [
     "group inline-flex items-center justify-between outline-none cursor-pointer",
-    "transition-all duration-80",
+    "transition-all duration-[var(--motion-fast)]",
     "disabled:opacity-50 disabled:pointer-events-none",
     "focus-visible:ring-1 focus-visible:ring-[color:var(--focus-ring,#6B97FF)]",
   ],
@@ -69,7 +69,7 @@ export const SelectTrigger = forwardRef<HTMLButtonElement, SelectTriggerProps>(
               <Icon
                 size={sizeClasses.icon}
                 strokeWidth={1.5}
-                className="shrink-0 text-muted-foreground transition-[color,stroke-width] duration-80 group-hover:text-foreground group-hover:stroke-[2]"
+                className="shrink-0 text-muted-foreground transition-[color,stroke-width] duration-[var(--motion-fast)] group-hover:text-foreground group-hover:stroke-[2]"
               />
             )}
             <SelectPrimitive.Value
@@ -91,7 +91,7 @@ export const SelectTrigger = forwardRef<HTMLButtonElement, SelectTriggerProps>(
             strokeWidth={2}
             strokeLinecap="round"
             strokeLinejoin="round"
-            className="shrink-0 text-muted-foreground transition-colors duration-80 group-hover:text-foreground"
+            className="shrink-0 text-muted-foreground transition-colors duration-[var(--motion-fast)] group-hover:text-foreground"
           >
             <path d="M6 9l6 6 6-6" />
           </svg>

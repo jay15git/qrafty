@@ -231,7 +231,7 @@ Canvas field drops to pure black (`#000000`), glass to `rgba(29,29,29,0.95)`, in
 ## Typography
 
 **Settings Font:** Inter (`"Inter", system-ui, sans-serif`, `cv11`/`ss01` features, antialiased) — the entire settings surface.
-**App/marketing fonts:** Manrope (body, `--font-body`), Bricolage Grotesque (display, `--font-display`), Kodchasan (hero support, `--font-kodchasan`), Caveat (brand mark, `--font-caveat-family` — the "QRafty" wordmark at 2rem/600), Geist Mono (`--font-geist-mono`, code).
+**App/marketing fonts:** Manrope (body, `--font-manrope`), Kodchasan (hero support, `--font-kodchasan`), Caveat (brand mark, `--font-caveat-family` — the "QRafty" wordmark at 2rem/600), Geist Mono (`--font-geist-mono`, mapped to `font-mono`).
 
 **Character:** small, tight, tabular. The Settings scale runs 10–13px with `-0.015em` tracking and `tabular-nums` on every value — instrument labeling, not editorial prose.
 

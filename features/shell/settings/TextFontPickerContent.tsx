@@ -47,7 +47,7 @@ export function TextFontPickerContent({
       <input
         aria-label="Search fonts"
         autoComplete="off"
-        className="h-[var(--control-height)] shrink-0 rounded-[var(--radius-sm)] border border-[var(--line)] bg-transparent px-[length:var(--row-px)] text-sm text-[var(--fg)] outline-none placeholder:text-[var(--muted)] focus:border-[var(--fg)]"
+        className="h-[var(--control-height)] shrink-0 rounded-[var(--radius-sm)] border border-[var(--line)] bg-transparent px-[length:var(--row-px)] text-[length:var(--type-value)] text-[var(--fg)] outline-none placeholder:text-[var(--muted)] focus:border-[var(--fg)]"
         placeholder="Search fonts…"
         type="search"
         value={query}
@@ -92,7 +92,7 @@ export function TextFontPickerContent({
           </div>
         ))}
         {fontGroups.length === 0 ? (
-          <p className="px-[length:var(--row-px)] py-3 text-center text-xs text-[var(--muted)]">
+          <p className="px-[length:var(--row-px)] py-3 ds-type-meta text-center text-[var(--muted)]">
             No matching fonts
           </p>
         ) : null}

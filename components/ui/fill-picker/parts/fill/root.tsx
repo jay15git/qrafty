@@ -66,7 +66,7 @@ export const Root = React.forwardRef<HTMLDivElement, RootProps>(function Root(
           className={cn(
             "w-full max-w-70 overflow-hidden rounded-lg border border-border bg-popover text-popover-foreground shadow-sm",
             innerHeight !== null &&
-              "transition-[height] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
+              "transition-[height] duration-[var(--motion-slow)] ease-[cubic-bezier(0.22,1,0.36,1)]",
             className,
           )}
           {...rest}

@@ -4,11 +4,13 @@ import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
 describe("theme contract", () => {
-  it("loads the premium display and body fonts", () => {
+  it("loads the body and brand fonts", () => {
     const layoutSource = readFileSync(resolve(process.cwd(), "app/layout.tsx"), "utf8");
 
-    expect(layoutSource).toContain("Bricolage_Grotesque");
     expect(layoutSource).toContain("Manrope");
+    expect(layoutSource).toContain("Caveat");
+    expect(layoutSource).toContain("Kodchasan");
+    expect(layoutSource).toContain("Geist_Mono");
   });
 
   it("keeps the sitewide theme neutral, with no warm canvas palette", () => {

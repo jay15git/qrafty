@@ -79,7 +79,7 @@ export function CanvasLayerInteractive({
     <button
       {...rest}
       type="button"
-      tabIndex={isSelected ? 0 : -1}
+      tabIndex={0}
       aria-label={getCanvasLayerA11yLabel(layer)}
       aria-pressed={isSelected}
       className={cn(

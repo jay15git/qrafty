@@ -123,7 +123,7 @@ function SettingsPanelHeader({ model }: { model: SettingsModel }) {
       <div
         aria-live="polite"
         className={cn(
-          "flex items-center gap-1.5 text-sm font-medium",
+          "flex items-center gap-1.5 text-[length:var(--type-value)] font-medium",
           SCAN_BADGE_TONE_CLASS[badge.tone],
         )}
         data-slot="scan-safety-badge"

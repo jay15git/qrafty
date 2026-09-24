@@ -4,6 +4,7 @@
 
 @theme inline {
   --font-caveat: var(--font-caveat-family), cursive;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
   --color-hover: var(--hover);
   --color-active: var(--active);
   --color-selected: var(--selected);
@@ -63,6 +64,7 @@
   --selected: #d4d4d4;
   --overlay: 0 0 0;
   --focus-ring: #6b97ff;
+  --focus-ring-hover: #5c89f2;
   --background: oklch(0.99 0 0);
   --foreground: oklch(0.18 0 0);
   --popover: oklch(1 0 0);
@@ -94,12 +96,22 @@
   --z-chrome: 30;
   --z-mobile-rail: 35;
   --z-compose-toolbar: 40;
+  --z-chrome-overlay: 60;
   --z-canvas-overlay: 9998;
   --z-canvas-guide: 9999;
   --z-canvas-chrome: 10000;
   --z-canvas-toolbar: 10001;
   --z-popover: 20000;
   --z-popover-raised: 20001;
+  --z-popover-top: 20002;
+  --z-modal: 30000;
+  /* Global motion scale — settings surfaces override with their own
+     --motion-* values inside settings.css. */
+  --motion-fast: 120ms;
+  --motion-ui: 180ms;
+  --motion-slow: 300ms;
+  --motion-enter: 180ms;
+  --motion-exit: 120ms;
   --popover-width: min(18rem, calc(100vw - 1rem));
   --popover-width-lg: min(27rem, calc(100vw - 1rem));
   --popover-max-h: min(28rem, calc(100dvh - 8rem));

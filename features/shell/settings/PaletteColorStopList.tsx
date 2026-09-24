@@ -59,7 +59,7 @@ export function PaletteColorStopList({
           disabled={!canAdd}
           onClick={onAdd}
           aria-label="Add color"
-          className="h-[length:var(--control-height-compact)] cursor-pointer border-[var(--line)] bg-[var(--control)] font-mono text-xs tracking-wide shadow-none hover:bg-[var(--control-hover)]"
+          className="h-[length:var(--control-height-compact)] cursor-pointer border-[var(--line)] bg-[var(--control)] font-mono text-[length:var(--type-value)] tracking-wide shadow-none hover:bg-[var(--control-hover)]"
         >
           <Plus aria-hidden className="size-3.5" />
           Add color

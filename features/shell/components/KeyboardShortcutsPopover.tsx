@@ -118,7 +118,9 @@ export function KeyboardShortcutsPopoverContent({
           })}
         </div>
         <div className="min-w-0 text-center">
-          <h2 className="text-sm font-semibold text-[var(--fg)]">Shortcuts</h2>
+          <h2 className="text-[length:var(--type-section)] font-semibold text-[var(--fg)]">
+            Shortcuts
+          </h2>
         </div>
         <span aria-hidden="true" className="w-[3.75rem]" />
       </div>

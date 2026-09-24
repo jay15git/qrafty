@@ -99,7 +99,7 @@ const ColorPaneInner = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTM
           data-slot="fill-picker-pane"
           data-mode="color"
           className={cn(
-            "transition-opacity duration-300 ease-in",
+            "transition-opacity duration-[var(--motion-slow)] ease-in",
             visible ? "opacity-100" : "opacity-0",
             className,
           )}
@@ -140,7 +140,7 @@ const GradientPaneInner = React.forwardRef<HTMLDivElement, React.HTMLAttributes<
           data-slot="fill-picker-pane"
           data-mode="gradient"
           className={cn(
-            "transition-opacity duration-300 ease-in",
+            "transition-opacity duration-[var(--motion-slow)] ease-in",
             visible ? "opacity-100" : "opacity-0",
             className,
           )}

@@ -80,7 +80,7 @@ export const SelectItem = forwardRef<HTMLDivElement, SelectItemProps>(
               // shrink-0: the popup is a max-height flex column, so without it
               // a long list compresses rows to fit instead of scrolling.
               `relative z-10 flex ${sizeClasses.control} shrink-0 items-center ${sizeClasses.gap} ${shape.item} ${sizeClasses.itemPx} ${sizeClasses.text} cursor-pointer outline-none select-none`,
-              "transition-[color] duration-80",
+              "transition-[color] duration-[var(--motion-fast)]",
               isActive || isChecked ? "text-foreground" : "text-muted-foreground",
               disabled && "opacity-50 pointer-events-none",
               className,
@@ -93,7 +93,7 @@ export const SelectItem = forwardRef<HTMLDivElement, SelectItemProps>(
           <Icon
             size={sizeClasses.icon}
             strokeWidth={isActive || isChecked ? 2 : 1.5}
-            className="shrink-0 transition-[color,stroke-width] duration-80"
+            className="shrink-0 transition-[color,stroke-width] duration-[var(--motion-fast)]"
           />
         )}
 

@@ -494,7 +494,7 @@ function Percent({
         style={{ height: Math.max(3, size * 0.1) }}
       >
         <span
-          className="block h-full rounded-full bg-current transition-[width] duration-300 ease-out"
+          className="block h-full rounded-full bg-current transition-[width] duration-[var(--motion-slow)] ease-out"
           style={{ width: `${shown}%` }}
         />
       </span>

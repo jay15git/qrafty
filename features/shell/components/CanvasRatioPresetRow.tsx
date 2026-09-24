@@ -51,7 +51,7 @@ export function CanvasRatioPresetSections({
                   aria-label={`${section.label} ${template.label}, ${template.width} by ${template.height} pixels`}
                   aria-pressed={isSelected}
                   className={cn(
-                    "relative flex h-[64px] min-w-0 items-center gap-2 rounded-[length:var(--radius-xs)] border border-transparent p-2 text-left transition-[background-color,border-color,box-shadow] duration-200 ease-out",
+                    "relative flex h-[64px] min-w-0 items-center gap-2 rounded-[length:var(--radius-xs)] border border-transparent p-2 text-left transition-[background-color,border-color,box-shadow] duration-[var(--motion-ui)] ease-out",
                     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus,var(--focus-ring))]",
                     isSelected
                       ? "bg-[var(--option-selected-bg,var(--control-hover))]"

@@ -244,7 +244,7 @@ export function LayersPopoverContent({
             return (
               <span
                 className={cn(
-                  "block min-w-0 truncate text-sm font-medium",
+                  "block min-w-0 truncate text-[length:var(--type-value)] font-medium",
                   embedded
                     ? "ds-type-value text-[var(--type-value-color)]"
                     : "text-[var(--fg-secondary)]",

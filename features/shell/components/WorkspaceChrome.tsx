@@ -110,7 +110,7 @@ export function WorkspaceChrome({
       data-shell-theme={actualTheme}
       data-mobile-workspace={isMobileWorkspace ? "true" : "false"}
       data-slot="chrome-root"
-      className="pointer-events-none absolute inset-0 z-[60] min-h-0 overflow-hidden"
+      className="pointer-events-none absolute inset-0 z-[var(--z-chrome-overlay)] min-h-0 overflow-hidden"
     >
       {isMobileWorkspace ? (
         <>

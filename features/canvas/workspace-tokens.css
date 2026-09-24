@@ -33,6 +33,15 @@
   --button-shadow-selected-hover: var(--canvas-shadow-hover);
   --type-control-label: 0.875rem;
   --type-input: 1rem;
+  /* SecondaryButton state ramp — ink washes over the canvas surface. */
+  --secondary-button-bg: rgb(0 0 0 / 0.012);
+  --secondary-button-fg: rgb(0 0 0 / 0.45);
+  --secondary-button-bg-hover: rgb(0 0 0 / 0.024);
+  --secondary-button-fg-hover: rgb(0 0 0 / 0.65);
+  --secondary-button-bg-active: rgb(0 0 0 / 0.027);
+  --secondary-button-fg-active: #262626;
+  --secondary-button-bg-selected: #111111;
+  --secondary-button-fg-selected: #ffffff;
 }
 
 [data-slot="workspace"][data-shell-theme="dark"] {
@@ -59,6 +68,14 @@
   --canvas-shadow-active: 0 0 14px 1px rgb(0 0 0 / 0.12);
   --panel-bg: rgb(22 22 22 / 0.85);
   --panel-bg-hover: rgb(29 29 29 / 0.9);
+  --secondary-button-bg: rgb(255 255 255 / 0.031);
+  --secondary-button-fg: #a8b0bd;
+  --secondary-button-bg-hover: rgb(255 255 255 / 0.05);
+  --secondary-button-fg-hover: #c8d0dc;
+  --secondary-button-bg-active: rgb(255 255 255 / 0.078);
+  --secondary-button-fg-active: #dfe5ee;
+  --secondary-button-bg-selected: #f6f8fb;
+  --secondary-button-fg-selected: #101216;
 }
 
 [data-slot="workspace"] .ds-type-control-label {

@@ -117,7 +117,7 @@ function ToolbarPopover({
       <button
         aria-label={label}
         className={cn(
-          "relative grid size-9 cursor-pointer place-items-center overflow-visible rounded-full border-0 bg-transparent p-0 text-current shadow-none transition-colors duration-150 hover:text-[var(--glass-button-hover-fg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--glass-button-focus-ring)] disabled:cursor-not-allowed [&_svg]:size-3.5",
+          "relative grid size-9 cursor-pointer place-items-center overflow-visible rounded-full border-0 bg-transparent p-0 text-current shadow-none transition-colors duration-[var(--motion-fast)] hover:text-[var(--glass-button-hover-fg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--glass-button-focus-ring)] disabled:cursor-not-allowed [&_svg]:size-3.5",
           open && triggerOpenClassName,
           triggerClassName,
         )}

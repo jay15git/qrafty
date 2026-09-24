@@ -55,7 +55,7 @@ const COMPACT_POPOVER_CLASS =
   "ds-portal-surface ds-popover-content ds-popover-flat z-[var(--z-popover-raised)] max-h-[min(32rem,calc(100vh-2rem))] w-auto min-w-[12rem] max-w-[min(22rem,calc(100vw-2rem))] overflow-hidden ds-squircle-md";
 
 const ICON_TOGGLE_CLASS =
-  "grid size-9 place-items-center rounded-full text-[color-mix(in_srgb,var(--fg)_78%,transparent)] transition-colors duration-150 hover:text-[var(--fg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring,var(--ring))] aria-pressed:bg-[var(--control)] aria-pressed:text-[var(--fg)]";
+  "grid size-9 place-items-center rounded-full text-[color-mix(in_srgb,var(--fg)_78%,transparent)] transition-colors duration-[var(--motion-fast)] hover:text-[var(--fg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring,var(--ring))] aria-pressed:bg-[var(--control)] aria-pressed:text-[var(--fg)]";
 
 const DN_POPOVER_CLASS =
   "ds-portal-surface ds-popover-content z-[var(--z-popover-raised)] max-h-[min(32rem,calc(100vh-2rem))] w-[min(100vw-2rem,15.5rem)] overflow-hidden border-0 p-0 ds-squircle-md";
@@ -80,7 +80,7 @@ const LayerFloatingSettingsButton = forwardRef<
       aria-label={ariaLabel}
       aria-pressed={active}
       className={cn(
-        "flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-current transition-colors duration-150 hover:text-[var(--fg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring,var(--ring))]",
+        "flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-current transition-colors duration-[var(--motion-fast)] hover:text-[var(--fg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring,var(--ring))]",
         active && "bg-[var(--control)] text-[var(--fg)]",
         className,
       )}

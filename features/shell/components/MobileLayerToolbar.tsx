@@ -648,7 +648,7 @@ export function MobileLayerToolbar({
       <div
         ref={toolbarRef}
         className={cn(
-          "ds-root pointer-events-auto fixed z-[35]",
+          "ds-root pointer-events-auto fixed z-[var(--z-mobile-rail)]",
           "left-[max(1rem,env(safe-area-inset-left,0px))]",
           "w-[calc(100%-max(1rem,env(safe-area-inset-left,0px))-max(1rem,env(safe-area-inset-right,0px)))]",
         )}

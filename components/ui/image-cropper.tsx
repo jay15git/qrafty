@@ -443,6 +443,37 @@ function useImageCropper({
     isResizingRef.current = false;
   }, []);
 
+  const handleCropKeyDown = useCallback(
+    (event: React.KeyboardEvent, type: "move" | "resize") => {
+      const deltas: Record<string, [number, number]> = {
+        ArrowDown: [0, 1],
+        ArrowLeft: [-1, 0],
+        ArrowRight: [1, 0],
+        ArrowUp: [0, -1],
+      };
+      const delta = deltas[event.key];
+
+      if (!delta || !imageRef.current) {
+        return;
+      }
+
+      event.preventDefault();
+      const magnitude = event.shiftKey ? 10 : 1;
+      const imgRect = imageRef.current.getBoundingClientRect();
+
+      if (type === "move") {
+        setCropArea((prev) =>
+          movedCropArea(prev, delta[0] * magnitude, delta[1] * magnitude, imgRect),
+        );
+      } else if (!fixedSize) {
+        setCropArea((prev) =>
+          resizedCropArea(prev, delta[0] * magnitude, delta[1] * magnitude, imgRect, aspectRatio),
+        );
+      }
+    },
+    [aspectRatio, fixedSize],
+  );
+
   const blobToFile = useCallback((blob: Blob, filename: string): File => {
     return new File([blob], filename, { type: blob.type });
   }, []);
@@ -561,6 +592,7 @@ function useImageCropper({
     handleDragOver,
     handleDragLeave,
     handleImageLoad,
+    handleCropKeyDown,
     handleMouseDown,
     handleMouseMove,
     handleMouseUp,
@@ -608,6 +640,7 @@ export function ImageCropper({
     handleDragOver,
     handleDragLeave,
     handleImageLoad,
+    handleCropKeyDown,
     handleMouseDown,
     handleMouseMove,
     handleMouseUp,
@@ -681,6 +714,7 @@ export function ImageCropper({
         onCrop={cropImage}
         onDialogOpenChange={handleDialogClose}
         onImageLoad={handleImageLoad}
+        onKeyDown={handleCropKeyDown}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
@@ -697,6 +731,7 @@ function CropOverlay({
   cropArea,
   currentAspectRatio,
   fixedSize,
+  onKeyDown,
   onMouseDown,
   usesDesktopTheme,
 }: {
@@ -704,14 +739,18 @@ function CropOverlay({
   cropArea: CropArea;
   currentAspectRatio: string;
   fixedSize?: { width: number; height: number };
+  onKeyDown: (event: React.KeyboardEvent, type: "move" | "resize") => void;
   onMouseDown: (event: React.MouseEvent, type: "move" | "resize") => void;
   usesDesktopTheme: boolean;
 }) {
   return (
     <div
+      aria-label={`Crop area, ${Math.round(cropArea.width)} by ${Math.round(cropArea.height)} pixels. Arrow keys move; hold Shift for larger steps.`}
       role="group"
+      tabIndex={0}
       className={cn(
         "absolute border-2 border-primary bg-primary/10",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
         fixedSize ? "cursor-default" : "cursor-move",
       )}
       style={{
@@ -720,12 +759,19 @@ function CropOverlay({
         width: cropArea.width,
         height: cropArea.height,
       }}
+      onKeyDown={(event) => onKeyDown(event, "move")}
       onMouseDown={(event) => onMouseDown(event, "move")}
     >
       {!fixedSize ? (
         <div
-          role="group"
-          className="absolute right-0 bottom-0 size-4 cursor-se-resize border border-primary-foreground bg-primary"
+          aria-label="Resize crop area. Arrow keys resize; hold Shift for larger steps."
+          role="button"
+          tabIndex={0}
+          className="absolute right-0 bottom-0 size-4 cursor-se-resize border border-primary-foreground bg-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          onKeyDown={(event) => {
+            event.stopPropagation();
+            onKeyDown(event, "resize");
+          }}
           onMouseDown={(event) => {
             event.stopPropagation();
             onMouseDown(event, "resize");
@@ -821,6 +867,7 @@ function CropperDialog({
   onCrop,
   onDialogOpenChange,
   onImageLoad,
+  onKeyDown,
   onMouseDown,
   onMouseMove,
   onMouseUp,
@@ -841,6 +888,7 @@ function CropperDialog({
   onCrop: () => void;
   onDialogOpenChange: (open: boolean) => void;
   onImageLoad: () => void;
+  onKeyDown: (event: React.KeyboardEvent, type: "move" | "resize") => void;
   onMouseDown: (event: React.MouseEvent, type: "move" | "resize") => void;
   onMouseMove: (event: React.MouseEvent) => void;
   onMouseUp: () => void;
@@ -930,7 +978,7 @@ function CropperDialog({
                     aspectRatio={aspectRatio}
                     cropArea={cropArea}
                     currentAspectRatio={currentAspectRatio}
-                    fixedSize={fixedSize}
+                    onKeyDown={onKeyDown}
                     onMouseDown={onMouseDown}
                     usesDesktopTheme={usesDesktopTheme}
                   />

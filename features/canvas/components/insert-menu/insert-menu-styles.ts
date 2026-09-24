@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 export const INSERT_MENU_POPOVER_WIDTH = "w-[min(20rem,calc(100vw-2rem))]";
 
 export const INSERT_MENU_POPOVER_SHELL =
-  "ds-insert-menu-popover ds-portal-surface z-[20000] overflow-hidden border-0 bg-transparent p-0 text-[var(--fg)] shadow-none outline-none ds-squircle-md";
+  "ds-insert-menu-popover ds-portal-surface z-[var(--z-popover)] overflow-hidden border-0 bg-transparent p-0 text-[var(--fg)] shadow-none outline-none ds-squircle-md";
 
 export const INSERT_MENU_SCROLL_CLASS = "ds-insert-menu-scroll h-[min(20rem,60dvh)]";
 

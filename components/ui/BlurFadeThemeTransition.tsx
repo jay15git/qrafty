@@ -86,7 +86,7 @@ export default function BlurFadeThemeTransition({
           z-index: 1 !important;
         }
         ::view-transition-new(root) {
-          z-index: 9999 !important;
+          z-index: var(--z-canvas-guide) !important;
         }
       `;
       document.head.appendChild(styleEl);

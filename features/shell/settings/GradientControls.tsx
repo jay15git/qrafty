@@ -53,7 +53,7 @@ function GradientSelectField({
             ),
           )}
           data-theme={portalSurface.portaledSurfaceDataTheme ?? theme}
-          positionerClassName="z-[20002]"
+          positionerClassName="z-[var(--z-popover-top)]"
         >
           {options.map((option, index) => (
             <SelectItem key={option.value} index={index} value={option.value}>

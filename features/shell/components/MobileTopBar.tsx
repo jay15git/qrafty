@@ -25,7 +25,7 @@ export function MobileTopBar({
         <button
           aria-label="Undo"
           className={cn(
-            "flex size-9 items-center justify-center rounded-full text-[var(--glass-fg)] transition-colors hover:text-[var(--glass-button-hover-fg)] disabled:opacity-40",
+            "flex size-11 items-center justify-center rounded-full text-[var(--glass-fg)] transition-colors hover:text-[var(--glass-button-hover-fg)] disabled:opacity-40",
           )}
           disabled={!controller?.canUndo || !controller?.onUndo}
           type="button"
@@ -36,7 +36,7 @@ export function MobileTopBar({
         <button
           aria-label="Redo"
           className={cn(
-            "flex size-9 items-center justify-center rounded-full text-[var(--glass-fg)] transition-colors hover:text-[var(--glass-button-hover-fg)] disabled:opacity-40",
+            "flex size-11 items-center justify-center rounded-full text-[var(--glass-fg)] transition-colors hover:text-[var(--glass-button-hover-fg)] disabled:opacity-40",
           )}
           disabled={!controller?.canRedo || !controller?.onRedo}
           type="button"

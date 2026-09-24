@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Bricolage_Grotesque, Caveat, Geist_Mono, Kodchasan, Manrope } from "next/font/google";
+import { Caveat, Geist_Mono, Kodchasan, Manrope } from "next/font/google";
 
 import { AgentationDev } from "@/components/agentation-dev";
 import { GlimmRootProvider } from "@/components/glimm-root-provider";
@@ -20,13 +20,8 @@ const brandFont = Caveat({
   weight: ["600", "700"],
 });
 
-const displayFont = Bricolage_Grotesque({
-  variable: "--font-display",
-  subsets: ["latin"],
-});
-
 const bodyFont = Manrope({
-  variable: "--font-body",
+  variable: "--font-manrope",
   subsets: ["latin"],
 });
 
@@ -76,7 +71,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${heroSupportFont.variable} ${brandFont.variable} ${displayFont.variable} ${bodyFont.variable} ${monoFont.variable} h-full antialiased`}
+      className={`${heroSupportFont.variable} ${brandFont.variable} ${bodyFont.variable} ${monoFont.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <body className="flex min-h-full cursor-default flex-col">

@@ -623,9 +623,13 @@ export function useSettingsNumberScrub({
     inputProps,
     inputRef,
     labelScrubHandlers,
+    max,
+    min,
+    nudge,
     onDisplayFocus,
     scrubSurfaceHandlers,
     surfaceRef,
+    value,
   };
 }
 
@@ -700,9 +704,13 @@ export function SettingsScrubNumberInput({
     editing,
     inputProps,
     inputRef,
+    max,
+    min,
+    nudge,
     onDisplayFocus,
     scrubSurfaceHandlers,
     surfaceRef,
+    value,
   } = scrub;
 
   const syncMirroredTypography = useCallback(() => {
@@ -760,6 +768,10 @@ export function SettingsScrubNumberInput({
         <div
           {...scrubSurfaceHandlers}
           aria-label={typeof ariaLabel === "string" ? ariaLabel : undefined}
+          aria-valuemax={max}
+          aria-valuemin={min}
+          aria-valuenow={value}
+          aria-valuetext={displayValue}
           className={cn(
             fieldClass,
             "relative z-[1] flex items-center justify-center touch-pan-y",
@@ -767,7 +779,7 @@ export function SettingsScrubNumberInput({
             disabled && "cursor-not-allowed opacity-50",
           )}
           data-slot="settings-scrubbable-number"
-          role="button"
+          role="spinbutton"
           tabIndex={disabled ? -1 : 0}
           onFocus={onDisplayFocus}
           onKeyDown={(event) => {
@@ -778,6 +790,18 @@ export function SettingsScrubNumberInput({
             if (event.key === "Enter" || event.key === " ") {
               event.preventDefault();
               onDisplayFocus();
+              return;
+            }
+
+            if (event.key === "ArrowUp" || event.key === "ArrowRight") {
+              event.preventDefault();
+              nudge(1, event.shiftKey);
+              return;
+            }
+
+            if (event.key === "ArrowDown" || event.key === "ArrowLeft") {
+              event.preventDefault();
+              nudge(-1, event.shiftKey);
             }
           }}
         >

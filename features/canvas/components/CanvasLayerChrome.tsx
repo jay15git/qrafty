@@ -315,7 +315,7 @@ function LayerContextMenuButton({ label, onClick }: { label: string; onClick: ()
   return (
     <button
       aria-label={label}
-      className="block h-8 w-full cursor-pointer rounded-full px-3 text-left text-[length:var(--type-value)] font-semibold text-current transition-[background-color,color] duration-150 hover:bg-[var(--control)] hover:text-[var(--fg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring,var(--ring))]"
+      className="block h-8 w-full cursor-pointer rounded-full px-3 text-left text-[length:var(--type-value)] font-semibold text-current transition-[background-color,color] duration-[var(--motion-fast)] hover:bg-[var(--control)] hover:text-[var(--fg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring,var(--ring))]"
       role="menuitem"
       type="button"
       onClick={onClick}
@@ -414,7 +414,7 @@ function FloatingLayerToolbarButton({
   return (
     <button
       aria-label={label}
-      className="flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-full text-[color-mix(in_srgb,var(--fg)_78%,transparent)] transition-colors duration-150 hover:text-[var(--fg)] disabled:cursor-not-allowed disabled:pointer-events-none disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring,var(--ring))]"
+      className="flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-full text-[color-mix(in_srgb,var(--fg)_78%,transparent)] transition-colors duration-[var(--motion-fast)] hover:text-[var(--fg)] disabled:cursor-not-allowed disabled:pointer-events-none disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring,var(--ring))]"
       data-slot="canvas-layer-floating-toolbar-button"
       disabled={disabled}
       type="button"

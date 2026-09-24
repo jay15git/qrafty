@@ -211,3 +211,5 @@ export function createQrControls(controls: QrControls) {
     syncModuleFill,
   };
 }
+
+export type QrControlsApi = ReturnType<typeof createQrControls>;

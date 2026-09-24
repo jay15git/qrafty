@@ -17,6 +17,7 @@
 ) {
   --type-caption: 0.625rem;
   --type-meta: 0.6875rem;
+  --type-label: 0.6875rem;
   --type-value: 0.75rem;
   --type-section: 1rem;
   --type-body: 0.8125rem;
@@ -102,6 +103,13 @@
   --picker-thumb-ring: rgb(0 0 0 / 0.28);
   /* Legacy alias: muted text inside popovers resolves to the theme-split muted. */
   --popover-muted: var(--muted);
+  /* Foreground ramp — derived from the theme-split --fg so portalled
+     surfaces get the same label/value contrast as the panel. */
+  --fg-primary: var(--fg);
+  --fg-secondary: color-mix(in srgb, var(--fg) 66%, transparent);
+  --fg-tertiary: color-mix(in srgb, var(--fg) 44%, transparent);
+  --fg-muted: color-mix(in srgb, var(--fg) 38%, transparent);
+  --fg-label: var(--fg-secondary);
 }
 
 .ds-root {
@@ -1040,13 +1048,13 @@
 .ds-accordion-popover-backdrop {
   position: fixed;
   inset: 0;
-  z-index: 20000;
+  z-index: var(--z-popover);
   background: transparent;
 }
 
 .ds-accordion-popover-overlay {
   position: fixed;
-  z-index: 20001;
+  z-index: var(--z-popover-raised);
   display: flex;
   align-items: center;
   justify-content: center;

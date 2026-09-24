@@ -362,7 +362,9 @@ function TextFontMenu({
           </div>
         ))}
         {fontGroups.length === 0 ? (
-          <p className="px-2.5 py-3 text-center text-xs text-[var(--muted)]">No matching fonts</p>
+          <p className="px-2.5 py-3 ds-type-meta text-center text-[var(--muted)]">
+            No matching fonts
+          </p>
         ) : null}
       </div>
     </div>

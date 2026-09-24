@@ -200,7 +200,8 @@ export const CanvasDocumentCardLayer = memo(function CanvasDocumentCardLayer({
       {...layerExportAttrs("card")}
       className={cn(
         "pointer-events-none absolute max-h-none max-w-none overflow-hidden",
-        !isInteracting && "transition-[filter,background-color,border-radius] duration-150",
+        !isInteracting &&
+          "transition-[filter,background-color,border-radius] duration-[var(--motion-fast)]",
       )}
       style={{
         ...cardStyle,

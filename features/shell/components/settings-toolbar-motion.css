@@ -165,7 +165,6 @@
     [data-slot="canvas-workspace"][data-canvas-frame="true"]
     [data-slot="canvas-workspace-inset"] {
     transition: padding var(--resize-dur) var(--resize-ease);
-    will-change: padding;
   }
 
   [data-slot="mobile-layer-toolbar"] {
@@ -224,7 +223,7 @@
   z-index: var(--z-chrome);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   [data-slot="utility-toolbar-anchor"] {
     top: 0.625rem;
     right: 0.625rem;
@@ -248,7 +247,7 @@
   --toolbar-top-inset: 0.75rem;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   [data-slot="desktop-settings-shell"] {
     --toolbar-rail-width: 3.5rem;
     --toolbar-rail-padding-x: 0.25rem;

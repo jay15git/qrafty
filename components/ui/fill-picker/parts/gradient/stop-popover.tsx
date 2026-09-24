@@ -63,7 +63,7 @@ export function StopPopover({
             side={side}
             align={align}
             sideOffset={sideOffset}
-            className="z-50"
+            className="z-[var(--z-modal)]"
           >
             <Popover.Popup
               data-theme={portalSurface.portaledSurfaceDataTheme}

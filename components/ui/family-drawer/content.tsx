@@ -65,8 +65,8 @@ export function FamilyDrawerContent({
 
   const variantClass =
     variant === "sheet"
-      ? "fixed inset-x-0 bottom-0 z-30 mx-auto w-full max-h-[min(70dvh,32rem)] overflow-hidden rounded-t-[28px] bg-background outline-none pb-[env(safe-area-inset-bottom,0px)]"
-      : "fixed bottom-[max(1rem,env(safe-area-inset-bottom,0px))] z-30 overflow-hidden rounded-[36px] bg-background outline-none";
+      ? "fixed inset-x-0 bottom-0 z-[var(--z-chrome)] mx-auto w-full max-h-[min(70dvh,32rem)] overflow-hidden rounded-t-[28px] bg-background outline-none pb-[env(safe-area-inset-bottom,0px)]"
+      : "fixed bottom-[max(1rem,env(safe-area-inset-bottom,0px))] z-[var(--z-chrome)] overflow-hidden rounded-[36px] bg-background outline-none";
 
   const content = (
     <m.div

@@ -76,8 +76,8 @@ function thumbGeometry(
 function trackColor(checked: boolean, hovered: boolean) {
   return checked
     ? hovered
-      ? "#5C89F2"
-      : "#6B97FF"
+      ? "var(--focus-ring-hover, #5C89F2)"
+      : "var(--focus-ring, #6B97FF)"
     : hovered
       ? "color-mix(in oklab, var(--accent), rgb(var(--overlay)) 10%)"
       : "var(--accent)";
@@ -245,7 +245,7 @@ const Switch = forwardRef<HTMLLabelElement, SwitchProps>(
           data-state={checked ? "checked" : "unchecked"}
           className={cn(
             "relative shrink-0 rounded-full outline-none cursor-pointer",
-            "transition-colors duration-80",
+            "transition-colors duration-[var(--motion-fast)]",
             "focus-visible:ring-1 focus-visible:ring-[color:var(--focus-ring,#6B97FF)] focus-visible:ring-offset-2 focus-visible:ring-offset-background",
           )}
           style={{
@@ -298,7 +298,7 @@ const Switch = forwardRef<HTMLLabelElement, SwitchProps>(
           className={cn(
             // text-box trim recenters the letterforms against the track; the
             // track is taller than the label, so layout doesn't change.
-            "[text-box:trim-both_cap_alphabetic] transition-[color] duration-80",
+            "[text-box:trim-both_cap_alphabetic] transition-[color] duration-[var(--motion-fast)]",
             sizeClasses.text,
             checked ? "text-foreground" : "text-muted-foreground",
           )}

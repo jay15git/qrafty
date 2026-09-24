@@ -441,7 +441,7 @@ const ScrollBar = forwardRef<
         // Show immediately; on hide, wait out the 150ms thumb shrink before
         // fading so the thumb visibly narrows back first instead of the fade
         // masking it.
-        "transition-opacity duration-120 ease-out data-[state=visible]:duration-160",
+        "transition-opacity duration-[var(--motion-exit)] ease-out data-[state=visible]:duration-[var(--motion-ui)]",
         "data-[state=visible]:opacity-100 data-[state=hidden]:opacity-0",
         "data-[state=hidden]:delay-160 data-[state=visible]:delay-0",
         orientation === "vertical" && "h-full w-2.5",
@@ -453,7 +453,7 @@ const ScrollBar = forwardRef<
       <ScrollAreaPrimitive.ScrollAreaThumb
         data-slot="scroll-area-thumb"
         className={cn(
-          "relative bg-foreground/25 transition-[background-color,width,height] duration-160 ease-in-out",
+          "relative bg-foreground/25 transition-[background-color,width,height] duration-[var(--motion-ui)] ease-in-out",
           "group-hover/scrollbar:bg-foreground/45 active:!bg-foreground/60",
           shape.bg,
           orientation === "vertical" && "mx-auto my-1 w-1 group-hover/scrollbar:w-1.5",

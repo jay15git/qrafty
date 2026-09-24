@@ -153,7 +153,7 @@ export const FieldSelect = React.forwardRef<HTMLButtonElement, FieldSelectProps>
             </Select.Icon>
           </Select.Trigger>
           <Select.Portal>
-            <Select.Positioner sideOffset={4} className="z-50 outline-none">
+            <Select.Positioner sideOffset={4} className="z-[var(--z-modal)] outline-none">
               <Select.Popup
                 data-theme={portalSurface.portaledSurfaceDataTheme}
                 className={cn(

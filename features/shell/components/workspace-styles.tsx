@@ -110,7 +110,7 @@ const WORKSPACE_SURFACE_STYLES = `
       [data-slot="workspace"] [data-slot="chrome-root"] {
         position: absolute;
         inset: 0;
-        z-index: 60;
+        z-index: var(--z-chrome-overlay);
         min-height: 100dvh;
         background: transparent !important;
         pointer-events: none;
@@ -268,7 +268,7 @@ const WORKSPACE_SIDEBAR_STYLES = `
         scale: none !important;
         rotate: none !important;
         color: var(--compose-toolbar-fg) !important;
-        transition: color 180ms ease !important;
+        transition: color var(--motion-ui) ease !important;
       }
 
       [data-slot="workspace"] [data-slot="canvas-toolbar"][data-toolbar-appearance="glass"] button::before {
