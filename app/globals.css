@@ -7,7 +7,6 @@
   --color-hover: var(--hover);
   --color-active: var(--active);
   --color-selected: var(--selected);
-  --color-destructive-light: var(--destructive-light);
   --color-focus-ring: var(--focus-ring);
   /* shadcn token layer. `components/ui/**` is shadcn-derived and styles itself
      with these utilities; Tailwind only emits a utility for a theme key that
@@ -15,8 +14,6 @@
      primitive (bg-primary, text-muted-foreground, ring-ring, …). */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
@@ -64,13 +61,10 @@
   --hover: rgb(0 0 0 / 0.04);
   --active: rgb(0 0 0 / 0.07);
   --selected: #d4d4d4;
-  --destructive-light: #fef2f2;
   --overlay: 0 0 0;
   --focus-ring: #6b97ff;
   --background: oklch(0.99 0 0);
   --foreground: oklch(0.18 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.18 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.18 0 0);
   --primary: oklch(0.18 0 0);
@@ -119,12 +113,9 @@
   --hover: rgb(255 255 255 / 0.06);
   --active: rgb(255 255 255 / 0.1);
   --selected: #525252;
-  --destructive-light: #450a0a;
   --overlay: 255 255 255;
   --background: oklch(0.15 0 0);
   --foreground: oklch(0.96 0 0);
-  --card: oklch(0.2 0 0);
-  --card-foreground: oklch(0.96 0 0);
   --popover: oklch(0.2 0 0);
   --popover-foreground: oklch(0.96 0 0);
   --primary: oklch(0.92 0 0);
@@ -145,11 +136,7 @@
   --surface-3: #252525;
   --qr-hi-base: rgba(255, 255, 255, 0.01);
   --qr-hi-mid: rgba(255, 255, 255, 0.02);
-  --qr-hi-high: rgba(255, 255, 255, 0.04);
-  --qr-hi-peak: rgba(255, 255, 255, 0.06);
   --qr-ring-base: rgba(255, 255, 255, 0.02);
-  --qr-ring-mid: rgba(255, 255, 255, 0.04);
-  --qr-ring-high: rgba(255, 255, 255, 0.06);
   --qr-drop: rgba(0, 0, 0, 0.18);
   --shadow-1: inset 0 0 0 1px var(--qr-ring-base);
   --shadow-2:
