@@ -124,7 +124,6 @@ export function MobileColorRailRow({ model, openDrawer }: MobileRailRowProps) {
     <>
       <MobileRailPickerTile
         ariaLabel="Custom color"
-        customFill={activePreset ? undefined : value}
         onOpen={() =>
           navigation?.openDetail({
             title: "Color",

@@ -216,7 +216,7 @@ export const SelectContent = forwardRef<HTMLDivElement, SelectContentProps>(
                 className={cn(
                   // min-w tracks the trigger via the Positioner's --anchor-width
                   // var, matching the pre-migration minWidth: triggerRect.width.
-                  `flex flex-col min-w-[var(--anchor-width)] ${popupMaxHeightClass} overflow-hidden ${shape.container} select-none outline-none`,
+                  `ds-select-popup flex flex-col min-w-[var(--anchor-width)] ${popupMaxHeightClass} overflow-hidden ${shape.container} select-none outline-none`,
                   className,
                 )}
                 {...props}

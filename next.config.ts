@@ -9,6 +9,9 @@ const nextConfig: NextConfig = {
     root: path.join(__dirname),
   },
   transpilePackages: ["@qrafty/qr"],
+  experimental: {
+    optimizePackageImports: ["@hugeicons/core-free-icons"],
+  },
   async redirects() {
     return [{ source: "/desktop", destination: "/design", permanent: true }];
   },

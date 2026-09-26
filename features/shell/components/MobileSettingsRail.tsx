@@ -194,17 +194,21 @@ export function MobileSettingsRail({ model }: { model: SettingsModel }) {
     setOpenFamily(null);
   }, []);
 
-  // Drawer corner buttons mirror the rail's: X discards the session, ✓ saves
-  // it — both then close the drawer and the family behind it.
+  // Drawer corner buttons share the rail's discard/save semantics but only
+  // close the drawer — the rail returns to the drilled-in family row.
   const discardFromDrawer = useCallback(() => {
-    discardFamily();
+    // Snapshots stay in the map: the family session is still open, so the
+    // rail cross can discard later edits against the same baseline.
+    for (const [section, snapshot] of snapshotsRef.current) {
+      restoreFamilySnapshot(section, snapshot, modelRef.current);
+    }
     closeDrawer();
-  }, [closeDrawer, discardFamily]);
+  }, [closeDrawer, modelRef]);
 
   const saveFromDrawer = useCallback(() => {
-    saveFamily();
+    snapshotsRef.current.clear();
     closeDrawer();
-  }, [closeDrawer, saveFamily]);
+  }, [closeDrawer]);
 
   const handleOptionClick = (option: MobileRailOption) => {
     if (option.drillsTo) {
@@ -291,6 +295,7 @@ export function MobileSettingsRail({ model }: { model: SettingsModel }) {
                           model={model}
                           options={options}
                           viewFamily={viewFamily}
+                          onDiscard={discardFromDrawer}
                           onOpenDrawer={() => openDrawerSection(viewFamily!)}
                           onOpenSection={openDrawerSection}
                           onOptionClick={handleOptionClick}

@@ -4,8 +4,8 @@ import { Sparkles } from "lucide-react";
 import { useMemo, useState, type ClipboardEvent } from "react";
 
 import {
-  OptionScrollRow,
   SettingsInput,
+  SettingsLabeledSelect,
   SettingsSwitchRow,
 } from "@/features/shell/settings/settings-ui";
 import {
@@ -95,24 +95,20 @@ function ContentFieldRow({
 
   if (field.type === "segmented") {
     const options = field.options ?? [];
-    const selectedLabel =
-      options.find((option) => option.value === field.value)?.label ?? options[0]?.label ?? "";
 
     return (
-      <div className="flex flex-col gap-1">
-        {field.label ? <span className="ds-type-meta px-0.5">{field.label}</span> : null}
-        <OptionScrollRow
-          persistKey={field.id}
-          items={options.map((option) => option.label)}
-          selected={selectedLabel}
-          onSelect={(label) => {
-            const option = options.find((entry) => entry.label === label);
-            if (option) {
-              onContentValueChange(field.id, option.value);
-            }
-          }}
-        />
-      </div>
+      <SettingsLabeledSelect
+        items={options.map((option) => option.label)}
+        label={field.label}
+        placeholder={field.label || "Option"}
+        value={options.find((option) => option.value === field.value)?.label ?? ""}
+        onChange={(label) => {
+          const option = options.find((entry) => entry.label === label);
+          if (option) {
+            onContentValueChange(field.id, option.value);
+          }
+        }}
+      />
     );
   }
 

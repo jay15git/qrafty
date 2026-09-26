@@ -51,12 +51,9 @@ export function MobileRailSwatchTile({
 /** Picker-symbol tile — mirrors the `+` tile in `SettingsFillOptionGrid`. */
 export function MobileRailPickerTile({
   ariaLabel,
-  customFill,
   onOpen,
 }: {
   ariaLabel: string;
-  /** Active custom value; shown behind the pipette when the fill isn't a preset. */
-  customFill?: string;
   onOpen: () => void;
 }) {
   return (
@@ -69,20 +66,8 @@ export function MobileRailPickerTile({
       onClick={onOpen}
     >
       <span aria-hidden="true" className={SETTINGS_FILL_OPTION_TILE_INNER}>
-        <span
-          className="grid size-full place-items-center ds-squircle-xs"
-          style={customFill ? { background: customFill } : undefined}
-        >
-          <span
-            className={cn(
-              "grid place-items-center text-[var(--fg)]",
-              customFill
-                ? "size-5 rounded-full bg-[color-mix(in_srgb,var(--bg)_88%,transparent)]"
-                : "size-full bg-[color-mix(in_srgb,var(--muted)_40%,transparent)] ds-squircle-xs",
-            )}
-          >
-            <Pipette className="size-4" strokeWidth={2.5} />
-          </span>
+        <span className="grid size-full place-items-center bg-[color-mix(in_srgb,var(--muted)_40%,transparent)] text-[var(--fg)] ds-squircle-xs">
+          <Pipette className="size-4" strokeWidth={2.5} />
         </span>
       </span>
     </button>
@@ -187,12 +172,16 @@ export function MobileRailOptionButton({
 }
 
 /** Elements family button: opens the drawer straight onto the Layers detail —
- *  no intermediate rail row. */
+ *  no intermediate rail row. `onAfterClose` is the drawer's discard handler so
+ *  the detail's cross closes the drawer (and rolls back) instead of revealing
+ *  the Elements section view underneath. */
 export function MobileElementsSectionButton({
   model,
+  onDiscard,
   onOpenSection,
 }: {
   model: SettingsModel;
+  onDiscard: () => void;
   onOpenSection: () => void;
 }) {
   const navigation = useMobileDrawerNavigation();
@@ -214,6 +203,7 @@ export function MobileElementsSectionButton({
           />
         </Suspense>
       ),
+      onAfterClose: onDiscard,
     });
   };
 

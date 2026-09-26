@@ -19,7 +19,7 @@ export {
   // fallow-ignore-next-line unused-type
   type QrColorPartOption,
 } from "@/features/shell/settings/settings-ui/Select";
-export { OptionScrollRow, PresetList } from "@/features/shell/settings/settings-ui/OptionRows";
+export { PresetList } from "@/features/shell/settings/settings-ui/OptionRows";
 export {
   SettingsInlineSlider,
   SettingsInput,

@@ -13,10 +13,11 @@ import {
 } from "@/features/qr/styles/encoding-options";
 import type { QrTypeNumber } from "@/features/qr/model/types";
 import type { QraftyDataModulesStyle } from "@/features/qr/model/state";
-import { getBrandIconById, POPULAR_BRAND_ICON_IDS } from "@/features/qr/assets/brand-icons";
+import { POPULAR_BRAND_ICON_IDS } from "@/features/qr/assets/brand-icons";
 import type { SettingsModel } from "@/features/shell/hooks/use-toolbar-settings-model";
 import type { LogoSettings } from "@/features/shell/model/toolbar-types";
 import { MobileOptionShelf } from "@/features/shell/settings/MobileOptionRail";
+import { useMobileSettingsDensity } from "@/features/shell/settings/MobileSettingsDensityContext";
 import {
   isQrStylePartId,
   QR_STYLE_PART_DEFINITIONS,
@@ -165,20 +166,24 @@ export function QrStyleSection({ model }: { model: SettingsModel }) {
     ),
   );
   const logoSource = logoSourceTab(actualLogoSettings.sourceMode);
+  const mobileDensity = useMobileSettingsDensity();
+  const mobileLogo = mobileDensity && tab === "Logo";
 
   const part = isQrStylePartId(tab) ? QR_STYLE_PART_DEFINITIONS[tab] : null;
 
   return (
     <div className="ds-section-stack w-full min-w-0 max-w-full">
-      <SettingsLabeledSelect
-        items={["Module", "Eye", "Frame", "Logo"]}
-        placeholder="Part"
-        value={tab}
-        onChange={(nextTab) => {
-          setTab(nextTab);
-          setSettingsSectionTab("qr-style", nextTab);
-        }}
-      />
+      {mobileLogo ? null : (
+        <SettingsLabeledSelect
+          items={["Module", "Eye", "Frame", "Logo"]}
+          placeholder="Part"
+          value={tab}
+          onChange={(nextTab) => {
+            setTab(nextTab);
+            setSettingsSectionTab("qr-style", nextTab);
+          }}
+        />
+      )}
 
       <SettingsTabPanel activeKey={tab}>
         {tab === "Logo" ? (
@@ -205,56 +210,20 @@ export function QrStyleSection({ model }: { model: SettingsModel }) {
                 });
               }}
             />
-
             {logoSource === "Upload" ? (
-              <MobileOptionShelf
-                ariaLabel="Logo upload"
-                dataSlot="logo-upload-grid"
-                persistKey="qr-logo-upload"
-              >
+              <div className="flex min-h-[var(--control-height)] items-center">
+                <span className="ds-row-label-text pl-[var(--row-px)]">Upload image</span>
                 <SettingsImageUploadTile
-                  fluid
                   ariaLabel="Upload custom logo"
-                  className="ds-row-upload-tile"
+                  className="ds-row-upload-tile ml-auto"
                   imageUrl={actualLogoSettings.customImageUrl}
                   onClear={() => onLogoSettingsChange({ uploadedImageUrl: "" })}
                   onUpload={(imageUrl) => onLogoSettingsChange({ uploadedImageUrl: imageUrl })}
                 />
-              </MobileOptionShelf>
+              </div>
             ) : logoSource === "None" ? null : (
-              <MobileOptionShelf
-                activeKey={actualLogoSettings.selectedBrandIconId}
-                ariaLabel="Logo options"
-                dataSlot="logo-brand-grid"
-                persistKey="qr-logo-brands"
-              >
-                {POPULAR_BRAND_ICON_IDS.map((iconId) => {
-                  const brandIcon = getBrandIconById(iconId);
-                  const isSelected =
-                    !actualLogoSettings.customImageUrl &&
-                    actualLogoSettings.selectedBrandIconId === iconId;
-
-                  return (
-                    <button
-                      key={iconId}
-                      aria-label={`Use ${brandIcon.label} logo`}
-                      aria-pressed={isSelected}
-                      className={cn(SETTINGS_PREVIEW_TILE_FLUID)}
-                      title={brandIcon.label}
-                      type="button"
-                      onClick={() =>
-                        onLogoSettingsChange({
-                          selectedBrandIconId: iconId,
-                          sourceMode: "brand",
-                        })
-                      }
-                    >
-                      <span className="relative z-10 grid size-full place-items-center">
-                        <LogoPickerTileIcon iconId={iconId} />
-                      </span>
-                    </button>
-                  );
-                })}
+              <div className="flex min-h-[var(--control-height)] items-center">
+                <span className="ds-row-label-text pl-[var(--row-px)]">Choose logo</span>
                 <SettingsTilePopover
                   contentClassName="w-[18rem]"
                   title="Logo"
@@ -268,17 +237,19 @@ export function QrStyleSection({ model }: { model: SettingsModel }) {
                   }
                 >
                   <button
-                    aria-label="More logo options"
-                    className={cn(SETTINGS_PREVIEW_TILE_FLUID)}
-                    title="More"
+                    aria-label="Choose logo"
+                    className="ds-row-logo-tile ds-squircle-xs relative ml-auto grid shrink-0 place-items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                    title="Choose logo"
                     type="button"
                   >
-                    <span className="relative z-10 grid size-full place-items-center">
+                    {actualLogoSettings.selectedBrandIconId ? (
+                      <LogoPickerTileIcon iconId={actualLogoSettings.selectedBrandIconId} />
+                    ) : (
                       <Ellipsis aria-hidden className="size-4" />
-                    </span>
+                    )}
                   </button>
                 </SettingsTilePopover>
-              </MobileOptionShelf>
+              </div>
             )}
 
             {logoSource === "None" ? null : (
@@ -302,30 +273,34 @@ export function QrStyleSection({ model }: { model: SettingsModel }) {
 
       {tab === "Module" ? <QrModuleGeometrySlider model={model} /> : null}
 
-      <SettingsSlider
-        formatValue={formatQrTypeNumberLabel}
-        label="Min version"
-        max={TYPE_NUMBER_MAX}
-        min={TYPE_NUMBER_MIN}
-        step={1}
-        value={actualEncodingSettings.typeNumber}
-        onChange={(typeNumber) =>
-          onEncodingSettingsChange({ typeNumber: typeNumber as QrTypeNumber })
-        }
-      />
+      {mobileLogo ? null : (
+        <>
+          <SettingsSlider
+            formatValue={formatQrTypeNumberLabel}
+            label="Min version"
+            max={TYPE_NUMBER_MAX}
+            min={TYPE_NUMBER_MIN}
+            step={1}
+            value={actualEncodingSettings.typeNumber}
+            onChange={(typeNumber) =>
+              onEncodingSettingsChange({ typeNumber: typeNumber as QrTypeNumber })
+            }
+          />
 
-      <SettingsSlider
-        formatValue={(index) => ERROR_CORRECTION_LEVEL_OPTIONS[index]?.label ?? "Q"}
-        label="Error correction"
-        max={ERROR_CORRECTION_LEVEL_OPTIONS.length - 1}
-        min={0}
-        step={1}
-        value={errorCorrectionIndex}
-        onChange={(index) => {
-          const option = ERROR_CORRECTION_LEVEL_OPTIONS[index];
-          if (option) onEncodingSettingsChange({ errorCorrectionLevel: option.value });
-        }}
-      />
+          <SettingsSlider
+            formatValue={(index) => ERROR_CORRECTION_LEVEL_OPTIONS[index]?.label ?? "Q"}
+            label="Error correction"
+            max={ERROR_CORRECTION_LEVEL_OPTIONS.length - 1}
+            min={0}
+            step={1}
+            value={errorCorrectionIndex}
+            onChange={(index) => {
+              const option = ERROR_CORRECTION_LEVEL_OPTIONS[index];
+              if (option) onEncodingSettingsChange({ errorCorrectionLevel: option.value });
+            }}
+          />
+        </>
+      )}
     </div>
   );
 }

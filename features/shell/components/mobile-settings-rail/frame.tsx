@@ -31,6 +31,7 @@ export function MobileDrawerStackReset({ open }: { open: boolean }) {
 export function MobileRailRowContent({
   FamilyRow,
   model,
+  onDiscard,
   onOpenDrawer,
   onOpenSection,
   onOptionClick,
@@ -40,6 +41,8 @@ export function MobileRailRowContent({
 }: {
   FamilyRow?: ComponentType<MobileRailRowProps>;
   model: SettingsModel;
+  /** Elements detail close discards + closes the drawer, never the section. */
+  onDiscard: () => void;
   onOpenDrawer: () => void;
   onOpenSection: (section: SettingsSectionId) => void;
   onOptionClick: (option: MobileRailOption) => void;
@@ -70,6 +73,7 @@ export function MobileRailRowContent({
           <MobileElementsSectionButton
             key={section}
             model={model}
+            onDiscard={onDiscard}
             onOpenSection={() => onOpenSection(section)}
           />
         ) : (

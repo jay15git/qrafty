@@ -108,7 +108,6 @@ export function MobileBackgroundRailRow({ model }: MobileRailRowProps) {
     <>
       <MobileRailPickerTile
         ariaLabel="Custom background"
-        customFill={activePreset ? undefined : value}
         onOpen={() =>
           navigation?.openDetail({
             title: "Background",

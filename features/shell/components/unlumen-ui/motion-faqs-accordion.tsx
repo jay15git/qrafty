@@ -58,11 +58,19 @@ function AccordionItem({
   const [contentH, setContentH] = React.useState(0);
 
   React.useEffect(() => {
-    const el = contentRef.current;
-    if (!el) return;
-    const ro = new ResizeObserver(() => setContentH(el.scrollHeight));
-    ro.observe(el);
-    setContentH(el.scrollHeight);
+    const wrapper = contentRef.current;
+    if (!wrapper) return;
+    // Measure the inner content box, not the clipping wrapper: the wrapper's
+    // own box is capped by the animated grid row, so a ResizeObserver on it
+    // never fires when children grow — open panels stay at their first height
+    // and new controls get cropped. The inner box tracks content height even
+    // while clipped (its scrollHeight keeps the natural height).
+    const inner = wrapper.firstElementChild;
+    if (!(inner instanceof HTMLElement)) return;
+    const measure = () => setContentH(inner.scrollHeight);
+    const ro = new ResizeObserver(measure);
+    ro.observe(inner);
+    measure();
     return () => ro.disconnect();
   }, []);
 
@@ -85,7 +93,7 @@ function AccordionItem({
         aria-expanded={isOpen}
         onClick={onToggle}
         {...CUELUME_BUTTON}
-        className="flex w-full cursor-pointer select-none items-center justify-between gap-4 px-7 py-5 text-left"
+        className="flex w-full cursor-pointer select-none items-center justify-between gap-4 text-left"
       >
         <span className="inline-flex min-w-0 items-center gap-2 font-medium tracking-tight">
           {item.icon ? (
@@ -147,7 +155,7 @@ function AccordionItem({
               damping: 30,
               mass: 0.8,
             }}
-            className="min-w-0 px-7 pb-7"
+            className="min-w-0"
           >
             {item.answer}
           </m.div>

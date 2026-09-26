@@ -48,8 +48,6 @@ export type SettingsFillPopoverHandle = {
   openPicker: () => void;
 };
 
-export const OPTION_TILE_SCROLL_ROW = "ds-preview-row ds-option-tile-scroll-row";
-
 export function FillSwatchButton({
   ariaLabel,
   fill,

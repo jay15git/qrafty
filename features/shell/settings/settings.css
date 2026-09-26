@@ -1100,6 +1100,22 @@
   }
 }
 
+/* Fill popovers carry the elevation on the outer panel — it clips overflow,
+   so a shadow on the inner shell would be cut off. */
+.ds-accordion-popover-panel.ds-fill-popover {
+  box-shadow: var(--popover-shadow, 0 12px 40px rgb(0 0 0 / 18%)) !important;
+}
+
+.ds-accordion-popover-panel.ds-fill-popover[data-theme="dark"] {
+  box-shadow: var(--menu-shadow) !important;
+}
+
+/* Inside the accordion panel the shell is clipped by the panel — its own
+   shadow must stay off so it does not double-render. */
+.ds-accordion-popover-panel .ds-settings-popover-shell {
+  box-shadow: none;
+}
+
 .ds-accordion-popover-panel.ds-fill-popover .ds-fill-picker-panel {
   max-height: min(72dvh, calc(100% - 0.5rem));
   border: 0 !important;
@@ -1544,6 +1560,13 @@
   --ring: var(--fg);
 }
 
+/* Select popups keep the component's default row radii: the shell above
+ * widens --radius-md/--radius-lg to the 20px panel radius, which would
+ * otherwise turn every row's hover/selection background into a pill. */
+.ds-popover-content.ds-select-popup {
+  --radius-lg: 8px;
+}
+
 .ds-popover-content[data-theme="dark"] {
   --bg: var(--popover-bg);
   --control: var(--popover-control);
@@ -1552,10 +1575,10 @@
   --type-label-color: color-mix(in srgb, var(--fg) 46%, transparent);
 }
 
-/* Flat toolbar popovers — settings-panel tokens, no border, no shadow. */
+/* Flat toolbar popovers — settings-panel tokens, no border. Keep the subtle
+   lifting shadow so the surface reads above the canvas. */
 .ds-popover-flat {
   border: none !important;
-  box-shadow: none !important;
 }
 
 .ds-crop-dialog > button.absolute {
@@ -1755,7 +1778,7 @@
   border: 1px solid color-mix(in srgb, var(--line) 80%, transparent) !important;
   background: var(--bg) !important;
   color: var(--fg) !important;
-  box-shadow: none !important;
+  box-shadow: var(--popover-shadow, 0 12px 40px rgb(0 0 0 / 18%)) !important;
 }
 
 .ds-insert-menu-popover[data-theme="dark"] {
@@ -1769,6 +1792,7 @@
   border-color: color-mix(in srgb, var(--line) 80%, transparent) !important;
   background: var(--surface) !important;
   color: var(--fg) !important;
+  box-shadow: var(--menu-shadow) !important;
 }
 
 .ds-insert-menu-scroll,
@@ -2291,6 +2315,26 @@
   max-height: var(--control-height);
   border-width: 0;
   padding: 0;
+}
+
+/* Logo picker tile at the end of a labelled row — same square footprint as
+   the upload tile beside it. */
+.ds-row-logo-tile {
+  flex: 0 0 var(--control-height);
+  width: var(--control-height);
+  min-width: var(--control-height);
+  max-width: var(--control-height);
+  height: var(--control-height);
+  min-height: var(--control-height);
+  max-height: var(--control-height);
+  padding: 0;
+  background: var(--control);
+  color: var(--fg);
+}
+
+.ds-row-logo-tile .ds-logo-icon-picker-icon {
+  width: 1.125rem;
+  height: 1.125rem;
 }
 
 /* Match the adjacent picker trigger row: same fill, same height. */
