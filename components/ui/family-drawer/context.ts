@@ -19,6 +19,10 @@ export interface FamilyDrawerContextValue {
   opacityDuration: number;
   elementRef: FamilyDrawerMeasureRef;
   bounds: RectReadOnly;
+  /** True while no fresh measurement exists for this open — frame must size to `auto`. */
+  measuringOpen: boolean;
+  /** True on the render carrying the first post-open measurement — height snaps, never animates. */
+  snapHeight: boolean;
   views: ViewsRegistry | undefined;
 }
 

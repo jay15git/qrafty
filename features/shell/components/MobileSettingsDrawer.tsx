@@ -4,9 +4,9 @@ import { Check, X } from "lucide-react";
 import {
   createContext,
   useContext,
-  useEffect,
   useLayoutEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -53,17 +53,34 @@ type MobileDrawerViewProps = {
 
 const MobileDrawerViewPropsContext = createContext<MobileDrawerViewProps | null>(null);
 
-function useMobileDrawerMaxHeight() {
-  const [maxHeight, setMaxHeight] = useState<number>();
+/** Below ~0.5px deltas nothing repaints anyway; viewport jitter must not churn the frame. */
+const DRAWER_MAX_HEIGHT_EPSILON_PX = 1;
 
-  useLayoutEffect(() => {
-    const update = () => {
-      setMaxHeight(
-        getMobileDrawerMaxHeightPx(
+function useMobileDrawerMaxHeight() {
+  // Lazy-initialized: the first painted frame must already be capped, or
+  // FamilyDrawerContent flips isCapped after mount and remounts the whole
+  // scroll frame + view subtree (visible jump, scroll/animator state loss).
+  const [maxHeight, setMaxHeight] = useState<number | undefined>(() =>
+    typeof window === "undefined"
+      ? undefined
+      : getMobileDrawerMaxHeightPx(
           window.innerHeight,
           window.visualViewport,
           MOBILE_DRAWER_MAX_VIEWPORT_RATIO,
         ),
+  );
+
+  useLayoutEffect(() => {
+    const update = () => {
+      const next = getMobileDrawerMaxHeightPx(
+        window.innerHeight,
+        window.visualViewport,
+        MOBILE_DRAWER_MAX_VIEWPORT_RATIO,
+      );
+      setMaxHeight((current) =>
+        current !== undefined && Math.abs(next - current) < DRAWER_MAX_HEIGHT_EPSILON_PX
+          ? current
+          : next,
       );
     };
 
@@ -125,7 +142,10 @@ function MobileDrawerHeader({
 function FamilyDrawerViewBridge({ children, view }: { children: ReactNode; view: string }) {
   const { setView, view: innerView } = useFamilyDrawer();
 
-  useEffect(() => {
+  // Layout effect, not useEffect: the bridge remounts with the portal on each
+  // open, and the inner view survives closed on the root — a stale view must
+  // be corrected before the first paint or the old view flashes one frame.
+  useLayoutEffect(() => {
     if (innerView !== view) {
       setView(view);
     }
@@ -221,12 +241,23 @@ export function MobileSettingsDrawer({
   const maxHeight = useMobileDrawerMaxHeight();
   const open = section !== null || view === MOBILE_DRAWER_DETAIL_VIEW;
 
+  // Retain the last rendered section/view for the exit: `section`→null and
+  // `view`→"section" commit in the same tick as open→false, but the portal
+  // stays mounted through vaul's close transition. Rendering null or swapping
+  // views there collapses the measured height mid-slide — a visible squash.
+  const renderSection = useRef<SettingsSectionId | null>(section);
+  const renderView = useRef(view);
+  if (open) {
+    renderSection.current = section;
+    renderView.current = view;
+  }
+
   // Content is reached by picking a content type on the rail, so its heading
   // names the option ("Link", "Text", …) rather than the section.
-  const title = section
-    ? section === "Content"
+  const title = renderSection.current
+    ? renderSection.current === "Content"
       ? getContentTypeLabel(model.actualContentType)
-      : getSettingsSectionLabel(section)
+      : getSettingsSectionLabel(renderSection.current)
     : undefined;
 
   // `views` entries are rendered as component types — if they change identity
@@ -263,8 +294,8 @@ export function MobileSettingsDrawer({
   );
 
   const viewProps = useMemo(
-    () => ({ model, onDiscard, onSave, section, title }),
-    [model, onDiscard, onSave, section, title],
+    () => ({ model, onDiscard, onSave, section: renderSection.current, title }),
+    [model, onDiscard, onSave, title],
   );
 
   return (
@@ -294,7 +325,7 @@ export function MobileSettingsDrawer({
         >
           <FamilyDrawerAnimatedWrapper className="ds-mobile-drawer-body px-[var(--row-px)] pt-3">
             <MobileDrawerViewPropsContext.Provider value={viewProps}>
-              <FamilyDrawerViewBridge view={view}>
+              <FamilyDrawerViewBridge view={renderView.current}>
                 <FamilyDrawerAnimatedContent />
               </FamilyDrawerViewBridge>
             </MobileDrawerViewPropsContext.Provider>

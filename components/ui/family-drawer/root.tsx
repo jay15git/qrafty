@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useLayoutEffect, useMemo, useState, type ReactNode } from "react";
-import useMeasure from "react-use-measure";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useState, type ReactNode } from "react";
+import useMeasure, { type RectReadOnly } from "react-use-measure";
 import { Drawer } from "vaul";
 
 import { FamilyDrawerContext, type FamilyDrawerContextValue, type ViewsRegistry } from "./context";
@@ -68,6 +68,25 @@ export function FamilyDrawerRoot({
     );
   }
 
+  // useMeasure keeps the last bounds across close/unmount, so on reopen the
+  // frame first renders at a stale height and animates to the real one — the
+  // "expands then settles" wobble. Until the first post-open measurement the
+  // frame renders `auto` (no stale height), and that measurement snaps in
+  // instantly instead of animating.
+  const [boundsAtOpen, setBoundsAtOpen] = useState<RectReadOnly | null>(null);
+  const measuringOpen = boundsAtOpen !== null && bounds === boundsAtOpen;
+  const justMeasuredOpen = boundsAtOpen !== null && bounds !== boundsAtOpen;
+
+  if (isOpen && boundsAtOpen === null) {
+    setBoundsAtOpen(bounds);
+  }
+  if (isOpen && justMeasuredOpen) {
+    setBoundsAtOpen(null);
+  }
+  if (!isOpen && boundsAtOpen !== null) {
+    setBoundsAtOpen(null);
+  }
+
   // The portal mounts the measured wrapper in the same commit the drawer
   // opens; the observer can miss that first layout when the drawer opens
   // straight onto a detail view, leaving the frame stuck at a stale height.
@@ -76,6 +95,18 @@ export function FamilyDrawerRoot({
       refreshBounds();
     }
   }, [isOpen, view, refreshBounds]);
+
+  // An identical re-measurement dedupes inside useMeasure — no bounds update
+  // arrives, so nothing else would end the measuring window. Re-arm on a
+  // short timer (rAF never fires while the tab is hidden); stale and real
+  // heights are equal in that case anyway.
+  useEffect(() => {
+    if (boundsAtOpen === null || bounds !== boundsAtOpen) {
+      return;
+    }
+    const timer = window.setTimeout(() => setBoundsAtOpen(null), 50);
+    return () => window.clearTimeout(timer);
+  }, [boundsAtOpen, bounds]);
 
   const views = customViews && Object.keys(customViews).length > 0 ? customViews : undefined;
 
@@ -98,9 +129,21 @@ export function FamilyDrawerRoot({
       opacityDuration,
       elementRef,
       bounds,
+      measuringOpen,
+      snapHeight: justMeasuredOpen,
       views,
     }),
-    [isOpen, view, handleViewChange, opacityDuration, elementRef, bounds, views],
+    [
+      isOpen,
+      view,
+      handleViewChange,
+      opacityDuration,
+      elementRef,
+      bounds,
+      measuringOpen,
+      justMeasuredOpen,
+      views,
+    ],
   );
 
   return (

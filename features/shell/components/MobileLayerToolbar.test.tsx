@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { MobileLayerToolbar } from "@/features/shell/components/MobileLayerToolbar";
 import { createCanvasShapeLayer } from "@/features/canvas/model/layers/factories";
+import { createFallbackLayer } from "@/features/canvas/model/layers/fallback";
 import { getAppearanceSnapshot } from "@/features/shell/model/appearance";
 import type { SettingsModel } from "@/features/shell/hooks/use-toolbar-settings-model";
 import type { ToolbarController } from "@/features/shell/model/toolbar-types";
@@ -172,7 +173,7 @@ describe("MobileLayerToolbar", () => {
     expect(navigationRef.current?.detailPayload?.title).toBe("Transform");
   });
 
-  it("does not render when nothing is selected", async () => {
+  it("does not render when nothing is selected and no panel tools exist", async () => {
     const surface = await renderWithAsyncJsdomRoot(
       <MobileSettingsDensityContext.Provider value={true}>
         <MobileLayerToolbar
@@ -188,5 +189,34 @@ describe("MobileLayerToolbar", () => {
     );
 
     expect(surface.container.querySelector('[data-slot="mobile-layer-toolbar"]')).toBeNull();
+  });
+
+  it("renders background tools without a selection but hides layer actions", async () => {
+    const card = createFallbackLayer(NODE_ID, "card");
+    const surface = await renderWithAsyncJsdomRoot(
+      <MobileSettingsDensityContext.Provider value={true}>
+        <MobileLayerToolbar
+          model={createModel({
+            appearanceSnapshot: getAppearanceSnapshot(card),
+            insertNodeId: NODE_ID,
+            onAppearancePatch: vi.fn(),
+            onInsertLayer: vi.fn(),
+            onSceneTemplateSizeTemplateSelect: vi.fn(),
+            selectedAppearanceLayer: card,
+            selectedElementLayer: null,
+            selectedLayerIds: [],
+          })}
+          onToolbarHeightChange={() => {}}
+          theme="dark"
+        />
+      </MobileSettingsDensityContext.Provider>,
+    );
+
+    const toolbar = surface.container.querySelector('[data-slot="mobile-layer-toolbar"]');
+    expect(toolbar).not.toBeNull();
+    expect(toolbar!.querySelector('[aria-label="Add element"]')).not.toBeNull();
+    expect(toolbar!.querySelector('[aria-label="Canvas size"]')).not.toBeNull();
+    expect(toolbar!.querySelector('[aria-label="Copy selection"]')).toBeNull();
+    expect(toolbar!.querySelector('[aria-label="Delete selection"]')).toBeNull();
   });
 });

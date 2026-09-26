@@ -337,10 +337,18 @@ function MobileLayerEffectsTool({
 }) {
   const appearance = controller?.appearanceSnapshot;
   const onAppearancePatch = controller?.onAppearancePatch;
-  const effectsLayer = controller?.selectedElementLayer ?? null;
-  const effectsPatch = controller?.onElementLayerPatch;
+  // Mirrors the desktop island: with nothing selected the card (background)
+  // layer is the effects target, patched through onAppearancePatch.
+  const effectsLayer =
+    controller?.selectedElementLayer ?? controller?.selectedAppearanceLayer ?? null;
+  const effectsPatch = controller?.selectedElementLayer
+    ? controller?.onElementLayerPatch
+    : controller?.onAppearancePatch;
   const propertyLayer =
-    controller?.selectedTransformLayer ?? controller?.selectedElementLayer ?? null;
+    controller?.selectedTransformLayer ??
+    controller?.selectedElementLayer ??
+    controller?.selectedAppearanceLayer ??
+    null;
   const propertyCapabilities = getLayerToolbarCapabilities(propertyLayer);
   if (!effectsLayer || !effectsPatch || propertyCapabilities.maxEffects <= 0) {
     return null;
@@ -414,11 +422,12 @@ function hasMobilePanelTools(controller: MobilePanelController): boolean {
   const onAppearancePatch = controller?.onAppearancePatch;
   const selectedElementLayer = controller?.selectedElementLayer;
   const onElementLayerPatch = controller?.onElementLayerPatch;
+  const appearanceLayer = controller?.selectedAppearanceLayer;
 
-  const propertyLayer = selectedTransformLayer ?? selectedElementLayer ?? null;
+  const propertyLayer = selectedTransformLayer ?? selectedElementLayer ?? appearanceLayer ?? null;
   const propertyCapabilities = getLayerToolbarCapabilities(propertyLayer);
-  const effectsLayer = selectedElementLayer ?? null;
-  const effectsPatch = onElementLayerPatch;
+  const effectsLayer = selectedElementLayer ?? appearanceLayer ?? null;
+  const effectsPatch = selectedElementLayer ? onElementLayerPatch : onAppearancePatch;
 
   const canInsert = Boolean(insertNodeId && onInsertLayer);
   const hasLayout = Boolean(onSelectSizeTemplate);
@@ -434,7 +443,15 @@ function hasMobilePanelTools(controller: MobilePanelController): boolean {
   return canInsert || hasLayout || hasTransform || hasBorder || hasEffects || hasShadows;
 }
 
-function MobileLayerPanelTools({ model, theme }: { model: SettingsModel; theme: ThemeMode }) {
+function MobileLayerPanelTools({
+  model,
+  separator,
+  theme,
+}: {
+  model: SettingsModel;
+  separator: boolean;
+  theme: ThemeMode;
+}) {
   const controller = model.controller;
 
   if (!hasMobilePanelTools(controller)) {
@@ -443,7 +460,7 @@ function MobileLayerPanelTools({ model, theme }: { model: SettingsModel; theme: 
 
   return (
     <>
-      <MobileLayerToolbarSeparator />
+      {separator ? <MobileLayerToolbarSeparator /> : null}
       <MobileLayerInsertTool controller={controller} />
       <MobileLayerLayoutTool controller={controller} />
       <MobileLayerTransformTool controller={controller} theme={theme} />
@@ -601,10 +618,12 @@ export function MobileLayerToolbar({
   const selectedElementLayer = controller?.selectedElementLayer;
   const onElementLayerPatch = controller?.onElementLayerPatch;
   const toolbarRef = useRef<HTMLDivElement>(null);
+  const hasPanelTools = hasMobilePanelTools(controller);
+  const hasSelection = selectedLayerIds.length > 0;
 
   useEffect(() => {
     const node = toolbarRef.current;
-    if (!node || selectedLayerIds.length === 0) {
+    if (!node || (!hasSelection && !hasPanelTools)) {
       onToolbarHeightChange(0);
       return;
     }
@@ -622,9 +641,12 @@ export function MobileLayerToolbar({
       observer.disconnect();
       onToolbarHeightChange(0);
     };
-  }, [onToolbarHeightChange, selectedLayerIds.length]);
+  }, [onToolbarHeightChange, hasSelection, hasPanelTools]);
 
-  if (selectedLayerIds.length === 0) {
+  // The toolbar is always-on: with nothing selected it still carries the
+  // background tools (Add / Layout / card Border & Effects) that the desktop
+  // island shows for the card layer.
+  if (!hasSelection && !hasPanelTools) {
     return null;
   }
 
@@ -686,50 +708,54 @@ export function MobileLayerToolbar({
                 <MobileLayerToolbarSeparator />
               </>
             ) : null}
-            <MobileLayerToolbarButton
-              ariaLabel="Copy selection"
-              disabled={!canCopy}
-              onClick={() => controller?.onLayerCopy?.()}
-            >
-              <Copy className="size-4" strokeWidth={2} />
-            </MobileLayerToolbarButton>
-            <MobileLayerToolbarButton
-              ariaLabel="Delete selection"
-              disabled={!canDelete || !controller?.onLayerMenuAction}
-              onClick={() => controller?.onLayerMenuAction?.("delete")}
-            >
-              <Trash2 className="size-4" strokeWidth={2} />
-            </MobileLayerToolbarButton>
-            <MobileLayerToolbarSeparator />
-            <MobileLayerToolbarButton
-              ariaLabel="Bring to front"
-              disabled={!canReorder}
-              onClick={() => controller?.onLayerMenuAction?.("front")}
-            >
-              <ArrowUpToLine className="size-4" strokeWidth={2} />
-            </MobileLayerToolbarButton>
-            <MobileLayerToolbarButton
-              ariaLabel="Bring forward"
-              disabled={!canReorder}
-              onClick={() => controller?.onLayerMenuAction?.("forward")}
-            >
-              <ArrowUp className="size-4" strokeWidth={2} />
-            </MobileLayerToolbarButton>
-            <MobileLayerToolbarButton
-              ariaLabel="Send backward"
-              disabled={!canReorder}
-              onClick={() => controller?.onLayerMenuAction?.("backward")}
-            >
-              <ArrowDown className="size-4" strokeWidth={2} />
-            </MobileLayerToolbarButton>
-            <MobileLayerToolbarButton
-              ariaLabel="Send to back"
-              disabled={!canReorder}
-              onClick={() => controller?.onLayerMenuAction?.("back")}
-            >
-              <ArrowDownToLine className="size-4" strokeWidth={2} />
-            </MobileLayerToolbarButton>
-            <MobileLayerPanelTools model={model} theme={theme} />
+            {hasSelection ? (
+              <>
+                <MobileLayerToolbarButton
+                  ariaLabel="Copy selection"
+                  disabled={!canCopy}
+                  onClick={() => controller?.onLayerCopy?.()}
+                >
+                  <Copy className="size-4" strokeWidth={2} />
+                </MobileLayerToolbarButton>
+                <MobileLayerToolbarButton
+                  ariaLabel="Delete selection"
+                  disabled={!canDelete || !controller?.onLayerMenuAction}
+                  onClick={() => controller?.onLayerMenuAction?.("delete")}
+                >
+                  <Trash2 className="size-4" strokeWidth={2} />
+                </MobileLayerToolbarButton>
+                <MobileLayerToolbarSeparator />
+                <MobileLayerToolbarButton
+                  ariaLabel="Bring to front"
+                  disabled={!canReorder}
+                  onClick={() => controller?.onLayerMenuAction?.("front")}
+                >
+                  <ArrowUpToLine className="size-4" strokeWidth={2} />
+                </MobileLayerToolbarButton>
+                <MobileLayerToolbarButton
+                  ariaLabel="Bring forward"
+                  disabled={!canReorder}
+                  onClick={() => controller?.onLayerMenuAction?.("forward")}
+                >
+                  <ArrowUp className="size-4" strokeWidth={2} />
+                </MobileLayerToolbarButton>
+                <MobileLayerToolbarButton
+                  ariaLabel="Send backward"
+                  disabled={!canReorder}
+                  onClick={() => controller?.onLayerMenuAction?.("backward")}
+                >
+                  <ArrowDown className="size-4" strokeWidth={2} />
+                </MobileLayerToolbarButton>
+                <MobileLayerToolbarButton
+                  ariaLabel="Send to back"
+                  disabled={!canReorder}
+                  onClick={() => controller?.onLayerMenuAction?.("back")}
+                >
+                  <ArrowDownToLine className="size-4" strokeWidth={2} />
+                </MobileLayerToolbarButton>
+              </>
+            ) : null}
+            <MobileLayerPanelTools model={model} separator={hasSelection} theme={theme} />
           </div>
         </ScrollArea>
       </div>

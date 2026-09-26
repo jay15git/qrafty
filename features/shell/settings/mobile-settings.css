@@ -16,6 +16,9 @@
   color: var(--fg);
   font-family: var(--font);
   bottom: max(1rem, env(safe-area-inset-bottom, 0px), var(--mobile-drawer-keyboard-inset, 0px));
+  /* Keyboard inset flips `bottom` in a single jump; ease it so the card
+     rides up instead of teleporting mid-interaction. */
+  transition: bottom 0.22s ease;
 }
 
 [data-slot="mobile-settings-drawer-root"].ds-root[data-theme="light"] {

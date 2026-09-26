@@ -20,9 +20,15 @@ import {
 export function MobileDrawerStackReset({ open }: { open: boolean }) {
   const navigation = useMobileDrawerNavigation();
   useEffect(() => {
-    if (!open) {
-      navigation?.clearDetails();
+    if (open) {
+      return;
     }
+    // The drawer's exit animation keeps the portal mounted for a beat after
+    // `open` flips; clearing the stack at once unmounts the detail content
+    // mid-slide and collapses the measured height — a visible squash. Wait
+    // past vaul's close transition, cancel if the drawer reopened.
+    const timer = window.setTimeout(() => navigation?.clearDetails(), 400);
+    return () => window.clearTimeout(timer);
   }, [navigation, open]);
   return null;
 }
