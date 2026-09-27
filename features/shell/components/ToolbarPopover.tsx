@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
 
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Popover, PopoverClose, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { ToolbarTooltip } from "@/features/shell/components/ToolbarTooltip";
+import { PopoverClose, PopoverContent } from "@/components/ui/popover";
 import { SettingsPopoverCloseButton } from "@/features/shell/settings/settings-ui";
 import { cn } from "@/lib/utils";
 
@@ -88,57 +87,5 @@ export function ToolbarPopoverContent({
       ) : null}
       {content}
     </PopoverContent>
-  );
-}
-
-function ToolbarPopover({
-  children,
-  dataSlot = "toolbar-popover",
-  label,
-  trigger,
-  triggerClassName,
-  triggerDataSlot,
-  triggerOpenClassName,
-  suppressTooltip = false,
-}: {
-  children: ReactNode;
-  dataSlot?: string;
-  label: string;
-  trigger: ReactNode;
-  suppressTooltip?: boolean;
-  triggerClassName?: string;
-  triggerDataSlot?: string;
-  triggerOpenClassName?: string;
-}) {
-  const [open, setOpen] = useState(false);
-
-  const triggerButton = (
-    <PopoverTrigger asChild>
-      <button
-        aria-label={label}
-        className={cn(
-          "relative grid size-9 cursor-pointer place-items-center overflow-visible rounded-full border-0 bg-transparent p-0 text-current shadow-none transition-colors duration-[var(--motion-fast)] hover:text-[var(--glass-button-hover-fg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--glass-button-focus-ring)] disabled:cursor-not-allowed [&_svg]:size-3.5",
-          open && triggerOpenClassName,
-          triggerClassName,
-        )}
-        data-slot={triggerDataSlot}
-        type="button"
-      >
-        {trigger}
-      </button>
-    </PopoverTrigger>
-  );
-
-  return (
-    <Popover modal={false} open={open} onOpenChange={setOpen}>
-      {suppressTooltip ? (
-        triggerButton
-      ) : (
-        <ToolbarTooltip content={label} side="bottom" sideOffset={10}>
-          {triggerButton}
-        </ToolbarTooltip>
-      )}
-      <ToolbarPopoverContent dataSlot={dataSlot}>{children}</ToolbarPopoverContent>
-    </Popover>
   );
 }

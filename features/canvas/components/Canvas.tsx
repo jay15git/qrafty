@@ -11,7 +11,6 @@ import {
 import type { ThemeMode } from "@/features/shell/components/WorkspaceChrome";
 
 import { CanvasBoard } from "@/features/canvas/components/CanvasBoard";
-import { Tooltip as TooltipPrimitive } from "radix-ui";
 
 export type {
   CanvasBoardTool,
@@ -90,54 +89,52 @@ export function Canvas({
   }, []);
 
   return (
-    <TooltipPrimitive.Provider delayDuration={0}>
-      <div className="relative flex h-full w-full flex-col">
-        <div className="relative min-h-0 flex-1">
-          {!activeBoard ? (
-            <div className="grid h-full place-items-center text-sm font-medium text-[var(--canvas-ink-muted)]">
-              No QR codes
-            </div>
-          ) : (
-            <CanvasBoard
-              activeCanvasTool={activeCanvasTool}
-              fitCanvasToViewport={fitCanvasToViewport}
-              interaction={{
-                canSwap: false,
-                isSelected: true,
-                isSnapTarget: false,
-              }}
-              draggingBoardId={null}
-              layerEditingEnabled={layerEditingEnabled}
-              onAddTextLayerAt={onAddTextLayerAt}
-              onCanvasToolChange={onCanvasToolChange}
-              onLayerAction={onLayerAction}
-              onLayerChange={onLayerChange}
-              onLayerCopy={onLayerCopy}
-              onLayerPaste={onLayerPaste}
-              onLayerSelect={onLayerSelect}
-              onLayerSelectionChange={onLayerSelectionChange}
-              onBoardDragEnd={() => undefined}
-              onBoardDragLeave={() => undefined}
-              onBoardDragOver={() => undefined}
-              onBoardDragStart={() => undefined}
-              onBoardDrop={() => undefined}
-              onBoardPan={handleBoardPan}
-              onBoardQrClick={onBoardQrClick}
-              onBoardSelect={onBoardSelect}
-              onBoardZoom={handleBoardZoom}
-              board={activeBoard}
-              boardPan={panOffsets[activeBoard.id] ?? { x: 0, y: 0 }}
-              boardZoom={zoomLevels[activeBoard.id] ?? 1}
-              previewLocked={previewLocked}
-              selectedLayerId={selectedLayerId}
-              selectedLayerIds={selectedLayerIds}
-              snapEnabled
-              toolbarVariant={toolbarVariant}
-              theme={theme}
-            />
-          )}
-        </div>
+    <div className="relative flex h-full w-full flex-col">
+      <div className="relative min-h-0 flex-1">
+        {!activeBoard ? (
+          <div className="grid h-full place-items-center text-sm font-medium text-[var(--canvas-ink-muted)]">
+            No QR codes
+          </div>
+        ) : (
+          <CanvasBoard
+            activeCanvasTool={activeCanvasTool}
+            fitCanvasToViewport={fitCanvasToViewport}
+            interaction={{
+              canSwap: false,
+              isSelected: true,
+              isSnapTarget: false,
+            }}
+            draggingBoardId={null}
+            layerEditingEnabled={layerEditingEnabled}
+            onAddTextLayerAt={onAddTextLayerAt}
+            onCanvasToolChange={onCanvasToolChange}
+            onLayerAction={onLayerAction}
+            onLayerChange={onLayerChange}
+            onLayerCopy={onLayerCopy}
+            onLayerPaste={onLayerPaste}
+            onLayerSelect={onLayerSelect}
+            onLayerSelectionChange={onLayerSelectionChange}
+            onBoardDragEnd={() => undefined}
+            onBoardDragLeave={() => undefined}
+            onBoardDragOver={() => undefined}
+            onBoardDragStart={() => undefined}
+            onBoardDrop={() => undefined}
+            onBoardPan={handleBoardPan}
+            onBoardQrClick={onBoardQrClick}
+            onBoardSelect={onBoardSelect}
+            onBoardZoom={handleBoardZoom}
+            board={activeBoard}
+            boardPan={panOffsets[activeBoard.id] ?? { x: 0, y: 0 }}
+            boardZoom={zoomLevels[activeBoard.id] ?? 1}
+            previewLocked={previewLocked}
+            selectedLayerId={selectedLayerId}
+            selectedLayerIds={selectedLayerIds}
+            snapEnabled
+            toolbarVariant={toolbarVariant}
+            theme={theme}
+          />
+        )}
       </div>
-    </TooltipPrimitive.Provider>
+    </div>
   );
 }

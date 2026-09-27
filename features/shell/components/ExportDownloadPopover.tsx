@@ -24,8 +24,8 @@ export function ExportDownloadPopover({
   return (
     <Popover modal={false} open={open} onOpenChange={setOpen}>
       <div
-        data-slot="tooltip-navbar-shell"
-        className="inline-flex items-center rounded-full bg-[var(--glass-bg)] p-1 backdrop-blur-xl"
+        data-slot="island-pill"
+        className="ds-resize t-resize inline-flex items-center rounded-full bg-[var(--glass-bg)] p-1 backdrop-blur-xl"
       >
         <PopoverTrigger asChild>
           <DownloadButton data-state={open ? "open" : "closed"} />

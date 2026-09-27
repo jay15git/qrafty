@@ -421,19 +421,6 @@ const WORKSPACE_CANVAS_MORPH_STYLES = `
         box-shadow: none !important;
       }
 
-      body:has([data-slot="workspace"][data-shell-theme="light"]) .tooltip-content {
-        border-radius: 9999px !important;
-        background: var(--tooltip-bg) !important;
-        color: var(--tooltip-fg) !important;
-        box-shadow: var(--tooltip-shadow-sm) !important;
-      }
-
-      body:has([data-slot="workspace"][data-shell-theme="dark"]) .tooltip-content {
-        border-radius: 6px !important;
-        background: var(--tooltip-bg) !important;
-        color: var(--tooltip-fg) !important;
-        box-shadow: var(--tooltip-shadow-sm) !important;
-      }
 
       body:has([data-slot="workspace"][data-shell-theme="light"]) [data-slot="canvas-toolbar"][data-toolbar-appearance="glass"] button:hover {
         background: transparent !important;

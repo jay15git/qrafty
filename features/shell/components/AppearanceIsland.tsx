@@ -24,7 +24,7 @@ import type { ThemeMode } from "@/features/shell/components/WorkspaceChrome";
 import { InsertMenuPopoverContent } from "@/features/canvas/components/insert-menu/InsertMenuPopoverContent";
 import type { AppearanceSnapshot } from "@/features/shell/model/appearance";
 import { getLayerToolbarCapabilities } from "@/features/shell/model/layer-toolbar-capabilities";
-import { TooltipNavbar, type TooltipItem } from "@/components/ui/tooltip-navbar";
+import { IslandCard, type IslandItem } from "@/features/shell/components/IslandCard";
 import { LAYER_FILTER_EFFECT_KINDS } from "@/features/canvas/model/layer-effects";
 import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
 import type { SizeTemplate } from "@/features/canvas/model/size-templates";
@@ -127,7 +127,7 @@ function islandPanelItem(
   icon: ReactNode,
   panel: ReactNode,
   labeled = false,
-): TooltipItem {
+): IslandItem {
   return {
     ariaLabel: label,
     dataSlot: `${slot}-trigger`,
@@ -143,7 +143,7 @@ function islandPanelItem(
   };
 }
 
-function buildCanvasSizeItem(props: IslandItemInput): TooltipItem | null {
+function buildCanvasSizeItem(props: IslandItemInput): IslandItem | null {
   const { onSelectSizeTemplate, onSizeChange, sizePresetId, sizeSettings, theme } = props;
   if (!onSelectSizeTemplate) {
     return null;
@@ -168,7 +168,7 @@ function buildCanvasSizeItem(props: IslandItemInput): TooltipItem | null {
   };
 }
 
-function buildTransformItem(props: IslandItemInput, flags: IslandFlags): TooltipItem | null {
+function buildTransformItem(props: IslandItemInput, flags: IslandFlags): IslandItem | null {
   const { onTransformLayerPatch, selectedTransformLayer, theme } = props;
   if (!flags.hasTransform) {
     return null;
@@ -189,7 +189,7 @@ function buildTransformItem(props: IslandItemInput, flags: IslandFlags): Tooltip
   );
 }
 
-function buildStyleItem(props: IslandItemInput, flags: IslandFlags): TooltipItem | null {
+function buildStyleItem(props: IslandItemInput, flags: IslandFlags): IslandItem | null {
   const { onElementLayerPatch, selectedElementLayer, theme } = props;
   if (!flags.hasStyle) {
     return null;
@@ -204,7 +204,7 @@ function buildStyleItem(props: IslandItemInput, flags: IslandFlags): TooltipItem
   );
 }
 
-function buildBorderItem(props: IslandItemInput, flags: IslandFlags): TooltipItem | null {
+function buildBorderItem(props: IslandItemInput, flags: IslandFlags): IslandItem | null {
   const { appearance, onAppearancePatch, theme } = props;
   if (!flags.hasBorder) {
     return null;
@@ -220,7 +220,7 @@ function buildBorderItem(props: IslandItemInput, flags: IslandFlags): TooltipIte
   );
 }
 
-function buildShadowsItem(props: IslandItemInput, flags: IslandFlags): TooltipItem | null {
+function buildShadowsItem(props: IslandItemInput, flags: IslandFlags): IslandItem | null {
   const { theme } = props;
   if (!flags.hasShadows) {
     return null;
@@ -236,7 +236,7 @@ function buildShadowsItem(props: IslandItemInput, flags: IslandFlags): TooltipIt
   );
 }
 
-function buildEffectsItem(props: IslandItemInput, flags: IslandFlags): TooltipItem | null {
+function buildEffectsItem(props: IslandItemInput, flags: IslandFlags): IslandItem | null {
   const { appearance, onAppearancePatch, theme } = props;
   if (!flags.hasEffects) {
     return null;
@@ -262,7 +262,7 @@ function buildEffectsItem(props: IslandItemInput, flags: IslandFlags): TooltipIt
   );
 }
 
-function buildInsertItem(props: IslandItemInput, flags: IslandFlags): TooltipItem | null {
+function buildInsertItem(props: IslandItemInput, flags: IslandFlags): IslandItem | null {
   const { canAddQrCode, insertNodeId, onAddQrCode, onBrowseWallpapers, onInsertLayer, theme } =
     props;
   if (!flags.canInsert) {
@@ -290,18 +290,18 @@ function buildInsertItem(props: IslandItemInput, flags: IslandFlags): TooltipIte
   };
 }
 
-function buildIslandItems(props: IslandItemInput): TooltipItem[] {
+function buildIslandItems(props: IslandItemInput): IslandItem[] {
   const flags = resolveIslandFlags(props);
-  const nextItems: TooltipItem[] = [];
+  const nextItems: IslandItem[] = [];
 
   for (const item of [
     buildCanvasSizeItem(props),
+    buildInsertItem(props, flags),
     buildTransformItem(props, flags),
     buildStyleItem(props, flags),
     buildBorderItem(props, flags),
     buildShadowsItem(props, flags),
     buildEffectsItem(props, flags),
-    buildInsertItem(props, flags),
   ]) {
     if (item) {
       nextItems.push(item);
@@ -384,10 +384,10 @@ export function useToolbarItems(
   return useIslandItems({ ...props, theme });
 }
 
-export function DynamicIsland({ items }: { items: TooltipItem[] }) {
+export function DynamicIsland({ items }: { items: IslandItem[] }) {
   return (
     <div data-slot="dynamic-island-content">
-      <TooltipNavbar items={items} />
+      <IslandCard items={items} />
     </div>
   );
 }

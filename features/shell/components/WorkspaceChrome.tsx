@@ -85,7 +85,7 @@ export function WorkspaceChrome({
     }
 
     const syncWidths = () => {
-      const shells = island.querySelectorAll<HTMLElement>('[data-slot="tooltip-navbar-shell"]');
+      const shells = island.querySelectorAll<HTMLElement>('[data-slot="island-pill"]');
       // The island wraps a small history pill + the labeled pill. Center the
       // labeled pill on the canvas: offset = half the leading pill + gap.
       const leadingWidth = shells.length > 1 ? shells[0].offsetWidth : 0;

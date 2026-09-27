@@ -19,11 +19,7 @@ body:has([data-slot="chrome-root"]) {
   --elevated: var(--canvas-shell, #000000);
   --dropdown-border: rgba(255, 255, 255, 0.06);
   --option-selected-bg: rgba(255, 255, 255, 0.14);
-  --tooltip-bg: rgba(255, 255, 255, 0.96);
-  --tooltip-fg: rgba(15, 15, 15, 0.94);
-  --tooltip-shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
-  --tooltip-shadow-sm: 0 4px 8px rgba(0, 0, 0, 0.28);
-  --tooltip-nav-bg: var(--glass-bg);
+  --toolbar-pill-bg: var(--glass-bg);
   --chrome-fg: var(--glass-fg);
 }
 
@@ -50,11 +46,7 @@ body:has([data-slot="chrome-root"][data-shell-theme="light"]) {
   --dropdown-border: rgba(15, 23, 42, 0.09);
   --option-selected-bg: rgba(15, 23, 42, 0.08);
   --toolbar-line: rgba(15, 23, 42, 0.11);
-  --tooltip-bg: rgba(15, 15, 15, 0.94);
-  --tooltip-fg: rgba(255, 255, 255, 0.96);
-  --tooltip-shadow: 0 10px 30px rgba(15, 23, 42, 0.18);
-  --tooltip-shadow-sm: 0 4px 8px rgba(15, 23, 42, 0.18);
-  --tooltip-nav-bg: rgb(255, 255, 255);
+  --toolbar-pill-bg: rgb(255, 255, 255);
   --chrome-fg: rgba(15, 23, 42, 0.76);
 }
 
@@ -162,22 +154,6 @@ body:has([data-slot="chrome-root"][data-shell-theme="light"]) {
   color-scheme: dark;
 }
 
-body:has([data-slot="chrome-root"][data-shell-theme="light"]) .tooltip-content,
-body:has([data-slot="workspace"][data-shell-theme="light"]) .tooltip-content {
-  border-radius: 9999px !important;
-  background: var(--tooltip-bg) !important;
-  color: var(--tooltip-fg) !important;
-  box-shadow: var(--tooltip-shadow) !important;
-}
-
-body:has([data-slot="chrome-root"][data-shell-theme="dark"]) .tooltip-content,
-body:has([data-slot="workspace"][data-shell-theme="dark"]) .tooltip-content {
-  border-radius: 9999px !important;
-  background: var(--tooltip-bg) !important;
-  color: var(--tooltip-fg) !important;
-  box-shadow: var(--tooltip-shadow) !important;
-}
-
 [data-shell-theme="dark"] [data-slot="document-toolbar"],
 [data-shell-theme="dark"] [data-slot="action-toolbar"] {
   box-shadow: var(--glass-shadow) !important;
@@ -206,16 +182,16 @@ body:has([data-slot="workspace"][data-shell-theme="dark"]) .tooltip-content {
   box-shadow: none !important;
 }
 
-[data-shell-theme="light"] [data-slot="tooltip-navbar-shell"] {
-  background: var(--tooltip-nav-bg) !important;
+[data-shell-theme="light"] [data-slot="island-pill"] {
+  background: var(--toolbar-pill-bg) !important;
   border: none !important;
   color: var(--chrome-fg) !important;
   border-radius: 9999px !important;
   box-shadow: none !important;
 }
 
-[data-shell-theme="dark"] [data-slot="tooltip-navbar-shell"] {
-  background: var(--tooltip-nav-bg) !important;
+[data-shell-theme="dark"] [data-slot="island-pill"] {
+  background: var(--toolbar-pill-bg) !important;
   border: none !important;
   color: var(--chrome-fg) !important;
   border-radius: 9999px !important;

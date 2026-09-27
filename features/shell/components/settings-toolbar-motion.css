@@ -13,6 +13,15 @@
 }
 
 /* transitions.dev — card resize: tween the island pills' width as items appear. */
+.t-resize {
+  transition:
+    width var(--resize-dur) var(--resize-ease),
+    height var(--resize-dur) var(--resize-ease);
+  will-change: width, height;
+}
+
+/* Same resize tween under the project's ds-* namespace, plus
+   interpolate-size so `auto` sizing animates where supported. */
 .ds-resize {
   interpolate-size: allow-keywords;
   transition:
@@ -22,6 +31,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .t-resize,
   .ds-resize {
     transition: none !important;
   }

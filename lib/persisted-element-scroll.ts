@@ -225,21 +225,6 @@ export function usePersistedElementScroll(element: HTMLElement | null, persistKe
   }, [element, persistKey]);
 }
 
-export function usePersistedScrollNode(persistKey?: string) {
-  const [node, setNode] = useState<HTMLElement | null>(null);
-  const persistScope = useScrollPersistScope();
-  const persistReactId = useId();
-  usePersistedElementScroll(
-    node,
-    resolveScrollPersistKey({
-      persistKey,
-      scope: persistScope,
-      reactId: persistReactId,
-    }),
-  );
-  return setNode;
-}
-
 export function resetPersistedElementScrollForTests() {
   positions.clear();
 }
