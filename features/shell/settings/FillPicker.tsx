@@ -14,6 +14,7 @@ import { ImageCropper } from "@/components/ui/image-cropper";
 import { DOTS_PALETTE_PRESETS } from "@/features/shell/settings/pattern-palettes";
 import {
   fillFromHex,
+  lockFillGradientType,
   normalizeFillForQrTarget,
   type ModuleImageControl,
   type ModulePatternControl,
@@ -36,7 +37,7 @@ const QR_GRADIENT_TYPES = ["linear", "radial"] as const;
 
 type ModuleFillTabMode = "color" | "gradient" | "pattern" | "image";
 
-export type LockedFillPickerMode = "solid" | "gradient" | "pattern" | "image";
+export type LockedFillPickerMode = "solid" | "linear" | "radial" | "gradient" | "pattern" | "image";
 
 function lockedFillModeToTab(mode: LockedFillPickerMode): ModuleFillTabMode {
   switch (mode) {
@@ -44,11 +45,19 @@ function lockedFillModeToTab(mode: LockedFillPickerMode): ModuleFillTabMode {
       return "image";
     case "pattern":
       return "pattern";
+    case "linear":
+    case "radial":
     case "gradient":
       return "gradient";
     default:
       return "color";
   }
+}
+
+function lockedGradientTypeForMode(
+  mode: LockedFillPickerMode | undefined,
+): "linear" | "radial" | undefined {
+  return mode === "linear" || mode === "radial" ? mode : undefined;
 }
 
 function moduleFillTabFromDotsColorMode(mode: DotsColorMode): ModuleFillTabMode {
@@ -118,14 +127,22 @@ function FillPickerColorPane() {
   );
 }
 
-function FillPickerGradientPane({ qrGradient }: { qrGradient: boolean }) {
+function FillPickerGradientPane({
+  lockedGradientType,
+  qrGradient,
+}: {
+  lockedGradientType?: "linear" | "radial";
+  qrGradient: boolean;
+}) {
   return (
     <FillPicker.Pane
       className="ds-settings-tab-panel ds-fill-picker-pane flex w-full min-w-0 flex-col gap-2"
       mode="gradient"
     >
       <div className="flex w-full min-w-0 gap-2">
-        <GradientTypeRow allowedTypes={qrGradient ? [...QR_GRADIENT_TYPES] : undefined} />
+        {lockedGradientType ? null : (
+          <GradientTypeRow allowedTypes={qrGradient ? [...QR_GRADIENT_TYPES] : undefined} />
+        )}
         <GradientInterpRow />
       </div>
       <GradientPicker.AngleGroup className="ds-fill-picker-angle-group">
@@ -174,6 +191,7 @@ function FillPickerModeTabs({
 
 function FillPickerModeContent({
   activeMode,
+  lockedGradientType,
   moduleImage,
   modulePattern,
   qrGradient,
@@ -181,6 +199,7 @@ function FillPickerModeContent({
   showSolidPane,
 }: {
   activeMode: ModuleFillTabMode;
+  lockedGradientType?: "linear" | "radial";
   moduleImage?: ModuleImageControl;
   modulePattern?: ModulePatternControl;
   qrGradient: boolean;
@@ -198,7 +217,9 @@ function FillPickerModeContent({
   return (
     <>
       {showSolidPane ? <FillPickerColorPane /> : null}
-      {showGradientPane ? <FillPickerGradientPane qrGradient={qrGradient} /> : null}
+      {showGradientPane ? (
+        <FillPickerGradientPane lockedGradientType={lockedGradientType} qrGradient={qrGradient} />
+      ) : null}
     </>
   );
 }
@@ -229,10 +250,14 @@ export function SettingsFillPicker({
   // which bakes Area start/end into stop percentages. parseFill cannot
   // recover start/end, so feeding that CSS back collapses both stops onto
   // the same % and freezes the bar thumbs.
+  const lockedGradientType = lockedGradientTypeForMode(lockedFillMode);
   const parsedInitialFill = parseFill(value) ?? fillFromHex(value);
-  const [initialFill] = useState(() =>
-    qrGradient ? normalizeFillForQrTarget(parsedInitialFill) : parsedInitialFill,
-  );
+  const [initialFill] = useState(() => {
+    const typeLocked = lockedGradientType
+      ? lockFillGradientType(parsedInitialFill, lockedGradientType)
+      : parsedInitialFill;
+    return qrGradient ? normalizeFillForQrTarget(typeLocked) : typeLocked;
+  });
   const resolvedSolidOnly = solidOnly || lockedFillMode === "solid";
   const initialMode = resolveInitialFillPickerMode({
     initialFill,
@@ -253,10 +278,10 @@ export function SettingsFillPicker({
   const pickerMode = activeMode === "gradient" ? "gradient" : "color";
   const theme = useContext(SettingsThemeContext);
   const showModeTabs = !resolvedSolidOnly && !lockedFillMode;
-  const showSolidPane = resolvedSolidOnly || lockedFillMode !== "gradient";
+  const showSolidPane = resolvedSolidOnly || (!lockedGradientType && lockedFillMode !== "gradient");
   const showGradientPane = !resolvedSolidOnly;
 
-  const handleValueChange = (fill: Fill, css: string) => {
+  const handleValueChange = (fill: Fill) => {
     if (
       !lockedFillMode &&
       moduleImage?.imageUrl &&
@@ -265,12 +290,14 @@ export function SettingsFillPicker({
       return;
     }
 
+    const locked = lockedGradientType ? lockFillGradientType(fill, lockedGradientType) : fill;
+
     if (!qrGradient) {
-      onValueChange(fill, css);
+      onValueChange(locked, formatFill(locked));
       return;
     }
 
-    const normalized = normalizeFillForQrTarget(fill);
+    const normalized = normalizeFillForQrTarget(locked);
     onValueChange(normalized, formatFill(normalized));
   };
 
@@ -311,6 +338,7 @@ export function SettingsFillPicker({
           ) : null}
           <FillPickerModeContent
             activeMode={activeMode}
+            lockedGradientType={lockedGradientType}
             moduleImage={moduleImage}
             modulePattern={modulePattern}
             qrGradient={qrGradient}

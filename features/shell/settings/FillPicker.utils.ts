@@ -1,5 +1,11 @@
 import { formatColor, parseColor } from "@/components/ui/fill-picker/base/color-picker";
-import { parseFill, type Fill } from "@/components/ui/fill-picker/public-api";
+import {
+  DEFAULT_LINEAR,
+  DEFAULT_RADIAL,
+  parseFill,
+  type Fill,
+  type GradientType,
+} from "@/components/ui/fill-picker/lib/gradient";
 
 export function fillFromHex(hex: string): Fill {
   const color = parseColor(hex);
@@ -27,6 +33,52 @@ export function fillPreviewHex(fillCss: string): string {
 
 export function isGradientFill(fillCss: string): boolean {
   return parseFill(fillCss)?.kind === "gradient";
+}
+
+/**
+ * Re-express a fill as a locked gradient type — used when an upper-level
+ * Linear/Radial select already chose the type, so the picker must not let
+ * it drift. Same-type gradients pass through; other gradients keep their
+ * stops/interp (and center for radial); a solid color seeds both stops.
+ */
+export function lockFillGradientType(
+  fill: Fill,
+  type: Extract<GradientType, "linear" | "radial">,
+): Fill {
+  if (fill.kind === "color") {
+    const stops = [
+      { color: fill.color, position: 0 },
+      { color: fill.color, position: 1 },
+    ];
+    return {
+      kind: "gradient",
+      gradient: type === "radial" ? { ...DEFAULT_RADIAL, stops } : { ...DEFAULT_LINEAR, stops },
+    };
+  }
+
+  const gradient = fill.gradient;
+  if (gradient.type === type) {
+    return fill;
+  }
+  if (type === "radial") {
+    return {
+      kind: "gradient",
+      gradient: {
+        ...DEFAULT_RADIAL,
+        center: gradient.type === "linear" ? DEFAULT_RADIAL.center : gradient.center,
+        stops: gradient.stops,
+        interp: gradient.interp,
+      },
+    };
+  }
+  return {
+    kind: "gradient",
+    gradient: {
+      ...DEFAULT_LINEAR,
+      stops: gradient.stops,
+      interp: gradient.interp,
+    },
+  };
 }
 
 /** Clamp picker output to what QR module/eye/frame/logo can store and render. */

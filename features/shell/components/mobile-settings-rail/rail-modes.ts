@@ -112,7 +112,7 @@ export function lockedFillModeForRailMode(mode: string): LockedFillPickerMode | 
     return "solid";
   }
   if (mode === "linear" || mode === "radial") {
-    return "gradient";
+    return mode;
   }
   return undefined;
 }

@@ -37,7 +37,7 @@ export function FillModePresetControls({
 
   return (
     <SettingsFillPresetSection
-      lockedFillMode={mode === "Solid" ? "solid" : "gradient"}
+      lockedFillMode={mode === "Solid" ? "solid" : mode === "Linear" ? "linear" : "radial"}
       presets={presets}
       qrGradient
       value={value}

@@ -410,7 +410,9 @@ describe("QrColorFillControls Solid/Gradient/Image tabs", () => {
 
     expect(plus).not.toBeNull();
     expect(popover).not.toBeNull();
-    expect(popover?.getAttribute("data-locked-fill-mode")).toBe(mode);
+    expect(popover?.getAttribute("data-locked-fill-mode")).toBe(
+      mode === "gradient" ? "linear" : mode,
+    );
 
     act(() => {
       plus?.dispatchEvent(new MouseEvent("click", { bubbles: true }));

@@ -91,4 +91,63 @@ describe("SettingsFillPicker", () => {
       root.unmount();
     });
   });
+
+  it("hides the gradient type select when the fill is locked to radial", () => {
+    const container = document.createElement("div");
+    const root = createRoot(container);
+    const css = qraftyGradientToFillCss({
+      enabled: true,
+      type: "radial",
+      rotation: 0,
+      colorStops: [
+        { offset: 0, color: "#111111" },
+        { offset: 1, color: "#eeeeee" },
+      ],
+    });
+
+    act(() => {
+      root.render(
+        <SettingsFillPicker
+          lockedFillMode="radial"
+          qrGradient
+          value={css}
+          onValueChange={() => undefined}
+        />,
+      );
+    });
+
+    expect(container.querySelector('[data-slot="gradient-bar"]')).not.toBeNull();
+    expect(container.querySelector('[aria-label="Gradient type"]')).toBeNull();
+    // The type is already chosen upstream — only the interp select remains.
+    expect(container.querySelector('[aria-label="Gradient blend"]')).not.toBeNull();
+
+    act(() => {
+      root.unmount();
+    });
+  });
+
+  it("seeds a radial gradient when a locked radial picker opens on a solid value", () => {
+    const container = document.createElement("div");
+    const root = createRoot(container);
+
+    act(() => {
+      root.render(
+        <SettingsFillPicker
+          lockedFillMode="radial"
+          value="#ff0000"
+          onValueChange={() => undefined}
+        />,
+      );
+    });
+
+    // A solid value coerced to the locked type still shows gradient controls —
+    // not the solid pane — so stops and angle surface immediately.
+    expect(container.querySelector('[data-slot="gradient-bar"]')).not.toBeNull();
+    expect(container.querySelector('[aria-label="Gradient type"]')).toBeNull();
+    expect(container.querySelectorAll('[role="tabpanel"]')).toHaveLength(1);
+
+    act(() => {
+      root.unmount();
+    });
+  });
 });

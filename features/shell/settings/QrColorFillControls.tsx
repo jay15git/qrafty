@@ -320,7 +320,7 @@ function QrColorFillModeContent({
   return (
     <SettingsFillPresetSection
       fillPreviewImageUrl={fillPreviewImageUrl}
-      lockedFillMode={modeTab === "Solid" ? "solid" : "gradient"}
+      lockedFillMode={modeTab === "Solid" ? "solid" : modeTab === "Linear" ? "linear" : "radial"}
       presets={presets}
       qrGradient={qrGradient}
       value={value}
