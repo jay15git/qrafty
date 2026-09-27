@@ -754,6 +754,38 @@
   transition: opacity 0.18s ease-in;
 }
 
+/* ── Drawer-open dimming ──
+   The rail sits in a z-60 chrome overlay, above the z-45 drawer shield — so
+   it can't be blocked by hit-testing, only made inert + faded. QR canvas and
+   the layer-actions toolbar stay fully opaque and untouched. */
+[data-slot="mobile-settings-rail-root"][data-drawer-open="true"] .ds-mobile-settings-rail__stage {
+  opacity: 0;
+  transition: opacity 0.3s ease-out;
+}
+.ds-mobile-drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 44;
+  background: transparent;
+  /* The dialog portal subtree inherits pointer-events from hosts that may
+     sit under the chrome overlay — force the shield itself clickable. */
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* The card variant normally sits at --z-chrome (30), below the rail's 35.
+   While the drawer is the topmost settings surface it must clear both the
+   rail and its shield. */
+[data-slot="mobile-settings-drawer-root"] {
+  z-index: 45;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-slot="mobile-settings-rail-root"][data-drawer-open="true"] .ds-mobile-settings-rail__stage {
+    transition: none;
+  }
+}
+
 [data-slot="mobile-settings-rail-root"] .ds-mobile-settings-rail__item {
   display: flex;
   flex: 0 0 auto;

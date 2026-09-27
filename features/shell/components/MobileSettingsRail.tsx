@@ -256,7 +256,9 @@ export function MobileSettingsRail({ model }: { model: SettingsModel }) {
                 data-shell-theme={theme}
                 data-mobile-settings=""
                 data-slot="mobile-settings-rail-root"
+                data-drawer-open={drawerOpen ? "true" : undefined}
                 data-theme={theme}
+                inert={drawerOpen ? true : undefined}
               >
                 {/* One atomic swap: the whole rail block (options + tabs +
                 actions) fades out showing the old view, then the snapshot

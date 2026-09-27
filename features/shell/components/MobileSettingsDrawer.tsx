@@ -313,6 +313,16 @@ export function MobileSettingsDrawer({
       }}
     >
       <FamilyDrawerPortal>
+        {/* Non-modal + non-dismissible: vaul won't close on outside taps, but
+            nothing stops the hit itself — canvas taps would still select
+            layers and rail buttons would fire under the open card. A
+            transparent shield swallows the gesture; the settings rail fades
+            itself via [data-drawer-open] instead of being dimmed here. */}
+        <div
+          aria-hidden
+          className="ds-mobile-drawer-backdrop"
+          onPointerDown={(event) => event.preventDefault()}
+        />
         <FamilyDrawerContent
           accessibilityTitle={title}
           className="ds-root shadow-none"
