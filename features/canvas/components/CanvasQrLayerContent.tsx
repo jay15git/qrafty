@@ -27,7 +27,7 @@ type CanvasQrLayerContentProps = {
 };
 
 const QR_OVERLAY_PILL_CLASS =
-  "max-w-[calc(100%-0.5rem)] rounded-full border border-black/10 bg-white px-5 py-2.5 text-center text-xl font-semibold leading-snug text-black shadow-[var(--glass-shadow)] dark:border-white/15 dark:bg-black dark:text-white";
+  "max-w-[calc(100%-0.5rem)] rounded-full border border-black/10 bg-white px-5 py-2.5 text-center text-xl font-semibold leading-snug text-black dark:border-white/15 dark:bg-black dark:text-white";
 
 function QrModulesWithOverlay({
   borderStyle,

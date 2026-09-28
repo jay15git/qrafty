@@ -142,11 +142,10 @@ export function DesktopSettingsShell({
         browser never re-runs layout per frame.
       */}
       <m.div
-        className="pointer-events-auto absolute inset-y-0 left-0 z-[25] overflow-hidden bg-transparent text-[var(--glass-fg)]"
+        className="pointer-events-auto absolute inset-y-0 left-0 z-[25] overflow-hidden bg-transparent text-[var(--chrome-fg)]"
         data-hovered={isHovered ? "true" : "false"}
         data-shell-animating={isShellAnimating ? "true" : "false"}
         data-slot="desktop-settings-shell"
-        data-toolbar-appearance="settings"
         style={{ width: columnWidth, clipPath }}
       >
         <div className="h-full min-h-0 w-full min-w-0 overflow-hidden">

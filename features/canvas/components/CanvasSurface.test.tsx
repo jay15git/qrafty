@@ -194,7 +194,7 @@ describe("CanvasSurface", () => {
 
     const dynamicIsland = getRequiredElement(canvas.container, '[data-slot="dynamic-island"]');
 
-    expect(dynamicIsland.getAttribute("data-toolbar-appearance")).toBe("glass");
+    expect(dynamicIsland.getAttribute("data-toolbar-appearance")).toBeNull();
     expect(canvas.container.querySelector('button[aria-label="Zoom out preview"]')).toBeNull();
     expect(canvas.container.querySelector('button[aria-label="Zoom in preview"]')).toBeNull();
     expect(canvas.container.querySelector('button[aria-label="Reset view"]')).toBeNull();

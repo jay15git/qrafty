@@ -19,7 +19,7 @@ import { cn } from "@/lib/utils";
 import "@/features/shell/settings/settings.css";
 
 const OPTION_ROW_CLASS =
-  "relative grid size-9 shrink-0 cursor-pointer place-items-center rounded-full border-0 bg-transparent p-0 text-[var(--glass-fg)] shadow-none transition-colors hover:text-[var(--glass-button-hover-fg,currentColor)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--glass-button-focus-ring)] motion-reduce:transition-none max-md:size-11";
+  "relative grid size-9 shrink-0 cursor-pointer place-items-center rounded-full border-0 bg-transparent p-0 text-[var(--chrome-fg)] shadow-none transition-colors hover:text-[var(--chrome-button-hover-fg,currentColor)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--chrome-button-focus-ring)] motion-reduce:transition-none max-md:size-11";
 
 /** Dark mode + sound preferences behind the pill's ellipsis. */
 function WorkspaceOptionsMenu({ model, theme }: { model: SettingsModel; theme: ThemeMode }) {
@@ -87,7 +87,7 @@ export function ExportDownloadPopover({
     <Popover modal={false} open={open} onOpenChange={setOpen}>
       <div
         data-slot="island-pill"
-        className="ds-resize t-resize inline-flex items-center rounded-full bg-[var(--glass-bg)] p-1 backdrop-blur-xl"
+        className="ds-resize t-resize inline-flex items-center rounded-full bg-[var(--chrome-bg)] p-1"
       >
         <PopoverTrigger asChild>
           <DownloadButton data-state={open ? "open" : "closed"} />

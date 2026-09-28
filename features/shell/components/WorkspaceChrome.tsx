@@ -120,7 +120,6 @@ export function WorkspaceChrome({
             <div
               className={cn(UTILITY_TOOLBAR_SHELL_CLASS, "pointer-events-auto")}
               data-slot="dynamic-island"
-              data-toolbar-appearance="glass"
             >
               <DynamicIsland items={islandItems} />
             </div>

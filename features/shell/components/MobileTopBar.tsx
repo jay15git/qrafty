@@ -21,11 +21,11 @@ export function MobileTopBar({
       className="pointer-events-none fixed inset-x-0 top-0 z-40 flex items-center justify-between px-2.5 pt-[max(0.625rem,env(safe-area-inset-top,0px))]"
       data-slot="mobile-top-bar"
     >
-      <div className="pointer-events-auto flex items-center gap-1 rounded-full bg-[var(--glass-bg)] p-1 text-[var(--glass-fg)] backdrop-blur-md">
+      <div className="pointer-events-auto flex items-center gap-1 rounded-full bg-[var(--chrome-bg)] p-1 text-[var(--chrome-fg)]">
         <button
           aria-label="Undo"
           className={cn(
-            "flex size-11 items-center justify-center rounded-full text-[var(--glass-fg)] transition-colors hover:text-[var(--glass-button-hover-fg)] disabled:opacity-40",
+            "flex size-11 items-center justify-center rounded-full text-[var(--chrome-fg)] transition-colors hover:text-[var(--chrome-button-hover-fg)] disabled:opacity-40",
           )}
           disabled={!controller?.canUndo || !controller?.onUndo}
           type="button"
@@ -36,7 +36,7 @@ export function MobileTopBar({
         <button
           aria-label="Redo"
           className={cn(
-            "flex size-11 items-center justify-center rounded-full text-[var(--glass-fg)] transition-colors hover:text-[var(--glass-button-hover-fg)] disabled:opacity-40",
+            "flex size-11 items-center justify-center rounded-full text-[var(--chrome-fg)] transition-colors hover:text-[var(--chrome-button-hover-fg)] disabled:opacity-40",
           )}
           disabled={!controller?.canRedo || !controller?.onRedo}
           type="button"

@@ -1,11 +1,10 @@
 body:has([data-slot="chrome-root"]) {
-  --glass-bg: rgba(29, 29, 29, 0.95);
-  --glass-border: rgba(255, 255, 255, 0.06);
-  --glass-fg: rgba(255, 255, 255, 0.72);
-  --glass-shadow: 0 24px 64px rgba(0, 0, 0, 0.34);
-  --glass-button-hover-bg: rgba(255, 255, 255, 0.11);
-  --glass-button-hover-fg: rgba(255, 255, 255, 1);
-  --glass-button-focus-ring: rgba(255, 255, 255, 0.45);
+  --chrome-bg: rgb(29 29 29);
+  --chrome-border: rgb(255 255 255 / 0.06);
+  --chrome-fg: rgb(255 255 255 / 0.72);
+  --chrome-button-hover-bg: rgb(255 255 255 / 0.11);
+  --chrome-button-hover-fg: rgb(255 255 255);
+  --chrome-button-focus-ring: rgb(255 255 255 / 0.45);
   --fg-primary: rgba(255, 255, 255, 0.94);
   --fg-secondary: rgba(255, 255, 255, 0.76);
   --fg-tertiary: rgba(255, 255, 255, 0.5);
@@ -13,18 +12,15 @@ body:has([data-slot="chrome-root"]) {
   --fg-label: var(--fg-secondary);
   --error: rgba(248, 113, 113, 0.92);
   --option-selected-bg: rgba(255, 255, 255, 0.14);
-  --toolbar-pill-bg: var(--glass-bg);
-  --chrome-fg: var(--glass-fg);
 }
 
 body:has([data-slot="chrome-root"][data-shell-theme="light"]) {
-  --glass-bg: rgba(255, 255, 255, 0.78);
-  --glass-border: rgba(15, 23, 42, 0.12);
-  --glass-fg: rgba(15, 23, 42, 0.68);
-  --glass-shadow: 0 24px 64px rgba(15, 23, 42, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.86);
-  --glass-button-hover-bg: rgba(15, 23, 42, 0.08);
-  --glass-button-hover-fg: rgba(15, 23, 42, 0.95);
-  --glass-button-focus-ring: rgba(15, 23, 42, 0.36);
+  --chrome-bg: rgb(255 255 255);
+  --chrome-border: rgb(15 23 42 / 0.12);
+  --chrome-fg: rgb(15 23 42 / 0.76);
+  --chrome-button-hover-bg: rgb(15 23 42 / 0.08);
+  --chrome-button-hover-fg: rgb(15 23 42 / 0.95);
+  --chrome-button-focus-ring: rgb(15 23 42 / 0.36);
   --fg-primary: rgba(15, 23, 42, 0.9);
   --fg-secondary: rgba(15, 23, 42, 0.66);
   --fg-tertiary: rgba(15, 23, 42, 0.44);
@@ -32,8 +28,6 @@ body:has([data-slot="chrome-root"][data-shell-theme="light"]) {
   --fg-label: rgba(15, 23, 42, 0.85);
   --error: rgba(220, 38, 38, 0.88);
   --option-selected-bg: rgba(15, 23, 42, 0.08);
-  --toolbar-pill-bg: rgb(255, 255, 255);
-  --chrome-fg: rgba(15, 23, 42, 0.76);
 }
 
 [data-shell-theme="light"] {
@@ -57,31 +51,16 @@ body:has([data-slot="chrome-root"][data-shell-theme="light"]) {
 [data-shell-theme="light"] [data-slot="dynamic-island"] {
   background: transparent !important;
   border-color: transparent !important;
-  color: var(--glass-fg) !important;
+  color: var(--chrome-fg) !important;
   box-shadow: none !important;
 }
 
-[data-shell-theme="light"] [data-slot="island-pill"] {
-  background: var(--toolbar-pill-bg) !important;
+[data-slot="island-pill"] {
+  background: var(--chrome-bg) !important;
   border: none !important;
   color: var(--chrome-fg) !important;
   border-radius: 9999px !important;
   box-shadow: none !important;
-}
-
-[data-shell-theme="dark"] [data-slot="island-pill"] {
-  background: var(--toolbar-pill-bg) !important;
-  border: none !important;
-  color: var(--chrome-fg) !important;
-  border-radius: 9999px !important;
-  box-shadow: none !important;
-}
-
-[data-shell-theme="light"]
-  [data-slot="utility-toolbar"]
-  button:hover:not([data-slot="download-trigger"]),
-[data-shell-theme="light"] [data-slot="dynamic-island"] button:hover {
-  color: var(--toolbar-fg-hover) !important;
 }
 
 [data-slot="layers-popover"],

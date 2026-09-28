@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted — 2026-09-24. **Superseded same day**: the `--dn-*` palette was renamed to canonical semantic names (`--bg`, `--fg`, `--surface`, `--control`, `--line`, `--muted`, `--mass`, `--elevated`), all `--settings-*` aliases folded onto them, `.inspector-root` → `.ds-root`, `inspector.css` → `settings.css`, `data-mobile-inspector` → `data-mobile-settings`, `--settings-rail-button-bg` → `--rail-button-bg`, `--inspector-preview-col` → `--settings-preview-col`.
+Accepted — 2026-09-24. **Superseded same day** (see below), and further revised by the flat-chrome cleanup: the floating-chrome `--glass-*` tokens are now `--chrome-*` (opaque, no `backdrop-blur`), `--glass-shadow` is gone (popovers keep the settings `--popover-shadow`/`--menu-shadow`), and `next-themes` is the single theme source (`use-workspace-theme-sync` deleted). Original supersession: the `--dn-*` palette was renamed to canonical semantic names (`--bg`, `--fg`, `--surface`, `--control`, `--line`, `--muted`, `--mass`, `--elevated`), all `--settings-*` aliases folded onto them, `.inspector-root` → `.ds-root`, `inspector.css` → `settings.css`, `data-mobile-inspector` → `data-mobile-settings`, `--settings-rail-button-bg` → `--rail-button-bg`, `--inspector-preview-col` → `--settings-preview-col`.
 
 ## Context
 

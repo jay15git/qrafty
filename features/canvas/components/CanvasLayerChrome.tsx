@@ -267,7 +267,6 @@ export function LayerContextMenu({
         )}
         data-canvas-dropdown-content="true"
         data-slot="canvas-layer-context-menu"
-        data-toolbar-appearance="glass"
         data-theme={theme}
         role="menu"
         onClick={(event) => event.stopPropagation()}
@@ -362,7 +361,6 @@ export const FloatingLayerToolbar = forwardRef<
         theme === "dark" && "dark",
       )}
       data-slot="canvas-layer-floating-toolbar"
-      data-toolbar-appearance="glass"
       role="toolbar"
       data-theme={theme}
       aria-label="Layer actions"

@@ -478,7 +478,7 @@ describe("WorkspaceChrome", () => {
     );
 
     expect(undo).not.toBeNull();
-    expect(undo?.className).toContain("text-[var(--glass-fg)]");
+    expect(undo?.className).toContain("text-[var(--chrome-fg)]");
     expect(undo?.className).not.toContain("text-foreground");
   });
 

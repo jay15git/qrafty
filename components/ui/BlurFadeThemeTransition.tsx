@@ -129,14 +129,6 @@ export default function BlurFadeThemeTransition({
           setLocalTheme(targetTheme);
         }
 
-        const root = document.documentElement;
-        root.setAttribute("data-theme", targetTheme);
-        if (targetTheme === "dark") {
-          root.classList.add("dark");
-        } else {
-          root.classList.remove("dark");
-        }
-
         if (onThemeChange) {
           onThemeChange(targetTheme);
         }

@@ -1060,7 +1060,7 @@ function removeButtonClass({
   dialogTheme?: "light" | "dark";
 }) {
   return cn(
-    "rounded-full backdrop-blur-sm",
+    "rounded-full",
     tile ? "pointer-events-auto size-6" : "size-8",
     compact && dialogTheme === "dark"
       ? "bg-black/70 text-white hover:bg-black/85"

@@ -16,7 +16,7 @@ export const DownloadButton = forwardRef<HTMLButtonElement, DownloadButtonProps>
         ref={ref}
         aria-label="Download"
         className={cn(
-          "relative grid size-9 shrink-0 cursor-pointer place-items-center rounded-full border-0 bg-transparent p-0 text-[var(--glass-fg)] shadow-none transition-colors hover:text-[var(--glass-button-hover-fg,currentColor)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--glass-button-focus-ring)] motion-reduce:transition-none max-md:size-11",
+          "relative grid size-9 shrink-0 cursor-pointer place-items-center rounded-full border-0 bg-transparent p-0 text-[var(--chrome-fg)] shadow-none transition-colors hover:text-[var(--chrome-button-hover-fg,currentColor)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--chrome-button-focus-ring)] motion-reduce:transition-none max-md:size-11",
           className,
         )}
         data-slot="download-trigger"

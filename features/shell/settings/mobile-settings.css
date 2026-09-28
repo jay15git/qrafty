@@ -861,7 +861,6 @@
   corner-shape: round;
   background: var(--rail-button-bg, #ffffff);
   color: var(--fg);
-  box-shadow: 0 1px 4px rgb(0 0 0 / 24%);
   -webkit-tap-highlight-color: transparent;
 }
 /* Pressed pills read selected the way segment tabs do — stronger fill. */

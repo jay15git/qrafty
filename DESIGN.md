@@ -15,7 +15,7 @@ colors:
   settings-error: "rgba(220, 38, 38, 0.88)" # --error, light chrome
   # ── Neutral ──
   paper: "oklch(0.99 0 0)"                  # --background (light)
-  card-white: "#FFFFFF"                     # --card / --popover / --surface-3..8 (light)
+  card-white: "#FFFFFF"                     # --popover / --surface-3 (light)
   canvas-field: "#f0f1f2"                   # --canvas-bg / --canvas-surface-bg
   settings-paper: "#ffffff"                # --bg, light settings
   settings-surface: "#fafafa"              # --surface, light settings
@@ -23,19 +23,19 @@ colors:
   control-fill-alpha: "rgb(15 23 42 / 0.04)"# --control, workspace
   hairline: "oklch(0.9 0 0 / 0.9)"          # --border (light)
   settings-hairline: "#ececee"             # --line, light settings
-  canvas-line: "rgb(15 23 42 / 0.12)"       # --canvas-line / --dropdown-border
+  canvas-line: "rgb(15 23 42 / 0.12)"       # --canvas-line
   muted-ink: "oklch(0.5 0 0)"               # --muted-foreground (light)
   settings-muted: "#8a8a8e"                # --muted, light settings
   canvas-ink-muted: "rgb(15 23 42 / 0.55)"  # --canvas-ink-muted
   selected-grey: "#D4D4D4"                  # --selected (light)
   hover-wash: "rgb(0 0 0 / 0.04)"           # --hover (light)
   active-wash: "rgb(0 0 0 / 0.07)"          # --active (light)
-  glass-bg: "rgba(255, 255, 255, 0.78)"     # --glass-bg, light floating chrome
-  glass-border: "rgba(15, 23, 42, 0.12)"    # --glass-border, light chrome
-  glass-ink: "rgba(15, 23, 42, 0.68)"       # --glass-fg, light chrome
+  chrome-bg: "#FFFFFF"                      # --chrome-bg, light floating chrome
+  chrome-border: "rgba(15, 23, 42, 0.12)"   # --chrome-border, light chrome
+  chrome-ink: "rgba(15, 23, 42, 0.76)"      # --chrome-fg, light chrome
   # ── Dark workspace (documented; light is source of truth) ──
   dark-field: "#000000"                     # --canvas-bg, dark workspace
-  dark-glass: "rgba(29, 29, 29, 0.95)"      # --glass-bg, dark chrome
+  dark-chrome: "#1d1d1d"                    # --chrome-bg, dark chrome
   settings-dark-bg: "#161616"              # --bg, dark settings (standalone default)
   settings-dark-surface: "#1d1d1d"         # --surface, dark settings
   settings-dark-control: "#232323"         # --control, dark settings
@@ -158,7 +158,7 @@ components:
     height: "{spacing.tab-height}"
   toolbar-icon-button:
     backgroundColor: "transparent"
-    textColor: "{colors.glass-ink}"
+    textColor: "{colors.chrome-ink}"
     rounded: "{rounded.full}"
     size: "{spacing.toolbar-button}"
   canvas-resize-knob:
@@ -180,16 +180,16 @@ components:
 
 QRafty is a QR-creation surface that behaves like a drafting table, not a dashboard. The workspace is a flat monochrome field (`#f0f1f2`) ruled by a faint dot grid (2.4px dots on a 30px pitch at 5.5% ink opacity). Everything on it is ink on paper: charcoal text, hairline borders, and controls printed so faintly they read as part of the surface until they are needed. The memorable gesture is condensation — an inactive control is a whisper of ink (4–7% black wash); a selected control collapses into dense black mass (`#111111` fill, white text, or a 2px ink ring that scales in from 90%).
 
-Two token realities coexist and both are normative. `app/globals.css` owns the shadcn layer (`--background`, `--primary`, `--muted-foreground`, `--border`, `--ring`, …) plus the QRafty layer (`--surface-1..3`, `--shadow-1..3`, `--hover`, `--active`, `--selected`, `--qr-*`), bridged into Tailwind via `@theme inline`, and the shared chrome scale (`--z-*`, `--popover-*`, `--settings-preview-col`, `--style-preview-*`). The Settings runs its own scoped layer in `features/shell/settings/settings.css`: one theme-split `--bg`/`--fg`/`--surface`/`--control`/`--line`/`--muted`/`--mass` palette on `.ds-root` that every surface maps onto its legacy scoped names (`--bg`, `--fg`, `--line`, `--control`, `--type-*`, `--radius-*`, `--space-*`, `--settings-*`), which remap onto the shadcn roles inside that scope (ADR 0002). Floating chrome adds a third layer: `--glass-*` and `--settings-fg-*` in `features/shell/components/workspace-toolbar.css`, and canvas tokens (`--canvas-*`) in `features/canvas/workspace-tokens.css`. New Settings styles use the scoped settings tokens; new primitives use shadcn tokens; canvas chrome uses `--canvas-*`/`--glass-*`. Do not bridge them ad hoc.
+Two token realities coexist and both are normative. `app/globals.css` owns the shadcn layer (`--background`, `--primary`, `--muted-foreground`, `--border`, `--ring`, …) plus the QRafty layer (`--surface-1..3`, `--shadow-1..3`, `--hover`, `--active`, `--selected`, `--qr-*`), bridged into Tailwind via `@theme inline`, and the shared chrome scale (`--z-*`, `--popover-*`, `--settings-preview-col`, `--style-preview-*`). The Settings runs its own scoped layer in `features/shell/settings/settings.css`: one theme-split `--bg`/`--fg`/`--surface`/`--control`/`--line`/`--muted`/`--mass` palette on `.ds-root` that every surface maps onto its legacy scoped names (`--bg`, `--fg`, `--line`, `--control`, `--type-*`, `--radius-*`, `--space-*`, `--settings-*`), which remap onto the shadcn roles inside that scope (ADR 0002). Floating chrome adds a third layer: `--chrome-*` and the `--fg-*`/`--error`/`--option-selected-*` chrome ramp in `features/shell/components/workspace-toolbar.css`, and canvas tokens (`--canvas-*`) in `features/canvas/workspace-tokens.css`. New Settings styles use the scoped settings tokens; new primitives use shadcn tokens; canvas chrome uses `--canvas-*`/`--chrome-*`. Do not bridge them ad hoc.
 
-Light mode is the source of truth (PRODUCT.md). Dark mode exists as a full parallel token set (`.dark`, `[data-shell-theme="dark"]`, `.ds-root[data-theme="dark"]`) and must stay wired, but design decisions are made in light. Note: the standalone Settings defaults to dark (`color-scheme: dark` on `.ds-root`); the workspace overrides it per theme.
+Light mode is the source of truth (PRODUCT.md). Dark mode exists as a full parallel token set (`.dark`, `[data-shell-theme="dark"]`, `.ds-root[data-theme="dark"]`) and must stay wired, but design decisions are made in light. `next-themes` is the single theme source: it owns the `<html>` class and the `qrafty:studio-theme` localStorage key; `Workspace` renders `data-shell-theme`/`data-theme` from `useTheme()` and mirrors the choice into the `qrafty-desktop-theme` cookie so SSR picks the right initial theme. Note: the standalone Settings defaults to dark (`color-scheme: dark` on `.ds-root`); the workspace overrides it per theme.
 
 **Key Characteristics:**
 
 - Monochrome ink on paper; the only hues are functional: focus blue (`#6B97FF`), canvas-manipulation blue (`#18a0fb`), destructive red.
 - Inactive controls are nearly invisible (4–8% ink washes); selected state is dense black mass or a 2px ink ring.
 - Settings geometry is squircle (`corner-shape: squircle`, radii 10–14px); shadcn primitives stay `rounded-lg` (8px); canvas affordances stay sharp (2px knobs, 1px guides).
-- Depth is physical: a `--shadow-1..3` scale that always begins with a 1px ring, plus one heavy glass shadow for floating chrome.
+- Depth is physical: a `--shadow-1..3` scale that always begins with a 1px ring, plus popover shadows reserved for surfaces that float over the canvas.
 - Structure is shown through linework — dot grid, hairline separators, dashed empty-state frames — never through decoration.
 
 ## Colors
@@ -217,11 +217,11 @@ The palette is a single ink ramp over paper, plus three functional hues. There i
 - **Muted Ink** (`oklch(0.5 0 0)`): `--muted-foreground`. Secondary text; Settings `#8a8a8e`, canvas `rgb(15 23 42 / 0.55)`, chrome `rgba(15,23,42,0.38–0.66)` in four steps (`--muted`, `--fg-tertiary`/`--fg-secondary`/`--fg-primary`).
 - **Selected Grey** (`#D4D4D4`): `--selected`. Non-ink selection fill where black mass would be too heavy.
 - **Hover/Active Wash** (`rgb(0 0 0 / 0.04)` / `/0.07`): `--hover`/`--active`. The lightest possible state change.
-- **Glass** (`rgba(255,255,255,0.78)` bg, `rgba(15,23,42,0.12)` border, `rgba(15,23,42,0.68)` fg): `--glass-*`. Floating toolbars and popovers over the canvas.
+- **Chrome** (`#FFFFFF` bg, `rgba(15,23,42,0.12)` border, `rgba(15,23,42,0.76)` fg): `--chrome-*`. Flat floating pills over the canvas — opaque, no blur, no shadow.
 
 ### Dark workspace (parallel set, not the source of truth)
 
-Canvas field drops to pure black (`#000000`), glass to `rgba(29,29,29,0.95)`, ink inverts to `#f5f5f5`, and the Settings runs `#161616`/`#1d1d1d`/`#232323` surfaces with `#2c2c2c` lines. Dark shadows switch from drop rings to inset highlight + drop (`--qr-hi-*`, `--qr-ring-*`, `--qr-drop`).
+Canvas field drops to pure black (`#000000`), chrome to `#1d1d1d`, ink inverts to `#f5f5f5`, and the Settings runs `#161616`/`#1d1d1d`/`#232323` surfaces with `#2c2c2c` lines. Dark shadows switch from drop rings to inset highlight + drop (`--qr-hi-*`, `--qr-ring-*`, `--qr-drop`).
 
 ### Named Rules
 
@@ -262,15 +262,15 @@ The workspace is a single full-viewport grid cell (`100dvh`, `grid-template: 1fr
 
 ## Elevation & Depth
 
-Depth is physical, not atmospheric. The system has two shadow grammars: a measured `--shadow-1..3` scale for surfaces, and one heavy drop for floating glass chrome.
+Depth is physical, not atmospheric. The system has two shadow grammars: a measured `--shadow-1..3` scale for surfaces, and one drop reserved for portalled popovers.
 
 ### Shadow Vocabulary
 
 - **Surface scale** (`--shadow-1` … `--shadow-3`): every step starts with `0 0 0 1px rgb(0 0 0 / 0.06)` — a ring, not a blur — then stacks doubling blurs (1px, 3px, 6px … 96px) at half-height offsets. Use the lowest step that separates the surface; `--shadow-1` alone is the default "lifted card" read.
 - **Canvas rest/hover/active** (`0 2px 8px` / `0 4px 12px` / `0 1px 4px` at 6–10% ink): `--canvas-shadow-*`. Buttons on the canvas lift on hover (`-1px` translate + hover shadow) and compress on press.
 - **Canvas selected** (`0 0 22px 2px` at 14% ink): `--canvas-shadow-selected` — a bloom, the only diffuse shadow, reserved for the selected artboard.
-- **Glass chrome** (`0 24px 64px rgba(15,23,42,0.14)` + `inset 0 1px 0 rgba(255,255,255,0.86)`): `--glass-shadow`. The heaviest shadow in the system; only floating toolbars/popovers over the canvas may use it.
-- **Settings popover** (`0 12px 40px rgb(0 0 0 / 18%)`): portalled settings panels; flat in-tree (`ds-popover-flat` strips border and shadow entirely).
+- **Popover shadow** (`0 12px 40px rgb(0 0 0 / 18%)` light / `0 12px 48px rgb(0 0 0 / 50%)` dark): `--popover-shadow`/`--menu-shadow` on portalled popover surfaces. The only surfaces allowed a shadow — toolbars, pills, badges, and mobile chrome are flat.
+- **Settings popover**: same `--popover-shadow`; `ds-popover-flat` strips the border while keeping the lift.
 - **Dark mode:** drop rings become `inset 0 1px 0` highlight + `inset` ring + drop (`--qr-hi-*`, `--qr-ring-*`, `--qr-drop`); the compose surface drops its shadow entirely.
 
 ### Named Rules
@@ -297,7 +297,7 @@ Selection geometry: a 2px `--fg` ring drawn on `::after`, inset 0, scaling 0.9�
 - **Secondary (canvas):** the drafting-table button — `h-10 px-4 rounded-md`, resting at 1.2% ink fill / 45% ink text, hover lifts `-1px` into 2.4% fill / 65% ink, press flattens back, **selected condenses to `#111111` fill + white text**. This is the signature state contrast.
 - **Settings primary:** inverted ink (`--fg` bg, `--bg` text) at full control height — a black bar row.
 - **Ghost/outline/link:** transparent or hairline-bordered, hover fills `--accent` wash.
-- **Focus:** `ring-[3px] ring-ring/32` on primitives; `1px solid #6B97FF` outline globally; glass buttons use `ring-2` in `--glass-button-focus-ring`.
+- **Focus:** `ring-[3px] ring-ring/32` on primitives; `1px solid #6B97FF` outline globally; chrome buttons use `ring-2` in `--chrome-button-focus-ring`.
 
 ### Option Tiles (signature)
 
@@ -318,14 +318,14 @@ Selection geometry: a 2px `--fg` ring drawn on `::after`, inset 0, scaling 0.9�
 
 ### Navigation / Chrome
 
-- **Floating toolbars:** glass pills (`--glass-bg` + `backdrop-blur`, 1px `--glass-border`, `--glass-shadow`), 2.25rem circular icon buttons, glyphs at 68% ink → 95% on hover → full ink when pressed/active. Icon stroke thickens 1.5→2 on active instead of changing color.
+- **Floating toolbars:** flat opaque pills (`--chrome-bg`, no blur, no shadow), 2.25rem circular icon buttons, glyphs at ~72–76% ink → ~95% on hover → full ink when pressed/active. Icon stroke thickens 1.5→2 on active instead of changing color.
 - **Settings panel:** hairline-edged column (`--line` at 80%), flat, accordion sections separated by 1px inset hairlines at 40% opacity.
 - **Mobile rail:** circular white icon buttons over labels in a horizontal shelf; pressed pills take a 16% fg fill.
 
 ### Canvas Chrome (signature)
 
 - **Selection frame:** `--canvas-resize-frame` blue — 1px frame, 8px square knobs (2px radius, 2px border, white fill), 1px snap guides, 16px corner / 8px edge hit zones (28/22px on coarse pointers).
-- **Context menus / floating layer toolbar:** glass appearance (`data-toolbar-appearance="desktop-glass"`), 1.75rem circular buttons, 78% fg glyphs.
+- **Context menus / floating layer toolbar:** flat chrome (`--chrome-*`, `--canvas-line` border on the floating toolbar), 1.75rem circular buttons, 72% fg glyphs. Context menus are popovers — they keep `--menu-shadow`; the floating layer toolbar does not.
 - **Empty layers:** dashed hairline frame + muted 11px label — the "dashed structural line" motif.
 
 ## Do's and Don'ts
@@ -333,10 +333,10 @@ Selection geometry: a 2px `--fg` ring drawn on `::after`, inset 0, scaling 0.9�
 ### Do:
 
 - **Do** express state with ink density: rest ≤8% ink wash, hover deepens the wash, selected is dense `#111111`/`--fg` mass or the 2px scaling ring.
-- **Do** use the token layer that owns your surface: settings tokens (`--fg`, `--line`, `--control`, `--muted`, `--mass`) inside `.ds-root`, shadcn tokens in `components/ui`, `--canvas-*`/`--glass-*` on workspace chrome. When adding a global token, wire all three places: `@theme inline`, `:root`, `.dark`.
+- **Do** use the token layer that owns your surface: settings tokens (`--fg`, `--line`, `--control`, `--muted`, `--mass`) inside `.ds-root`, shadcn tokens in `components/ui`, `--canvas-*`/`--chrome-*` on workspace chrome. When adding a global token, wire all three places: `@theme inline`, `:root`, `.dark`.
 - **Do** keep Settings type on the instrument scale (0.625–1rem, -0.015em, tabular-nums for numbers).
 - **Do** use squircle corners (`ds-squircle-*`) for Settings surfaces and standard Tailwind radii for primitives — each layer keeps its own geometry.
-- **Do** give floating chrome the glass treatment (`--glass-bg`, `--glass-border`, `--glass-shadow`) and keep in-panel surfaces flat.
+- **Do** give floating chrome the flat treatment (`--chrome-bg`, `--chrome-border`, opaque, no `backdrop-blur`, no shadow) and keep in-panel surfaces flat.
 - **Do** use dashed hairlines for empty/placeholder structure and solid hairlines for real divisions.
 
 ### Don't:
@@ -344,6 +344,6 @@ Selection geometry: a 2px `--fg` ring drawn on `::after`, inset 0, scaling 0.9�
 - **Don't** introduce a decorative accent color — blue is reserved for focus and canvas manipulation; everything else is ink.
 - **Don't** put shadows inside the Settings or on resting controls; elevation is for surfaces floating over the canvas, and always ring-first.
 - **Don't** use Manipulation Blue (`#18a0fb`) outside canvas affordances, or Focus Blue (`#6B97FF`) for anything but `:focus-visible`.
-- **Don't** add soft cards, glow, gradients, or rounded-pill styling to panel interiors (PRODUCT.md anti-references); pills belong to glass toolbars and segment tabs only.
+- **Don't** add soft cards, glow, gradients, or rounded-pill styling to panel interiors (PRODUCT.md anti-references); pills belong to floating chrome toolbars and segment tabs only.
 - **Don't** restyle `settings-*`/Settings surfaces with shadcn utilities — the token remap already routes `bg-primary` etc. to settings values inside that scope; bypassing it breaks both themes.
 - **Don't** enlarge Settings controls below their hit tokens: 2.25rem control height, 2rem icon hit, 3.5rem preview tile are the density contract.

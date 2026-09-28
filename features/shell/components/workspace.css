@@ -114,21 +114,6 @@ body:has([data-slot="workspace"]) {
   pointer-events: none;
 }
 
-[data-slot="workspace"] [data-toolbar-appearance="glass"] {
-  backdrop-filter: none !important;
-}
-
-[data-slot="workspace"][data-shell-theme="light"]
-  [data-toolbar-appearance="glass"]:not(
-    [data-slot="dynamic-island"],
-    [data-slot="utility-toolbar"],
-    [data-slot="mobile-utility-toolbar"]
-  ) {
-  background: var(--canvas-page-bg) !important;
-  border-color: rgb(var(--canvas-ink-rgb) / 0.16) !important;
-  box-shadow: 0 4px 8px rgb(var(--canvas-ink-rgb) / 0.08) !important;
-}
-
 body:has([data-slot="workspace"])
   button:not(:disabled):not([data-slot="canvas-layer-resize-handle"]):not(
     [data-slot="canvas-layer-resize-edge"]
@@ -153,66 +138,10 @@ body:has([data-slot="workspace"]) button:disabled {
   pointer-events: auto;
 }
 
-[data-slot="workspace"] [data-toolbar-appearance="glass"] button,
-[data-slot="workspace"] button[data-toolbar-appearance="glass"] {
-  transform: none !important;
-  translate: none !important;
-  scale: none !important;
-  rotate: none !important;
-}
-
-body:has([data-slot="workspace"])
-  [data-slot="canvas-layer-floating-toolbar"][data-toolbar-appearance="glass"]
-  button,
-body:has([data-slot="workspace"])
-  [data-slot="canvas-layer-context-menu"][data-toolbar-appearance="glass"]
-  button {
-  transform: none !important;
-  translate: none !important;
-  scale: none !important;
-  rotate: none !important;
-}
-
-[data-slot="workspace"] [data-toolbar-appearance="glass"] button:hover,
-[data-slot="workspace"] [data-toolbar-appearance="glass"] button:active,
-[data-slot="workspace"] button[data-toolbar-appearance="glass"]:hover,
-[data-slot="workspace"] button[data-toolbar-appearance="glass"]:active {
-  transform: none !important;
-  translate: none !important;
-  scale: none !important;
-  rotate: none !important;
-}
-
-body:has([data-slot="workspace"])
-  [data-slot="canvas-layer-floating-toolbar"][data-toolbar-appearance="glass"]
-  button:hover,
-body:has([data-slot="workspace"])
-  [data-slot="canvas-layer-floating-toolbar"][data-toolbar-appearance="glass"]
-  button:active,
-body:has([data-slot="workspace"])
-  [data-slot="canvas-layer-context-menu"][data-toolbar-appearance="glass"]
-  button:hover,
-body:has([data-slot="workspace"])
-  [data-slot="canvas-layer-context-menu"][data-toolbar-appearance="glass"]
-  button:active {
-  transform: none !important;
-  translate: none !important;
-  scale: none !important;
-  rotate: none !important;
-}
-
-/* Settings shell — glass chrome resets icon-button transforms so no
-   press/hover scale sneaks back in. */
-[data-slot="workspace"] [data-slot="desktop-settings-shell"] button {
-  transform: none !important;
-  translate: none !important;
-  scale: none !important;
-  rotate: none !important;
-}
-
-[data-slot="workspace"] [data-slot="utility-toolbar"][data-toolbar-appearance="glass"],
-[data-slot="workspace"] [data-slot="dynamic-island"][data-toolbar-appearance="glass"] {
-  cursor: pointer;
+/* The floating layer toolbar is chrome, not a popover — flat, no lift. */
+[data-slot="canvas-layer-floating-toolbar"] {
+  border: 1px solid var(--chrome-border);
+  box-shadow: none !important;
 }
 
 [data-slot="workspace"] [data-slot="dynamic-island"] {
@@ -249,13 +178,6 @@ body:has([data-slot="workspace"])
 
 [data-slot="workspace"] [data-slot="utility-toolbar"] {
   border-radius: 10px !important;
-}
-
-[data-slot="workspace"][data-shell-theme="light"] [data-slot="canvas-layer-rotation-value"] {
-  background: var(--glass-bg) !important;
-  border-color: var(--glass-border) !important;
-  color: var(--chrome-fg) !important;
-  box-shadow: var(--glass-shadow) !important;
 }
 
 [data-slot="workspace"][data-shell-theme="light"] [data-slot="utility-toolbar"],
@@ -328,8 +250,8 @@ body:has([data-slot="workspace"])
 }
 
 [data-slot="workspace"][data-shell-theme="light"] [data-slot="theme-toggle"]:hover {
-  background-color: var(--glass-button-hover-bg) !important;
-  color: var(--glass-button-hover-fg) !important;
+  background-color: var(--chrome-button-hover-bg) !important;
+  color: var(--chrome-button-hover-fg) !important;
 }
 
 [data-slot="workspace"][data-shell-theme="light"]
@@ -337,13 +259,7 @@ body:has([data-slot="workspace"])
   button:hover:not([data-slot="download-trigger"]),
 [data-slot="workspace"][data-shell-theme="light"] [data-slot="dynamic-island"] button:hover {
   background-color: transparent !important;
-  color: var(--glass-button-hover-fg) !important;
-}
-
-body:has([data-slot="workspace"][data-shell-theme="dark"])
-  [data-slot="canvas-layer-rotation-value"] {
-  border-color: var(--glass-border) !important;
-  box-shadow: var(--glass-shadow) !important;
+  color: var(--chrome-button-hover-fg) !important;
 }
 
 @media (max-width: 1100px) {

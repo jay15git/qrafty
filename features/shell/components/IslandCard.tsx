@@ -60,11 +60,11 @@ export function IslandCard({ items, trailing }: IslandCardProps) {
         {...attrs}
         className={cn(
           isIconLabel
-            ? "flex h-9 cursor-pointer items-center justify-center gap-2 rounded-full px-3 text-sm font-medium whitespace-nowrap transition-colors hover:text-[var(--glass-button-hover-fg,currentColor)] disabled:cursor-not-allowed disabled:opacity-40 [&_svg]:size-4"
+            ? "flex h-9 cursor-pointer items-center justify-center gap-2 rounded-full px-3 text-sm font-medium whitespace-nowrap transition-colors hover:text-[var(--chrome-button-hover-fg,currentColor)] disabled:cursor-not-allowed disabled:opacity-40 [&_svg]:size-4"
             : isText
-              ? "flex h-9 cursor-pointer items-center justify-center rounded-full px-3 text-sm font-medium whitespace-nowrap transition-colors hover:text-[var(--glass-button-hover-fg,currentColor)] disabled:cursor-not-allowed disabled:opacity-40"
-              : "flex size-9 cursor-pointer items-center justify-center rounded-full transition-colors hover:text-[var(--glass-button-hover-fg,currentColor)] disabled:cursor-not-allowed disabled:opacity-40 [&_svg]:size-4",
-          item.pressed && "text-[var(--glass-button-hover-fg,currentColor)]",
+              ? "flex h-9 cursor-pointer items-center justify-center rounded-full px-3 text-sm font-medium whitespace-nowrap transition-colors hover:text-[var(--chrome-button-hover-fg,currentColor)] disabled:cursor-not-allowed disabled:opacity-40"
+              : "flex size-9 cursor-pointer items-center justify-center rounded-full transition-colors hover:text-[var(--chrome-button-hover-fg,currentColor)] disabled:cursor-not-allowed disabled:opacity-40 [&_svg]:size-4",
+          item.pressed && "text-[var(--chrome-button-hover-fg,currentColor)]",
         )}
       >
         {isIconLabel ? (
@@ -86,14 +86,14 @@ export function IslandCard({ items, trailing }: IslandCardProps) {
 
   return (
     <div className="overflow-visible">
-      <div className="flex items-center justify-center gap-2 overflow-visible text-[var(--glass-fg,rgba(255,255,255,0.72))]">
+      <div className="flex items-center justify-center gap-2 overflow-visible text-[var(--chrome-fg,rgba(255,255,255,0.72))]">
         {runs.map((run, runIndex) => (
           <m.div
             key={runIndex}
             layout
             transition={{ duration: 0.27, ease: [0.25, 1, 0.5, 1] }}
             data-slot="island-pill"
-            className="ds-resize t-resize inline-flex items-center justify-center gap-1 rounded-full bg-[var(--glass-bg,rgba(22,22,22,0.95))] p-1 backdrop-blur-xl"
+            className="ds-resize t-resize inline-flex items-center justify-center gap-1 rounded-full bg-[var(--chrome-bg,rgb(22,22,22))] p-1"
           >
             {run.map(({ item, index }) => {
               const button = renderItemButton(item, index);
@@ -122,7 +122,7 @@ export function IslandCard({ items, trailing }: IslandCardProps) {
             layout
             transition={{ duration: 0.27, ease: [0.25, 1, 0.5, 1] }}
             data-slot="island-pill"
-            className="ds-resize t-resize inline-flex items-center justify-center gap-1 rounded-full bg-[var(--glass-bg,rgba(22,22,22,0.95))] p-1 backdrop-blur-xl"
+            className="ds-resize t-resize inline-flex items-center justify-center gap-1 rounded-full bg-[var(--chrome-bg,rgb(22,22,22))] p-1"
           >
             {trailing}
           </m.div>
