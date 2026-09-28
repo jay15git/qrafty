@@ -7,7 +7,7 @@ import type {
 } from "@/features/canvas/components/canvas-reducer";
 import { buildToolbarSettingsSnapshots } from "@/features/canvas/components/chrome-settings-snapshots";
 import type { CanvasBoards } from "@/features/canvas/components/use-canvas-boards";
-import type { CanvasPersistence } from "@/features/canvas/components/use-canvas-persistence";
+import type { ActiveQrApi } from "@/features/canvas/components/use-active-qr";
 import type { CanvasWorkspaceActions } from "@/features/canvas/components/use-canvas-actions";
 import type { CanvasLayerMenuAction } from "@/features/canvas/components/canvas-layer-chrome.constants";
 import type { AppearanceSnapshot } from "@/features/shell/model/appearance";
@@ -237,14 +237,14 @@ function buildToolbarController({
 export function buildCanvasWorkspaceController({
   actions,
   boards,
-  persistence,
+  activeQr,
   scanSafetyResult,
   setters,
   state,
 }: {
   actions: CanvasWorkspaceActions;
   boards: CanvasBoards;
-  persistence: CanvasPersistence;
+  activeQr: ActiveQrApi;
   scanSafetyResult: ScanSafetyResult | undefined;
   setters: CanvasSurfaceSetters;
   state: CanvasSurfaceState;
@@ -319,7 +319,7 @@ export function buildCanvasWorkspaceController({
   } = state;
   const { setComposeSidebarPanel, setDesktopCanvasTool, setDesktopRailTool, setSelectedCardState } =
     setters;
-  const { canvasQraftyState, selectedContentValidation, selectedContentValues } = persistence;
+  const { canvasQraftyState, selectedContentValidation, selectedContentValues } = activeQr;
   const {
     activeCanvasLayerRows,
     activeCanvasLayers,

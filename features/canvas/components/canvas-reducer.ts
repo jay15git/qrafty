@@ -1,13 +1,15 @@
 import { useMemo, useReducer, type Dispatch } from "react";
 
-import type {
-  QrErrorCorrectionLevel,
-  QrFinderPatternOuterStyle,
-  QrMode,
-  QrTypeNumber,
-} from "@/features/qr/model/types";
-import type { QraftyCornerDotStyle } from "@/features/qr/model/state";
-import type { VideoExportLongEdge } from "@/features/qr/export/video-export";
+import {
+  applyQrDraftFieldPatch,
+  isQrDraftBufferField,
+  qrStateToDraftBuffers,
+  qrStateToDraftFields,
+  type QrDraftBuffers,
+  type QrDraftDocumentFields,
+  type QrDraftField,
+  type QrDraftFields,
+} from "@/features/canvas/canvas/qr-draft";
 import {
   createDefaultCanvasCardState,
   type CanvasCardState,
@@ -18,6 +20,7 @@ import {
 } from "@/features/canvas/model/layers/shared";
 import { createDefaultCanvasLayers } from "@/features/canvas/model/layers/card-qr";
 import {
+  cloneCanvasQrState,
   createDefaultCanvasWorkspaceQrState,
   type CanvasCardStateByNodeId,
   type CanvasContentValuesByType,
@@ -25,7 +28,6 @@ import {
   type CanvasQrStateByNodeId,
 } from "@/features/canvas/model/document";
 import {
-  DEFAULT_DRAFTING_PANE_QR_SIZE,
   DEFAULT_DRAFTING_STUDIO_STATE,
   type CanvasDownloadExtension,
 } from "@/features/canvas/components/canvas.constants";
@@ -34,103 +36,38 @@ import type {
   ToolbarToolId,
   ComposeSidebarPanel,
 } from "@/features/shell/components/WorkspaceChrome";
-import { DEFAULT_BRAND_ICON_COLOR } from "@/features/qr/assets/brand-icon-svg";
 import { DASHBOARD_QR_NODE_ID } from "@/features/qr/rendering/compose-scene";
-import {
-  type AssetSourceMode,
-  type BackgroundShapeOptions,
-  type DotsColorMode,
-  type QrCrossOrigin,
-  type QrDotMatrixAnimationOptions,
-  type QrGradientLinkMode,
-  type QrLogoPositionMode,
-  type QrLogoSizeMode,
-  type QraftyDataModulesStyle,
-  type QraftyGradient,
-} from "@/features/qr/model/state";
-import { type QrBackgroundShapeId } from "@/features/qr/styles/background-shapes";
 import { getDefaultStaticQrValues } from "@/features/qr/content/static-payload";
+import type { VideoExportLongEdge } from "@/features/qr/export/video-export";
 import { DEFAULT_QR_INPUT_TYPE, type QrInputType } from "@/features/qr/content/input-options";
+import type { AssetSourceMode } from "@/features/qr/model/state";
 import type { ExportMediaKind } from "@/features/shell/model/toolbar-types";
 import { DEFAULT_DESKTOP_EXPORT_SETTINGS } from "@/features/shell/model/toolbar-defaults";
 import type { CanvasDownloadTarget } from "@/features/canvas/components/canvas-operations";
+import type { QraftyState } from "@/features/qr/model/state";
 
-export type CanvasBinaryColorMode = "solid" | "gradient";
-export type CanvasAssetSourceMode = Extract<AssetSourceMode, "upload" | "url">;
-
-export type CanvasSurfaceState = {
+/**
+ * The workspace surface state is a single store: QR edits live in
+ * `qrStateByLayerId[activeQrLayerId]` (mirrored per board in
+ * `qrStateByNodeId[activeQrNodeId]`), the card lives in
+ * `cardStateByNodeId[activeQrNodeId]`, and everything else is UI state or a
+ * per-source asset buffer. The `selected*` QR fields are a derived view over
+ * the active QR — `useCanvasSurfaceReducer` merges them back in for
+ * consumers, and `setSelected*` setters translate to QR patches.
+ */
+export type CanvasSurfaceState = QrDraftFields & {
   desktopRailTool: ToolbarToolId | null;
   composeSidebarPanel: ComposeSidebarPanel;
   selectedContentType: QrInputType;
   contentValuesByType: CanvasContentValuesByType;
   contentTypeByNodeId: Record<string, QrInputType>;
   contentTypeByLayerId: Record<string, QrInputType>;
-  selectedQrMargin: number;
-  selectedQrRadius: number;
-  selectedRasterExportQualityPercent: number;
-  selectedQrSize: number;
-  selectedDotType: QraftyDataModulesStyle;
-  selectedDotsColorMode: DotsColorMode;
-  selectedDotColor: string;
-  selectedDotsGradient: QraftyGradient;
-  selectedDotsPalette: string[];
-  selectedDotsPalettePreset: string | "custom";
-  selectedModuleFillImageUrl: string;
-  selectedModuleFillImageSourceMode: CanvasAssetSourceMode;
-  selectedModuleFillRemoteUrl: string;
-  selectedDotMatrixAnimation: QrDotMatrixAnimationOptions;
-  selectedQrFinderPatternOuterStyle: QrFinderPatternOuterStyle;
-  selectedCornerSquareColorMode: CanvasBinaryColorMode;
-  selectedCornerSquareColor: string;
-  selectedCornerSquareGradient: QraftyGradient;
-  selectedQrFinderPatternInnerStyle: QraftyCornerDotStyle;
-  selectedCornerDotColorMode: CanvasBinaryColorMode;
-  selectedCornerDotColor: string;
-  selectedCornerDotGradient: QraftyGradient;
-  selectedBackgroundColorMode: CanvasBinaryColorMode;
-  selectedBackgroundColor: string;
-  selectedBackgroundTransparent: boolean;
-  selectedBackgroundGradient: QraftyGradient;
-  selectedBackgroundShapeId: QrBackgroundShapeId;
-  selectedBackgroundShapeOptions: BackgroundShapeOptions;
-  selectedBackgroundAssetSourceMode: CanvasAssetSourceMode;
-  selectedBackgroundRemoteUrl: string;
-  selectedLogoColorMode: CanvasBinaryColorMode;
-  selectedLogoSourceMode: AssetSourceMode;
-  selectedLogoColor: string;
-  selectedLogoGradient: QraftyGradient;
-  selectedLogoPresetId: string | undefined;
-  selectedLogoPresetValue: string | undefined;
-  selectedLogoAssetSourceMode: CanvasAssetSourceMode;
-  selectedLogoRemoteUrl: string;
-  selectedLogoUploadValue: string;
-  selectedLogoSize: number;
-  selectedLogoMargin: number;
-  selectedHideBackgroundDots: boolean;
-  selectedQrTypeNumber: QrTypeNumber;
-  selectedQrErrorCorrectionLevel: QrErrorCorrectionLevel;
-  selectedBoostLevel: boolean;
-  selectedQrMode: QrMode;
-  selectedValueSegmentsText: string;
-  selectedAriaLabel: string;
-  selectedModuleRoundSize: boolean;
-  selectedModuleSize: number | undefined;
-  selectedModuleLineWidth: number | undefined;
-  selectedGradientLinkMode: QrGradientLinkMode;
-  selectedLogoOpacity: number;
-  selectedLogoSizeMode: QrLogoSizeMode;
-  selectedLogoWidthPx: number | undefined;
-  selectedLogoHeightPx: number | undefined;
-  selectedLogoLockAspect: boolean;
-  selectedLogoPositionMode: QrLogoPositionMode;
-  selectedLogoOffsetX: number;
-  selectedLogoOffsetY: number;
-  selectedLogoCrossOrigin: QrCrossOrigin;
+  /** Derived view of `cardStateByNodeId[activeQrNodeId]`. */
+  selectedCardState: CanvasCardState;
   activeQrLayerId: string;
   activeQrNodeId: string;
   qrStateByLayerId: CanvasQrStateByLayerId;
   qrStateByNodeId: CanvasQrStateByNodeId;
-  selectedCardState: CanvasCardState;
   cardStateByNodeId: CanvasCardStateByNodeId;
   layerStateByNodeId: CanvasLayerStateByNodeId;
   selectedLayerId: string | null;
@@ -149,36 +86,60 @@ export type CanvasSurfaceState = {
   moduleFillUploadObjectUrl: string | null;
 };
 
-type CanvasSurfaceStateField = keyof CanvasSurfaceState;
+type StoredCanvasSurfaceState = Omit<
+  CanvasSurfaceState,
+  keyof QrDraftDocumentFields | "selectedCardState"
+>;
 
-type FieldValue<K extends CanvasSurfaceStateField> = CanvasSurfaceState[K];
-type FieldUpdater<K extends CanvasSurfaceStateField> =
+export type CanvasAssetSourceMode = Extract<AssetSourceMode, "upload" | "url">;
+
+type CanvasSurfaceField = keyof StoredCanvasSurfaceState;
+
+type FieldValue<K extends keyof CanvasSurfaceState> = CanvasSurfaceState[K];
+type FieldUpdater<K extends keyof CanvasSurfaceState> =
   FieldValue<K> | ((prev: FieldValue<K>) => FieldValue<K>);
 
-export type SetCanvasSurfaceFieldAction<
-  K extends CanvasSurfaceStateField = CanvasSurfaceStateField,
-> = {
+export type SetCanvasSurfaceFieldAction<K extends CanvasSurfaceField = CanvasSurfaceField> = {
   type: "SET_FIELD";
   field: K;
   value: FieldUpdater<K>;
 };
 
-export type ReplaceCanvasSurfaceStateAction = {
-  type: "REPLACE_STATE";
-  state: CanvasSurfaceState;
+/** Card edits write through to `cardStateByNodeId[activeQrNodeId]` — the
+ * field rides the draft path so `setSelectedCardState` stays atomic. */
+export type QrDraftWriteField = QrDraftField | "selectedCardState";
+
+export type UpdateQrDraftAction<K extends QrDraftWriteField = QrDraftWriteField> = {
+  type: "UPDATE_QR_DRAFT";
+  field: K;
+  value: FieldUpdater<K>;
 };
 
-export type CanvasSurfaceAction = SetCanvasSurfaceFieldAction | ReplaceCanvasSurfaceStateAction;
+/** Write a full `QraftyState` to the store — layer activation, resets, and
+ * external commits (logo flows). Also seeds the asset buffers and optionally
+ * switches the active layer/board/content type. */
+export type SetActiveQrAction = {
+  type: "SET_ACTIVE_QR";
+  qr: QraftyState;
+  layerId?: string;
+  nodeId?: string;
+  contentType?: QrInputType;
+};
 
-export type CanvasSurfaceSetter<K extends CanvasSurfaceStateField> = (
+export type CanvasSurfaceAction =
+  SetCanvasSurfaceFieldAction | UpdateQrDraftAction | SetActiveQrAction;
+
+export type CanvasSurfaceSetter<K extends keyof CanvasSurfaceState> = (
   value: FieldUpdater<K>,
 ) => void;
 
 export type CanvasSurfaceSetters = {
-  [K in CanvasSurfaceStateField as `set${Capitalize<string & K>}`]: CanvasSurfaceSetter<K>;
+  [K in keyof CanvasSurfaceState as `set${Capitalize<string & K>}`]: CanvasSurfaceSetter<K>;
 };
 
-function createInitialCanvasSurfaceState(initialActiveTool?: ToolbarToolId): CanvasSurfaceState {
+export function createInitialCanvasSurfaceState(
+  initialActiveTool?: ToolbarToolId,
+): StoredCanvasSurfaceState {
   const defaultQrState = createDefaultCanvasWorkspaceQrState();
   const defaultCardState = createDefaultCanvasCardState();
   const primaryQrLayerId = getCanvasQrLayerId(DASHBOARD_QR_NODE_ID);
@@ -199,61 +160,16 @@ function createInitialCanvasSurfaceState(initialActiveTool?: ToolbarToolId): Can
     contentTypeByLayerId: {
       [primaryQrLayerId]: DEFAULT_QR_INPUT_TYPE,
     },
-    selectedQrMargin: DEFAULT_DRAFTING_STUDIO_STATE.margin,
-    selectedQrRadius: DEFAULT_DRAFTING_STUDIO_STATE.backgroundOptions.round,
-    selectedRasterExportQualityPercent: DEFAULT_DRAFTING_STUDIO_STATE.rasterExportQualityPercent,
-    selectedQrSize: DEFAULT_DRAFTING_PANE_QR_SIZE,
-    selectedDotType: "rounded",
-    selectedDotsColorMode: DEFAULT_DRAFTING_STUDIO_STATE.dotsColorMode,
-    selectedDotColor: DEFAULT_DRAFTING_STUDIO_STATE.dataModulesSettings.color,
-    selectedDotsGradient: structuredClone(DEFAULT_DRAFTING_STUDIO_STATE.dataModulesGradient),
-    selectedDotsPalette: [...DEFAULT_DRAFTING_STUDIO_STATE.dotsPalette],
     selectedDotsPalettePreset: "Signal",
     selectedModuleFillImageUrl: "",
     selectedModuleFillImageSourceMode: "upload",
     selectedModuleFillRemoteUrl: "",
-    selectedDotMatrixAnimation: {
-      ...DEFAULT_DRAFTING_STUDIO_STATE.dotMatrixAnimation,
-    },
-    selectedQrFinderPatternOuterStyle: "rounded-lg",
-    selectedCornerSquareColorMode: DEFAULT_DRAFTING_STUDIO_STATE.finderPatternOuterGradient.enabled
-      ? "gradient"
-      : "solid",
-    selectedCornerSquareColor: DEFAULT_DRAFTING_STUDIO_STATE.finderPatternOuterSettings.color,
-    selectedCornerSquareGradient: structuredClone(
-      DEFAULT_DRAFTING_STUDIO_STATE.finderPatternOuterGradient,
-    ),
-    selectedQrFinderPatternInnerStyle: "circle",
-    selectedCornerDotColorMode: DEFAULT_DRAFTING_STUDIO_STATE.finderPatternInnerGradient.enabled
-      ? "gradient"
-      : "solid",
-    selectedCornerDotColor: DEFAULT_DRAFTING_STUDIO_STATE.finderPatternInnerSettings.color,
-    selectedCornerDotGradient: structuredClone(
-      DEFAULT_DRAFTING_STUDIO_STATE.finderPatternInnerGradient,
-    ),
-    selectedBackgroundColorMode: DEFAULT_DRAFTING_STUDIO_STATE.backgroundGradient.enabled
-      ? "gradient"
-      : "solid",
-    selectedBackgroundColor: DEFAULT_DRAFTING_STUDIO_STATE.backgroundOptions.color,
-    selectedBackgroundTransparent: false,
-    selectedBackgroundGradient: structuredClone(DEFAULT_DRAFTING_STUDIO_STATE.backgroundGradient),
-    selectedBackgroundShapeId: DEFAULT_DRAFTING_STUDIO_STATE.backgroundShapeId,
-    selectedBackgroundShapeOptions: {
-      ...DEFAULT_DRAFTING_STUDIO_STATE.backgroundShapeOptions,
-    },
     selectedBackgroundAssetSourceMode:
       DEFAULT_DRAFTING_STUDIO_STATE.backgroundImage.source === "url" ? "url" : "upload",
     selectedBackgroundRemoteUrl:
       DEFAULT_DRAFTING_STUDIO_STATE.backgroundImage.source === "url"
         ? (DEFAULT_DRAFTING_STUDIO_STATE.backgroundImage.value ?? "")
         : "",
-    selectedLogoColorMode: DEFAULT_DRAFTING_STUDIO_STATE.logoGradient.enabled
-      ? "gradient"
-      : "solid",
-    selectedLogoSourceMode: DEFAULT_DRAFTING_STUDIO_STATE.logo.source,
-    selectedLogoColor: DEFAULT_DRAFTING_STUDIO_STATE.logo.presetColor ?? DEFAULT_BRAND_ICON_COLOR,
-    selectedLogoGradient: structuredClone(DEFAULT_DRAFTING_STUDIO_STATE.logoGradient),
-    selectedLogoPresetId: DEFAULT_DRAFTING_STUDIO_STATE.logo.presetId,
     selectedLogoPresetValue: DEFAULT_DRAFTING_STUDIO_STATE.logo.value,
     selectedLogoAssetSourceMode:
       DEFAULT_DRAFTING_STUDIO_STATE.logo.source === "url" ? "url" : "upload",
@@ -265,28 +181,8 @@ function createInitialCanvasSurfaceState(initialActiveTool?: ToolbarToolId): Can
       DEFAULT_DRAFTING_STUDIO_STATE.logo.source === "upload"
         ? (DEFAULT_DRAFTING_STUDIO_STATE.logo.value ?? "")
         : "",
-    selectedLogoSize: Math.round(DEFAULT_DRAFTING_STUDIO_STATE.imageOptions.imageSize * 100),
-    selectedLogoMargin: DEFAULT_DRAFTING_STUDIO_STATE.imageOptions.margin,
-    selectedHideBackgroundDots: DEFAULT_DRAFTING_STUDIO_STATE.imageOptions.hideBackgroundDots,
-    selectedQrTypeNumber: DEFAULT_DRAFTING_STUDIO_STATE.qrOptions.typeNumber,
-    selectedQrErrorCorrectionLevel: DEFAULT_DRAFTING_STUDIO_STATE.qrOptions.errorCorrectionLevel,
-    selectedBoostLevel: DEFAULT_DRAFTING_STUDIO_STATE.qrOptions.boostLevel,
-    selectedQrMode: DEFAULT_DRAFTING_STUDIO_STATE.qrOptions.mode,
     selectedValueSegmentsText: "",
-    selectedAriaLabel: "",
-    selectedModuleRoundSize: DEFAULT_DRAFTING_STUDIO_STATE.dataModulesSettings.roundSize,
-    selectedModuleSize: undefined,
-    selectedModuleLineWidth: undefined,
-    selectedGradientLinkMode: DEFAULT_DRAFTING_STUDIO_STATE.gradientLinkMode,
-    selectedLogoOpacity: DEFAULT_DRAFTING_STUDIO_STATE.imageOptions.opacity * 100,
-    selectedLogoSizeMode: DEFAULT_DRAFTING_STUDIO_STATE.imageOptions.sizeMode,
-    selectedLogoWidthPx: undefined,
-    selectedLogoHeightPx: undefined,
-    selectedLogoLockAspect: DEFAULT_DRAFTING_STUDIO_STATE.imageOptions.lockAspect,
-    selectedLogoPositionMode: DEFAULT_DRAFTING_STUDIO_STATE.imageOptions.logoPositionMode,
-    selectedLogoOffsetX: 0,
-    selectedLogoOffsetY: 0,
-    selectedLogoCrossOrigin: DEFAULT_DRAFTING_STUDIO_STATE.imageOptions.crossOrigin,
+    ...qrStateToDraftBuffers(defaultQrState),
     activeQrLayerId: primaryQrLayerId,
     activeQrNodeId: DASHBOARD_QR_NODE_ID,
     qrStateByLayerId: {
@@ -295,7 +191,6 @@ function createInitialCanvasSurfaceState(initialActiveTool?: ToolbarToolId): Can
     qrStateByNodeId: {
       [DASHBOARD_QR_NODE_ID]: defaultQrState,
     },
-    selectedCardState: defaultCardState,
     cardStateByNodeId: {
       [DASHBOARD_QR_NODE_ID]: defaultCardState,
     },
@@ -306,8 +201,8 @@ function createInitialCanvasSurfaceState(initialActiveTool?: ToolbarToolId): Can
         defaultCardState,
       ),
     },
-    selectedLayerId: getCanvasQrLayerId(DASHBOARD_QR_NODE_ID),
-    selectedLayerIds: [getCanvasQrLayerId(DASHBOARD_QR_NODE_ID)],
+    selectedLayerId: primaryQrLayerId,
+    selectedLayerIds: [primaryQrLayerId],
     desktopCanvasTool: "select",
     selectedDownloadExtension: "png",
     selectedDownloadTarget: "surface",
@@ -323,7 +218,14 @@ function createInitialCanvasSurfaceState(initialActiveTool?: ToolbarToolId): Can
   };
 }
 
-function canvasReducer(state: CanvasSurfaceState, action: CanvasSurfaceAction): CanvasSurfaceState {
+function activeQrState(state: StoredCanvasSurfaceState): QraftyState {
+  return state.qrStateByLayerId[state.activeQrLayerId] ?? createDefaultCanvasWorkspaceQrState();
+}
+
+export function canvasReducer(
+  state: StoredCanvasSurfaceState,
+  action: CanvasSurfaceAction,
+): StoredCanvasSurfaceState {
   switch (action.type) {
     case "SET_FIELD": {
       const { field, value } = action;
@@ -342,16 +244,188 @@ function canvasReducer(state: CanvasSurfaceState, action: CanvasSurfaceAction): 
         [field]: nextValue,
       };
     }
-    case "REPLACE_STATE":
-      return action.state;
+    case "UPDATE_QR_DRAFT": {
+      const { field, value } = action;
+
+      if (field === "selectedCardState") {
+        const current =
+          state.cardStateByNodeId[state.activeQrNodeId] ?? createDefaultCanvasCardState();
+        const nextValue: CanvasCardState =
+          typeof value === "function"
+            ? (value as (prev: CanvasCardState) => CanvasCardState)(current)
+            : (value as CanvasCardState);
+
+        if (Object.is(nextValue, current)) {
+          return state;
+        }
+
+        return {
+          ...state,
+          cardStateByNodeId: {
+            ...state.cardStateByNodeId,
+            [state.activeQrNodeId]: nextValue,
+          },
+        };
+      }
+
+      const qr = activeQrState(state);
+      const previousValue = isQrDraftBufferField(field)
+        ? state[field]
+        : qrStateToDraftFields(qr)[field];
+      const nextValue =
+        typeof value === "function"
+          ? (value as (prev: typeof previousValue) => typeof previousValue)(previousValue)
+          : value;
+
+      if (Object.is(nextValue, previousValue) && !isQrDraftBufferField(field)) {
+        return state;
+      }
+
+      // Buffer fields write first so document patchers see the new value.
+      const withBuffer = isQrDraftBufferField(field) ? { ...state, [field]: nextValue } : state;
+      const patchedQr = applyQrDraftFieldPatch(
+        qr,
+        field,
+        nextValue as QrDraftFields[QrDraftField],
+        withBuffer as QrDraftBuffers,
+      );
+
+      if (patchedQr === qr) {
+        return withBuffer === state ? state : withBuffer;
+      }
+
+      return {
+        ...withBuffer,
+        qrStateByLayerId: {
+          ...withBuffer.qrStateByLayerId,
+          [state.activeQrLayerId]: patchedQr,
+        },
+        qrStateByNodeId: {
+          ...withBuffer.qrStateByNodeId,
+          [state.activeQrNodeId]: patchedQr,
+        },
+      };
+    }
+    case "SET_ACTIVE_QR": {
+      // A board switch without an explicit layer activates that board's QR
+      // layer — `qrStateByLayerId[activeQrLayerId]` must point at the QR the
+      // caller is switching to, not the previous layer.
+      const nodeId = action.nodeId ?? state.activeQrNodeId;
+      const layerId =
+        action.layerId ??
+        (action.nodeId !== undefined ? getCanvasQrLayerId(nodeId) : state.activeQrLayerId);
+      const qr = cloneCanvasQrState(action.qr);
+      const contentType = action.contentType ?? state.selectedContentType;
+
+      return {
+        ...state,
+        ...qrStateToDraftBuffers(qr),
+        activeQrLayerId: layerId,
+        activeQrNodeId: nodeId,
+        selectedContentType: contentType,
+        contentTypeByLayerId: {
+          ...state.contentTypeByLayerId,
+          [layerId]: contentType,
+        },
+        contentTypeByNodeId: {
+          ...state.contentTypeByNodeId,
+          [nodeId]: contentType,
+        },
+        qrStateByLayerId: {
+          ...state.qrStateByLayerId,
+          [layerId]: qr,
+        },
+        qrStateByNodeId: {
+          ...state.qrStateByNodeId,
+          [nodeId]: qr,
+        },
+      };
+    }
     default:
       return state;
   }
 }
 
+const QR_DRAFT_FIELD_SET = new Set<QrDraftWriteField>([
+  "selectedAriaLabel",
+  "selectedBackgroundAssetSourceMode",
+  "selectedBackgroundColor",
+  "selectedBackgroundColorMode",
+  "selectedBackgroundGradient",
+  "selectedBackgroundRemoteUrl",
+  "selectedBackgroundShapeId",
+  "selectedBackgroundShapeOptions",
+  "selectedBackgroundTransparent",
+  "selectedBoostLevel",
+  "selectedCornerDotColor",
+  "selectedCornerDotColorMode",
+  "selectedCornerDotGradient",
+  "selectedCornerSquareColor",
+  "selectedCornerSquareColorMode",
+  "selectedCornerSquareGradient",
+  "selectedDotColor",
+  "selectedDotMatrixAnimation",
+  "selectedDotsColorMode",
+  "selectedDotsGradient",
+  "selectedDotsPalette",
+  "selectedDotsPalettePreset",
+  "selectedDotType",
+  "selectedGradientLinkMode",
+  "selectedHideBackgroundDots",
+  "selectedLogoAssetSourceMode",
+  "selectedLogoColor",
+  "selectedLogoColorMode",
+  "selectedLogoCrossOrigin",
+  "selectedLogoGradient",
+  "selectedLogoHeightPx",
+  "selectedLogoLockAspect",
+  "selectedLogoMargin",
+  "selectedLogoOffsetX",
+  "selectedLogoOffsetY",
+  "selectedLogoOpacity",
+  "selectedLogoPositionMode",
+  "selectedLogoPresetId",
+  "selectedLogoPresetValue",
+  "selectedLogoRemoteUrl",
+  "selectedLogoSize",
+  "selectedLogoSizeMode",
+  "selectedLogoSourceMode",
+  "selectedLogoUploadValue",
+  "selectedLogoWidthPx",
+  "selectedModuleFillImageSourceMode",
+  "selectedModuleFillImageUrl",
+  "selectedModuleFillRemoteUrl",
+  "selectedModuleLineWidth",
+  "selectedModuleRoundSize",
+  "selectedModuleSize",
+  "selectedQrErrorCorrectionLevel",
+  "selectedQrFinderPatternInnerStyle",
+  "selectedQrFinderPatternOuterStyle",
+  "selectedQrMargin",
+  "selectedQrMode",
+  "selectedQrRadius",
+  "selectedQrSize",
+  "selectedQrTypeNumber",
+  "selectedRasterExportQualityPercent",
+  "selectedValueSegmentsText",
+  "selectedCardState",
+]);
+
 function createCanvasSurfaceSetters(dispatch: Dispatch<CanvasSurfaceAction>): CanvasSurfaceSetters {
-  const setField = <K extends CanvasSurfaceStateField>(field: K, value: FieldUpdater<K>) => {
-    dispatch({ type: "SET_FIELD", field, value } as CanvasSurfaceAction);
+  const setField = <K extends keyof CanvasSurfaceState>(field: K, value: FieldUpdater<K>) => {
+    if (QR_DRAFT_FIELD_SET.has(field as QrDraftWriteField)) {
+      dispatch({
+        type: "UPDATE_QR_DRAFT",
+        field: field as QrDraftWriteField,
+        value,
+      } as CanvasSurfaceAction);
+    } else {
+      dispatch({
+        type: "SET_FIELD",
+        field: field as CanvasSurfaceField,
+        value,
+      } as CanvasSurfaceAction);
+    }
   };
 
   return {
@@ -462,5 +536,17 @@ export function useCanvasSurfaceReducer(
 
   const setters = useMemo(() => createCanvasSurfaceSetters(dispatch), [dispatch]);
 
-  return [state, dispatch, setters];
+  // QR draft fields and the card are read-only projections over the active
+  // layer/board maps — merged here so consumers keep reading `state.selected*`.
+  const view = useMemo<CanvasSurfaceState>(() => {
+    const qr = activeQrState(state);
+    return {
+      ...state,
+      ...qrStateToDraftFields(qr),
+      selectedCardState:
+        state.cardStateByNodeId[state.activeQrNodeId] ?? createDefaultCanvasCardState(),
+    };
+  }, [state]);
+
+  return [view, dispatch, setters];
 }

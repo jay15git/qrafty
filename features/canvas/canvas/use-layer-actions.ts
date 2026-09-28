@@ -14,7 +14,7 @@ import type {
   CanvasSurfaceSetters,
   CanvasSurfaceState,
 } from "@/features/canvas/components/canvas-reducer";
-import { createQrControls } from "@/features/canvas/canvas/qr-controls";
+import type { ActiveQrApi } from "@/features/canvas/components/use-active-qr";
 import type { CanvasShortcutKeyboardState } from "@/features/canvas/canvas/use-canvas-shortcuts";
 import {
   getCanvasCardLayerId,
@@ -46,12 +46,10 @@ import { groupCanvasLayers, ungroupCanvasLayer } from "@/features/canvas/model/l
 import {
   cloneCanvasQrState,
   createDefaultCanvasWorkspaceQrState,
-  type CanvasQrStateByNodeId,
 } from "@/features/canvas/model/document";
 import {
   cloneCanvasCardState,
   createDefaultCanvasCardState,
-  type CanvasCardState,
 } from "@/features/canvas/model/card-state";
 import { DEFAULT_QR_INPUT_TYPE, type QrInputType } from "@/features/qr/content/input-options";
 import type { QraftyState } from "@/features/qr/model/state";
@@ -72,8 +70,6 @@ type LayerActionState = Pick<
 
 type LayerActionSetters = Pick<
   CanvasSurfaceSetters,
-  | "setActiveQrLayerId"
-  | "setActiveQrNodeId"
   | "setCardStateByNodeId"
   | "setContentTypeByLayerId"
   | "setDesktopRailTool"
@@ -81,7 +77,6 @@ type LayerActionSetters = Pick<
   | "setQrStateByLayerId"
   | "setQrStateByNodeId"
   | "setSelectedCardState"
-  | "setSelectedContentType"
   | "setSelectedLayerId"
   | "setSelectedLayerIds"
 >;
@@ -99,14 +94,12 @@ export function useLayerActions({
   layerStateByNodeId,
   shouldReplaceCurrentEntryRef,
   persistActiveQrLayerState,
-  qrControls,
+  setActiveQrState,
   qrStateByLayerId,
   qrStateByNodeId,
   selectedCardState,
   selectedContentType,
   selectedLayerIds,
-  setActiveQrLayerId,
-  setActiveQrNodeId,
   setCardStateByNodeId,
   setContentTypeByLayerId,
   setDesktopRailTool,
@@ -114,7 +107,6 @@ export function useLayerActions({
   setQrStateByLayerId,
   setQrStateByNodeId,
   setSelectedCardState,
-  setSelectedContentType,
   setSelectedLayerId,
   setSelectedLayerIds,
 }: LayerActionState &
@@ -126,7 +118,7 @@ export function useLayerActions({
     shouldReplaceCurrentEntryRef: MutableRefObject<boolean>;
     keyboardStateRef: MutableRefObject<CanvasShortcutKeyboardState>;
     persistActiveQrLayerState: (nextState?: QraftyState) => void;
-    qrControls: ReturnType<typeof createQrControls>;
+    setActiveQrState: ActiveQrApi["setActiveQrState"];
   }) {
   function selectSingleLayer(layerId: string | null) {
     setSelectedLayerId(layerId);
@@ -220,13 +212,13 @@ export function useLayerActions({
       canvasQraftyState;
 
     if (nextActiveLayerId !== activeQrLayerId) {
-      setActiveQrLayerId(nextActiveLayerId);
-      qrControls.applyQrState(nextActiveState);
-      setSelectedContentType(
-        nextContentTypeByLayerId[nextActiveLayerId] ??
+      setActiveQrState(nextActiveState, {
+        layerId: nextActiveLayerId,
+        contentType:
+          nextContentTypeByLayerId[nextActiveLayerId] ??
           contentTypeByLayerId[nextActiveLayerId] ??
           selectedContentType,
-      );
+      });
     }
 
     applyLayerSelection(duplicatedLayers.map((layer) => layer.id));
@@ -264,9 +256,10 @@ export function useLayerActions({
     if (layerId === activeQrLayerId) {
       const fallbackState =
         qrStateByLayerId[fallbackLayerId] ?? createDefaultCanvasWorkspaceQrState();
-      setActiveQrLayerId(fallbackLayerId);
-      qrControls.applyQrState(fallbackState);
-      setSelectedContentType(contentTypeByLayerId[fallbackLayerId] ?? DEFAULT_QR_INPUT_TYPE);
+      setActiveQrState(fallbackState, {
+        layerId: fallbackLayerId,
+        contentType: contentTypeByLayerId[fallbackLayerId] ?? DEFAULT_QR_INPUT_TYPE,
+      });
       selectSingleLayer(fallbackLayerId);
       return;
     }
@@ -342,8 +335,7 @@ export function useLayerActions({
         [activeQrNodeId]: cloneCanvasCardState(selectedCardState),
         [boardId]: cloneCanvasCardState(targetCardState),
       }));
-      setActiveQrNodeId(boardId);
-      qrControls.applyQrState(targetQrState);
+      setActiveQrState(targetQrState, { nodeId: boardId });
       setSelectedCardState(cloneCanvasCardState(targetCardState));
     }
 
@@ -568,9 +560,10 @@ export function useLayerActions({
     if (removableLayerIdSet.has(activeQrLayerId)) {
       const fallbackState =
         qrStateByLayerId[fallbackLayerId] ?? createDefaultCanvasWorkspaceQrState();
-      setActiveQrLayerId(fallbackLayerId);
-      qrControls.applyQrState(fallbackState);
-      setSelectedContentType(contentTypeByLayerId[fallbackLayerId] ?? DEFAULT_QR_INPUT_TYPE);
+      setActiveQrState(fallbackState, {
+        layerId: fallbackLayerId,
+        contentType: contentTypeByLayerId[fallbackLayerId] ?? DEFAULT_QR_INPUT_TYPE,
+      });
     }
 
     applyLayerSelection(nextSelection.length > 0 ? nextSelection : [fallbackLayerId]);

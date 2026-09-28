@@ -26,7 +26,7 @@ import {
   layoutCanvasCardInsetLayers,
 } from "@/features/canvas/model/layers/card-qr";
 import { createCanvasTextLayer } from "@/features/canvas/model/layers/factories";
-import { normalizeCanvasCardState, type CanvasCardState } from "@/features/canvas/model/card-state";
+import { normalizeCanvasCardState } from "@/features/canvas/model/card-state";
 import type {
   EncodingSettings,
   ExportSettings,
@@ -34,7 +34,6 @@ import type {
   LayersSettings,
   LogoSettings,
   LogoSettingsPatch,
-  MotionSettings,
   PatternSettingsPatch,
   ShapeSettings,
 } from "@/features/shell/model/toolbar-types";
@@ -58,9 +57,7 @@ import type {
   CanvasSurfaceSetters,
   CanvasSurfaceState,
 } from "@/features/canvas/components/canvas-reducer";
-import type { createQrControls } from "@/features/canvas/canvas/qr-controls";
 import type { useQrLogoActions } from "@/features/canvas/canvas/use-qr-logo-actions";
-import type { CanvasLayerMenuAction } from "@/features/canvas/components/Artboard";
 import {
   DEFAULT_DRAFTING_STUDIO_STATE,
   type CanvasDownloadExtension,
@@ -69,12 +66,9 @@ import {
 type SettingsState = Pick<
   CanvasSurfaceState,
   | "activeQrNodeId"
-  | "layerStateByNodeId"
   | "selectedCardState"
-  | "selectedLayerId"
   | "selectedLogoRemoteUrl"
   | "selectedModuleFillImageSourceMode"
-  | "selectedModuleFillImageUrl"
 >;
 
 type SettingsSetters = Pick<
@@ -137,18 +131,14 @@ export function useSettingsActions({
   canvasQraftyState,
   handleLayerChange,
   handleLayerSelect,
-  layerStateByNodeId,
   logoActions,
   logoUploadObjectUrlRef,
   persistActiveQrLayerState,
   qrBackgroundVisible,
-  qrControls,
   resolveLiveQrPersistState,
   selectedCardState,
-  selectedLayerId,
   selectedLogoRemoteUrl,
   selectedModuleFillImageSourceMode,
-  selectedModuleFillImageUrl,
   setLayerStateByNodeId,
   setLogoUploadObjectUrl,
   setSelectedBackgroundColor,
@@ -213,7 +203,6 @@ export function useSettingsActions({
     logoUploadObjectUrlRef: MutableRefObject<string | null>;
     persistActiveQrLayerState: (nextState?: QraftyState) => void;
     qrBackgroundVisible: boolean;
-    qrControls: ReturnType<typeof createQrControls>;
     resolveLiveQrPersistState: () => QraftyState;
   }) {
   function handleDesktopAppearancePatch(patch: AppearancePatch) {
@@ -351,7 +340,6 @@ export function useSettingsActions({
     clearQrEncodeMarkupCache();
     clearCanvasQrMarkupCache();
     persistActiveQrLayerState(nextState);
-    qrControls.syncModuleFill(nextState);
   }
 
   function updateDesktopUnifiedQrFillSettings(patches: UnifiedQrFillPatches) {
@@ -380,8 +368,6 @@ export function useSettingsActions({
     clearQrEncodeMarkupCache();
     clearCanvasQrMarkupCache();
     persistActiveQrLayerState(nextState);
-    qrControls.syncModuleFill(nextState);
-    qrControls.syncLogo(nextState);
   }
 
   function updateDesktopLogoSettings(patch: LogoSettingsPatch) {

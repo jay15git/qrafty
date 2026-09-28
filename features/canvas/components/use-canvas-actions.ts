@@ -11,7 +11,6 @@ import {
   createDefaultCanvasLayers,
 } from "@/features/canvas/model/layers/card-qr";
 import {
-  cloneCanvasQrState,
   createDefaultCanvasWorkspaceQrState,
   type CanvasWorkspaceDocumentV1,
 } from "@/features/canvas/model/document";
@@ -25,12 +24,11 @@ import type {
   CanvasSurfaceState,
 } from "@/features/canvas/components/canvas-reducer";
 import type { CanvasBoards } from "@/features/canvas/components/use-canvas-boards";
-import type { QrControlsApi } from "@/features/canvas/canvas/qr-controls";
 import { useCanvasHistory } from "@/features/canvas/canvas/use-canvas-history";
 import { useWorkspaceExport } from "@/features/canvas/canvas/use-workspace-export";
 import { useQrLogoActions } from "@/features/canvas/canvas/use-qr-logo-actions";
 import { useLayerActions } from "@/features/canvas/canvas/use-layer-actions";
-import type { CanvasPersistence } from "@/features/canvas/components/use-canvas-persistence";
+import type { ActiveQrApi } from "@/features/canvas/components/use-active-qr";
 import { useSettingsActions } from "@/features/canvas/canvas/use-settings-actions";
 import {
   useCanvasShortcuts,
@@ -59,17 +57,15 @@ import { DEFAULT_QR_INPUT_TYPE, type QrInputType } from "@/features/qr/content/i
  * same hook preserves the original call graph without ref indirection.
  */
 export function useCanvasActions({
+  activeQr,
   boards,
   canvasRef,
-  persistence,
-  qrControls,
   setters,
   state,
 }: {
+  activeQr: ActiveQrApi;
   boards: CanvasBoards;
   canvasRef: MutableRefObject<HTMLElement | null>;
-  persistence: CanvasPersistence;
-  qrControls: QrControlsApi;
   setters: CanvasSurfaceSetters;
   state: CanvasSurfaceState;
 }) {
@@ -99,8 +95,6 @@ export function useCanvasActions({
     selectedVideoLongEdge,
   } = state;
   const {
-    setActiveQrLayerId,
-    setActiveQrNodeId,
     setCardStateByNodeId,
     setContentTypeByLayerId,
     setContentTypeByNodeId,
@@ -108,8 +102,6 @@ export function useCanvasActions({
     setExportDownloadError,
     setLayerStateByNodeId,
     setQrStateByLayerId,
-    setQrStateByNodeId,
-    setSelectedCardState,
     setSelectedContentType,
   } = setters;
   const {
@@ -118,7 +110,8 @@ export function useCanvasActions({
     persistActiveQrLayerState,
     resolveLiveQrPersistState,
     selectedContentValidation,
-  } = persistence;
+    setActiveQrState,
+  } = activeQr;
   const {
     activeCanvasLayers,
     appearanceTargetLayer,
@@ -296,9 +289,7 @@ export function useCanvasActions({
     const nextState = qrStateByLayerId[layerId] ?? createDefaultCanvasWorkspaceQrState();
     const nextContentType = contentTypeByLayerId[layerId] ?? DEFAULT_QR_INPUT_TYPE;
 
-    setActiveQrLayerId(layerId);
-    qrControls.applyQrState(nextState);
-    setSelectedContentType(nextContentType);
+    setActiveQrState(nextState, { layerId, contentType: nextContentType });
     selectSingleLayer(layerId);
   }
 
@@ -331,12 +322,7 @@ export function useCanvasActions({
       nextDocument.qrStateByNodeId[activeNodeId] ??
       createDefaultCanvasWorkspaceQrState();
 
-    setActiveQrLayerId(activeLayerId);
-    setActiveQrNodeId(activeNodeId);
     setQrStateByLayerId(structuredClone(nextDocument.qrStateByLayerId));
-    setQrStateByNodeId({
-      [activeNodeId]: cloneCanvasQrState(activeState),
-    });
     setCardStateByNodeId({
       [activeNodeId]: cloneCanvasCardState(activeCardState),
     });
@@ -345,10 +331,12 @@ export function useCanvasActions({
     });
     setContentTypeByLayerId(structuredClone(nextDocument.contentTypeByLayerId));
     setContentTypeByNodeId(structuredClone(nextDocument.contentTypeByNodeId));
-    setSelectedContentType(nextDocument.selectedContentType);
     setContentValuesByType(structuredClone(nextDocument.contentValuesByType));
-    qrControls.applyQrState(activeState);
-    setSelectedCardState(cloneCanvasCardState(activeCardState));
+    setActiveQrState(activeState, {
+      layerId: activeLayerId,
+      nodeId: activeNodeId,
+      contentType: nextDocument.selectedContentType,
+    });
     selectSingleLayer(activeLayerId);
   }
 
@@ -372,7 +360,7 @@ export function useCanvasActions({
     canvasRef,
     keyboardStateRef,
     persistActiveQrLayerState,
-    qrControls,
+    setActiveQrState,
     shouldReplaceCurrentEntryRef: shouldReplaceCurrentCanvasHistoryEntryRef,
   });
 
@@ -393,22 +381,15 @@ export function useCanvasActions({
       zIndex: maxZIndex + 1,
     });
 
-    setQrStateByLayerId((current) => ({
-      ...current,
-      [nextLayer.id]: cloneCanvasQrState(freshState),
-    }));
-    setContentTypeByLayerId((current) => ({
-      ...current,
-      [nextLayer.id]: DEFAULT_QR_INPUT_TYPE,
-    }));
     setLayerStateByNodeId((current) => ({
       ...current,
       [activeQrNodeId]: [...layers.map(cloneCanvasLayer), nextLayer],
     }));
 
-    setActiveQrLayerId(nextLayer.id);
-    qrControls.applyQrState(freshState);
-    setSelectedContentType(DEFAULT_QR_INPUT_TYPE);
+    setActiveQrState(freshState, {
+      layerId: nextLayer.id,
+      contentType: DEFAULT_QR_INPUT_TYPE,
+    });
     selectSingleLayer(nextLayer.id);
   }
 
@@ -425,7 +406,6 @@ export function useCanvasActions({
     logoUploadObjectUrlRef,
     persistActiveQrLayerState,
     qrBackgroundVisible,
-    qrControls,
     resolveLiveQrPersistState,
   });
 

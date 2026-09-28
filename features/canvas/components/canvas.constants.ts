@@ -5,7 +5,6 @@ import { createDefaultQraftyState } from "@/features/qr/model/state";
 
 export const DEFAULT_DRAFTING_STUDIO_STATE = createDefaultQraftyState();
 
-export const DEFAULT_DRAFTING_PANE_QR_SIZE = 240;
 export const DRAFTING_LAYER_PASTE_OFFSET = 24;
 export const DEFAULT_DOWNLOAD_NAME = "qrafty";
 const DRAFTING_DOWNLOAD_EXTENSIONS = [

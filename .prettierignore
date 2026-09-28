@@ -6,3 +6,4 @@ pnpm-lock.yaml
 public
 .agents
 docs/superpowers
+features/canvas/export/golden/snapshots

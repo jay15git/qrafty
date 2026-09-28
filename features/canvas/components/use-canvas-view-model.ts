@@ -1,16 +1,15 @@
 "use client";
 
-import { useMemo, useRef } from "react";
+import { useRef } from "react";
 
 import { useCanvasSurfaceReducer } from "@/features/canvas/components/canvas-reducer";
 import { useCanvasScanSafety } from "@/features/canvas/components/use-canvas-scan-safety";
-import { useCanvasPersistence } from "@/features/canvas/components/use-canvas-persistence";
+import { useActiveQr } from "@/features/canvas/components/use-active-qr";
 import { useCanvasBoards } from "@/features/canvas/components/use-canvas-boards";
 import { useCanvasActions } from "@/features/canvas/components/use-canvas-actions";
 import { buildCanvasWorkspaceController } from "@/features/canvas/components/chrome-controller";
 import { type CanvasBoardToolbarVariant } from "@/features/canvas/components/Canvas";
 import type { ToolbarToolId } from "@/features/shell/model/toolbar-types";
-import { createQrControls } from "@/features/canvas/canvas/qr-controls";
 
 type CanvasSurfaceViewModelInput = {
   initialActiveTool?: ToolbarToolId;
@@ -21,21 +20,19 @@ export function useCanvasViewModel({
   initialActiveTool,
   boardToolbarVariant,
 }: CanvasSurfaceViewModelInput) {
-  const [state, , setters] = useCanvasSurfaceReducer(initialActiveTool);
+  const [state, dispatch, setters] = useCanvasSurfaceReducer(initialActiveTool);
   const canvasRef = useRef<HTMLElement | null>(null);
-  const qrControls = useMemo(() => createQrControls(setters), [setters]);
-  const persistence = useCanvasPersistence({ qrControls, setters, state });
+  const activeQr = useActiveQr({ dispatch, state });
   const boards = useCanvasBoards({
     boardToolbarVariant,
-    canvasQraftyState: persistence.canvasQraftyState,
-    selectedContentValidation: persistence.selectedContentValidation,
+    canvasQraftyState: activeQr.canvasQraftyState,
+    selectedContentValidation: activeQr.selectedContentValidation,
     state,
   });
   const actions = useCanvasActions({
+    activeQr,
     boards,
     canvasRef,
-    persistence,
-    qrControls,
     setters,
     state,
   });
@@ -43,19 +40,19 @@ export function useCanvasViewModel({
     activeCanvasLayers: boards.activeCanvasLayers,
     activeQrLayerId: state.activeQrLayerId,
     activeQrNodeId: state.activeQrNodeId,
-    canvasQraftyState: persistence.canvasQraftyState,
+    canvasQraftyState: activeQr.canvasQraftyState,
     qrCanvasLayers: boards.qrCanvasLayers,
     qrStateByLayerId: state.qrStateByLayerId,
     resolveTargetDimensions: actions.resolveWorkspaceExportTargetDimensions,
     selectedCardState: state.selectedCardState,
-    selectedContentIsValid: persistence.selectedContentValidation.isValid,
+    selectedContentIsValid: activeQr.selectedContentValidation.isValid,
     selectedDownloadExtension: state.selectedDownloadExtension,
     selectedDownloadTarget: state.selectedDownloadTarget,
   });
   const desktopController = buildCanvasWorkspaceController({
     actions,
     boards,
-    persistence,
+    activeQr,
     scanSafetyResult,
     setters,
     state,
@@ -69,7 +66,7 @@ export function useCanvasViewModel({
     boards: boards.boards,
     selectedBackgroundShapeId: state.selectedBackgroundShapeId,
     selectedContentType: state.selectedContentType,
-    selectedContentValue: persistence.selectedContentValue,
+    selectedContentValue: activeQr.selectedContentValue,
     selectedLayerId: state.selectedLayerId,
     selectedLayerIds: state.selectedLayerIds,
     selectedLogoColorMode: state.selectedLogoColorMode,

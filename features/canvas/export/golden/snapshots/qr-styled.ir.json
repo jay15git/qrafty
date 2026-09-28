@@ -114,7 +114,12 @@
             "minVersion": 1,
             "module": "leaf",
             "moduleRoundSize": true,
-            "palette": ["#04879c", "#0c3c78", "#090030", "#f30a49"],
+            "palette": [
+              "#04879c",
+              "#0c3c78",
+              "#090030",
+              "#f30a49"
+            ],
             "size": 438.62068965517244,
             "value": "mailto:hello@qrafty.local",
             "logo": {

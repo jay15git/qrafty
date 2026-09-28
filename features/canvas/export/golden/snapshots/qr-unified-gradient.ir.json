@@ -126,7 +126,12 @@
             "minVersion": 1,
             "module": "rounded",
             "moduleRoundSize": true,
-            "palette": ["#04879c", "#0c3c78", "#090030", "#f30a49"],
+            "palette": [
+              "#04879c",
+              "#0c3c78",
+              "#090030",
+              "#f30a49"
+            ],
             "size": 438.62068965517244,
             "value": "https://qrafty.local/launch",
             "gradientMode": "unified",
