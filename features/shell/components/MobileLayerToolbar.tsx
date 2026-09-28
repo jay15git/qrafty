@@ -2,9 +2,7 @@
 
 import {
   ALargeSmallIcon,
-  AlignCenterIcon,
   AlignLeftIcon,
-  AlignRightIcon,
   ArrowDown,
   ArrowDownToLine,
   ArrowUp,
@@ -23,7 +21,6 @@ import {
   ResourcesAddIcon,
   ScreenRotationIcon,
 } from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
 
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { ThemeMode } from "@/features/shell/components/WorkspaceChrome";
@@ -34,17 +31,28 @@ import {
   useMobileDrawerNavigation,
   useMobileLiveDetail,
 } from "@/features/shell/settings/MobileDrawerNavigationContext";
-import { CanvasSizeIcon, ShadowIcon } from "@/features/shell/components/toolbar-icons";
-import { getLayerToolbarCapabilities } from "@/features/shell/model/layer-toolbar-capabilities";
+import {
+  CanvasSizeIcon,
+  hugePanelIcon,
+  ShadowIcon,
+} from "@/features/shell/components/toolbar-icons";
+import {
+  resolveLayerPanelTools,
+  type LayerPanelTools,
+} from "@/features/shell/model/layer-panel-tools";
+import {
+  getTextLayerFormatState,
+  toggleTextBoldPatch,
+  toggleTextItalicPatch,
+  toggleTextUnderlinePatch,
+} from "@/features/shell/model/layer-text-format";
 import { LAYER_FILTER_EFFECT_KINDS } from "@/features/canvas/model/layer-effects";
 import { TextFontPickerContent } from "@/features/shell/settings/TextFontPickerContent";
-import {
-  DEFAULT_DRAFTING_TEXT_LAYER,
-  type CanvasLayer,
-} from "@/features/canvas/model/layers/shared";
+import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
 import {
   FillColorToolbarButton,
   FloatingLayerToolbarSettings,
+  TEXT_ALIGN_OPTIONS,
   TextAlignmentSettings,
   TextSizeSettings,
 } from "@/features/canvas/components/FloatingLayerToolbarSettings";
@@ -52,8 +60,6 @@ import {
   getTextLayerFillCssValue,
   patchTextLayerFillFromPicker,
 } from "@/features/canvas/rendering/layer-fill";
-import { getLayerFontWeight, getNearestFontWeight } from "@/features/shell/model/font-weight";
-import { resolveCanvasFont } from "@/features/canvas/model/fonts";
 import { isCanvasEmojiLayer } from "@/features/canvas/model/layer-floating-settings";
 import { cn } from "@/lib/utils";
 
@@ -208,23 +214,32 @@ const PANEL_ICON_CLASS = "size-4 shrink-0";
 
 type MobilePanelController = SettingsModel["controller"];
 
-function panelHugeIcon(icon: Parameters<typeof HugeiconsIcon>[0]["icon"]) {
-  return (
-    <HugeiconsIcon
-      className={PANEL_ICON_CLASS}
-      color="currentColor"
-      icon={icon}
-      size={16}
-      strokeWidth={2}
-    />
-  );
+function resolveMobilePanelTools(controller: MobilePanelController): LayerPanelTools {
+  return resolveLayerPanelTools({
+    appearance: controller?.appearanceSnapshot,
+    appearanceLayer: controller?.selectedAppearanceLayer,
+    insertNodeId: controller?.insertNodeId,
+    onAppearancePatch: controller?.onAppearancePatch,
+    onElementLayerPatch: controller?.onElementLayerPatch,
+    onInsertLayer: controller?.onInsertLayer,
+    onSelectSizeTemplate: controller?.onSceneTemplateSizeTemplateSelect,
+    onTransformLayerPatch: controller?.onTransformLayerPatch,
+    selectedElementLayer: controller?.selectedElementLayer,
+    selectedTransformLayer: controller?.selectedTransformLayer,
+  });
 }
 
-function MobileLayerInsertTool({ controller }: { controller: MobilePanelController }) {
+function MobileLayerInsertTool({
+  controller,
+  tools,
+}: {
+  controller: MobilePanelController;
+  tools: LayerPanelTools;
+}) {
   const navigation = useMobileDrawerNavigation();
   const insertNodeId = controller?.insertNodeId;
   const onInsertLayer = controller?.onInsertLayer;
-  if (!insertNodeId || !onInsertLayer) {
+  if (!tools.canInsert || !insertNodeId || !onInsertLayer) {
     return null;
   }
 
@@ -246,15 +261,21 @@ function MobileLayerInsertTool({ controller }: { controller: MobilePanelControll
           onInsertLayer={onInsertLayer}
         />
       }
-      icon={panelHugeIcon(ResourcesAddIcon)}
+      icon={hugePanelIcon(ResourcesAddIcon)}
       label="Add"
     />
   );
 }
 
-function MobileLayerLayoutTool({ controller }: { controller: MobilePanelController }) {
+function MobileLayerLayoutTool({
+  controller,
+  tools,
+}: {
+  controller: MobilePanelController;
+  tools: LayerPanelTools;
+}) {
   const onSelectSizeTemplate = controller?.onSceneTemplateSizeTemplateSelect;
-  if (!onSelectSizeTemplate) {
+  if (!tools.hasLayout || !onSelectSizeTemplate) {
     return null;
   }
 
@@ -276,13 +297,15 @@ function MobileLayerLayoutTool({ controller }: { controller: MobilePanelControll
 function MobileLayerTransformTool({
   controller,
   theme,
+  tools,
 }: {
   controller: MobilePanelController;
   theme: ThemeMode;
+  tools: LayerPanelTools;
 }) {
   const selectedTransformLayer = controller?.selectedTransformLayer;
   const onTransformLayerPatch = controller?.onTransformLayerPatch;
-  if (!selectedTransformLayer || !onTransformLayerPatch) {
+  if (!tools.hasTransform || !selectedTransformLayer || !onTransformLayerPatch) {
     return null;
   }
 
@@ -297,7 +320,7 @@ function MobileLayerTransformTool({
           variant="flat"
         />
       }
-      icon={panelHugeIcon(ScreenRotationIcon)}
+      icon={hugePanelIcon(ScreenRotationIcon)}
       label="Transform"
     />
   );
@@ -306,13 +329,15 @@ function MobileLayerTransformTool({
 function MobileLayerBorderTool({
   controller,
   theme,
+  tools,
 }: {
   controller: MobilePanelController;
   theme: ThemeMode;
+  tools: LayerPanelTools;
 }) {
   const appearance = controller?.appearanceSnapshot;
   const onAppearancePatch = controller?.onAppearancePatch;
-  if (!appearance?.supportsBorder || !onAppearancePatch) {
+  if (!tools.hasBorder || !appearance || !onAppearancePatch) {
     return null;
   }
 
@@ -322,7 +347,7 @@ function MobileLayerBorderTool({
       content={
         <LazyLayerBorderPanel appearance={appearance} onPatch={onAppearancePatch} theme={theme} />
       }
-      icon={panelHugeIcon(BorderNone02Icon)}
+      icon={hugePanelIcon(BorderNone02Icon)}
       label="Border"
     />
   );
@@ -331,26 +356,16 @@ function MobileLayerBorderTool({
 function MobileLayerEffectsTool({
   controller,
   theme,
+  tools,
 }: {
   controller: MobilePanelController;
   theme: ThemeMode;
+  tools: LayerPanelTools;
 }) {
   const appearance = controller?.appearanceSnapshot;
   const onAppearancePatch = controller?.onAppearancePatch;
-  // Mirrors the desktop island: with nothing selected the card (background)
-  // layer is the effects target, patched through onAppearancePatch.
-  const effectsLayer =
-    controller?.selectedElementLayer ?? controller?.selectedAppearanceLayer ?? null;
-  const effectsPatch = controller?.selectedElementLayer
-    ? controller?.onElementLayerPatch
-    : controller?.onAppearancePatch;
-  const propertyLayer =
-    controller?.selectedTransformLayer ??
-    controller?.selectedElementLayer ??
-    controller?.selectedAppearanceLayer ??
-    null;
-  const propertyCapabilities = getLayerToolbarCapabilities(propertyLayer);
-  if (!effectsLayer || !effectsPatch || propertyCapabilities.maxEffects <= 0) {
+  const { effectsLayer, effectsPatch } = tools;
+  if (!tools.hasEffects || !effectsLayer || !effectsPatch) {
     return null;
   }
 
@@ -372,28 +387,15 @@ function MobileLayerEffectsTool({
           variant="flat"
         />
       }
-      icon={panelHugeIcon(MagicWand05Icon)}
+      icon={hugePanelIcon(MagicWand05Icon)}
       label="Effects"
     />
   );
 }
 
-function MobileLayerShadowsTool({
-  controller,
-  theme,
-}: {
-  controller: MobilePanelController;
-  theme: ThemeMode;
-}) {
-  const selectedElementLayer = controller?.selectedElementLayer;
-  const selectedTransformLayer = controller?.selectedTransformLayer;
-  // Shadows apply to every selected layer except the card (background). Element
-  // layers patch via onElementLayerPatch; QR/group layers via onAppearancePatch.
-  const shadowsLayer = selectedElementLayer ?? selectedTransformLayer ?? null;
-  const shadowsPatch = selectedElementLayer
-    ? controller?.onElementLayerPatch
-    : controller?.onAppearancePatch;
-  if (!shadowsLayer || shadowsLayer.kind === "card" || !shadowsPatch) {
+function MobileLayerShadowsTool({ theme, tools }: { theme: ThemeMode; tools: LayerPanelTools }) {
+  const { shadowsLayer, shadowsPatch } = tools;
+  if (!tools.hasShadows || !shadowsLayer || !shadowsPatch) {
     return null;
   }
 
@@ -410,63 +412,45 @@ function MobileLayerShadowsTool({
 /**
  * Mirrors the desktop dynamic island's property panels (Add, Layout, Transform,
  * Border, Effects, Shadows) as drawer detail pages. Same gating rules as
- * `useIslandItems`.
+ * `useIslandItems` via `resolveLayerPanelTools`.
  */
-function hasMobilePanelTools(controller: MobilePanelController): boolean {
-  const insertNodeId = controller?.insertNodeId;
-  const onInsertLayer = controller?.onInsertLayer;
-  const onSelectSizeTemplate = controller?.onSceneTemplateSizeTemplateSelect;
-  const selectedTransformLayer = controller?.selectedTransformLayer;
-  const onTransformLayerPatch = controller?.onTransformLayerPatch;
-  const appearance = controller?.appearanceSnapshot;
-  const onAppearancePatch = controller?.onAppearancePatch;
-  const selectedElementLayer = controller?.selectedElementLayer;
-  const onElementLayerPatch = controller?.onElementLayerPatch;
-  const appearanceLayer = controller?.selectedAppearanceLayer;
-
-  const propertyLayer = selectedTransformLayer ?? selectedElementLayer ?? appearanceLayer ?? null;
-  const propertyCapabilities = getLayerToolbarCapabilities(propertyLayer);
-  const effectsLayer = selectedElementLayer ?? appearanceLayer ?? null;
-  const effectsPatch = selectedElementLayer ? onElementLayerPatch : onAppearancePatch;
-
-  const canInsert = Boolean(insertNodeId && onInsertLayer);
-  const hasLayout = Boolean(onSelectSizeTemplate);
-  const hasTransform = Boolean(selectedTransformLayer && onTransformLayerPatch);
-  const hasBorder = Boolean(appearance?.supportsBorder && onAppearancePatch);
-  const hasEffects = Boolean(effectsLayer && effectsPatch && propertyCapabilities.maxEffects > 0);
-  // Shadows apply to every selected layer except the card (background). Element
-  // layers patch via onElementLayerPatch; QR/group layers via onAppearancePatch.
-  const shadowsLayer = selectedElementLayer ?? selectedTransformLayer ?? null;
-  const shadowsPatch = selectedElementLayer ? onElementLayerPatch : onAppearancePatch;
-  const hasShadows = Boolean(shadowsLayer && shadowsLayer.kind !== "card" && shadowsPatch);
-
-  return canInsert || hasLayout || hasTransform || hasBorder || hasEffects || hasShadows;
+function hasMobilePanelTools(tools: LayerPanelTools): boolean {
+  return (
+    tools.canInsert ||
+    tools.hasLayout ||
+    tools.hasTransform ||
+    tools.hasBorder ||
+    tools.hasEffects ||
+    tools.hasShadows
+  );
 }
 
 function MobileLayerPanelTools({
   model,
   separator,
   theme,
+  tools,
 }: {
   model: SettingsModel;
   separator: boolean;
   theme: ThemeMode;
+  tools: LayerPanelTools;
 }) {
   const controller = model.controller;
 
-  if (!hasMobilePanelTools(controller)) {
+  if (!hasMobilePanelTools(tools)) {
     return null;
   }
 
   return (
     <>
       {separator ? <MobileLayerToolbarSeparator /> : null}
-      <MobileLayerInsertTool controller={controller} />
-      <MobileLayerLayoutTool controller={controller} />
-      <MobileLayerTransformTool controller={controller} theme={theme} />
-      <MobileLayerBorderTool controller={controller} theme={theme} />
-      <MobileLayerEffectsTool controller={controller} theme={theme} />
-      <MobileLayerShadowsTool controller={controller} theme={theme} />
+      <MobileLayerInsertTool controller={controller} tools={tools} />
+      <MobileLayerLayoutTool controller={controller} tools={tools} />
+      <MobileLayerTransformTool controller={controller} theme={theme} tools={tools} />
+      <MobileLayerBorderTool controller={controller} theme={theme} tools={tools} />
+      <MobileLayerEffectsTool controller={controller} theme={theme} tools={tools} />
+      <MobileLayerShadowsTool theme={theme} tools={tools} />
     </>
   );
 }
@@ -490,20 +474,9 @@ function MobileLayerTextTools({
     );
   }
 
-  const selectedFont = resolveCanvasFont({
-    fontFamily: layer.fontFamily,
-    fontId: layer.fontId,
-  });
-  const supportedWeights = selectedFont.weights;
-  const fontWeight = getLayerFontWeight(layer.fontWeight, supportedWeights);
-  const fontStyle = layer.fontStyle ?? DEFAULT_DRAFTING_TEXT_LAYER.fontStyle;
-  const textAlign = layer.textAlign ?? DEFAULT_DRAFTING_TEXT_LAYER.textAlign;
+  const { fontStyle, fontWeight, textAlign } = getTextLayerFormatState(layer);
   const AlignIcon =
-    textAlign === "center"
-      ? AlignCenterIcon
-      : textAlign === "right"
-        ? AlignRightIcon
-        : AlignLeftIcon;
+    TEXT_ALIGN_OPTIONS.find((option) => option.value === textAlign)?.icon ?? AlignLeftIcon;
 
   function patchText(patch: Partial<CanvasLayer>) {
     onPatch({ ...patch, textRuns: undefined });
@@ -535,28 +508,21 @@ function MobileLayerTextTools({
       <MobileLayerToolbarButton
         active={fontWeight >= 700}
         ariaLabel="Bold"
-        onClick={() =>
-          patchText({
-            fontWeight:
-              fontWeight >= 700
-                ? getNearestFontWeight(400, supportedWeights)
-                : getNearestFontWeight(700, supportedWeights),
-          })
-        }
+        onClick={() => onPatch(toggleTextBoldPatch(layer))}
       >
         <Bold className="size-4" strokeWidth={2} />
       </MobileLayerToolbarButton>
       <MobileLayerToolbarButton
         active={fontStyle === "italic"}
         ariaLabel="Italic"
-        onClick={() => patchText({ fontStyle: fontStyle === "italic" ? "normal" : "italic" })}
+        onClick={() => onPatch(toggleTextItalicPatch(layer))}
       >
         <Italic className="size-4" strokeWidth={2} />
       </MobileLayerToolbarButton>
       <MobileLayerToolbarButton
         active={Boolean(layer.underline)}
         ariaLabel="Underline"
-        onClick={() => patchText({ underline: !layer.underline })}
+        onClick={() => onPatch(toggleTextUnderlinePatch(layer))}
       >
         <Underline className="size-4" strokeWidth={2} />
       </MobileLayerToolbarButton>
@@ -618,7 +584,8 @@ export function MobileLayerToolbar({
   const selectedElementLayer = controller?.selectedElementLayer;
   const onElementLayerPatch = controller?.onElementLayerPatch;
   const toolbarRef = useRef<HTMLDivElement>(null);
-  const hasPanelTools = hasMobilePanelTools(controller);
+  const panelTools = resolveMobilePanelTools(controller);
+  const hasPanelTools = hasMobilePanelTools(panelTools);
   const hasSelection = selectedLayerIds.length > 0;
 
   useEffect(() => {
@@ -755,7 +722,12 @@ export function MobileLayerToolbar({
                 </MobileLayerToolbarButton>
               </>
             ) : null}
-            <MobileLayerPanelTools model={model} separator={hasSelection} theme={theme} />
+            <MobileLayerPanelTools
+              model={model}
+              separator={hasSelection}
+              theme={theme}
+              tools={panelTools}
+            />
           </div>
         </ScrollArea>
       </div>

@@ -8,10 +8,13 @@ import {
   ResourcesAddIcon,
   ScreenRotationIcon,
 } from "@hugeicons/core-free-icons";
-import { HugeiconsIcon } from "@hugeicons/react";
 
 import { CanvasRatioPresetPopoverContent } from "@/features/shell/components/CanvasRatioPresetRow";
-import { CanvasSizeIcon, ShadowIcon } from "@/features/shell/components/toolbar-icons";
+import {
+  CanvasSizeIcon,
+  hugePanelIcon,
+  ShadowIcon,
+} from "@/features/shell/components/toolbar-icons";
 import {
   LayerBorderPanel,
   LayerEffectsPanel,
@@ -23,7 +26,7 @@ import { ToolbarPopoverContent } from "@/features/shell/components/ToolbarPopove
 import type { ThemeMode } from "@/features/shell/components/WorkspaceChrome";
 import { InsertMenuPopoverContent } from "@/features/canvas/components/insert-menu/InsertMenuPopoverContent";
 import type { AppearanceSnapshot } from "@/features/shell/model/appearance";
-import { getLayerToolbarCapabilities } from "@/features/shell/model/layer-toolbar-capabilities";
+import { resolveLayerPanelTools } from "@/features/shell/model/layer-panel-tools";
 import { IslandCard, type IslandItem } from "@/features/shell/components/IslandCard";
 import { LAYER_FILTER_EFFECT_KINDS } from "@/features/canvas/model/layer-effects";
 import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
@@ -59,66 +62,7 @@ type IslandItemInput = Omit<DynamicIslandProps, "theme"> & {
   theme: ThemeMode;
 };
 
-type IslandFlags = {
-  canInsert: boolean;
-  effectsLayer: CanvasLayer | null;
-  effectsPatch: DynamicIslandProps["onAppearancePatch"];
-  hasBorder: boolean;
-  hasEffects: boolean;
-  hasShadows: boolean;
-  hasStyle: boolean;
-  hasTransform: boolean;
-  shadowsLayer: CanvasLayer | null;
-  shadowsPatch: DynamicIslandProps["onAppearancePatch"];
-};
-
-function resolveIslandFlags(props: IslandItemInput): IslandFlags {
-  const {
-    appearance,
-    appearanceLayer,
-    insertNodeId,
-    onAppearancePatch,
-    onElementLayerPatch,
-    onInsertLayer,
-    onTransformLayerPatch,
-    selectedElementLayer,
-    selectedTransformLayer,
-  } = props;
-
-  const propertyLayer = selectedTransformLayer ?? selectedElementLayer ?? appearanceLayer ?? null;
-  const propertyCapabilities = getLayerToolbarCapabilities(propertyLayer);
-  const effectsLayer = selectedElementLayer ?? appearanceLayer ?? null;
-  const effectsPatch = selectedElementLayer ? onElementLayerPatch : onAppearancePatch;
-  // Shadows apply to every selected layer except the card (background). Element
-  // layers patch via onElementLayerPatch; QR/group layers via onAppearancePatch.
-  const shadowsLayer = selectedElementLayer ?? selectedTransformLayer ?? null;
-  const shadowsPatch = selectedElementLayer ? onElementLayerPatch : onAppearancePatch;
-
-  return {
-    canInsert: Boolean(insertNodeId && onInsertLayer),
-    effectsLayer,
-    effectsPatch,
-    hasBorder: Boolean(appearance?.supportsBorder && onAppearancePatch),
-    hasEffects: Boolean(effectsLayer && effectsPatch && propertyCapabilities.maxEffects > 0),
-    hasShadows: Boolean(shadowsLayer && shadowsLayer.kind !== "card" && shadowsPatch),
-    hasStyle: Boolean(selectedElementLayer && onElementLayerPatch),
-    hasTransform: Boolean(selectedTransformLayer && onTransformLayerPatch),
-    shadowsLayer,
-    shadowsPatch,
-  };
-}
-
-function islandHugeIcon(icon: Parameters<typeof HugeiconsIcon>[0]["icon"]) {
-  return (
-    <HugeiconsIcon
-      className={ICON_CLASS}
-      color="currentColor"
-      icon={icon}
-      size={16}
-      strokeWidth={2}
-    />
-  );
-}
+type IslandFlags = ReturnType<typeof resolveLayerPanelTools>;
 
 function islandPanelItem(
   theme: ThemeMode,
@@ -178,7 +122,7 @@ function buildTransformItem(props: IslandItemInput, flags: IslandFlags): IslandI
     theme,
     "Transform",
     "layer-transform",
-    islandHugeIcon(ScreenRotationIcon),
+    hugePanelIcon(ScreenRotationIcon),
     <LayerTransformPanel
       layer={selectedTransformLayer!}
       onPatch={onTransformLayerPatch!}
@@ -214,7 +158,7 @@ function buildBorderItem(props: IslandItemInput, flags: IslandFlags): IslandItem
     theme,
     "Border",
     "layer-border",
-    islandHugeIcon(BorderNone02Icon),
+    hugePanelIcon(BorderNone02Icon),
     <LayerBorderPanel appearance={appearance!} onPatch={onAppearancePatch!} theme={theme} />,
     true,
   );
@@ -246,7 +190,7 @@ function buildEffectsItem(props: IslandItemInput, flags: IslandFlags): IslandIte
     theme,
     "Effects",
     "layer-effects",
-    islandHugeIcon(MagicWand05Icon),
+    hugePanelIcon(MagicWand05Icon),
     <LayerEffectsPanel
       effectKinds={LAYER_FILTER_EFFECT_KINDS}
       layer={flags.effectsLayer!}
@@ -273,7 +217,7 @@ function buildInsertItem(props: IslandItemInput, flags: IslandFlags): IslandItem
     ariaLabel: "Add element",
     dataSlot: "insert-trigger",
     group: "tools",
-    icon: islandHugeIcon(ResourcesAddIcon),
+    icon: hugePanelIcon(ResourcesAddIcon),
     label: "Add",
     variant: "icon-label",
     popover: (
@@ -291,7 +235,7 @@ function buildInsertItem(props: IslandItemInput, flags: IslandFlags): IslandItem
 }
 
 function buildIslandItems(props: IslandItemInput): IslandItem[] {
-  const flags = resolveIslandFlags(props);
+  const flags = resolveLayerPanelTools(props);
   const nextItems: IslandItem[] = [];
 
   for (const item of [

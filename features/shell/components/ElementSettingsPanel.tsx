@@ -567,7 +567,7 @@ function LayerShapeSettings({
             solidOnly={fillMode === "solid"}
             title="Fill color"
             value={getShapeLayerFillCssValue(layer)}
-            onValueChange={(fill, css) => onPatch(patchShapeLayerFillFromPicker(layer, fill))}
+            onValueChange={(fill) => onPatch(patchShapeLayerFillFromPicker(layer, fill))}
           />
         </SettingsSection>
       ) : null}

@@ -26,7 +26,12 @@ import {
   SettingsPopoverChrome,
   SettingsSlider,
 } from "@/features/shell/settings/settings-ui";
-import { getLayerFontWeight, getNearestFontWeight } from "@/features/shell/model/font-weight";
+import {
+  getTextLayerFormatState,
+  toggleTextBoldPatch,
+  toggleTextItalicPatch,
+  toggleTextUnderlinePatch,
+} from "@/features/shell/model/layer-text-format";
 import {
   DEFAULT_DRAFTING_IMAGE_LAYER,
   DEFAULT_DRAFTING_TEXT_LAYER,
@@ -39,7 +44,6 @@ import {
   isCanvasIllustrationLayer,
 } from "@/features/canvas/model/layer-floating-settings";
 import { IllustrationFloatingColorControl } from "@/features/canvas/components/IllustrationColorControls";
-import { resolveCanvasFont } from "@/features/canvas/model/fonts";
 import {
   getShapeLayerFillCssValue,
   getTextLayerFillCssValue,
@@ -238,7 +242,7 @@ export function FillColorToolbarButton({
   );
 }
 
-const TEXT_ALIGN_OPTIONS = [
+export const TEXT_ALIGN_OPTIONS = [
   { label: "Align left", value: "left", icon: AlignLeftIcon },
   { label: "Align center", value: "center", icon: AlignCenterIcon },
   { label: "Align right", value: "right", icon: AlignRightIcon },
@@ -467,14 +471,7 @@ function TextLayerFloatingSettings({
     );
   }
 
-  const selectedFont = resolveCanvasFont({
-    fontFamily: layer.fontFamily,
-    fontId: layer.fontId,
-  });
-  const supportedWeights = selectedFont.weights;
-  const fontWeight = getLayerFontWeight(layer.fontWeight, supportedWeights);
-  const fontStyle = layer.fontStyle ?? DEFAULT_DRAFTING_TEXT_LAYER.fontStyle;
-  const textAlign = layer.textAlign ?? DEFAULT_DRAFTING_TEXT_LAYER.textAlign;
+  const { fontStyle, fontWeight, textAlign } = getTextLayerFormatState(layer);
   const AlignIcon =
     TEXT_ALIGN_OPTIONS.find((option) => option.value === textAlign)?.icon ?? AlignLeftIcon;
 
@@ -495,28 +492,21 @@ function TextLayerFloatingSettings({
       <LayerFloatingSettingsButton
         active={fontWeight >= 700}
         ariaLabel="Bold"
-        onClick={() =>
-          patchText({
-            fontWeight:
-              fontWeight >= 700
-                ? getNearestFontWeight(400, supportedWeights)
-                : getNearestFontWeight(700, supportedWeights),
-          })
-        }
+        onClick={() => onPatch(toggleTextBoldPatch(layer))}
       >
         <BoldIcon className="size-4" strokeWidth={2} />
       </LayerFloatingSettingsButton>
       <LayerFloatingSettingsButton
         active={fontStyle === "italic"}
         ariaLabel="Italic"
-        onClick={() => patchText({ fontStyle: fontStyle === "italic" ? "normal" : "italic" })}
+        onClick={() => onPatch(toggleTextItalicPatch(layer))}
       >
         <ItalicIcon className="size-4" strokeWidth={2} />
       </LayerFloatingSettingsButton>
       <LayerFloatingSettingsButton
         active={Boolean(layer.underline)}
         ariaLabel="Underline"
-        onClick={() => patchText({ underline: !layer.underline })}
+        onClick={() => onPatch(toggleTextUnderlinePatch(layer))}
       >
         <UnderlineIcon className="size-4" strokeWidth={2} />
       </LayerFloatingSettingsButton>
