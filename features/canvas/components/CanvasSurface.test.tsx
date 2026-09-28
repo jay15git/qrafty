@@ -897,7 +897,7 @@ describe("CanvasSurface", () => {
     ).toBe("https://qrafty.local/launch");
   });
 
-  it("restores the autosaved canvas workspace after remount", async () => {
+  it("starts a fresh default document after remount", async () => {
     const firstCanvas = renderCanvas({ boardToolbarVariant: "zoom" });
 
     await waitForCanvasSurface();
@@ -908,7 +908,7 @@ describe("CanvasSurface", () => {
     act(() => {
       changeInputValue(
         getRequiredElement(firstCanvas.container, "#ds-content-url") as HTMLInputElement,
-        "https://example.com/autosaved",
+        "https://example.com/edited",
       );
     });
     await advanceCanvasTimers();
@@ -922,7 +922,7 @@ describe("CanvasSurface", () => {
       getRequiredElement(secondCanvas.container, '[data-slot="canvas-root"]').getAttribute(
         "data-qr-content-value",
       ),
-    ).toBe("https://example.com/autosaved");
+    ).toBe("https://qrafty.local/launch");
   });
 });
 

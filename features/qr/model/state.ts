@@ -206,8 +206,6 @@ const QR_DOT_MATRIX_OVERLAY_SCALE_MAX = 140;
 const QR_DOT_MATRIX_OPACITY_MIN = 0;
 const QR_DOT_MATRIX_OPACITY_MAX = 1;
 const BACKGROUND_SHAPE_PADDING_PX_MAX = 192;
-const BACKGROUND_SHAPE_STROKE_WIDTH_MAX = 24;
-const BACKGROUND_SHAPE_EDGE_BLUR_MAX = 32;
 const BACKGROUND_SHAPE_OPACITY_MAX = 100;
 const BACKGROUND_SHAPE_SHADOW_OFFSET_MIN = -64;
 const BACKGROUND_SHAPE_SHADOW_OFFSET_MAX = 64;
@@ -553,15 +551,6 @@ export function clampBackgroundShapePaddingPx(value: number) {
   );
 }
 
-export function clampBackgroundShapeStrokeWidth(value: number) {
-  return coerceNumber(
-    value,
-    0,
-    BACKGROUND_SHAPE_STROKE_WIDTH_MAX,
-    DEFAULT_BACKGROUND_SHAPE_OPTIONS.strokeWidth,
-  );
-}
-
 export function clampBackgroundShapeOpacity(value: number) {
   return coerceNumber(
     value,
@@ -577,15 +566,6 @@ export function clampBackgroundShapeOffset(value: number) {
     BACKGROUND_SHAPE_SHADOW_OFFSET_MIN,
     BACKGROUND_SHAPE_SHADOW_OFFSET_MAX,
     DEFAULT_BACKGROUND_SHAPE_OPTIONS.shadowOffsetX,
-  );
-}
-
-export function clampBackgroundShapeEdgeBlur(value: number) {
-  return coerceNumber(
-    value,
-    0,
-    BACKGROUND_SHAPE_EDGE_BLUR_MAX,
-    DEFAULT_BACKGROUND_SHAPE_OPTIONS.edgeBlur,
   );
 }
 

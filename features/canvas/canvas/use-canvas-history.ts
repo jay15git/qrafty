@@ -7,37 +7,30 @@ import {
   serializeCanvasWorkspaceDocument,
   type CanvasWorkspaceDocumentV1,
 } from "@/features/canvas/model/document";
-import { writeCanvasWorkspaceDraft } from "@/features/canvas/model/storage";
-import { resolveWorkspaceBootstrapDocument } from "@/features/canvas/model/workspace-bootstrap";
 import { previewSession } from "@/features/canvas/preview/preview-session";
 
 const HISTORY_LIMIT = 80;
 const HISTORY_DEBOUNCE_MS = 160;
-const AUTOSAVE_DEBOUNCE_MS = 240;
 
 export function useCanvasHistory({
   applyDocumentRef,
   document,
-  isWorkspaceReady,
-  setIsWorkspaceReady,
 }: {
   applyDocumentRef: MutableRefObject<(nextDocument: CanvasWorkspaceDocumentV1) => void>;
   document: CanvasWorkspaceDocumentV1;
-  isWorkspaceReady: boolean;
-  setIsWorkspaceReady: (ready: boolean) => void;
 }) {
-  const [historyRevision, setHistoryRevision] = useState(-1);
-  const autosaveTimerRef = useRef<number | null>(null);
+  const [initialDocument] = useState(() => cloneCanvasWorkspaceDocument(document));
+  const [historyPosition, setHistoryPosition] = useState({ index: 0, length: 1 });
   const historyTimerRef = useRef<number | null>(null);
-  const historyRef = useRef<CanvasWorkspaceDocumentV1[]>([]);
-  const historyIndexRef = useRef(-1);
+  const historyRef = useRef<CanvasWorkspaceDocumentV1[]>([initialDocument]);
+  const historyIndexRef = useRef(0);
   const isApplyingHistoryRef = useRef(false);
   const shouldReplaceCurrentEntryRef = useRef(false);
 
   const setHistoryStack = (nextStack: CanvasWorkspaceDocumentV1[], nextIndex: number) => {
     historyRef.current = nextStack;
     historyIndexRef.current = nextIndex;
-    setHistoryRevision((current) => current + 1);
+    setHistoryPosition({ index: nextIndex, length: nextStack.length });
   };
 
   const restoreHistorySnapshot = (nextIndex: number) => {
@@ -63,48 +56,11 @@ export function useCanvasHistory({
     restoreHistorySnapshot(Math.min(historyRef.current.length - 1, historyIndexRef.current + 1));
   };
 
-  const save = () => {
-    if (autosaveTimerRef.current !== null) {
-      window.clearTimeout(autosaveTimerRef.current);
-      autosaveTimerRef.current = null;
-    }
-
-    void writeCanvasWorkspaceDraft(document);
-  };
-
-  const canUndo = historyRevision >= 0 && historyIndexRef.current > 0;
-  const canRedo = historyRevision >= 0 && historyIndexRef.current < historyRef.current.length - 1;
-
-  // Initial draft hydration runs once on mount.
-  useEffect(() => {
-    let cancelled = false;
-
-    void resolveWorkspaceBootstrapDocument().then((nextDocument) => {
-      if (cancelled) {
-        return;
-      }
-
-      isApplyingHistoryRef.current = true;
-      applyDocumentRef.current(nextDocument);
-      setHistoryStack([cloneCanvasWorkspaceDocument(nextDocument)], 0);
-      setIsWorkspaceReady(true);
-      window.setTimeout(() => {
-        isApplyingHistoryRef.current = false;
-      }, 0);
-    });
-
-    return () => {
-      cancelled = true;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const canUndo = historyPosition.index > 0;
+  const canRedo = historyPosition.index < historyPosition.length - 1;
 
   // Debounced history snapshot capture.
   useEffect(() => {
-    if (!isWorkspaceReady) {
-      return;
-    }
-
     if (historyTimerRef.current !== null) {
       window.clearTimeout(historyTimerRef.current);
     }
@@ -153,51 +109,12 @@ export function useCanvasHistory({
         window.clearTimeout(historyTimerRef.current);
       }
     };
-  }, [document, isWorkspaceReady]);
-
-  // Debounced draft autosave.
-  useEffect(() => {
-    if (!isWorkspaceReady) {
-      return;
-    }
-
-    if (autosaveTimerRef.current !== null) {
-      window.clearTimeout(autosaveTimerRef.current);
-    }
-
-    autosaveTimerRef.current = window.setTimeout(() => {
-      if (previewSession.getIsInteracting()) {
-        return;
-      }
-
-      void writeCanvasWorkspaceDraft(document);
-    }, AUTOSAVE_DEBOUNCE_MS);
-
-    return () => {
-      if (autosaveTimerRef.current !== null) {
-        window.clearTimeout(autosaveTimerRef.current);
-      }
-    };
-  }, [document, isWorkspaceReady]);
-
-  // Timer cleanup on unmount.
-  useEffect(() => {
-    return () => {
-      if (autosaveTimerRef.current !== null) {
-        window.clearTimeout(autosaveTimerRef.current);
-      }
-      if (historyTimerRef.current !== null) {
-        window.clearTimeout(historyTimerRef.current);
-      }
-    };
-  }, []);
+  }, [document]);
 
   return {
     canRedo,
     canUndo,
-    isWorkspaceReady,
     redo,
-    save,
     shouldReplaceCurrentEntryRef,
     undo,
   };

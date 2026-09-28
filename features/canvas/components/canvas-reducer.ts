@@ -148,8 +148,6 @@ export type CanvasSurfaceState = {
   selectedVideoFormat: "mp4" | "webm";
   selectedVideoFrameRate: 30 | 60;
   selectedVideoLongEdge: VideoExportLongEdge;
-  isCanvasWorkspaceReady: boolean;
-  canvasHistoryRevision: number;
   logoUploadObjectUrl: string | null;
   moduleFillUploadObjectUrl: string | null;
 };
@@ -326,8 +324,6 @@ function createInitialCanvasSurfaceState(initialActiveTool?: ToolbarToolId): Can
     selectedVideoFormat: DEFAULT_DESKTOP_EXPORT_SETTINGS.videoFormat,
     selectedVideoFrameRate: DEFAULT_DESKTOP_EXPORT_SETTINGS.videoFrameRate,
     selectedVideoLongEdge: DEFAULT_DESKTOP_EXPORT_SETTINGS.videoLongEdge,
-    isCanvasWorkspaceReady: false,
-    canvasHistoryRevision: 0,
     logoUploadObjectUrl: null,
     moduleFillUploadObjectUrl: null,
   };
@@ -457,8 +453,6 @@ function createCanvasSurfaceSetters(dispatch: Dispatch<CanvasSurfaceAction>): Ca
     setSelectedVideoFormat: (value) => setField("selectedVideoFormat", value),
     setSelectedVideoFrameRate: (value) => setField("selectedVideoFrameRate", value),
     setSelectedVideoLongEdge: (value) => setField("selectedVideoLongEdge", value),
-    setIsCanvasWorkspaceReady: (value) => setField("isCanvasWorkspaceReady", value),
-    setCanvasHistoryRevision: (value) => setField("canvasHistoryRevision", value),
     setLogoUploadObjectUrl: (value) => setField("logoUploadObjectUrl", value),
     setModuleFillUploadObjectUrl: (value) => setField("moduleFillUploadObjectUrl", value),
   };

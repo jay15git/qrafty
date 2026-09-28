@@ -44,9 +44,7 @@ function isMobileChromeInsetsReady() {
 }
 
 function getWorkspaceReadiness(root: HTMLElement) {
-  const surfaceReady =
-    root.querySelector('[data-slot="canvas-root"]') !== null &&
-    root.querySelector('[data-slot="canvas-workspace-loading"]') === null;
+  const surfaceReady = root.querySelector('[data-slot="canvas-root"]') !== null;
 
   if (!surfaceReady) {
     return "surface-pending" as const;

@@ -1,24 +1,13 @@
-import {
-  cloneCanvasCardState,
-  createDefaultCanvasCardState,
-  type CanvasCardState,
-} from "@/features/canvas/model/card-state";
-import { createDefaultCanvasLayers } from "@/features/canvas/model/layers/card-qr";
-import { getCanvasQrLayerId } from "@/features/canvas/model/layers/shared";
+import { cloneCanvasCardState, type CanvasCardState } from "@/features/canvas/model/card-state";
 import { cloneCanvasLayerStateByNodeId } from "@/features/canvas/model/layers/fallback";
 import type { CanvasLayerStateByNodeId } from "@/features/canvas/model/layers/shared";
-import { DASHBOARD_QR_NODE_ID } from "@/features/qr/rendering/compose-scene";
 import { createDefaultQraftyState, type QraftyState } from "@/features/qr/model/state";
-import { DEFAULT_QR_INPUT_TYPE, type QrInputType } from "@/features/qr/content/input-options";
+import { type QrInputType } from "@/features/qr/content/input-options";
 import {
   cloneSceneCompositionByNodeId,
-  createDefaultSceneCompositionByNodeId,
   type SceneCompositionByNodeId,
 } from "@/features/canvas/model/apply-scene-template";
-import {
-  getDefaultStaticQrValues,
-  type StaticQrContentValues,
-} from "@/features/qr/content/static-payload";
+import { type StaticQrContentValues } from "@/features/qr/content/static-payload";
 
 export type CanvasQrStateByNodeId = Record<string, QraftyState>;
 export type CanvasCardStateByNodeId = Record<string, CanvasCardState>;
@@ -77,48 +66,6 @@ export function cloneCanvasWorkspaceDocument(
     selectedContentType: document.selectedContentType,
     version: 1,
   };
-}
-
-export function createDefaultCanvasWorkspaceDocument(): CanvasWorkspaceDocumentV1 {
-  const qrState = createDefaultCanvasWorkspaceQrState();
-  const cardState = createDefaultCanvasCardState();
-  const primaryQrLayerId = getCanvasQrLayerId(DASHBOARD_QR_NODE_ID);
-  const document: CanvasWorkspaceDocumentV1 = {
-    activeQrLayerId: primaryQrLayerId,
-    activeQrNodeId: DASHBOARD_QR_NODE_ID,
-    cardStateByNodeId: {
-      [DASHBOARD_QR_NODE_ID]: cardState,
-    },
-    contentTypeByLayerId: {
-      [primaryQrLayerId]: DEFAULT_QR_INPUT_TYPE,
-    },
-    contentTypeByNodeId: {
-      [DASHBOARD_QR_NODE_ID]: DEFAULT_QR_INPUT_TYPE,
-    },
-    contentValuesByType: {
-      [DEFAULT_QR_INPUT_TYPE]: {
-        ...getDefaultStaticQrValues(DEFAULT_QR_INPUT_TYPE),
-        url: qrState.data,
-      },
-    },
-    layerStateByNodeId: {
-      [DASHBOARD_QR_NODE_ID]: createDefaultCanvasLayers(DASHBOARD_QR_NODE_ID, qrState, cardState),
-    },
-    qrOrder: [DASHBOARD_QR_NODE_ID],
-    qrStateByLayerId: {
-      [primaryQrLayerId]: qrState,
-    },
-    qrStateByNodeId: {
-      [DASHBOARD_QR_NODE_ID]: qrState,
-    },
-    sceneCompositionByNodeId: {},
-    selectedContentType: DEFAULT_QR_INPUT_TYPE,
-    version: 1,
-  };
-
-  document.sceneCompositionByNodeId = createDefaultSceneCompositionByNodeId(document);
-
-  return document;
 }
 
 export function serializeCanvasWorkspaceDocument(document: CanvasWorkspaceDocumentV1): string {

@@ -84,7 +84,6 @@ export function useCanvasActions({
     contentTypeByLayerId,
     contentTypeByNodeId,
     contentValuesByType,
-    isCanvasWorkspaceReady,
     layerStateByNodeId,
     qrStateByLayerId,
     sceneCompositionByNodeId,
@@ -118,7 +117,6 @@ export function useCanvasActions({
     setSceneCompositionByNodeId,
     setSelectedCardState,
     setSelectedContentType,
-    setIsCanvasWorkspaceReady,
   } = setters;
   const {
     canvasQraftyState,
@@ -184,8 +182,6 @@ export function useCanvasActions({
   } = useCanvasHistory({
     applyDocumentRef,
     document: canvasWorkspaceDocument,
-    isWorkspaceReady: isCanvasWorkspaceReady,
-    setIsWorkspaceReady: setIsCanvasWorkspaceReady,
   });
   const {
     cancel: cancelWorkspaceExport,

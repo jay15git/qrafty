@@ -36,7 +36,6 @@ export function CanvasSurface({
     desktopCanvasTool,
     desktopController,
     canvasRef,
-    isCanvasWorkspaceReady,
     boards,
     selectedBackgroundShapeId,
     selectedContentType,
@@ -103,42 +102,31 @@ export function CanvasSurface({
         >
           <div data-slot="canvas-workspace-inset" className="h-full min-h-0 p-0">
             <div data-slot="canvas-viewport" className="h-full min-h-0 min-w-0">
-              {isCanvasWorkspaceReady ? (
-                <Canvas
-                  activeBoardId={activeQrNodeId}
-                  layerEditingEnabled
-                  onLayerChange={handleLayerChange}
-                  onLayerAction={handleLayerAction}
-                  onLayerCopy={(_boardId, layerIds) => {
-                    void copySelectedCanvasLayers(layerIds, _boardId);
-                  }}
-                  activeCanvasTool={desktopCanvasTool}
-                  onAddTextLayerAt={handleAddTextLayerAt}
-                  onCanvasToolChange={setDesktopCanvasTool}
-                  onLayerPaste={(_boardId, point) => {
-                    void pasteCanvasLayers(point, undefined, _boardId);
-                  }}
-                  onLayerSelect={handleLayerSelect}
-                  onLayerSelectionChange={handleLayerSelectionChange}
-                  onBoardQrClick={handleBoardQrClick}
-                  onBoardSelect={handleBoardSelection}
-                  boards={boards}
-                  fitCanvasToViewport
-                  toolbarVariant={boardToolbarVariant}
-                  selectedLayerId={selectedLayerId}
-                  selectedLayerIds={selectedLayerIds}
-                  theme={theme}
-                />
-              ) : (
-                <div
-                  aria-busy="true"
-                  aria-label="Loading workspace"
-                  className="grid h-full place-items-center text-sm font-medium text-[var(--canvas-ink-muted)]"
-                  data-slot="canvas-workspace-loading"
-                >
-                  Loading workspace…
-                </div>
-              )}
+              <Canvas
+                activeBoardId={activeQrNodeId}
+                layerEditingEnabled
+                onLayerChange={handleLayerChange}
+                onLayerAction={handleLayerAction}
+                onLayerCopy={(_boardId, layerIds) => {
+                  void copySelectedCanvasLayers(layerIds, _boardId);
+                }}
+                activeCanvasTool={desktopCanvasTool}
+                onAddTextLayerAt={handleAddTextLayerAt}
+                onCanvasToolChange={setDesktopCanvasTool}
+                onLayerPaste={(_boardId, point) => {
+                  void pasteCanvasLayers(point, undefined, _boardId);
+                }}
+                onLayerSelect={handleLayerSelect}
+                onLayerSelectionChange={handleLayerSelectionChange}
+                onBoardQrClick={handleBoardQrClick}
+                onBoardSelect={handleBoardSelection}
+                boards={boards}
+                fitCanvasToViewport
+                toolbarVariant={boardToolbarVariant}
+                selectedLayerId={selectedLayerId}
+                selectedLayerIds={selectedLayerIds}
+                theme={theme}
+              />
             </div>
           </div>
         </section>

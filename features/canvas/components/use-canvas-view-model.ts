@@ -66,7 +66,6 @@ export function useCanvasViewModel({
     desktopCanvasTool: state.desktopCanvasTool,
     desktopController,
     canvasRef,
-    isCanvasWorkspaceReady: state.isCanvasWorkspaceReady,
     boards: boards.boards,
     selectedBackgroundShapeId: state.selectedBackgroundShapeId,
     selectedContentType: state.selectedContentType,
