@@ -14,18 +14,14 @@ import {
   createDefaultCanvasCardState,
   type CanvasCardState,
 } from "@/features/canvas/model/card-state";
-import {
-  getCanvasQrLayerId,
-  type CanvasLayerStateByNodeId,
-} from "@/features/canvas/model/layers/shared";
+import { DASHBOARD_QR_NODE_ID } from "@/features/qr/rendering/compose-scene";
+import { getCanvasQrLayerId, type CanvasLayer } from "@/features/canvas/model/layers/shared";
 import { createDefaultCanvasLayers } from "@/features/canvas/model/layers/card-qr";
 import {
   cloneCanvasQrState,
   createDefaultCanvasWorkspaceQrState,
-  type CanvasCardStateByNodeId,
   type CanvasContentValuesByType,
   type CanvasQrStateByLayerId,
-  type CanvasQrStateByNodeId,
 } from "@/features/canvas/model/document";
 import {
   DEFAULT_DRAFTING_STUDIO_STATE,
@@ -36,7 +32,6 @@ import type {
   ToolbarToolId,
   ComposeSidebarPanel,
 } from "@/features/shell/components/WorkspaceChrome";
-import { DASHBOARD_QR_NODE_ID } from "@/features/qr/rendering/compose-scene";
 import { getDefaultStaticQrValues } from "@/features/qr/content/static-payload";
 import type { VideoExportLongEdge } from "@/features/qr/export/video-export";
 import { DEFAULT_QR_INPUT_TYPE, type QrInputType } from "@/features/qr/content/input-options";
@@ -48,28 +43,24 @@ import type { QraftyState } from "@/features/qr/model/state";
 
 /**
  * The workspace surface state is a single store: QR edits live in
- * `qrStateByLayerId[activeQrLayerId]` (mirrored per board in
- * `qrStateByNodeId[activeQrNodeId]`), the card lives in
- * `cardStateByNodeId[activeQrNodeId]`, and everything else is UI state or a
- * per-source asset buffer. The `selected*` QR fields are a derived view over
- * the active QR — `useCanvasSurfaceReducer` merges them back in for
- * consumers, and `setSelected*` setters translate to QR patches.
+ * `qrStateByLayerId[activeQrLayerId]`, the card in `cardState`, the layer
+ * stack in `canvasLayers`, and everything else is UI state or a per-source
+ * asset buffer. The `selected*` QR fields are a derived view over the active
+ * QR — `useCanvasSurfaceReducer` merges them back in for consumers, and
+ * `setSelected*` setters translate to QR patches.
  */
 export type CanvasSurfaceState = QrDraftFields & {
   desktopRailTool: ToolbarToolId | null;
   composeSidebarPanel: ComposeSidebarPanel;
   selectedContentType: QrInputType;
   contentValuesByType: CanvasContentValuesByType;
-  contentTypeByNodeId: Record<string, QrInputType>;
   contentTypeByLayerId: Record<string, QrInputType>;
-  /** Derived view of `cardStateByNodeId[activeQrNodeId]`. */
+  cardState: CanvasCardState;
+  /** Alias of `cardState`, kept for existing consumers. */
   selectedCardState: CanvasCardState;
   activeQrLayerId: string;
-  activeQrNodeId: string;
+  canvasLayers: CanvasLayer[];
   qrStateByLayerId: CanvasQrStateByLayerId;
-  qrStateByNodeId: CanvasQrStateByNodeId;
-  cardStateByNodeId: CanvasCardStateByNodeId;
-  layerStateByNodeId: CanvasLayerStateByNodeId;
   selectedLayerId: string | null;
   selectedLayerIds: string[];
   desktopCanvasTool: CanvasBoardTool | null;
@@ -105,7 +96,7 @@ export type SetCanvasSurfaceFieldAction<K extends CanvasSurfaceField = CanvasSur
   value: FieldUpdater<K>;
 };
 
-/** Card edits write through to `cardStateByNodeId[activeQrNodeId]` — the
+/** Card edits write through to `cardState` — the
  * field rides the draft path so `setSelectedCardState` stays atomic. */
 export type QrDraftWriteField = QrDraftField | "selectedCardState";
 
@@ -117,12 +108,11 @@ export type UpdateQrDraftAction<K extends QrDraftWriteField = QrDraftWriteField>
 
 /** Write a full `QraftyState` to the store — layer activation, resets, and
  * external commits (logo flows). Also seeds the asset buffers and optionally
- * switches the active layer/board/content type. */
+ * switches the active layer/content type. */
 export type SetActiveQrAction = {
   type: "SET_ACTIVE_QR";
   qr: QraftyState;
   layerId?: string;
-  nodeId?: string;
   contentType?: QrInputType;
 };
 
@@ -154,9 +144,6 @@ export function createInitialCanvasSurfaceState(
         url: DEFAULT_DRAFTING_STUDIO_STATE.data,
       },
     },
-    contentTypeByNodeId: {
-      [DASHBOARD_QR_NODE_ID]: DEFAULT_QR_INPUT_TYPE,
-    },
     contentTypeByLayerId: {
       [primaryQrLayerId]: DEFAULT_QR_INPUT_TYPE,
     },
@@ -184,22 +171,10 @@ export function createInitialCanvasSurfaceState(
     selectedValueSegmentsText: "",
     ...qrStateToDraftBuffers(defaultQrState),
     activeQrLayerId: primaryQrLayerId,
-    activeQrNodeId: DASHBOARD_QR_NODE_ID,
+    cardState: defaultCardState,
+    canvasLayers: createDefaultCanvasLayers(DASHBOARD_QR_NODE_ID, defaultQrState, defaultCardState),
     qrStateByLayerId: {
       [primaryQrLayerId]: defaultQrState,
-    },
-    qrStateByNodeId: {
-      [DASHBOARD_QR_NODE_ID]: defaultQrState,
-    },
-    cardStateByNodeId: {
-      [DASHBOARD_QR_NODE_ID]: defaultCardState,
-    },
-    layerStateByNodeId: {
-      [DASHBOARD_QR_NODE_ID]: createDefaultCanvasLayers(
-        DASHBOARD_QR_NODE_ID,
-        defaultQrState,
-        defaultCardState,
-      ),
     },
     selectedLayerId: primaryQrLayerId,
     selectedLayerIds: [primaryQrLayerId],
@@ -248,8 +223,7 @@ export function canvasReducer(
       const { field, value } = action;
 
       if (field === "selectedCardState") {
-        const current =
-          state.cardStateByNodeId[state.activeQrNodeId] ?? createDefaultCanvasCardState();
+        const current = state.cardState;
         const nextValue: CanvasCardState =
           typeof value === "function"
             ? (value as (prev: CanvasCardState) => CanvasCardState)(current)
@@ -261,10 +235,7 @@ export function canvasReducer(
 
         return {
           ...state,
-          cardStateByNodeId: {
-            ...state.cardStateByNodeId,
-            [state.activeQrNodeId]: nextValue,
-          },
+          cardState: nextValue,
         };
       }
 
@@ -300,20 +271,10 @@ export function canvasReducer(
           ...withBuffer.qrStateByLayerId,
           [state.activeQrLayerId]: patchedQr,
         },
-        qrStateByNodeId: {
-          ...withBuffer.qrStateByNodeId,
-          [state.activeQrNodeId]: patchedQr,
-        },
       };
     }
     case "SET_ACTIVE_QR": {
-      // A board switch without an explicit layer activates that board's QR
-      // layer — `qrStateByLayerId[activeQrLayerId]` must point at the QR the
-      // caller is switching to, not the previous layer.
-      const nodeId = action.nodeId ?? state.activeQrNodeId;
-      const layerId =
-        action.layerId ??
-        (action.nodeId !== undefined ? getCanvasQrLayerId(nodeId) : state.activeQrLayerId);
+      const layerId = action.layerId ?? state.activeQrLayerId;
       const qr = cloneCanvasQrState(action.qr);
       const contentType = action.contentType ?? state.selectedContentType;
 
@@ -321,23 +282,14 @@ export function canvasReducer(
         ...state,
         ...qrStateToDraftBuffers(qr),
         activeQrLayerId: layerId,
-        activeQrNodeId: nodeId,
         selectedContentType: contentType,
         contentTypeByLayerId: {
           ...state.contentTypeByLayerId,
           [layerId]: contentType,
         },
-        contentTypeByNodeId: {
-          ...state.contentTypeByNodeId,
-          [nodeId]: contentType,
-        },
         qrStateByLayerId: {
           ...state.qrStateByLayerId,
           [layerId]: qr,
-        },
-        qrStateByNodeId: {
-          ...state.qrStateByNodeId,
-          [nodeId]: qr,
         },
       };
     }
@@ -433,7 +385,6 @@ function createCanvasSurfaceSetters(dispatch: Dispatch<CanvasSurfaceAction>): Ca
     setComposeSidebarPanel: (value) => setField("composeSidebarPanel", value),
     setSelectedContentType: (value) => setField("selectedContentType", value),
     setContentValuesByType: (value) => setField("contentValuesByType", value),
-    setContentTypeByNodeId: (value) => setField("contentTypeByNodeId", value),
     setContentTypeByLayerId: (value) => setField("contentTypeByLayerId", value),
     setSelectedQrMargin: (value) => setField("selectedQrMargin", value),
     setSelectedQrRadius: (value) => setField("selectedQrRadius", value),
@@ -502,12 +453,10 @@ function createCanvasSurfaceSetters(dispatch: Dispatch<CanvasSurfaceAction>): Ca
     setSelectedLogoOffsetY: (value) => setField("selectedLogoOffsetY", value),
     setSelectedLogoCrossOrigin: (value) => setField("selectedLogoCrossOrigin", value),
     setActiveQrLayerId: (value) => setField("activeQrLayerId", value),
-    setActiveQrNodeId: (value) => setField("activeQrNodeId", value),
+    setCardState: (value) => setField("cardState", value),
+    setCanvasLayers: (value) => setField("canvasLayers", value),
     setQrStateByLayerId: (value) => setField("qrStateByLayerId", value),
-    setQrStateByNodeId: (value) => setField("qrStateByNodeId", value),
     setSelectedCardState: (value) => setField("selectedCardState", value),
-    setCardStateByNodeId: (value) => setField("cardStateByNodeId", value),
-    setLayerStateByNodeId: (value) => setField("layerStateByNodeId", value),
     setSelectedLayerId: (value) => setField("selectedLayerId", value),
     setSelectedLayerIds: (value) => setField("selectedLayerIds", value),
     setDesktopCanvasTool: (value) => setField("desktopCanvasTool", value),
@@ -537,14 +486,13 @@ export function useCanvasSurfaceReducer(
   const setters = useMemo(() => createCanvasSurfaceSetters(dispatch), [dispatch]);
 
   // QR draft fields and the card are read-only projections over the active
-  // layer/board maps — merged here so consumers keep reading `state.selected*`.
+  // layer/card state — merged here so consumers keep reading `state.selected*`.
   const view = useMemo<CanvasSurfaceState>(() => {
     const qr = activeQrState(state);
     return {
       ...state,
       ...qrStateToDraftFields(qr),
-      selectedCardState:
-        state.cardStateByNodeId[state.activeQrNodeId] ?? createDefaultCanvasCardState(),
+      selectedCardState: state.cardState,
     };
   }, [state]);
 

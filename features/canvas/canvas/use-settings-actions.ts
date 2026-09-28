@@ -13,6 +13,7 @@ import { createBrandIconDataUrl } from "@/features/qr/assets/brand-icon-svg";
 import { parseIconstackSelectionId } from "@/features/qr/assets/iconstack-api";
 import { setDotMatrixAnimationOptions, type QraftyState } from "@/features/qr/model/state";
 import { createUniformCornerRadii } from "@/features/canvas/model/corner-radius";
+import { DASHBOARD_QR_NODE_ID } from "@/features/qr/rendering/compose-scene";
 import {
   getCanvasCardLayerId,
   getCanvasQrLayerId,
@@ -21,7 +22,6 @@ import {
 import { cloneCanvasLayer } from "@/features/canvas/model/layers/fallback";
 import { patchCanvasLayer } from "@/features/canvas/model/layers/patch";
 import {
-  createDefaultCanvasLayers,
   fitQrSizeInCard,
   layoutCanvasCardInsetLayers,
 } from "@/features/canvas/model/layers/card-qr";
@@ -65,15 +65,12 @@ import {
 
 type SettingsState = Pick<
   CanvasSurfaceState,
-  | "activeQrNodeId"
-  | "selectedCardState"
-  | "selectedLogoRemoteUrl"
-  | "selectedModuleFillImageSourceMode"
+  "selectedCardState" | "selectedLogoRemoteUrl" | "selectedModuleFillImageSourceMode"
 >;
 
 type SettingsSetters = Pick<
   CanvasSurfaceSetters,
-  | "setLayerStateByNodeId"
+  | "setCanvasLayers"
   | "setLogoUploadObjectUrl"
   | "setSelectedBackgroundColor"
   | "setSelectedBackgroundColorMode"
@@ -125,7 +122,6 @@ type SettingsSetters = Pick<
 
 export function useSettingsActions({
   activeCanvasLayers,
-  activeQrNodeId,
   appearanceTargetLayer,
   commitActiveQraftyState,
   canvasQraftyState,
@@ -139,7 +135,7 @@ export function useSettingsActions({
   selectedCardState,
   selectedLogoRemoteUrl,
   selectedModuleFillImageSourceMode,
-  setLayerStateByNodeId,
+  setCanvasLayers,
   setLogoUploadObjectUrl,
   setSelectedBackgroundColor,
   setSelectedBackgroundColorMode,
@@ -193,9 +189,8 @@ export function useSettingsActions({
     appearanceTargetLayer: CanvasLayer | null;
     commitActiveQraftyState: (nextState: QraftyState) => void;
     canvasQraftyState: QraftyState;
-    handleLayerChange: (boardId: string, layerId: string, patch: Partial<CanvasLayer>) => void;
+    handleLayerChange: (layerId: string, patch: Partial<CanvasLayer>) => void;
     handleLayerSelect: (
-      boardId: string,
       layerId: string | null,
       options?: { additive?: boolean; preserveActiveTool?: boolean },
     ) => void;
@@ -220,7 +215,7 @@ export function useSettingsActions({
     });
 
     if (Object.keys(result.layerPatch).length > 0) {
-      handleLayerChange(activeQrNodeId, appearanceTargetLayer.id, result.layerPatch);
+      handleLayerChange(appearanceTargetLayer.id, result.layerPatch);
     }
 
     if (result.qrBackgroundShapeOptions) {
@@ -488,20 +483,9 @@ export function useSettingsActions({
       setSelectedQrSize(fittedQr.width);
     }
 
-    setLayerStateByNodeId((layerState) => {
-      const layers =
-        layerState[activeQrNodeId] ??
-        createDefaultCanvasLayers(activeQrNodeId, nextQrState, normalizedCardState);
-
-      return {
-        ...layerState,
-        [activeQrNodeId]: layoutCanvasCardInsetLayers(
-          layers.map(cloneCanvasLayer),
-          nextQrState,
-          normalizedCardState,
-        ),
-      };
-    });
+    setCanvasLayers((current) =>
+      layoutCanvasCardInsetLayers(current.map(cloneCanvasLayer), nextQrState, normalizedCardState),
+    );
   }
 
   function updateDesktopShapeSettings(patch: Partial<ShapeSettings>) {
@@ -536,10 +520,10 @@ export function useSettingsActions({
     );
 
     if (Object.keys(qrShadowPatch).length > 0) {
-      const qrLayerId = getCanvasQrLayerId(activeQrNodeId);
+      const qrLayerId = getCanvasQrLayerId(DASHBOARD_QR_NODE_ID);
       const currentQrLayer = findCanvasLayerById(activeCanvasLayers, qrLayerId);
       if (currentQrLayer) {
-        handleLayerChange(activeQrNodeId, qrLayerId, {
+        handleLayerChange(qrLayerId, {
           shadow: { ...currentQrLayer.shadow, ...qrShadowPatch },
         });
       }
@@ -566,7 +550,7 @@ export function useSettingsActions({
       patch.shadowOffsetY !== undefined ||
       patch.shadowOpacity !== undefined
     ) {
-      handleLayerChange(activeQrNodeId, getCanvasCardLayerId(activeQrNodeId), {
+      handleLayerChange(getCanvasCardLayerId(DASHBOARD_QR_NODE_ID), {
         shadow: cardShadowFromPatch(patch),
       });
     }
@@ -634,14 +618,15 @@ export function useSettingsActions({
 
   function updateDesktopLayersSettings(patch: Partial<LayersSettings>) {
     if (patch.selectedLayerId !== undefined) {
-      handleLayerSelect(activeQrNodeId, patch.selectedLayerId, { preserveActiveTool: true });
+      handleLayerSelect(patch.selectedLayerId, { preserveActiveTool: true });
     }
     if (patch.layers) {
       const mergedRows = ensureMandatoryLayerRows(patch.layers, activeCanvasLayers);
       const currentLayersById = new Map(activeCanvasLayers.map((layer) => [layer.id, layer]));
       const nextLayers = mergedRows.map((row) => {
         const layer =
-          currentLayersById.get(row.id) ?? createCanvasTextLayer(activeQrNodeId, { id: row.id });
+          currentLayersById.get(row.id) ??
+          createCanvasTextLayer(DASHBOARD_QR_NODE_ID, { id: row.id });
 
         return patchCanvasLayer(layer, {
           blur: row.blur,
@@ -664,10 +649,7 @@ export function useSettingsActions({
           y: row.y,
         });
       });
-      setLayerStateByNodeId((current) => ({
-        ...current,
-        [activeQrNodeId]: nextLayers,
-      }));
+      setCanvasLayers(nextLayers);
     }
   }
 

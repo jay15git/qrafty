@@ -28,7 +28,7 @@ type CanvasViewportProps = {
   isSelected: boolean;
   isSnapTarget: boolean;
   layerEditingEnabled?: boolean;
-  onAddTextLayerAt?: (boardId: string, point: { x: number; y: number }) => void;
+  onAddTextLayerAt?: (point: { x: number; y: number }) => void;
   onBoardDragEnd: () => void;
   onBoardDragLeave: (boardId: string, event: DragEvent<HTMLDivElement>) => void;
   onBoardDragOver: (boardId: string, event: DragEvent<HTMLDivElement>) => void;
@@ -40,7 +40,6 @@ type CanvasViewportProps = {
   onLayerPaste?: CanvasLayerInteractionProps["onLayerPaste"];
   onLayerSelect?: CanvasLayerInteractionProps["onLayerSelect"];
   onLayerSelectionChange?: CanvasLayerInteractionProps["onLayerSelectionChange"];
-  onQrClick: () => void;
   onSelect: () => void;
   onCanvasClick: (event: ReactMouseEvent<HTMLDivElement>) => void;
   onCanvasKeyDown: (event: React.KeyboardEvent<HTMLDivElement>) => void;
@@ -79,7 +78,6 @@ type CanvasBoardContentProps = Pick<
   | "onLayerPaste"
   | "onLayerSelect"
   | "onLayerSelectionChange"
-  | "onQrClick"
   | "onSelect"
   | "board"
   | "selectedLayerId"
@@ -103,7 +101,6 @@ function CanvasBoardContent({
   onLayerPaste,
   onLayerSelect,
   onLayerSelectionChange,
-  onQrClick,
   onSelect,
   board,
   selectedLayerId,
@@ -143,25 +140,12 @@ function CanvasBoardContent({
         snapEnabled={snapEnabled}
         state={board.state}
         isSelected={isSelected}
-        onLayerChange={
-          layerEditingEnabled
-            ? (layerId, patch) => onLayerChange?.(board.id, layerId, patch)
-            : undefined
-        }
-        onLayerAction={
-          layerEditingEnabled
-            ? (layerIds, action) => onLayerAction?.(board.id, layerIds, action)
-            : undefined
-        }
-        onLayerCopy={
-          layerEditingEnabled ? (layerIds) => onLayerCopy?.(board.id, layerIds) : undefined
-        }
-        onLayerPaste={layerEditingEnabled ? (point) => onLayerPaste?.(board.id, point) : undefined}
-        onLayerSelect={(layerId, options) => onLayerSelect?.(board.id, layerId, options)}
-        onLayerSelectionChange={(layerIds, options) =>
-          onLayerSelectionChange?.(board.id, layerIds, options)
-        }
-        onQrClick={onQrClick}
+        onLayerChange={layerEditingEnabled ? onLayerChange : undefined}
+        onLayerAction={layerEditingEnabled ? onLayerAction : undefined}
+        onLayerCopy={layerEditingEnabled ? onLayerCopy : undefined}
+        onLayerPaste={layerEditingEnabled ? onLayerPaste : undefined}
+        onLayerSelect={onLayerSelect}
+        onLayerSelectionChange={onLayerSelectionChange}
         onSelect={onSelect}
         selectedLayerId={isSelected && !hideLayerSelectionChrome ? selectedLayerId : null}
         selectedLayerIds={isSelected && !hideLayerSelectionChrome ? selectedLayerIds : undefined}
@@ -260,7 +244,6 @@ export function CanvasViewport({
   onLayerPaste,
   onLayerSelect,
   onLayerSelectionChange,
-  onQrClick,
   onSelect,
   onCanvasClick,
   onCanvasKeyDown,
@@ -340,7 +323,6 @@ export function CanvasViewport({
         onLayerPaste={onLayerPaste}
         onLayerSelect={onLayerSelect}
         onLayerSelectionChange={onLayerSelectionChange}
-        onQrClick={onQrClick}
         onSelect={onSelect}
         board={board}
         selectedLayerId={selectedLayerId}

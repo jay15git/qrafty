@@ -6,16 +6,13 @@ import {
 } from "@/features/canvas/model/card-state";
 import { getCanvasQrLayerId, isCanvasQrLayerId } from "@/features/canvas/model/layers/shared";
 import { cloneCanvasLayer } from "@/features/canvas/model/layers/fallback";
-import {
-  createCanvasQrLayer,
-  createDefaultCanvasLayers,
-} from "@/features/canvas/model/layers/card-qr";
+import { createCanvasQrLayer } from "@/features/canvas/model/layers/card-qr";
 import {
   createDefaultCanvasWorkspaceQrState,
-  type CanvasWorkspaceDocumentV1,
+  type CanvasWorkspaceDocument,
 } from "@/features/canvas/model/document";
 import {
-  buildCanvasWorkspaceDocumentFromState,
+  buildCanvasWorkspaceDocument,
   resolveActiveQrLayerIdFromLayers,
 } from "@/features/canvas/components/canvas-document";
 import { findCanvasLayerById } from "@/features/canvas/components/canvas-operations";
@@ -71,12 +68,10 @@ export function useCanvasActions({
 }) {
   const {
     activeQrLayerId,
-    activeQrNodeId,
-    cardStateByNodeId,
+    cardState,
+    canvasLayers,
     contentTypeByLayerId,
-    contentTypeByNodeId,
     contentValuesByType,
-    layerStateByNodeId,
     qrStateByLayerId,
     selectedCardState,
     selectedContentType,
@@ -95,12 +90,11 @@ export function useCanvasActions({
     selectedVideoLongEdge,
   } = state;
   const {
-    setCardStateByNodeId,
+    setCardState,
+    setCanvasLayers,
     setContentTypeByLayerId,
-    setContentTypeByNodeId,
     setContentValuesByType,
     setExportDownloadError,
-    setLayerStateByNodeId,
     setQrStateByLayerId,
     setSelectedContentType,
   } = setters;
@@ -125,11 +119,8 @@ export function useCanvasActions({
   const shortcutHandlersRef = useRef<CanvasShortcutHandlers>({} as CanvasShortcutHandlers);
   const keyboardStateRef = useRef({
     activeQrLayerId,
-    activeQrNodeId,
-    canvasQraftyState,
-    layerStateByNodeId,
+    canvasLayers,
     qrLayerCount: qrCanvasLayers.length,
-    selectedCardState,
     selectedLayerIds,
   });
 
@@ -138,18 +129,16 @@ export function useCanvasActions({
   const selectedRasterPhotoLongEdge = isCanvasRasterExport ? selectedPhotoLongEdge : undefined;
 
   const canvasWorkspaceDocument = useMemo(
-    () => buildCanvasWorkspaceDocument(),
-    // buildCanvasWorkspaceDocument reads exactly the state listed here.
+    () => buildCanvasWorkspaceDocumentSnapshot(),
+    // buildCanvasWorkspaceDocumentSnapshot reads exactly the state listed here.
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       activeQrLayerId,
-      activeQrNodeId,
-      cardStateByNodeId,
+      cardState,
+      canvasLayers,
       contentTypeByLayerId,
-      contentTypeByNodeId,
       contentValuesByType,
       canvasQraftyState,
-      layerStateByNodeId,
       qrStateByLayerId,
       selectedCardState,
       selectedContentType,
@@ -178,13 +167,12 @@ export function useCanvasActions({
     resolveTargetDimensions: resolveWorkspaceExportTargetDimensions,
   } = useWorkspaceExport({
     activeQrLayerId,
-    activeQrNodeId,
     canDownload,
     cardState: selectedCardState,
+    canvasLayers,
     downloadExtension: selectedDownloadExtension,
     downloadTarget: selectedDownloadTarget,
     exportMediaKind: selectedExportMediaKind,
-    layerStateByNodeId,
     qrCanvasLayers,
     qrBoardNamesById,
     qrStateByLayerId,
@@ -211,9 +199,9 @@ export function useCanvasActions({
 
   function handleCanvasContentTypeChange(type: QrInputType) {
     setSelectedContentType(type);
-    setContentTypeByNodeId((current) => ({
+    setContentTypeByLayerId((current) => ({
       ...current,
-      [activeQrNodeId]: type,
+      [activeQrLayerId]: type,
     }));
     setContentValuesByType((current) => {
       const previousType = selectedContentType;
@@ -252,9 +240,9 @@ export function useCanvasActions({
 
   function handleCanvasContentPasteApply(type: QrInputType, values: StaticQrContentValues) {
     setSelectedContentType(type);
-    setContentTypeByNodeId((current) => ({
+    setContentTypeByLayerId((current) => ({
       ...current,
-      [activeQrNodeId]: type,
+      [activeQrLayerId]: type,
     }));
     setContentValuesByType((current) => ({
       ...current,
@@ -262,18 +250,15 @@ export function useCanvasActions({
     }));
   }
 
-  function buildCanvasWorkspaceDocument(): CanvasWorkspaceDocumentV1 {
-    return buildCanvasWorkspaceDocumentFromState({
+  function buildCanvasWorkspaceDocumentSnapshot(): CanvasWorkspaceDocument {
+    return buildCanvasWorkspaceDocument({
       activeQrLayerId,
-      activeQrNodeId,
-      cardStateByNodeId,
+      cardState: selectedCardState,
       contentTypeByLayerId,
-      contentTypeByNodeId,
       contentValuesByType,
       canvasQraftyState,
-      layerStateByNodeId,
+      layers: canvasLayers,
       qrStateByLayerId,
-      selectedCardState,
       selectedContentType,
     });
   }
@@ -293,24 +278,11 @@ export function useCanvasActions({
     selectSingleLayer(layerId);
   }
 
-  function applyCanvasWorkspaceDocumentToControls(nextDocument: CanvasWorkspaceDocumentV1) {
-    const nodeId = DASHBOARD_QR_NODE_ID;
-    const activeNodeId = nodeId;
+  function applyCanvasWorkspaceDocumentToControls(nextDocument: CanvasWorkspaceDocument) {
+    const layers = nextDocument.layers.map(cloneCanvasLayer);
     const fallbackActiveLayerId = nextDocument.qrStateByLayerId[nextDocument.activeQrLayerId]
       ? nextDocument.activeQrLayerId
-      : getCanvasQrLayerId(nodeId);
-    const activeCardState =
-      nextDocument.cardStateByNodeId[activeNodeId] ?? createDefaultCanvasCardState();
-    const layers = (
-      nextDocument.layerStateByNodeId[activeNodeId] ??
-      createDefaultCanvasLayers(
-        activeNodeId,
-        nextDocument.qrStateByLayerId[fallbackActiveLayerId] ??
-          nextDocument.qrStateByNodeId[activeNodeId] ??
-          createDefaultCanvasWorkspaceQrState(),
-        activeCardState,
-      )
-    ).map(cloneCanvasLayer);
+      : getCanvasQrLayerId(DASHBOARD_QR_NODE_ID);
     const activeLayerId = resolveActiveQrLayerIdFromLayers(
       fallbackActiveLayerId,
       layers,
@@ -319,22 +291,16 @@ export function useCanvasActions({
     const activeState =
       nextDocument.qrStateByLayerId[activeLayerId] ??
       nextDocument.qrStateByLayerId[fallbackActiveLayerId] ??
-      nextDocument.qrStateByNodeId[activeNodeId] ??
       createDefaultCanvasWorkspaceQrState();
+    const activeCardState = nextDocument.cardState ?? createDefaultCanvasCardState();
 
     setQrStateByLayerId(structuredClone(nextDocument.qrStateByLayerId));
-    setCardStateByNodeId({
-      [activeNodeId]: cloneCanvasCardState(activeCardState),
-    });
-    setLayerStateByNodeId({
-      [activeNodeId]: layers,
-    });
+    setCardState(cloneCanvasCardState(activeCardState));
+    setCanvasLayers(layers);
     setContentTypeByLayerId(structuredClone(nextDocument.contentTypeByLayerId));
-    setContentTypeByNodeId(structuredClone(nextDocument.contentTypeByNodeId));
     setContentValuesByType(structuredClone(nextDocument.contentValuesByType));
     setActiveQrState(activeState, {
       layerId: activeLayerId,
-      nodeId: activeNodeId,
       contentType: nextDocument.selectedContentType,
     });
     selectSingleLayer(activeLayerId);
@@ -361,7 +327,6 @@ export function useCanvasActions({
     keyboardStateRef,
     persistActiveQrLayerState,
     setActiveQrState,
-    shouldReplaceCurrentEntryRef: shouldReplaceCurrentCanvasHistoryEntryRef,
   });
 
   async function handleAddQrCode() {
@@ -370,21 +335,15 @@ export function useCanvasActions({
     persistActiveQrLayerState();
 
     const freshState = createDefaultCanvasWorkspaceQrState();
-    const layers =
-      layerStateByNodeId[activeQrNodeId] ??
-      createDefaultCanvasLayers(activeQrNodeId, canvasQraftyState, selectedCardState);
-    const maxZIndex = layers.reduce((max, layer) => Math.max(max, layer.zIndex), -1);
+    const maxZIndex = canvasLayers.reduce((max, layer) => Math.max(max, layer.zIndex), -1);
     const nearLayer =
-      findCanvasLayerById(layers, activeQrLayerId) ?? qrCanvasLayers.at(-1) ?? undefined;
-    const nextLayer = createCanvasQrLayer(activeQrNodeId, freshState, selectedCardState, {
+      findCanvasLayerById(canvasLayers, activeQrLayerId) ?? qrCanvasLayers.at(-1) ?? undefined;
+    const nextLayer = createCanvasQrLayer(DASHBOARD_QR_NODE_ID, freshState, selectedCardState, {
       nearLayer,
       zIndex: maxZIndex + 1,
     });
 
-    setLayerStateByNodeId((current) => ({
-      ...current,
-      [activeQrNodeId]: [...layers.map(cloneCanvasLayer), nextLayer],
-    }));
+    setCanvasLayers([...canvasLayers.map(cloneCanvasLayer), nextLayer]);
 
     setActiveQrState(freshState, {
       layerId: nextLayer.id,
@@ -412,22 +371,11 @@ export function useCanvasActions({
   useEffect(() => {
     keyboardStateRef.current = {
       activeQrLayerId,
-      activeQrNodeId,
-      canvasQraftyState,
-      layerStateByNodeId,
+      canvasLayers,
       qrLayerCount: qrCanvasLayers.length,
-      selectedCardState,
       selectedLayerIds,
     };
-  }, [
-    activeQrLayerId,
-    activeQrNodeId,
-    canvasQraftyState,
-    layerStateByNodeId,
-    qrCanvasLayers.length,
-    selectedCardState,
-    selectedLayerIds,
-  ]);
+  }, [activeQrLayerId, canvasLayers, qrCanvasLayers.length, selectedLayerIds]);
 
   useEffect(() => {
     shortcutHandlersRef.current = {

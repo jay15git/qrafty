@@ -5,7 +5,7 @@ import { useEffect, useRef, useState, type MutableRefObject } from "react";
 import {
   cloneCanvasWorkspaceDocument,
   serializeCanvasWorkspaceDocument,
-  type CanvasWorkspaceDocumentV1,
+  type CanvasWorkspaceDocument,
 } from "@/features/canvas/model/document";
 import { previewSession } from "@/features/canvas/preview/preview-session";
 
@@ -16,18 +16,18 @@ export function useCanvasHistory({
   applyDocumentRef,
   document,
 }: {
-  applyDocumentRef: MutableRefObject<(nextDocument: CanvasWorkspaceDocumentV1) => void>;
-  document: CanvasWorkspaceDocumentV1;
+  applyDocumentRef: MutableRefObject<(nextDocument: CanvasWorkspaceDocument) => void>;
+  document: CanvasWorkspaceDocument;
 }) {
   const [initialDocument] = useState(() => cloneCanvasWorkspaceDocument(document));
   const [historyPosition, setHistoryPosition] = useState({ index: 0, length: 1 });
   const historyTimerRef = useRef<number | null>(null);
-  const historyRef = useRef<CanvasWorkspaceDocumentV1[]>([initialDocument]);
+  const historyRef = useRef<CanvasWorkspaceDocument[]>([initialDocument]);
   const historyIndexRef = useRef(0);
   const isApplyingHistoryRef = useRef(false);
   const shouldReplaceCurrentEntryRef = useRef(false);
 
-  const setHistoryStack = (nextStack: CanvasWorkspaceDocumentV1[], nextIndex: number) => {
+  const setHistoryStack = (nextStack: CanvasWorkspaceDocument[], nextIndex: number) => {
     historyRef.current = nextStack;
     historyIndexRef.current = nextIndex;
     setHistoryPosition({ index: nextIndex, length: nextStack.length });

@@ -37,7 +37,6 @@ type CanvasBoardProps = {
   areaName?: string;
   interaction: CanvasBoardInteractionState;
   draggingBoardId: string | null;
-  onBoardQrClick: (boardId: string) => void;
   onBoardSelect: (boardId: string) => void;
   onBoardDragEnd: () => void;
   onBoardDragStart: (boardId: string, event: DragEvent<HTMLDivElement>) => void;
@@ -53,7 +52,7 @@ type CanvasBoardProps = {
   onLayerSelect?: CanvasLayerInteractionProps["onLayerSelect"];
   onLayerSelectionChange?: CanvasLayerInteractionProps["onLayerSelectionChange"];
   activeCanvasTool?: CanvasBoardTool | null;
-  onAddTextLayerAt?: (boardId: string, point: { x: number; y: number }) => void;
+  onAddTextLayerAt?: (point: { x: number; y: number }) => void;
   onCanvasToolChange?: (tool: CanvasBoardTool | null) => void;
   layerEditingEnabled?: boolean;
   board: CanvasBoardPane;
@@ -71,7 +70,6 @@ export function CanvasBoard({
   areaName,
   interaction,
   draggingBoardId,
-  onBoardQrClick,
   onBoardSelect,
   onBoardDragEnd,
   onBoardDragStart,
@@ -113,7 +111,6 @@ export function CanvasBoard({
     onCanvasToolChange,
     onLayerSelect,
     onBoardPan,
-    onBoardQrClick,
     onBoardSelect,
     onBoardZoom,
     board,
@@ -150,7 +147,6 @@ export function CanvasBoard({
       onLayerPaste={onLayerPaste}
       onLayerSelect={onLayerSelect}
       onLayerSelectionChange={onLayerSelectionChange}
-      onQrClick={interactions.handleQrClick}
       onSelect={interactions.handleSelect}
       onCanvasClick={interactions.handleCanvasClick}
       onCanvasKeyDown={interactions.handleCanvasKeyDown}

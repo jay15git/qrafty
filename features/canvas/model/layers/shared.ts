@@ -33,6 +33,7 @@ import {
 } from "@/features/canvas/model/corner-radius";
 import type { CanvasIllustrationColorStop } from "@/features/canvas/assets/illustration-recolor";
 
+/** The workspace has exactly one board; every canvas layer hangs off it. */
 export type CanvasLayerKind = "card" | "group" | "image" | "qr" | "shader" | "shape" | "text";
 export type CanvasImageSourceMode = "none" | "upload" | "url";
 export type CanvasImageFit = "contain" | "cover";
@@ -105,7 +106,6 @@ export type CanvasLayer = {
   children?: CanvasLayer[];
 };
 
-export type CanvasLayerStateByNodeId = Record<string, CanvasLayer[]>;
 export type CanvasLayerReorderAction = "back" | "backward" | "forward" | "front";
 export type CanvasLayerAlignAction = "bottom" | "center-x" | "center-y" | "left" | "right" | "top";
 export type CanvasLayerDistributeAction = "horizontal" | "vertical";

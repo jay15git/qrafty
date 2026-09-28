@@ -10,6 +10,7 @@ import type { CanvasDownloadTarget } from "@/features/canvas/components/canvas-o
 import type { CanvasDownloadExtension } from "@/features/canvas/components/canvas.constants";
 import type { OutputDimensions } from "@/features/canvas/export/pipeline/bounds";
 import { previewSession } from "@/features/canvas/preview/preview-session";
+import { DASHBOARD_QR_NODE_ID } from "@/features/qr/rendering/compose-scene";
 import { useQrScanSafety } from "@/features/qr/hooks/use-qr-scan-safety";
 import type { QraftyState } from "@/features/qr/model/state";
 
@@ -24,7 +25,6 @@ type ResolveTargetDimensions = (cardLayer: CanvasLayer) => OutputDimensions | un
 export function useCanvasScanSafety({
   activeCanvasLayers,
   activeQrLayerId,
-  activeQrNodeId,
   canvasQraftyState,
   qrCanvasLayers,
   qrStateByLayerId,
@@ -36,7 +36,6 @@ export function useCanvasScanSafety({
 }: {
   activeCanvasLayers: CanvasLayer[];
   activeQrLayerId: string;
-  activeQrNodeId: string;
   canvasQraftyState: QraftyState;
   qrCanvasLayers: CanvasLayer[];
   qrStateByLayerId: CanvasQrStateByLayerId;
@@ -106,13 +105,12 @@ export function useCanvasScanSafety({
             cardState: selectedCardState,
             extension: selectedDownloadExtension,
             layers: scanSafetyLayers,
-            nodeId: activeQrNodeId,
+            nodeId: DASHBOARD_QR_NODE_ID,
             qualityPercent: canvasQraftyState.rasterExportQualityPercent,
             targetDimensions: scanSafetyTargetDimensions,
           }
         : undefined,
     [
-      activeQrNodeId,
       canvasQraftyState.rasterExportQualityPercent,
       scanSafetyCardLayer,
       scanSafetyLayers,

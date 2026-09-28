@@ -63,15 +63,10 @@ type UseCanvasInteractionsArgs = {
   activeCanvasTool?: CanvasBoardTool | null;
   fitCanvasToViewport?: boolean;
   layerEditingEnabled?: boolean;
-  onAddTextLayerAt?: (boardId: string, point: { x: number; y: number }) => void;
+  onAddTextLayerAt?: (point: { x: number; y: number }) => void;
   onCanvasToolChange?: (tool: CanvasBoardTool | null) => void;
-  onLayerSelect?: (
-    boardId: string,
-    layerId: string | null,
-    options?: { additive?: boolean },
-  ) => void;
+  onLayerSelect?: (layerId: string | null, options?: { additive?: boolean }) => void;
   onBoardPan: (boardId: string, nextPan: { x: number; y: number }) => void;
-  onBoardQrClick: (boardId: string) => void;
   onBoardSelect: (boardId: string) => void;
   onBoardZoom: (boardId: string, nextZoom: number) => void;
   board: CanvasBoardPane;
@@ -88,7 +83,6 @@ export function useCanvasInteractions({
   onCanvasToolChange,
   onLayerSelect,
   onBoardPan,
-  onBoardQrClick,
   onBoardSelect,
   onBoardZoom,
   board,
@@ -100,7 +94,6 @@ export function useCanvasInteractions({
   const canvasRef = useRef<HTMLDivElement | null>(null);
   const [isPanning, setIsPanning] = useState(false);
   const onBoardSelectRef = useRef(onBoardSelect);
-  const onBoardQrClickRef = useRef(onBoardQrClick);
   const panOverlayRef = useRef<HTMLDivElement>(null);
   const panInteractionRef = useRef<{
     pointerId: number;
@@ -234,10 +227,6 @@ export function useCanvasInteractions({
   }, [onBoardSelect]);
 
   useEffect(() => {
-    onBoardQrClickRef.current = onBoardQrClick;
-  }, [onBoardQrClick]);
-
-  useEffect(() => {
     pinchZoomRef.current = boardZoom;
   }, [boardZoom]);
 
@@ -286,7 +275,7 @@ export function useCanvasInteractions({
         event.preventDefault();
         event.stopPropagation();
         onBoardSelectRef.current(board.id);
-        onAddTextLayerAt(board.id, getPlacementPoint(event));
+        onAddTextLayerAt(getPlacementPoint(event));
         onCanvasToolChange?.(null);
         return;
       }
@@ -314,10 +303,6 @@ export function useCanvasInteractions({
     },
     [handleCanvasClick],
   );
-
-  const handleQrClick = useCallback(() => {
-    onBoardQrClickRef.current(board.id);
-  }, [board.id]);
 
   const shouldIgnorePanToolTarget = useCallback(
     (event: ReactPointerEvent<HTMLDivElement>) =>
@@ -402,7 +387,7 @@ export function useCanvasInteractions({
 
       if (activeCanvasTool !== "pan") {
         onBoardSelectRef.current(board.id);
-        onLayerSelect?.(board.id, null);
+        onLayerSelect?.(null);
       }
     },
     [
@@ -566,7 +551,6 @@ export function useCanvasInteractions({
     canvasAppearance,
     canvasRef,
     viewFitScale,
-    handleQrClick,
     handleSelect,
     handleBoardPointerDown,
     handleBoardPointerDownCapture,

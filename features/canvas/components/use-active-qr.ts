@@ -20,9 +20,9 @@ import type { QraftyState } from "@/features/qr/model/state";
  * `canvasQraftyState` is the live `QraftyState` the renderer and exporters
  * consume — the active layer's stored state plus the live content payload.
  * Writes go through `SET_ACTIVE_QR` (full commits) or the `setSelected*`
- * setters (draft-field patches), so `qrStateByLayerId`/`qrStateByNodeId`
- * always hold the canonical per-layer QR state. Upload object URLs are
- * revoked on replacement.
+ * setters (draft-field patches), so `qrStateByLayerId` always holds the
+ * canonical per-layer QR state. Upload object URLs are revoked on
+ * replacement.
  */
 export function useActiveQr({
   dispatch,
@@ -67,14 +67,13 @@ export function useActiveQr({
    * Seeds the draft buffers so pickers reflect the incoming state. */
   function setActiveQrState(
     qr: QraftyState,
-    target?: { layerId?: string; nodeId?: string; contentType?: QrInputType },
+    target?: { layerId?: string; contentType?: QrInputType },
   ) {
     pendingQrPersistStateRef.current = qr;
     dispatch({
       type: "SET_ACTIVE_QR",
       qr,
       layerId: target?.layerId,
-      nodeId: target?.nodeId,
       contentType: target?.contentType,
     });
   }

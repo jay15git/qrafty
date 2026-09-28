@@ -1,21 +1,12 @@
 import { DEFAULT_QR_INPUT_TYPE, type QrInputType } from "@/features/qr/content/input-options";
 import type { QraftyState } from "@/features/qr/model/state";
-import { DASHBOARD_QR_NODE_ID } from "@/features/qr/rendering/compose-scene";
 import type {
-  CanvasCardStateByNodeId,
   CanvasContentValuesByType,
   CanvasQrStateByLayerId,
-  CanvasQrStateByNodeId,
-  CanvasWorkspaceDocumentV1,
+  CanvasWorkspaceDocument,
 } from "@/features/canvas/model/document";
 import { type CanvasCardState } from "@/features/canvas/model/card-state";
-import {
-  getCanvasQrLayerId,
-  getQrCanvasLayers,
-  type CanvasLayer,
-  type CanvasLayerStateByNodeId,
-} from "@/features/canvas/model/layers/shared";
-import { createDefaultCanvasLayers } from "@/features/canvas/model/layers/card-qr";
+import { getQrCanvasLayers, type CanvasLayer } from "@/features/canvas/model/layers/shared";
 
 export function resolveActiveQrLayerIdFromLayers(
   activeQrLayerId: string,
@@ -76,43 +67,31 @@ export function mergeLiveQrStateByLayerId({
 
 export type BuildCanvasWorkspaceDocumentInput = {
   activeQrLayerId: string;
-  activeQrNodeId: string;
-  cardStateByNodeId: CanvasCardStateByNodeId;
+  cardState: CanvasCardState;
   contentTypeByLayerId: Record<string, QrInputType>;
-  contentTypeByNodeId: Record<string, QrInputType>;
   contentValuesByType: CanvasContentValuesByType;
   canvasQraftyState: QraftyState;
-  layerStateByNodeId: CanvasLayerStateByNodeId;
+  layers: CanvasLayer[];
   qrStateByLayerId: CanvasQrStateByLayerId;
-  selectedCardState: CanvasCardState;
   selectedContentType: QrInputType;
 };
 
-export function buildCanvasWorkspaceDocumentFromState({
+export function buildCanvasWorkspaceDocument({
   activeQrLayerId,
-  activeQrNodeId,
-  cardStateByNodeId,
+  cardState,
   contentTypeByLayerId,
-  contentTypeByNodeId,
   contentValuesByType,
   canvasQraftyState,
-  layerStateByNodeId,
+  layers,
   qrStateByLayerId,
-  selectedCardState,
   selectedContentType,
-}: BuildCanvasWorkspaceDocumentInput): CanvasWorkspaceDocumentV1 {
-  const nodeId = DASHBOARD_QR_NODE_ID;
-  const layers =
-    layerStateByNodeId[nodeId] ??
-    createDefaultCanvasLayers(nodeId, canvasQraftyState, selectedCardState);
+}: BuildCanvasWorkspaceDocumentInput): CanvasWorkspaceDocument {
   const nextQrStateByLayerId = mergeLiveQrStateByLayerId({
     qrStateByLayerId,
     activeQrLayerId,
     canvasLayers: layers,
     canvasQraftyState,
   });
-
-  const primaryQrLayerId = getCanvasQrLayerId(nodeId);
   const nextContentTypeByLayerId: Record<string, QrInputType> = {
     ...contentTypeByLayerId,
     [activeQrLayerId]: selectedContentType,
@@ -124,32 +103,13 @@ export function buildCanvasWorkspaceDocumentFromState({
     }
   }
 
-  const primaryState =
-    nextQrStateByLayerId[primaryQrLayerId] ??
-    nextQrStateByLayerId[activeQrLayerId] ??
-    canvasQraftyState;
-
   return {
     activeQrLayerId,
-    activeQrNodeId: nodeId,
-    cardStateByNodeId: {
-      [nodeId]: selectedCardState,
-    },
+    cardState,
     contentTypeByLayerId: nextContentTypeByLayerId,
-    contentTypeByNodeId: {
-      ...contentTypeByNodeId,
-      [nodeId]: selectedContentType,
-    },
     contentValuesByType,
-    layerStateByNodeId: {
-      [nodeId]: layers,
-    },
-    qrOrder: [nodeId],
+    layers,
     qrStateByLayerId: nextQrStateByLayerId,
-    qrStateByNodeId: {
-      [nodeId]: primaryState,
-    } satisfies CanvasQrStateByNodeId,
     selectedContentType,
-    version: 1,
   };
 }

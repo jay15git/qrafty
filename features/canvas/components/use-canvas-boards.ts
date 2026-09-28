@@ -4,7 +4,6 @@ import type { CanvasBoardToolbarVariant } from "@/features/canvas/components/Can
 import { mergeLiveQrStateByLayerId } from "@/features/canvas/components/canvas-document";
 import type { CanvasSurfaceState } from "@/features/canvas/components/canvas-reducer";
 import {
-  resolveActiveCanvasLayers,
   resolveAppearanceSnapshot,
   resolveCanRemoveQrCode,
   resolveLayerTargets,
@@ -14,6 +13,7 @@ import {
 } from "@/features/canvas/components/canvas-resolvers";
 import { sceneHasVideoExportContent } from "@/features/canvas/export/pipeline/clock";
 import { getQrCanvasLayers } from "@/features/canvas/model/layers/shared";
+import { DASHBOARD_QR_NODE_ID } from "@/features/qr/rendering/compose-scene";
 import type { QraftyState } from "@/features/qr/model/state";
 import type { StaticQrValidationResult } from "@/features/qr/content/static-payload";
 
@@ -35,20 +35,12 @@ export function useCanvasBoards({
 }) {
   const {
     activeQrLayerId,
-    activeQrNodeId,
-    layerStateByNodeId,
+    canvasLayers: activeCanvasLayers,
     qrStateByLayerId,
     selectedCardState,
     selectedLayerId,
     selectedLayerIds,
   } = state;
-
-  const activeCanvasLayers = resolveActiveCanvasLayers(
-    layerStateByNodeId,
-    activeQrNodeId,
-    canvasQraftyState,
-    selectedCardState,
-  );
   const qrCanvasLayers = useMemo(() => getQrCanvasLayers(activeCanvasLayers), [activeCanvasLayers]);
   const canExportVideo = sceneHasVideoExportContent(
     selectedCardState,
@@ -85,7 +77,7 @@ export function useCanvasBoards({
         activeQrLayerId,
         cardState: selectedCardState,
         contentValidation: selectedContentValidation,
-        id: activeQrNodeId,
+        id: DASHBOARD_QR_NODE_ID,
         layers: activeCanvasLayers,
         name: "QR Code",
         qrStateByLayerId: mergedQrStateByLayerId,
@@ -95,7 +87,6 @@ export function useCanvasBoards({
   }, [
     activeCanvasLayers,
     activeQrLayerId,
-    activeQrNodeId,
     canvasQraftyState,
     qrStateByLayerId,
     selectedCardState,

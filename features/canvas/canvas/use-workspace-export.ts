@@ -17,23 +17,22 @@ import {
   runWorkspaceExport,
   type WorkspaceExportProgress,
 } from "@/features/canvas/export/pipeline";
-import type { CanvasLayer, CanvasLayerStateByNodeId } from "@/features/canvas/model/layers/shared";
+import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
 import { cloneCanvasLayer } from "@/features/canvas/model/layers/fallback";
-import { createDefaultCanvasLayers } from "@/features/canvas/model/layers/card-qr";
 import type { CanvasCardState } from "@/features/canvas/model/card-state";
-import type { CanvasQrStateByNodeId } from "@/features/canvas/model/document";
+import type { CanvasQrStateByLayerId } from "@/features/canvas/model/document";
+import { DASHBOARD_QR_NODE_ID } from "@/features/qr/rendering/compose-scene";
 import type { QraftyState } from "@/features/qr/model/state";
 import type { VideoExportLongEdge } from "@/features/qr/export/video-export";
 
 export function useWorkspaceExport({
   activeQrLayerId,
-  activeQrNodeId,
   canDownload,
   cardState,
+  canvasLayers,
   downloadExtension,
   downloadTarget,
   exportMediaKind,
-  layerStateByNodeId,
   qrCanvasLayers,
   qrBoardNamesById,
   qrStateByLayerId,
@@ -43,16 +42,15 @@ export function useWorkspaceExport({
   video,
 }: {
   activeQrLayerId: string;
-  activeQrNodeId: string;
   canDownload: boolean;
   cardState: CanvasCardState;
+  canvasLayers: CanvasLayer[];
   downloadExtension: CanvasDownloadExtension;
   downloadTarget: string;
   exportMediaKind: string;
-  layerStateByNodeId: CanvasLayerStateByNodeId;
   qrCanvasLayers: CanvasLayer[];
   qrBoardNamesById: Map<string, string>;
-  qrStateByLayerId: CanvasQrStateByNodeId;
+  qrStateByLayerId: CanvasQrStateByLayerId;
   rasterPhotoLongEdge: VideoExportLongEdge | undefined;
   setDownloadError: (error: string | null) => void;
   state: QraftyState;
@@ -99,9 +97,7 @@ export function useWorkspaceExport({
       setProgressRatio(0.05);
       playSound("loading");
 
-      const exportLayers =
-        layerStateByNodeId[activeQrNodeId] ??
-        createDefaultCanvasLayers(activeQrNodeId, state, cardState);
+      const exportLayers = canvasLayers;
       const cardLayer = exportLayers.find((layer) => layer.kind === "card" && layer.isVisible);
 
       if (!cardLayer) {
@@ -138,7 +134,7 @@ export function useWorkspaceExport({
           cardState,
           extension: downloadExtension,
           mediaKind: isVideoExport ? "video" : "photo",
-          nodeId: activeQrNodeId,
+          nodeId: DASHBOARD_QR_NODE_ID,
           onProgress,
           qualityPercent,
           targetDimensions: isVideoExport ? undefined : targetDimensions,
@@ -176,7 +172,7 @@ export function useWorkspaceExport({
           items,
           layers: exportLayers,
           name: DEFAULT_DOWNLOAD_NAME,
-          nodeId: activeQrNodeId,
+          nodeId: DASHBOARD_QR_NODE_ID,
           qualityPercent,
           targetDimensions,
         });
@@ -225,14 +221,13 @@ export function useWorkspaceExport({
     }
   }, [
     activeQrLayerId,
-    activeQrNodeId,
     canDownload,
+    canvasLayers,
     cardState,
     downloadExtension,
     downloadTarget,
     exportMediaKind,
     inProgress,
-    layerStateByNodeId,
     qrCanvasLayers,
     qrBoardNamesById,
     qrStateByLayerId,

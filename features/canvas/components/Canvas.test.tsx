@@ -264,7 +264,7 @@ describe("Canvas", () => {
       await flushPromises();
     });
 
-    expect(onLayerSelect).toHaveBeenCalledWith("board-1", null);
+    expect(onLayerSelect).toHaveBeenCalledWith(null);
   });
 
   it("does not pan when dragging a layer", async () => {
@@ -340,7 +340,7 @@ describe("Canvas", () => {
       await flushPromises();
     });
 
-    expect(onAddTextLayerAt).toHaveBeenCalledWith("board-1", { x: 100, y: 120 });
+    expect(onAddTextLayerAt).toHaveBeenCalledWith({ x: 100, y: 120 });
     expect(onCanvasToolChange).toHaveBeenCalledWith(null);
   });
 
@@ -445,7 +445,7 @@ function renderWorkspace({
   activeCanvasTool?: ComponentProps<typeof Canvas>["activeCanvasTool"];
   onCanvasToolChange?: ComponentProps<typeof Canvas>["onCanvasToolChange"];
   onAddTextLayerAt?: ComponentProps<typeof Canvas>["onAddTextLayerAt"];
-  onLayerSelect?: (boardId: string, layerId: string | null) => void;
+  onLayerSelect?: (layerId: string | null) => void;
   boardCount?: number;
   boards?: ReturnType<typeof createBoards>;
   selectedLayerId?: ComponentProps<typeof Canvas>["selectedLayerId"];
@@ -461,7 +461,6 @@ function renderWorkspace({
       <Canvas
         activeBoardId="board-1"
         activeCanvasTool={activeCanvasTool}
-        onBoardQrClick={() => undefined}
         onBoardSelect={() => undefined}
         onLayerSelect={onLayerSelect}
         onCanvasToolChange={onCanvasToolChange}

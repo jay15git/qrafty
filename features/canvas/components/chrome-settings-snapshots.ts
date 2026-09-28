@@ -13,6 +13,7 @@ import type { QraftyState } from "@/features/qr/model/state";
 import type { CanvasCardState } from "@/features/canvas/model/card-state";
 import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
 import { createDefaultCanvasLayers } from "@/features/canvas/model/layers/card-qr";
+import { DASHBOARD_QR_NODE_ID } from "@/features/qr/rendering/compose-scene";
 import {
   getAssetSourceMode,
   getExportTarget,
@@ -43,7 +44,6 @@ export type ToolbarSettingsSnapshots = {
 };
 
 export type BuildToolbarSettingsSnapshotsInput = {
-  activeQrNodeId: string;
   activeCanvasLayers: CanvasLayer[];
   activeCanvasLayerRows: CanvasLayer[];
   canvasQraftyState: QraftyState;
@@ -111,13 +111,7 @@ export type BuildToolbarSettingsSnapshotsInput = {
 export function buildToolbarSettingsSnapshots(
   input: BuildToolbarSettingsSnapshotsInput,
 ): ToolbarSettingsSnapshots {
-  const {
-    activeQrNodeId,
-    activeCanvasLayers,
-    activeCanvasLayerRows,
-    canvasQraftyState,
-    selectedCardState,
-  } = input;
+  const { activeCanvasLayers, activeCanvasLayerRows, canvasQraftyState, selectedCardState } = input;
 
   const patternSettings: PatternSettings = {
     dotsColorMode: input.selectedDotsColorMode,
@@ -176,7 +170,7 @@ export function buildToolbarSettingsSnapshots(
 
   const activeQrLayer =
     activeCanvasLayers.find((layer) => layer.kind === "qr") ??
-    createDefaultCanvasLayers(activeQrNodeId, canvasQraftyState, selectedCardState).find(
+    createDefaultCanvasLayers(DASHBOARD_QR_NODE_ID, canvasQraftyState, selectedCardState).find(
       (layer) => layer.kind === "qr",
     );
 

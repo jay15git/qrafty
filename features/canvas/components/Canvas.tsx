@@ -24,7 +24,6 @@ type CanvasProps = {
   boards: CanvasBoardPane[];
   activeBoardId: string;
   onBoardSelect: (boardId: string) => void;
-  onBoardQrClick: (boardId: string) => void;
   onLayerChange?: CanvasLayerInteractionProps["onLayerChange"];
   onLayerAction?: CanvasLayerInteractionProps["onLayerAction"];
   onLayerCopy?: CanvasLayerInteractionProps["onLayerCopy"];
@@ -32,7 +31,7 @@ type CanvasProps = {
   onLayerSelect?: CanvasLayerInteractionProps["onLayerSelect"];
   onLayerSelectionChange?: CanvasLayerInteractionProps["onLayerSelectionChange"];
   activeCanvasTool?: CanvasBoardTool | null;
-  onAddTextLayerAt?: (boardId: string, point: { x: number; y: number }) => void;
+  onAddTextLayerAt?: (point: { x: number; y: number }) => void;
   onCanvasToolChange?: (tool: CanvasBoardTool | null) => void;
   selectedLayerId?: string | null;
   selectedLayerIds?: string[];
@@ -50,7 +49,6 @@ export function Canvas({
   boards,
   activeBoardId,
   onBoardSelect,
-  onBoardQrClick,
   onLayerChange,
   onLayerAction,
   onLayerCopy,
@@ -118,7 +116,6 @@ export function Canvas({
             onBoardDragStart={() => undefined}
             onBoardDrop={() => undefined}
             onBoardPan={handleBoardPan}
-            onBoardQrClick={onBoardQrClick}
             onBoardSelect={onBoardSelect}
             onBoardZoom={handleBoardZoom}
             board={activeBoard}

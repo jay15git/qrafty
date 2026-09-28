@@ -126,7 +126,6 @@ describe("Artboard", () => {
           cardState={createDefaultCanvasCardState()}
           qrStateByLayerId={createDefaultBoardQrStateByLayerId(secondState)}
           isSelected={false}
-          onQrClick={() => undefined}
           onSelect={() => undefined}
         />,
       );
@@ -143,7 +142,6 @@ describe("Artboard", () => {
           cardState={createDefaultCanvasCardState()}
           qrStateByLayerId={createDefaultBoardQrStateByLayerId(thirdState)}
           isSelected={false}
-          onQrClick={() => undefined}
           onSelect={() => undefined}
         />,
       );
@@ -1065,7 +1063,6 @@ describe("Artboard", () => {
           selectedLayerId="preview:text"
           state={createDefaultQraftyState()}
           onLayerChange={onLayerChange}
-          onQrClick={() => undefined}
           onSelect={() => undefined}
         />,
       );
@@ -2172,7 +2169,6 @@ describe("Artboard", () => {
           state={createDefaultQraftyState()}
           isSelected={true}
           onLayerChange={onLayerChange}
-          onQrClick={() => undefined}
           onSelect={() => undefined}
           selectedLayerIds={["preview:card", "preview:qr"]}
         />,
@@ -2329,7 +2325,6 @@ describe("Artboard", () => {
             setDotMatrixAnimationOptions(motionState, { loader: "radial-expand" }),
           )}
           isSelected={false}
-          onQrClick={() => undefined}
           onSelect={() => undefined}
         />,
       );
@@ -2380,7 +2375,6 @@ function renderArtboard(
         onLayerPaste={props.onLayerPaste}
         onLayerSelect={props.onLayerSelect}
         onLayerSelectionChange={props.onLayerSelectionChange}
-        onQrClick={() => undefined}
         onSelect={() => undefined}
         selectedLayerId={props.selectedLayerId}
         selectedLayerIds={props.selectedLayerIds}

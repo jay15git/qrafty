@@ -16,6 +16,7 @@ import type {
 } from "@/features/canvas/components/canvas-reducer";
 import type { ActiveQrApi } from "@/features/canvas/components/use-active-qr";
 import type { CanvasShortcutKeyboardState } from "@/features/canvas/canvas/use-canvas-shortcuts";
+import { DASHBOARD_QR_NODE_ID } from "@/features/qr/rendering/compose-scene";
 import {
   getCanvasCardLayerId,
   getCanvasQrLayerId,
@@ -31,10 +32,7 @@ import {
 } from "@/features/canvas/model/layers/shared";
 import { cloneCanvasLayer } from "@/features/canvas/model/layers/fallback";
 import { patchCanvasLayer } from "@/features/canvas/model/layers/patch";
-import {
-  clampLayerGeometryToCanvas,
-  createDefaultCanvasLayers,
-} from "@/features/canvas/model/layers/card-qr";
+import { clampLayerGeometryToCanvas } from "@/features/canvas/model/layers/card-qr";
 import { createCanvasTextLayer } from "@/features/canvas/model/layers/factories";
 import {
   alignCanvasLayers,
@@ -47,21 +45,14 @@ import {
   cloneCanvasQrState,
   createDefaultCanvasWorkspaceQrState,
 } from "@/features/canvas/model/document";
-import {
-  cloneCanvasCardState,
-  createDefaultCanvasCardState,
-} from "@/features/canvas/model/card-state";
 import { DEFAULT_QR_INPUT_TYPE, type QrInputType } from "@/features/qr/content/input-options";
 import type { QraftyState } from "@/features/qr/model/state";
 
 type LayerActionState = Pick<
   CanvasSurfaceState,
   | "activeQrLayerId"
-  | "activeQrNodeId"
-  | "cardStateByNodeId"
+  | "canvasLayers"
   | "contentTypeByLayerId"
-  | "layerStateByNodeId"
-  | "qrStateByNodeId"
   | "qrStateByLayerId"
   | "selectedCardState"
   | "selectedContentType"
@@ -70,12 +61,10 @@ type LayerActionState = Pick<
 
 type LayerActionSetters = Pick<
   CanvasSurfaceSetters,
-  | "setCardStateByNodeId"
+  | "setCanvasLayers"
   | "setContentTypeByLayerId"
   | "setDesktopRailTool"
-  | "setLayerStateByNodeId"
   | "setQrStateByLayerId"
-  | "setQrStateByNodeId"
   | "setSelectedCardState"
   | "setSelectedLayerId"
   | "setSelectedLayerIds"
@@ -84,28 +73,22 @@ type LayerActionSetters = Pick<
 export function useLayerActions({
   activateQrLayer,
   activeQrLayerId,
-  activeQrNodeId,
-  cardStateByNodeId,
+  canvasLayers,
   contentTypeByLayerId,
   canvasLayerClipboardRef,
   canvasQraftyState,
   canvasRef,
   keyboardStateRef,
-  layerStateByNodeId,
-  shouldReplaceCurrentEntryRef,
   persistActiveQrLayerState,
   setActiveQrState,
   qrStateByLayerId,
-  qrStateByNodeId,
   selectedCardState,
   selectedContentType,
   selectedLayerIds,
-  setCardStateByNodeId,
+  setCanvasLayers,
   setContentTypeByLayerId,
   setDesktopRailTool,
-  setLayerStateByNodeId,
   setQrStateByLayerId,
-  setQrStateByNodeId,
   setSelectedCardState,
   setSelectedLayerId,
   setSelectedLayerIds,
@@ -115,7 +98,6 @@ export function useLayerActions({
     canvasQraftyState: QraftyState;
     activateQrLayer: (layerId: string) => void;
     canvasRef: MutableRefObject<HTMLElement | null>;
-    shouldReplaceCurrentEntryRef: MutableRefObject<boolean>;
     keyboardStateRef: MutableRefObject<CanvasShortcutKeyboardState>;
     persistActiveQrLayerState: (nextState?: QraftyState) => void;
     setActiveQrState: ActiveQrApi["setActiveQrState"];
@@ -130,14 +112,8 @@ export function useLayerActions({
     setSelectedLayerId(nextLayerIds.at(-1) ?? null);
   }
 
-  function handleBoardSelection(_boardId: string) {
+  function handleBoardSelection() {
     canvasRef.current?.focus({ preventScroll: true });
-  }
-
-  function handleBoardQrClick(boardId: string) {
-    if (boardId !== activeQrNodeId) {
-      handleBoardSelection(boardId);
-    }
   }
 
   function duplicateSelectedLayers(layerIds = selectedLayerIds) {
@@ -147,9 +123,7 @@ export function useLayerActions({
 
     persistActiveQrLayerState();
 
-    const layers =
-      layerStateByNodeId[activeQrNodeId] ??
-      createDefaultCanvasLayers(activeQrNodeId, canvasQraftyState, selectedCardState);
+    const layers = canvasLayers;
     const selectedIdSet = new Set(layerIds);
     const selectedLayers = layers.filter((layer) => selectedIdSet.has(layer.id));
 
@@ -166,7 +140,7 @@ export function useLayerActions({
       const duplicatedLayer = patchCanvasLayer(
         {
           ...cloneCanvasLayer(layer),
-          id: `${activeQrNodeId}:${layer.kind}:${Date.now()}-${index}`,
+          id: `${DASHBOARD_QR_NODE_ID}:${layer.kind}:${Date.now()}-${index}`,
           x: layer.x + DRAFTING_LAYER_PASTE_OFFSET,
           y: layer.y + DRAFTING_LAYER_PASTE_OFFSET,
           zIndex: maxZIndex + index + 1,
@@ -197,13 +171,7 @@ export function useLayerActions({
       }));
     }
 
-    setLayerStateByNodeId((current) => ({
-      ...current,
-      [activeQrNodeId]: [
-        ...(current[activeQrNodeId] ?? layers).map(cloneCanvasLayer),
-        ...duplicatedLayers,
-      ],
-    }));
+    setCanvasLayers((current) => [...current.map(cloneCanvasLayer), ...duplicatedLayers]);
 
     const nextActiveLayerId = duplicatedLayers.at(-1)?.id ?? activeQrLayerId;
     const nextActiveState =
@@ -226,9 +194,7 @@ export function useLayerActions({
   }
 
   function handleRemoveQrCode(layerId: string) {
-    const layers =
-      layerStateByNodeId[activeQrNodeId] ??
-      createDefaultCanvasLayers(activeQrNodeId, canvasQraftyState, selectedCardState);
+    const layers = canvasLayers;
 
     if (!isLayerDeletable(layerId, layers)) {
       return;
@@ -236,12 +202,9 @@ export function useLayerActions({
 
     const fallbackLayerId =
       getQrCanvasLayers(layers).find((layer) => layer.id !== layerId)?.id ??
-      getCanvasQrLayerId(activeQrNodeId);
+      getCanvasQrLayerId(DASHBOARD_QR_NODE_ID);
 
-    setLayerStateByNodeId((current) => ({
-      ...current,
-      [activeQrNodeId]: (current[activeQrNodeId] ?? layers).filter((layer) => layer.id !== layerId),
-    }));
+    setCanvasLayers((current) => current.filter((layer) => layer.id !== layerId));
     setQrStateByLayerId((current) => {
       const next = { ...current };
       delete next[layerId];
@@ -268,44 +231,29 @@ export function useLayerActions({
   }
 
   function handleInsertLayer(layer: CanvasLayer) {
-    const layers =
-      layerStateByNodeId[activeQrNodeId] ??
-      createDefaultCanvasLayers(activeQrNodeId, canvasQraftyState, selectedCardState);
+    const layers = canvasLayers;
     const maxZIndex = layers.reduce((max, currentLayer) => Math.max(max, currentLayer.zIndex), -1);
     const nextLayer = patchCanvasLayer(
       {
         ...cloneCanvasLayer(layer),
-        id: `${activeQrNodeId}:${layer.kind}:${Date.now()}`,
-        nodeId: activeQrNodeId,
+        id: `${DASHBOARD_QR_NODE_ID}:${layer.kind}:${Date.now()}`,
+        nodeId: DASHBOARD_QR_NODE_ID,
         zIndex: maxZIndex + 1,
       },
       {},
     );
 
-    setLayerStateByNodeId((current) => ({
-      ...current,
-      [activeQrNodeId]: [...layers.map(cloneCanvasLayer), nextLayer],
-    }));
+    setCanvasLayers((current) => [...current.map(cloneCanvasLayer), nextLayer]);
     selectSingleLayer(nextLayer.id);
     canvasRef.current?.focus({ preventScroll: true });
   }
 
   function handleAddTextLayer() {
-    handleInsertLayer(createCanvasTextLayer(activeQrNodeId));
+    handleInsertLayer(createCanvasTextLayer(DASHBOARD_QR_NODE_ID));
   }
 
-  function handleAddTextLayerAt(boardId: string, point: { x: number; y: number }) {
-    const targetQrState =
-      boardId === activeQrNodeId
-        ? canvasQraftyState
-        : (qrStateByNodeId[boardId] ?? createDefaultCanvasWorkspaceQrState());
-    const targetCardState =
-      boardId === activeQrNodeId
-        ? selectedCardState
-        : (cardStateByNodeId[boardId] ?? createDefaultCanvasCardState());
-    const layers =
-      layerStateByNodeId[boardId] ??
-      createDefaultCanvasLayers(boardId, targetQrState, targetCardState);
+  function handleAddTextLayerAt(point: { x: number; y: number }) {
+    const layers = canvasLayers;
     const maxZIndex = layers.reduce((max, layer) => Math.max(max, layer.zIndex), -1);
     const draftPosition = clampLayerGeometryToCanvas(
       {
@@ -314,52 +262,29 @@ export function useLayerActions({
         x: Math.round(point.x - 120),
         y: Math.round(point.y - 24),
       },
-      targetCardState,
+      selectedCardState,
     );
-    const textLayer = createCanvasTextLayer(boardId, {
-      id: `${boardId}:text:${Date.now()}`,
+    const textLayer = createCanvasTextLayer(DASHBOARD_QR_NODE_ID, {
+      id: `${DASHBOARD_QR_NODE_ID}:text:${Date.now()}`,
       x: draftPosition.x,
       y: draftPosition.y,
       zIndex: maxZIndex + 1,
     });
 
-    if (boardId !== activeQrNodeId) {
-      shouldReplaceCurrentEntryRef.current = true;
-      setQrStateByNodeId((current) => ({
-        ...current,
-        [activeQrNodeId]: cloneCanvasQrState(canvasQraftyState),
-        [boardId]: cloneCanvasQrState(targetQrState),
-      }));
-      setCardStateByNodeId((current) => ({
-        ...current,
-        [activeQrNodeId]: cloneCanvasCardState(selectedCardState),
-        [boardId]: cloneCanvasCardState(targetCardState),
-      }));
-      setActiveQrState(targetQrState, { nodeId: boardId });
-      setSelectedCardState(cloneCanvasCardState(targetCardState));
-    }
-
-    setLayerStateByNodeId((current) => ({
-      ...current,
-      [boardId]: [...layers.map(cloneCanvasLayer), textLayer],
-    }));
+    setCanvasLayers((current) => [...current.map(cloneCanvasLayer), textLayer]);
     selectSingleLayer(textLayer.id);
     canvasRef.current?.focus({ preventScroll: true });
   }
 
   function handleAddFrameCardLayer() {
-    const cardLayerId = getCanvasCardLayerId(activeQrNodeId);
-    const layers =
-      layerStateByNodeId[activeQrNodeId] ??
-      createDefaultCanvasLayers(activeQrNodeId, canvasQraftyState, selectedCardState);
+    const cardLayerId = getCanvasCardLayerId(DASHBOARD_QR_NODE_ID);
 
     setSelectedCardState((current) => ({
       ...current,
       enabled: true,
     }));
-    setLayerStateByNodeId((current) => ({
-      ...current,
-      [activeQrNodeId]: layers.map((layer) =>
+    setCanvasLayers((current) =>
+      current.map((layer) =>
         layer.id === cardLayerId
           ? patchCanvasLayer(layer, {
               isVisible: true,
@@ -367,14 +292,13 @@ export function useLayerActions({
             })
           : cloneCanvasLayer(layer),
       ),
-    }));
+    );
     selectSingleLayer(cardLayerId);
     setDesktopRailTool("shape");
     canvasRef.current?.focus({ preventScroll: true });
   }
 
   function handleLayerSelect(
-    boardId: string,
     layerId: string | null,
     options?: { additive?: boolean; preserveActiveTool?: boolean },
   ) {
@@ -384,7 +308,7 @@ export function useLayerActions({
       activateQrLayer(layerId);
     }
 
-    if (options?.additive && boardId === activeQrNodeId && layerId !== null) {
+    if (options?.additive && layerId !== null) {
       const next = selectedLayerIds.includes(layerId)
         ? selectedLayerIds.filter((id) => id !== layerId)
         : [...selectedLayerIds, layerId];
@@ -403,11 +327,7 @@ export function useLayerActions({
       return;
     }
 
-    const selectedLayer = findCanvasLayerById(
-      layerStateByNodeId[boardId] ??
-        createDefaultCanvasLayers(boardId, canvasQraftyState, selectedCardState),
-      layerId,
-    );
+    const selectedLayer = findCanvasLayerById(canvasLayers, layerId);
     const selectedKind = selectedLayer?.kind;
 
     if (
@@ -425,58 +345,20 @@ export function useLayerActions({
     );
   }
 
-  function handleLayerSelectionChange(
-    boardId: string,
-    layerIds: string[],
-    options?: { additive?: boolean },
-  ) {
-    if (boardId !== activeQrNodeId) {
-      handleBoardSelection(boardId);
-    }
-
-    const next = options?.additive
-      ? Array.from(new Set([...selectedLayerIds, ...layerIds]))
-      : layerIds;
-
-    applyLayerSelection(next);
+  function handleLayerSelectionChange(layerIds: string[]) {
+    applyLayerSelection(layerIds);
   }
 
   function getActiveSelectableLayers() {
-    const {
-      activeQrNodeId: currentActiveQrNodeId,
-      canvasQraftyState: currentCanvasQraftyState,
-      layerStateByNodeId: currentLayerStateByNodeId,
-      selectedCardState: currentSelectedCardState,
-    } = keyboardStateRef.current;
-    const layers =
-      currentLayerStateByNodeId[currentActiveQrNodeId] ??
-      createDefaultCanvasLayers(
-        currentActiveQrNodeId,
-        currentCanvasQraftyState,
-        currentSelectedCardState,
-      );
-
-    return layers.filter((layer) => layer.isVisible);
+    return keyboardStateRef.current.canvasLayers.filter((layer) => layer.isVisible);
   }
 
   function getSelectedActiveLayers() {
-    const {
-      activeQrNodeId: currentActiveQrNodeId,
-      canvasQraftyState: currentCanvasQraftyState,
-      layerStateByNodeId: currentLayerStateByNodeId,
-      selectedCardState: currentSelectedCardState,
-      selectedLayerIds: currentSelectedLayerIds,
-    } = keyboardStateRef.current;
+    const { canvasLayers: currentCanvasLayers, selectedLayerIds: currentSelectedLayerIds } =
+      keyboardStateRef.current;
     const selectedLayerIdSet = new Set(currentSelectedLayerIds);
-    const layers =
-      currentLayerStateByNodeId[currentActiveQrNodeId] ??
-      createDefaultCanvasLayers(
-        currentActiveQrNodeId,
-        currentCanvasQraftyState,
-        currentSelectedCardState,
-      );
 
-    return layers.filter((layer) => selectedLayerIdSet.has(layer.id));
+    return currentCanvasLayers.filter((layer) => selectedLayerIdSet.has(layer.id));
   }
 
   function selectAllActiveCanvasLayers() {
@@ -490,20 +372,9 @@ export function useLayerActions({
   }
 
   function deleteSelectedLayersOrBoard() {
-    const {
-      activeQrNodeId: currentActiveQrNodeId,
-      canvasQraftyState: currentCanvasQraftyState,
-      layerStateByNodeId: currentLayerStateByNodeId,
-      selectedCardState: currentSelectedCardState,
-      selectedLayerIds: currentSelectedLayerIds,
-    } = keyboardStateRef.current;
-    const layers =
-      currentLayerStateByNodeId[currentActiveQrNodeId] ??
-      createDefaultCanvasLayers(
-        currentActiveQrNodeId,
-        currentCanvasQraftyState,
-        currentSelectedCardState,
-      );
+    const { canvasLayers: currentCanvasLayers, selectedLayerIds: currentSelectedLayerIds } =
+      keyboardStateRef.current;
+    const layers = currentCanvasLayers;
     const selectedLayerIdSet = new Set(currentSelectedLayerIds);
     const removableLayerIds = layers.flatMap((layer) =>
       selectedLayerIdSet.has(layer.id) && isLayerDeletable(layer.id, layers) ? [layer.id] : [],
@@ -533,29 +404,18 @@ export function useLayerActions({
       }
       return next;
     });
-    setLayerStateByNodeId((current) => {
-      const currentLayers =
-        current[currentActiveQrNodeId] ??
-        createDefaultCanvasLayers(
-          currentActiveQrNodeId,
-          currentCanvasQraftyState,
-          currentSelectedCardState,
-        );
-
-      return {
-        ...current,
-        [currentActiveQrNodeId]: currentLayers.flatMap((layer) =>
-          removableLayerIdSet.has(layer.id) ? [] : [cloneCanvasLayer(layer)],
-        ),
-      };
-    });
+    setCanvasLayers((current) =>
+      current.flatMap((layer) =>
+        removableLayerIdSet.has(layer.id) ? [] : [cloneCanvasLayer(layer)],
+      ),
+    );
 
     const nextSelection = currentSelectedLayerIds.filter(
       (layerId) => !removableLayerIdSet.has(layerId),
     );
     const fallbackLayerId =
       getQrCanvasLayers(layers.filter((layer) => !removableLayerIdSet.has(layer.id))).at(-1)?.id ??
-      getCanvasQrLayerId(currentActiveQrNodeId);
+      getCanvasQrLayerId(DASHBOARD_QR_NODE_ID);
 
     if (removableLayerIdSet.has(activeQrLayerId)) {
       const fallbackState =
@@ -569,10 +429,8 @@ export function useLayerActions({
     applyLayerSelection(nextSelection.length > 0 ? nextSelection : [fallbackLayerId]);
   }
 
-  function handleLayerChange(boardId: string, layerId: string, patch: Partial<CanvasLayer>) {
-    const layers =
-      layerStateByNodeId[boardId] ??
-      createDefaultCanvasLayers(boardId, canvasQraftyState, selectedCardState);
+  function handleLayerChange(layerId: string, patch: Partial<CanvasLayer>) {
+    const layers = canvasLayers;
 
     if (isProtectedCanvasLayerId(layerId, layers)) {
       const { isVisible: _isVisible, ...safePatch } = patch;
@@ -585,25 +443,15 @@ export function useLayerActions({
       patch = patchWithoutVisibility;
     }
 
-    setLayerStateByNodeId((current) => {
-      const currentLayers =
-        current[boardId] ??
-        createDefaultCanvasLayers(boardId, canvasQraftyState, selectedCardState);
-
-      return {
-        ...current,
-        [boardId]: currentLayers.map((layer) => patchCanvasLayerById(layer, layerId, patch)),
-      };
-    });
+    setCanvasLayers((current) =>
+      current.map((layer) => patchCanvasLayerById(layer, layerId, patch)),
+    );
   }
 
   function handleLayerReorder(orderedIds: string[]) {
-    setLayerStateByNodeId((current) => {
-      const currentLayers =
-        current[activeQrNodeId] ??
-        createDefaultCanvasLayers(activeQrNodeId, canvasQraftyState, selectedCardState);
-      const layerById = new Map(currentLayers.map((layer) => [layer.id, layer]));
-      const cardLayerId = currentLayers.find((layer) => layer.kind === "card")?.id;
+    setCanvasLayers((current) => {
+      const layerById = new Map(current.map((layer) => [layer.id, layer]));
+      const cardLayerId = current.find((layer) => layer.kind === "card")?.id;
       const orderedIdSet = new Set(orderedIds);
       const reorderableIds = orderedIds.filter(
         (layerId) => layerId !== cardLayerId && layerById.has(layerId),
@@ -611,7 +459,7 @@ export function useLayerActions({
       const nextOrder = [
         ...reorderableIds,
         ...(cardLayerId ? [cardLayerId] : []),
-        ...currentLayers.flatMap((layer) =>
+        ...current.flatMap((layer) =>
           orderedIdSet.has(layer.id) || layer.id === cardLayerId ? [] : [layer.id],
         ),
       ];
@@ -619,33 +467,20 @@ export function useLayerActions({
         nextOrder.map((layerId, index) => [layerId, nextOrder.length - index]),
       );
 
-      return {
-        ...current,
-        [activeQrNodeId]: currentLayers.map((layer) =>
-          patchCanvasLayer(layer, {
-            zIndex: zIndexByLayerId.get(layer.id) ?? layer.zIndex,
-          }),
-        ),
-      };
+      return current.map((layer) =>
+        patchCanvasLayer(layer, {
+          zIndex: zIndexByLayerId.get(layer.id) ?? layer.zIndex,
+        }),
+      );
     });
   }
 
-  async function copySelectedCanvasLayers(
-    layerIds = selectedLayerIds,
-    boardId = keyboardStateRef.current.activeQrNodeId,
-  ) {
-    const {
-      canvasQraftyState: currentCanvasQraftyState,
-      layerStateByNodeId: currentLayerStateByNodeId,
-      selectedCardState: currentSelectedCardState,
-    } = keyboardStateRef.current;
-    const layers =
-      currentLayerStateByNodeId[boardId] ??
-      createDefaultCanvasLayers(boardId, currentCanvasQraftyState, currentSelectedCardState);
+  async function copySelectedCanvasLayers(layerIds = selectedLayerIds) {
+    const { canvasLayers: currentCanvasLayers } = keyboardStateRef.current;
     const payload = getCanvasLayerClipboardPayload({
       layerIds,
-      layers,
-      boardId,
+      layers: currentCanvasLayers,
+      boardId: DASHBOARD_QR_NODE_ID,
     });
 
     if (!payload) {
@@ -656,11 +491,7 @@ export function useLayerActions({
     await navigator.clipboard?.writeText(payload).catch(() => undefined);
   }
 
-  async function pasteCanvasLayers(
-    point?: { x: number; y: number },
-    payloadText?: string,
-    boardId = keyboardStateRef.current.activeQrNodeId,
-  ) {
+  async function pasteCanvasLayers(point?: { x: number; y: number }, payloadText?: string) {
     const rawPayload =
       payloadText ??
       (await navigator.clipboard?.readText().catch(() => canvasLayerClipboardRef.current)) ??
@@ -671,14 +502,8 @@ export function useLayerActions({
       return;
     }
 
-    const {
-      canvasQraftyState: currentCanvasQraftyState,
-      selectedCardState: currentSelectedCardState,
-    } = keyboardStateRef.current;
-    const layers =
-      layerStateByNodeId[boardId] ??
-      createDefaultCanvasLayers(boardId, currentCanvasQraftyState, currentSelectedCardState);
-    const maxZIndex = layers.reduce((max, layer) => Math.max(max, layer.zIndex), -1);
+    const { canvasLayers: currentCanvasLayers } = keyboardStateRef.current;
+    const maxZIndex = currentCanvasLayers.reduce((max, layer) => Math.max(max, layer.zIndex), -1);
     const offset = point
       ? {
           x: point.x - payload.bounds.x,
@@ -687,37 +512,26 @@ export function useLayerActions({
       : { x: DRAFTING_LAYER_PASTE_OFFSET, y: DRAFTING_LAYER_PASTE_OFFSET };
     const pastedLayers = cloneCanvasLayersForPaste({
       layers: payload.layers,
-      nodeId: boardId,
+      nodeId: DASHBOARD_QR_NODE_ID,
       offset,
       startingZIndex: maxZIndex + 1,
     });
 
     applyLayerSelection(pastedLayers.map((layer) => layer.id));
 
-    setLayerStateByNodeId((current) => {
-      const currentLayers =
-        current[boardId] ??
-        createDefaultCanvasLayers(boardId, currentCanvasQraftyState, currentSelectedCardState);
-
-      return {
-        ...current,
-        [boardId]: [...currentLayers.map(cloneCanvasLayer), ...pastedLayers],
-      };
-    });
+    setCanvasLayers((current) => [...current.map(cloneCanvasLayer), ...pastedLayers]);
   }
 
-  function handleLayerAction(boardId: string, layerIds: string[], action: CanvasLayerMenuAction) {
+  function handleLayerAction(layerIds: string[], action: CanvasLayerMenuAction) {
     if (layerIds.length === 0) {
       return;
     }
 
-    const currentLayers =
-      layerStateByNodeId[boardId] ??
-      createDefaultCanvasLayers(boardId, canvasQraftyState, selectedCardState);
+    const layers = canvasLayers;
 
     if (action === "delete") {
       const removableLayerIds = new Set(
-        layerIds.filter((layerId) => isLayerDeletable(layerId, currentLayers)),
+        layerIds.filter((layerId) => isLayerDeletable(layerId, layers)),
       );
 
       if (removableLayerIds.size > 0) {
@@ -743,10 +557,7 @@ export function useLayerActions({
       }
     }
 
-    setLayerStateByNodeId((current) => {
-      const layers =
-        current[boardId] ??
-        createDefaultCanvasLayers(boardId, canvasQraftyState, selectedCardState);
+    setCanvasLayers((current) => {
       const reorderActions: CanvasLayerReorderAction[] = ["back", "backward", "forward", "front"];
       const alignActions: CanvasLayerAlignAction[] = [
         "bottom",
@@ -758,17 +569,17 @@ export function useLayerActions({
       ];
       const distributeActions: CanvasLayerDistributeAction[] = ["horizontal", "vertical"];
 
-      let nextLayers = layers;
+      let nextLayers = current;
 
       if (reorderActions.includes(action as CanvasLayerReorderAction)) {
-        for (const layerId of layerIds.filter((id) => !isProtectedCanvasLayerId(id, layers))) {
+        for (const layerId of layerIds.filter((id) => !isProtectedCanvasLayerId(id, current))) {
           nextLayers = reorderCanvasLayer(nextLayers, layerId, action as CanvasLayerReorderAction);
         }
       } else if (alignActions.includes(action as CanvasLayerAlignAction)) {
         nextLayers = alignCanvasLayers(nextLayers, layerIds, action as CanvasLayerAlignAction);
       } else if (action === "group") {
         nextLayers = groupCanvasLayers(nextLayers, layerIds, {
-          groupId: `${boardId}:group:${Date.now()}`,
+          groupId: `${DASHBOARD_QR_NODE_ID}:group:${Date.now()}`,
           name: "Group",
         });
       } else if (action === "ungroup") {
@@ -783,7 +594,7 @@ export function useLayerActions({
         );
       } else if (action === "delete") {
         const removableLayerIds = new Set(
-          layerIds.filter((layerId) => isLayerDeletable(layerId, layers)),
+          layerIds.filter((layerId) => isLayerDeletable(layerId, current)),
         );
 
         if (removableLayerIds.size > 0) {
@@ -793,7 +604,7 @@ export function useLayerActions({
         }
       } else if (action === "reset-rotation") {
         const actionableLayerIdSet = new Set(
-          layerIds.filter((layerId) => !isProtectedCanvasLayerId(layerId, layers)),
+          layerIds.filter((layerId) => !isProtectedCanvasLayerId(layerId, current)),
         );
 
         if (actionableLayerIdSet.size === 0) {
@@ -809,10 +620,7 @@ export function useLayerActions({
         });
       }
 
-      return {
-        ...current,
-        [boardId]: nextLayers,
-      };
+      return nextLayers;
     });
   }
   return {
@@ -832,7 +640,6 @@ export function useLayerActions({
     handleLayerReorder,
     handleLayerSelect,
     handleLayerSelectionChange,
-    handleBoardQrClick,
     handleBoardSelection,
     handleRemoveQrCode,
     pasteCanvasLayers,

@@ -10,18 +10,13 @@ export type CanvasBoardInteractionState = {
 /** Layer-interaction callbacks shared by Canvas, CanvasBoard, and
  * the canvas board viewport props. */
 export type CanvasLayerInteractionProps = {
-  onLayerChange?: (boardId: string, layerId: string, patch: Partial<CanvasLayer>) => void;
-  onLayerAction?: (boardId: string, layerIds: string[], action: CanvasLayerMenuAction) => void;
-  onLayerCopy?: (boardId: string, layerIds: string[]) => void;
-  onLayerPaste?: (boardId: string, point: { x: number; y: number }) => void;
+  onLayerChange?: (layerId: string, patch: Partial<CanvasLayer>) => void;
+  onLayerAction?: (layerIds: string[], action: CanvasLayerMenuAction) => void;
+  onLayerCopy?: (layerIds: string[]) => void;
+  onLayerPaste?: (point: { x: number; y: number }) => void;
   onLayerSelect?: (
-    boardId: string,
     layerId: string | null,
-    options?: { additive?: boolean },
+    options?: { additive?: boolean; preserveActiveTool?: boolean },
   ) => void;
-  onLayerSelectionChange?: (
-    boardId: string,
-    layerIds: string[],
-    options?: { additive?: boolean },
-  ) => void;
+  onLayerSelectionChange?: (layerIds: string[], options?: { additive?: boolean }) => void;
 };

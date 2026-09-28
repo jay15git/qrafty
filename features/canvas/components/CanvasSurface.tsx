@@ -10,6 +10,7 @@ import type {
 } from "@/features/shell/components/WorkspaceChrome";
 import { MobileWorkspaceInsetTransitionBridge } from "@/features/canvas/components/MobileWorkspaceInsetTransitionBridge";
 import { useCanvasViewModel } from "@/features/canvas/components/use-canvas-view-model";
+import { DASHBOARD_QR_NODE_ID } from "@/features/qr/rendering/compose-scene";
 import { cn } from "@/lib/utils";
 
 type CanvasWorkspaceController = ToolbarController;
@@ -32,7 +33,6 @@ export function CanvasSurface({
   renderOverlay,
 }: CanvasSurfaceProps = {}) {
   const {
-    activeQrNodeId,
     desktopCanvasTool,
     desktopController,
     canvasRef,
@@ -57,7 +57,6 @@ export function CanvasSurface({
     handleLayerChange,
     handleLayerSelect,
     handleLayerSelectionChange,
-    handleBoardQrClick,
     handleBoardSelection,
     pasteCanvasLayers,
     setDesktopCanvasTool,
@@ -89,7 +88,7 @@ export function CanvasSurface({
         "grid-rows-1 sm:h-dvh",
       )}
       data-compose-edit-mode="false"
-      data-compose-selected-node-id={activeQrNodeId ?? ""}
+      data-compose-selected-node-id={DASHBOARD_QR_NODE_ID}
     >
       <MobileWorkspaceInsetTransitionBridge />
 
@@ -103,22 +102,21 @@ export function CanvasSurface({
           <div data-slot="canvas-workspace-inset" className="h-full min-h-0 p-0">
             <div data-slot="canvas-viewport" className="h-full min-h-0 min-w-0">
               <Canvas
-                activeBoardId={activeQrNodeId}
+                activeBoardId={DASHBOARD_QR_NODE_ID}
                 layerEditingEnabled
                 onLayerChange={handleLayerChange}
                 onLayerAction={handleLayerAction}
-                onLayerCopy={(_boardId, layerIds) => {
-                  void copySelectedCanvasLayers(layerIds, _boardId);
+                onLayerCopy={(layerIds) => {
+                  void copySelectedCanvasLayers(layerIds);
                 }}
                 activeCanvasTool={desktopCanvasTool}
                 onAddTextLayerAt={handleAddTextLayerAt}
                 onCanvasToolChange={setDesktopCanvasTool}
-                onLayerPaste={(_boardId, point) => {
-                  void pasteCanvasLayers(point, undefined, _boardId);
+                onLayerPaste={(point) => {
+                  void pasteCanvasLayers(point);
                 }}
                 onLayerSelect={handleLayerSelect}
                 onLayerSelectionChange={handleLayerSelectionChange}
-                onBoardQrClick={handleBoardQrClick}
                 onBoardSelect={handleBoardSelection}
                 boards={boards}
                 fitCanvasToViewport

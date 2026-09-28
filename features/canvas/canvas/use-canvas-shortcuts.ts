@@ -2,16 +2,14 @@
 
 import { useEffect, type MutableRefObject } from "react";
 
-import type { CanvasLayer, CanvasLayerStateByNodeId } from "@/features/canvas/model/layers/shared";
-import { createDefaultCanvasLayers } from "@/features/canvas/model/layers/card-qr";
+import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
 import {
   getCanvasLayerClipboardPayload,
   isEditableShortcutTarget,
   parseCanvasLayerClipboardPayload,
 } from "@/features/canvas/components/canvas-operations";
 import type { CanvasLayerMenuAction } from "@/features/canvas/components/Artboard";
-import type { CanvasCardState } from "@/features/canvas/model/card-state";
-import type { QraftyState } from "@/features/qr/model/state";
+import { DASHBOARD_QR_NODE_ID } from "@/features/qr/rendering/compose-scene";
 
 const ARROW_KEY_DELTAS: Record<string, readonly [number, number]> = {
   arrowleft: [-1, 0],
@@ -22,28 +20,21 @@ const ARROW_KEY_DELTAS: Record<string, readonly [number, number]> = {
 
 export type CanvasShortcutKeyboardState = {
   activeQrLayerId: string;
-  activeQrNodeId: string;
-  canvasQraftyState: QraftyState;
-  layerStateByNodeId: CanvasLayerStateByNodeId;
+  canvasLayers: CanvasLayer[];
   qrLayerCount: number;
-  selectedCardState: CanvasCardState;
   selectedLayerIds: string[];
 };
 
 export type CanvasShortcutHandlers = {
   clearCanvasLayerSelection: () => void;
-  copySelectedCanvasLayers: (layerIds?: string[], boardId?: string) => Promise<void>;
+  copySelectedCanvasLayers: (layerIds?: string[]) => Promise<void>;
   deleteSelectedLayersOrBoard: () => void;
   duplicateSelectedLayers: (layerIds?: string[]) => void;
-  handleLayerAction: (boardId: string, layerIds: string[], action: CanvasLayerMenuAction) => void;
-  handleLayerChange: (boardId: string, layerId: string, patch: Partial<CanvasLayer>) => void;
+  handleLayerAction: (layerIds: string[], action: CanvasLayerMenuAction) => void;
+  handleLayerChange: (layerId: string, patch: Partial<CanvasLayer>) => void;
   handleRedoCanvasWorkspace: () => void;
   handleUndoCanvasWorkspace: () => void;
-  pasteCanvasLayers: (
-    point?: { x: number; y: number },
-    payloadText?: string,
-    boardId?: string,
-  ) => Promise<void>;
+  pasteCanvasLayers: (point?: { x: number; y: number }, payloadText?: string) => Promise<void>;
   selectAllActiveCanvasLayers: () => void;
 };
 
@@ -72,13 +63,9 @@ export function useCanvasShortcuts({
 
     const nudgeSelectedLayers = (event: KeyboardEvent, arrowDelta: readonly [number, number]) => {
       const delta = event.shiftKey ? 10 : 1;
-      const {
-        activeQrNodeId: currentActiveQrNodeId,
-        layerStateByNodeId: currentLayerStateByNodeId,
-        selectedLayerIds: currentSelectedLayerIds,
-      } = stateRef.current;
-      const activeLayers = currentLayerStateByNodeId[currentActiveQrNodeId] ?? [];
-      const activeLayerById = new Map(activeLayers.map((item) => [item.id, item]));
+      const { canvasLayers: currentCanvasLayers, selectedLayerIds: currentSelectedLayerIds } =
+        stateRef.current;
+      const activeLayerById = new Map(currentCanvasLayers.map((item) => [item.id, item]));
 
       if (currentSelectedLayerIds.length === 0) {
         return;
@@ -89,7 +76,7 @@ export function useCanvasShortcuts({
         const layer = activeLayerById.get(layerId);
 
         if (layer) {
-          handlersRef.current.handleLayerChange(currentActiveQrNodeId, layerId, {
+          handlersRef.current.handleLayerChange(layerId, {
             x: layer.x + arrowDelta[0] * delta,
             y: layer.y + arrowDelta[1] * delta,
           });
@@ -127,11 +114,10 @@ export function useCanvasShortcuts({
       const reorder = (shifted: string, plain: string) =>
         withSelection((selectedLayerIds) =>
           handlersRef.current.handleLayerAction(
-            stateRef.current.activeQrNodeId,
             selectedLayerIds,
             (event.shiftKey ? shifted : plain) as Parameters<
               CanvasShortcutHandlers["handleLayerAction"]
-            >[2],
+            >[1],
           ),
         );
 
@@ -212,23 +198,12 @@ export function useCanvasShortcuts({
         return;
       }
 
-      const {
-        activeQrNodeId: currentActiveQrNodeId,
-        canvasQraftyState: currentCanvasQraftyState,
-        layerStateByNodeId: currentLayerStateByNodeId,
-        selectedCardState: currentSelectedCardState,
-        selectedLayerIds: currentSelectedLayerIds,
-      } = stateRef.current;
+      const { canvasLayers: currentCanvasLayers, selectedLayerIds: currentSelectedLayerIds } =
+        stateRef.current;
       const payload = getCanvasLayerClipboardPayload({
         layerIds: currentSelectedLayerIds,
-        layers:
-          currentLayerStateByNodeId[currentActiveQrNodeId] ??
-          createDefaultCanvasLayers(
-            currentActiveQrNodeId,
-            currentCanvasQraftyState,
-            currentSelectedCardState,
-          ),
-        boardId: currentActiveQrNodeId,
+        layers: currentCanvasLayers,
+        boardId: DASHBOARD_QR_NODE_ID,
       });
 
       if (!payload) {

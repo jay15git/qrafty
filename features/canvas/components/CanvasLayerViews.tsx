@@ -838,7 +838,7 @@ function CanvasQrLayerView({
       key={layer.id}
       layer={layer}
       isSelected={isLayerSelected}
-      onActivate={(additive) => onActivateLayerSelection(layer, { additive, qr: true })}
+      onActivate={(additive) => onActivateLayerSelection(layer, { additive })}
       data-slot="canvas-node"
       data-layer-id={layer.id}
       data-node-id={qrState.data}
@@ -849,7 +849,7 @@ function CanvasQrLayerView({
         ...getLayerPlacementStyle(layer),
         ...layerEffectStyle,
       }}
-      onClick={(event) => onSelectLayerFromClick(event, layer, { qr: true })}
+      onClick={(event) => onSelectLayerFromClick(event, layer)}
       onPointerDown={(event) => onStartLayerInteraction(event, layer, "move")}
       onPointerMove={onUpdateLayerInteraction}
       onPointerUp={onEndLayerInteraction}

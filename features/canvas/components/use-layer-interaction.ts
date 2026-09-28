@@ -69,7 +69,7 @@ export type CanvasLayerInteractionInput = {
   interactionScale: number;
   onLayerChange?: (layerId: string, patch: Partial<CanvasLayer>) => void;
   onLayerSelect?: (layerId: string | null, options?: { additive?: boolean }) => void;
-  onQrClick: () => void;
+
   queueDocumentLayerChange: (layerId: string, patch: Partial<CanvasLayer>) => void;
   scheduleDocumentLayerFlush: () => void;
   selectedVisibleLayers: CanvasLayer[];
@@ -92,7 +92,6 @@ export function useLayerInteraction({
   interactionScale,
   onLayerChange,
   onLayerSelect,
-  onQrClick,
   queueDocumentLayerChange,
   scheduleDocumentLayerFlush,
   selectedVisibleLayers,
@@ -619,10 +618,7 @@ export function useLayerInteraction({
     }
   }
 
-  function activateLayerSelection(
-    layer: CanvasLayer,
-    options?: { additive?: boolean; qr?: boolean },
-  ) {
+  function activateLayerSelection(layer: CanvasLayer, options?: { additive?: boolean }) {
     if (layer.kind === "card") {
       return;
     }
@@ -632,16 +628,9 @@ export function useLayerInteraction({
     }
 
     onLayerSelect?.(layer.id, { additive: options?.additive ?? false });
-    if (options?.qr) {
-      onQrClick();
-    }
   }
 
-  function selectLayerFromClick(
-    event: MouseEvent<HTMLElement>,
-    layer: CanvasLayer,
-    options?: { qr?: boolean },
-  ) {
+  function selectLayerFromClick(event: MouseEvent<HTMLElement>, layer: CanvasLayer) {
     if (layer.kind === "card") {
       return;
     }
@@ -659,9 +648,6 @@ export function useLayerInteraction({
     }
 
     onLayerSelect?.(layer.id, { additive: event.metaKey || event.ctrlKey });
-    if (options?.qr) {
-      onQrClick();
-    }
   }
 
   return {

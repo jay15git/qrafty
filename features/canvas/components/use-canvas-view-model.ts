@@ -39,7 +39,6 @@ export function useCanvasViewModel({
   const scanSafetyResult = useCanvasScanSafety({
     activeCanvasLayers: boards.activeCanvasLayers,
     activeQrLayerId: state.activeQrLayerId,
-    activeQrNodeId: state.activeQrNodeId,
     canvasQraftyState: activeQr.canvasQraftyState,
     qrCanvasLayers: boards.qrCanvasLayers,
     qrStateByLayerId: state.qrStateByLayerId,
@@ -59,7 +58,6 @@ export function useCanvasViewModel({
   });
 
   return {
-    activeQrNodeId: state.activeQrNodeId,
     desktopCanvasTool: state.desktopCanvasTool,
     desktopController,
     canvasRef,
@@ -84,7 +82,6 @@ export function useCanvasViewModel({
     handleLayerChange: actions.handleLayerChange,
     handleLayerSelect: actions.handleLayerSelect,
     handleLayerSelectionChange: actions.handleLayerSelectionChange,
-    handleBoardQrClick: actions.handleBoardQrClick,
     handleBoardSelection: actions.handleBoardSelection,
     pasteCanvasLayers: actions.pasteCanvasLayers,
     setDesktopCanvasTool: setters.setDesktopCanvasTool,

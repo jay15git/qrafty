@@ -1,68 +1,50 @@
 import { cloneCanvasCardState, type CanvasCardState } from "@/features/canvas/model/card-state";
-import { cloneCanvasLayerStateByNodeId } from "@/features/canvas/model/layers/fallback";
-import type { CanvasLayerStateByNodeId } from "@/features/canvas/model/layers/shared";
+import { cloneCanvasLayer } from "@/features/canvas/model/layers/fallback";
+import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
 import { createDefaultQraftyState, type QraftyState } from "@/features/qr/model/state";
 import { type QrInputType } from "@/features/qr/content/input-options";
 import { type StaticQrContentValues } from "@/features/qr/content/static-payload";
 
-export type CanvasQrStateByNodeId = Record<string, QraftyState>;
-export type CanvasCardStateByNodeId = Record<string, CanvasCardState>;
+export type CanvasQrStateByLayerId = Record<string, QraftyState>;
 export type CanvasContentValuesByType = Partial<Record<QrInputType, StaticQrContentValues>>;
 
-export type CanvasQrStateByLayerId = Record<string, QraftyState>;
-
-export type CanvasWorkspaceDocumentV1 = {
+/**
+ * The workspace document is a single canvas board. Per-QR state is indexed by
+ * layer id (`qrStateByLayerId` / `contentTypeByLayerId`) — the only multi-entry
+ * axis that exists — and the card and layer stack are flat fields.
+ */
+export type CanvasWorkspaceDocument = {
   activeQrLayerId: string;
-  activeQrNodeId: string;
-  cardStateByNodeId: CanvasCardStateByNodeId;
+  cardState: CanvasCardState;
   contentTypeByLayerId: Record<string, QrInputType>;
-  contentTypeByNodeId: Record<string, QrInputType>;
   contentValuesByType: CanvasContentValuesByType;
-  layerStateByNodeId: CanvasLayerStateByNodeId;
-  qrOrder: string[];
+  layers: CanvasLayer[];
   qrStateByLayerId: CanvasQrStateByLayerId;
-  qrStateByNodeId: CanvasQrStateByNodeId;
   selectedContentType: QrInputType;
-  version: 1;
 };
 
 const DEFAULT_DRAFTING_PANE_QR_SIZE = 240;
 
 export function cloneCanvasWorkspaceDocument(
-  document: CanvasWorkspaceDocumentV1,
-): CanvasWorkspaceDocumentV1 {
+  document: CanvasWorkspaceDocument,
+): CanvasWorkspaceDocument {
   return {
     activeQrLayerId: document.activeQrLayerId,
-    activeQrNodeId: document.activeQrNodeId,
-    cardStateByNodeId: Object.fromEntries(
-      Object.entries(document.cardStateByNodeId).map(([nodeId, state]) => [
-        nodeId,
-        cloneCanvasCardState(state),
-      ]),
-    ),
+    cardState: cloneCanvasCardState(document.cardState),
     contentTypeByLayerId: structuredClone(document.contentTypeByLayerId),
-    contentTypeByNodeId: structuredClone(document.contentTypeByNodeId),
     contentValuesByType: structuredClone(document.contentValuesByType),
-    layerStateByNodeId: cloneCanvasLayerStateByNodeId(document.layerStateByNodeId),
-    qrOrder: [...document.qrOrder],
+    layers: document.layers.map(cloneCanvasLayer),
     qrStateByLayerId: Object.fromEntries(
       Object.entries(document.qrStateByLayerId).map(([layerId, state]) => [
         layerId,
         cloneCanvasQrState(state),
       ]),
     ),
-    qrStateByNodeId: Object.fromEntries(
-      Object.entries(document.qrStateByNodeId).map(([nodeId, state]) => [
-        nodeId,
-        cloneCanvasQrState(state),
-      ]),
-    ),
     selectedContentType: document.selectedContentType,
-    version: 1,
   };
 }
 
-export function serializeCanvasWorkspaceDocument(document: CanvasWorkspaceDocumentV1): string {
+export function serializeCanvasWorkspaceDocument(document: CanvasWorkspaceDocument): string {
   return JSON.stringify(cloneCanvasWorkspaceDocument(document));
 }
 

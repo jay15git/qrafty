@@ -1,6 +1,5 @@
 import type { CanvasCardState } from "@/features/canvas/model/card-state";
-import type { CanvasLayer, CanvasLayerStateByNodeId } from "@/features/canvas/model/layers/shared";
-import { createDefaultCanvasLayers } from "@/features/canvas/model/layers/card-qr";
+import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
 import type { CanvasContentValuesByType } from "@/features/canvas/model/document";
 import type { CanvasBoardToolbarVariant } from "@/features/canvas/components/Canvas";
 import { findCanvasLayerById } from "@/features/canvas/components/canvas-operations";
@@ -24,18 +23,6 @@ export function resolveSelectedContentValues(
   selectedContentType: QrInputType,
 ) {
   return contentValuesByType[selectedContentType] ?? getDefaultStaticQrValues(selectedContentType);
-}
-
-export function resolveActiveCanvasLayers(
-  layerStateByNodeId: CanvasLayerStateByNodeId,
-  activeQrNodeId: string,
-  canvasQraftyState: QraftyState,
-  selectedCardState: CanvasCardState,
-) {
-  return (
-    layerStateByNodeId[activeQrNodeId] ??
-    createDefaultCanvasLayers(activeQrNodeId, canvasQraftyState, selectedCardState)
-  );
 }
 
 export function resolveSelectedTextLayer(

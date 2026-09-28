@@ -24,12 +24,11 @@ function patch(field: QrDraftWriteField, value: unknown): CanvasSurfaceAction {
 }
 
 describe("canvas surface reducer", () => {
-  it("writes QR draft fields to the active layer and board maps", () => {
+  it("writes QR draft fields to the active layer state", () => {
     const initial = createInitialCanvasSurfaceState();
     const next = canvasReducer(initial, patch("selectedDotColor", "#123456"));
 
     expect(next.qrStateByLayerId[PRIMARY_QR_LAYER_ID].dataModulesSettings.color).toBe("#123456");
-    expect(next.qrStateByNodeId[DASHBOARD_QR_NODE_ID].dataModulesSettings.color).toBe("#123456");
   });
 
   it("passes the derived field value to functional updaters", () => {
@@ -101,12 +100,12 @@ describe("canvas surface reducer", () => {
     expect(state.contentTypeByLayerId[otherLayerId]).toBe("sms");
   });
 
-  it("writes card edits through to the active board card state", () => {
+  it("writes card edits through to the card state", () => {
     const initial = createInitialCanvasSurfaceState();
     const card = { ...createDefaultCanvasCardState(), fill: "#abcdef" };
     const next = canvasReducer(initial, patch("selectedCardState", card));
 
-    expect(next.cardStateByNodeId[DASHBOARD_QR_NODE_ID].fill).toBe("#abcdef");
+    expect(next.cardState.fill).toBe("#abcdef");
   });
 });
 

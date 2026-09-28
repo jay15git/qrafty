@@ -39,7 +39,6 @@ export type CanvasWorkspaceProps = {
   onLayerSelect?: (layerId: string | null, options?: { additive?: boolean }) => void;
   onLayerSelectionChange?: (layerIds: string[], options?: { additive?: boolean }) => void;
   onSelect: () => void;
-  onQrClick: () => void;
   qrStateByLayerId: CanvasQrStateByLayerId;
   selectedLayerId?: string | null;
   selectedLayerIds?: string[];
@@ -66,7 +65,6 @@ export function CanvasWorkspace({
   onLayerSelect,
   onLayerSelectionChange,
   onSelect,
-  onQrClick,
   qrStateByLayerId,
   selectedLayerId,
   selectedLayerIds,
@@ -152,7 +150,6 @@ export function CanvasWorkspace({
     onLayerSelect,
     onLayerSelectionChange,
     onSelect,
-    onQrClick,
     qrStateByLayerId,
     selectedLayerId,
     selectedLayerIds,

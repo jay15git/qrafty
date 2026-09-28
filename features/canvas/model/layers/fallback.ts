@@ -17,7 +17,6 @@ import {
   getCanvasQrLayerId,
   type CanvasLayer,
   type CanvasLayerKind,
-  type CanvasLayerStateByNodeId,
 } from "@/features/canvas/model/layers/shared";
 
 export function cloneCanvasLayer(layer: CanvasLayer): CanvasLayer {
@@ -42,17 +41,6 @@ export function cloneCanvasLayer(layer: CanvasLayer): CanvasLayer {
     illustrationColorStops: layer.illustrationColorStops?.map((stop) => ({ ...stop })),
     paperShader: layer.paperShader ? cloneCanvasCardPaperShaderState(layer.paperShader) : undefined,
   };
-}
-
-export function cloneCanvasLayerStateByNodeId(
-  layersByNodeId: CanvasLayerStateByNodeId,
-): CanvasLayerStateByNodeId {
-  return Object.fromEntries(
-    Object.entries(layersByNodeId).map(([nodeId, layers]) => [
-      nodeId,
-      layers.map(cloneCanvasLayer),
-    ]),
-  );
 }
 
 const FALLBACK_LAYER_NAMES: Record<CanvasLayerKind, string> = {

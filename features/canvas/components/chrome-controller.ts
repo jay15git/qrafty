@@ -1,4 +1,5 @@
 import { getCanvasSizeFromTemplate } from "@/features/canvas/model/size-templates";
+import { DASHBOARD_QR_NODE_ID } from "@/features/qr/rendering/compose-scene";
 import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
 import { isLayerDeletable } from "@/features/canvas/model/layers/shared";
 import type {
@@ -104,9 +105,8 @@ type CanvasControllerParams = {
 };
 
 type ElementControllerParams = {
-  activeQrNodeId: string;
   onAppearancePatch: ToolbarController["onAppearancePatch"];
-  onLayerChange: (nodeId: string, layerId: string, patch: Partial<CanvasLayer>) => void;
+  onLayerChange: (layerId: string, patch: Partial<CanvasLayer>) => void;
   propertiesTransformLayer: CanvasLayer | null;
   selectedElementLayer: CanvasLayer | null;
   selectedTransformLayer: CanvasLayer | null;
@@ -127,9 +127,8 @@ type ExportControllerParams = {
 
 type LayersControllerParams = {
   activeCanvasLayers: CanvasLayer[];
-  activeQrNodeId: string;
   layersSettings: LayersSettings;
-  onLayerAction: (nodeId: string, layerIds: string[], action: CanvasLayerMenuAction) => void;
+  onLayerAction: (layerIds: string[], action: CanvasLayerMenuAction) => void;
   onLayerCopy: () => void;
   onLayersReorder: (orderedIds: string[]) => void;
   onLayersSettingsChange: ToolbarController["onLayersSettingsChange"];
@@ -159,7 +158,6 @@ function buildCanvasController({
 }
 
 function buildElementController({
-  activeQrNodeId,
   onAppearancePatch,
   onLayerChange,
   propertiesTransformLayer,
@@ -170,13 +168,13 @@ function buildElementController({
     onAppearancePatch,
     onElementLayerPatch: (patch: Partial<CanvasLayer>) => {
       if (selectedElementLayer) {
-        onLayerChange(activeQrNodeId, selectedElementLayer.id, patch);
+        onLayerChange(selectedElementLayer.id, patch);
       }
     },
     onTransformLayerPatch: (patch: Partial<CanvasLayer>) => {
       const target = selectedTransformLayer ?? propertiesTransformLayer;
       if (target) {
-        onLayerChange(activeQrNodeId, target.id, patch);
+        onLayerChange(target.id, patch);
       }
     },
   };
@@ -184,7 +182,6 @@ function buildElementController({
 
 function buildLayersController({
   activeCanvasLayers,
-  activeQrNodeId,
   layersSettings,
   onLayerAction,
   onLayerCopy,
@@ -197,10 +194,10 @@ function buildLayersController({
     onLayersSettingsChange,
     onLayersReorder,
     onLayerDelete: (layerId: string) => {
-      onLayerAction(activeQrNodeId, [layerId], "delete");
+      onLayerAction([layerId], "delete");
     },
     onLayerMenuAction: (action: CanvasLayerMenuAction) => {
-      onLayerAction(activeQrNodeId, selectedLayerIds, action);
+      onLayerAction(selectedLayerIds, action);
     },
     onLayerCopy,
     canCopyLayers: selectedLayerIds.length > 0,
@@ -250,7 +247,6 @@ export function buildCanvasWorkspaceController({
   state: CanvasSurfaceState;
 }): ToolbarController {
   const {
-    activeQrNodeId,
     composeSidebarPanel,
     desktopRailTool,
     exportDownloadError,
@@ -377,7 +373,6 @@ export function buildCanvasWorkspaceController({
     exportSettings: desktopExportSettings,
     sceneTemplateSettings: desktopSceneTemplateSettings,
   } = buildToolbarSettingsSnapshots({
-    activeQrNodeId,
     activeCanvasLayers,
     activeCanvasLayerRows,
     canvasQraftyState,
@@ -452,7 +447,7 @@ export function buildCanvasWorkspaceController({
       contentValidation: selectedContentValidation,
       contentValues: selectedContentValues,
       contentType: selectedContentType,
-      insertNodeId: activeQrNodeId,
+      insertNodeId: DASHBOARD_QR_NODE_ID,
       onActiveToolChange: (toolId) => {
         setComposeSidebarPanel(null);
         setDesktopCanvasTool("select");
@@ -555,7 +550,6 @@ export function buildCanvasWorkspaceController({
       qrLayerCount: qrCanvasLayers.length,
     },
     element: {
-      activeQrNodeId,
       onAppearancePatch: handleDesktopAppearancePatch,
       onLayerChange: handleLayerChange,
       propertiesTransformLayer,
@@ -580,7 +574,6 @@ export function buildCanvasWorkspaceController({
     },
     layers: {
       activeCanvasLayers,
-      activeQrNodeId,
       layersSettings: desktopLayersSettings,
       onLayerAction: handleLayerAction,
       onLayerCopy: () => {

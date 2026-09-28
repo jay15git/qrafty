@@ -45,7 +45,6 @@ export type CanvasWorkspaceInteractionsInput = {
   onLayerSelect?: (layerId: string | null, options?: { additive?: boolean }) => void;
   onLayerSelectionChange?: (layerIds: string[], options?: { additive?: boolean }) => void;
   onSelect: () => void;
-  onQrClick: () => void;
   qrStateByLayerId: CanvasQrStateByLayerId;
   selectedLayerId?: string | null;
   selectedLayerIds?: string[];
@@ -118,7 +117,6 @@ export function useCanvasWorkspaceInteractions({
   onLayerSelect,
   onLayerSelectionChange,
   onSelect,
-  onQrClick,
   qrStateByLayerId,
   selectedLayerId,
   selectedLayerIds,
@@ -284,7 +282,6 @@ export function useCanvasWorkspaceInteractions({
     interactionScale,
     onLayerChange,
     onLayerSelect,
-    onQrClick,
     queueDocumentLayerChange,
     scheduleDocumentLayerFlush,
     selectedVisibleLayers,
