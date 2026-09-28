@@ -63,9 +63,10 @@ This version has breaking changes. Read the relevant guide in `node_modules/next
 ## Testing Notes
 
 - Tests cover `features/qr/model/state.ts` plus a wide set of adjacent modules and components (126 files).
+- **Golden export snapshots** live in `features/canvas/export/golden/` — 17 fixture documents covering QR fill modes (solid/gradient/palette/image/unified), motion loaders, card background modes, and every layer kind. `golden.test.ts` runs each through QR markup → `buildSceneIr` → `emitSvg` and pins `.svg` + `.ir.json` file snapshots under `snapshots/`. Any export/render refactor must keep these green; regenerate intentionally with `pnpm exec vitest run features/canvas/export/golden -u`.
 - Vitest is configured with `environment: "node"`, so browser/client behavior is not covered by default.
 - If you change React UI behavior, do not assume existing tests cover it.
-- `pnpm typecheck` is clean and `next.config.ts` no longer sets `typescript.ignoreBuildErrors`, so `pnpm build` runs type checking and passes. `pnpm test` is **928/928 green across 121 files**; `pnpm lint` reports **0 errors / 156 warnings** (mostly `react-hooks/*` advisories from `eslint-config-next` 16 in client components; `app/` is lint-clean). `pnpm check` runs typecheck + knip + fallow dead-code and exits 0. Baselines live in `docs/superpowers/plans/`.
+- `pnpm typecheck` is clean and `next.config.ts` no longer sets `typescript.ignoreBuildErrors`, so `pnpm build` runs type checking and passes. `pnpm test` is **945/945 green across 122 files**; `pnpm lint` reports **0 errors / 155 warnings** (mostly `react-hooks/*` advisories from `eslint-config-next` 16 in client components; `app/` is lint-clean). `pnpm check` runs typecheck + knip + fallow dead-code and exits 0. Baselines live in `docs/superpowers/plans/`.
 - **`react-doctor` is a standalone CLI** (`pnpm doctor`, devDependency `react-doctor`), not an ESLint plugin. Current report: **9 pre-existing issues** (all in untouched legacy files); `react-doctor.yml` gates PRs on new errors — do not add to the count. It reads suppression comments from source, so use its native directive: `// react-doctor-disable-next-line react-doctor/<rule> -- <reason>`. The `// eslint-disable-next-line react-doctor/<rule>` form makes ESLint fail with `Definition for rule ... was not found` — never use it.
 
 ## Dead-code tooling

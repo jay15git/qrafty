@@ -1,0 +1,138 @@
+{
+  "bounds": {
+    "height": 810,
+    "minX": -540,
+    "minY": -405,
+    "width": 1080
+  },
+  "defs": "<filter id=\"golden-qr-styled-card-filter\" x=\"-50%\" y=\"-50%\" width=\"200%\" height=\"200%\"><feDropShadow dx=\"0\" dy=\"20\" stdDeviation=\"22\" flood-color=\"#1d1606\" flood-opacity=\"0.52\"/></filter>",
+  "body": "<g opacity=\"1\" transform=\"translate(-540 -405) rotate(0 540 405)\" filter=\"url(#golden-qr-styled-card-filter)\"><path d=\"M 28 0 H 1052 A 28 28 0 0 1 1080 28 V 782 A 28 28 0 0 1 1052 810 H 28 A 28 28 0 0 1 0 782 V 28 A 28 28 0 0 1 28 0 Z\" fill=\"#ffd80a\"/></g><g opacity=\"1\" transform=\"translate(-120 -120) rotate(0 120 120)\"><g data-canvas-qr-background=\"rect\"><defs></defs><rect x=\"0\" y=\"0\" width=\"240\" height=\"240\" rx=\"0\" fill=\"#f8fafc\"/></g><g transform=\"translate(-99.31034482758622 -99.31034482758622)\"><svg viewBox=\"0 0 53 53\" role=\"img\" aria-label=\"QR Code\" xmlns=\"http://www.w3.org/2000/svg\" style=\"border-radius:0%;display:block\" width=\"439\" height=\"439\" preserveAspectRatio=\"xMidYMid meet\" shape-rendering=\"geometricPrecision\"><path fill=\"transparent\" d=\"M0,0 h53v53H0z\" data-testid=\"background\"></path><path fill=\"#111827\" d=\"M 12 14v 3a 2 2, 0, 0, 0, 2 2h 5v -5a 2 2, 0, 0, 0, -2 -2h -3H 12zM 14 13h 3a 1 1, 0, 0, 1, 1 1v 4h -4a 1 1, 0, 0, 1, -1 -1v -4z\" style=\"transform:rotate(0deg);transform-origin:center;transform-box:fill-box\" data-testid=\"finder-patterns-outer\"></path><path fill=\"#111827\" d=\"M 34 14v 3a 2 2, 0, 0, 0, 2 2h 5v -5a 2 2, 0, 0, 0, -2 -2h -3H 34zM 36 13h 3a 1 1, 0, 0, 1, 1 1v 4h -4a 1 1, 0, 0, 1, -1 -1v -4z\" style=\"transform:rotate(90deg);transform-origin:center;transform-box:fill-box\" data-testid=\"finder-patterns-outer\"></path><path fill=\"#111827\" d=\"M 12 36v 3a 2 2, 0, 0, 0, 2 2h 5v -5a 2 2, 0, 0, 0, -2 -2h -3H 12zM 14 35h 3a 1 1, 0, 0, 1, 1 1v 4h -4a 1 1, 0, 0, 1, -1 -1v -4z\" style=\"transform:rotate(-90deg);transform-origin:center;transform-box:fill-box\" data-testid=\"finder-patterns-outer\"></path><path fill=\"#111827\" d=\"M 15.5,13.7 L 16.029006727063226,14.771884705062547 L 17.211901729331277,14.943769410125094 L 16.355950864665637,15.778115294937452 L 16.558013454126453,16.956230589874906 L 15.5,16.4 L 14.441986545873549,16.956230589874906 L 14.644049135334361,15.778115294937452 L 13.788098270668723,14.943769410125094 L 14.970993272936774,14.771884705062547 Z\" data-testid=\"finder-patterns-inner\"></path><path fill=\"#111827\" d=\"M 37.5,13.7 L 38.029006727063226,14.771884705062547 L 39.211901729331274,14.943769410125094 L 38.35595086466564,15.778115294937452 L 38.55801345412645,16.956230589874906 L 37.5,16.4 L 36.44198654587355,16.956230589874906 L 36.64404913533436,15.778115294937452 L 35.788098270668726,14.943769410125094 L 36.970993272936774,14.771884705062547 Z\" data-testid=\"finder-patterns-inner\"></path><path fill=\"#111827\" d=\"M 15.5,35.7 L 16.029006727063226,36.77188470506255 L 17.211901729331277,36.94376941012509 L 16.355950864665637,37.77811529493745 L 16.558013454126453,38.956230589874906 L 15.5,38.4 L 14.441986545873549,38.956230589874906 L 14.644049135334361,37.77811529493745 L 13.788098270668723,36.94376941012509 L 14.970993272936774,36.77188470506255 Z\" data-testid=\"finder-patterns-inner\"></path><path fill=\"#111827\" d=\"M 23 12h -0.5a 0.4 0.4, 0, 0, 0, -0.4 0.4v 0.5h 0.5a 0.4 0.4, 0, 0, 0, 0.4 -0.4M 25 12 \n   v 1 \n   h -1 \n   v -0.5 \n   a 0.5 0.5, 0, 0, 1, 0.5 -0.5M 28 12 \n   v 1 \n   h -1 \n   v -0.5 \n   a 0.5 0.5, 0, 0, 1, 0.5 -0.5M28,12h1v1h-1ZM29,12h1v1h-1ZM 21 13 \n   v 1 \n   h -1 \n   v -0.5 \n   a 0.5 0.5, 0, 0, 1, 0.5 -0.5M 24 13 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M 27 13 \n   v 1 \n   h -1 \n   v -0.5 \n   a 0.5 0.5, 0, 0, 1, 0.5 -0.5M27,13h1v1h-1ZM29,13h1v1h-1ZM 30 13 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M 20 14 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M 23 14 \n   v 1 \n   h -1 \n   v -0.5 \n   a 0.5 0.5, 0, 0, 1, 0.5 -0.5M 26 14h -0.5a 0.4 0.4, 0, 0, 0, -0.4 0.4v 0.5h 0.5a 0.4 0.4, 0, 0, 0, 0.4 -0.4M27,14h1v1h-1ZM 32 14h -0.5a 0.4 0.4, 0, 0, 0, -0.4 0.4v 0.5h 0.5a 0.4 0.4, 0, 0, 0, 0.4 -0.4M 22 15 \n   v 1 \n   h -1 \n   v -0.5 \n   a 0.5 0.5, 0, 0, 1, 0.5 -0.5M22,15h1v1h-1ZM23,15h1v1h-1ZM24,15h1v1h-1ZM 27 15 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M 30 15h -0.5a 0.4 0.4, 0, 0, 0, -0.4 0.4v 0.5h 0.5a 0.4 0.4, 0, 0, 0, 0.4 -0.4M22,16h1v1h-1ZM23,16h1v1h-1ZM24,16h1v1h-1ZM 25 16 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M 32 16 \n   v 1 \n   h -1 \n   v -0.5 \n   a 0.5 0.5, 0, 0, 1, 0.5 -0.5M 22 17 \n   v 1 \n   h -1 \n   v -0.5 \n   a 0.5 0.5, 0, 0, 1, 0.5 -0.5M22,17h1v1h-1ZM 23 17 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M 28 17h -0.5a 0.4 0.4, 0, 0, 0, -0.4 0.4v 0.5h 0.5a 0.4 0.4, 0, 0, 0, 0.4 -0.4M 30 17 \n   v 1 \n   h -1 \n   v -0.5 \n   a 0.5 0.5, 0, 0, 1, 0.5 -0.5M30,17h1v1h-1ZM 31 17 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M 21 18h -0.5a 0.4 0.4, 0, 0, 0, -0.4 0.4v 0.5h 0.5a 0.4 0.4, 0, 0, 0, 0.4 -0.4M22,18h1v1h-1ZM 25 18h -0.5a 0.4 0.4, 0, 0, 0, -0.4 0.4v 0.5h 0.5a 0.4 0.4, 0, 0, 0, 0.4 -0.4M 27 18 \n   v 1 \n   h -1 \n   v -0.5 \n   a 0.5 0.5, 0, 0, 1, 0.5 -0.5M 29 18h -0.5a 0.4 0.4, 0, 0, 0, -0.4 0.4v 0.5h 0.5a 0.4 0.4, 0, 0, 0, 0.4 -0.4M 30 18 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M 33 18h -0.5a 0.4 0.4, 0, 0, 0, -0.4 0.4v 0.5h 0.5a 0.4 0.4, 0, 0, 0, 0.4 -0.4M22,19h1v1h-1ZM 23 19 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M 26 19 \n   v 1 \n   h -1 \n   v -0.5 \n   a 0.5 0.5, 0, 0, 1, 0.5 -0.5M26,19h1v1h-1ZM27,19h1v1h-1ZM 14 20 \n   v 1 \n   h -1 \n   v -0.5 \n   a 0.5 0.5, 0, 0, 1, 0.5 -0.5M14,20h1v1h-1ZM15,20h1v1h-1ZM 18 20 \n   v 1 \n   h -1 \n   v -0.5 \n   a 0.5 0.5, 0, 0, 1, 0.5 -0.5M 18 20 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M 27 20 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M 31 20 \n   v 1 \n   h -1 \n   v -0.5 \n   a 0.5 0.5, 0, 0, 1, 0.5 -0.5M 39 20 \n   v 1 \n   h -1 \n   v -0.5 \n   a 0.5 0.5, 0, 0, 1, 0.5 -0.5M39,20h1v1h-1ZM13,21h1v1h-1ZM14,21h1v1h-1ZM 15 21 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M 23 21 \n   v 1 \n   h -1 \n   v -0.5 \n   a 0.5 0.5, 0, 0, 1, 0.5 -0.5M 23 21 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M 29 21 \n   v 1 \n   h -1 \n   v -0.5 \n   a 0.5 0.5, 0, 0, 1, 0.5 -0.5M29,21h1v1h-1ZM30,21h1v1h-1ZM 33 21 \n   v 1 \n   h -1 \n   v -0.5 \n   a 0.5 0.5, 0, 0, 1, 0.5 -0.5M33,21h1v1h-1ZM34,21h1v1h-1ZM35,21h1v1h-1ZM36,21h1v1h-1ZM 37 21 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M39,21h1v1h-1ZM 40 21 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M13,22h1v1h-1ZM 14 22 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M 17 22 \n   v 1 \n   h -1 \n   v -0.5 \n   a 0.5 0.5, 0, 0, 1, 0.5 -0.5M17,22h1v1h-1ZM18,22h1v1h-1ZM19,22h1v1h-1ZM 22 22 \n   v 1 \n   h -1 \n   v -0.5 \n   a 0.5 0.5, 0, 0, 1, 0.5 -0.5M 22 22 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M 25 22h -0.5a 0.4 0.4, 0, 0, 0, -0.4 0.4v 0.5h 0.5a 0.4 0.4, 0, 0, 0, 0.4 -0.4M 27 22 \n   v 1 \n   h -1 \n   v -0.5 \n   a 0.5 0.5, 0, 0, 1, 0.5 -0.5M 27 22 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M30,22h1v1h-1ZM31,22h1v1h-1ZM32,22h1v1h-1ZM33,22h1v1h-1ZM 34 22 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M36,22h1v1h-1ZM 39 22 \n   v 1 \n   h -1 \n   v -0.5 \n   a 0.5 0.5, 0, 0, 1, 0.5 -0.5M39,22h1v1h-1ZM 16 23h -0.5a 0.4 0.4, 0, 0, 0, -0.4 0.4v 0.5h 0.5a 0.4 0.4, 0, 0, 0, 0.4 -0.4M 19 23 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M 21 23 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M 30 23 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M32,23h1v1h-1ZM33,23h1v1h-1ZM 36 23 \n   v 1 \n   h -1 \n   v -0.5 \n   a 0.5 0.5, 0, 0, 1, 0.5 -0.5M 36 23 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M39,23h1v1h-1ZM40,23h1v1h-1ZM 18 24 \n   v 1 \n   h -1 \n   v -0.5 \n   a 0.5 0.5, 0, 0, 1, 0.5 -0.5M 18 24 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M 21 24h -0.5a 0.4 0.4, 0, 0, 0, -0.4 0.4v 0.5h 0.5a 0.4 0.4, 0, 0, 0, 0.4 -0.4M 23 24 \n   v 1 \n   h -1 \n   v -0.5 \n   a 0.5 0.5, 0, 0, 1, 0.5 -0.5M 32 24 \n   v 1 \n   h -1 \n   v -0.5 \n   a 0.5 0.5, 0, 0, 1, 0.5 -0.5M33,24h1v1h-1ZM 38 24 \n   v 1 \n   h -1 \n   v -0.5 \n   a 0.5 0.5, 0, 0, 1, 0.5 -0.5M38,24h1v1h-1ZM40,24h1v1h-1ZM 17 25h -0.5a 0.4 0.4, 0, 0, 0, -0.4 0.4v 0.5h 0.5a 0.4 0.4, 0, 0, 0, 0.4 -0.4M 22 25 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M31,25h1v1h-1ZM33,25h1v1h-1ZM34,25h1v1h-1ZM38,25h1v1h-1ZM39,25h1v1h-1ZM40,25h1v1h-1ZM 15 26h -0.5a 0.4 0.4, 0, 0, 0, -0.4 0.4v 0.5h 0.5a 0.4 0.4, 0, 0, 0, 0.4 -0.4M 18 26 \n   v 1 \n   h -1 \n   v -0.5 \n   a 0.5 0.5, 0, 0, 1, 0.5 -0.5M 18 26 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M 21 26h -0.5a 0.4 0.4, 0, 0, 0, -0.4 0.4v 0.5h 0.5a 0.4 0.4, 0, 0, 0, 0.4 -0.4M31,26h1v1h-1ZM32,26h1v1h-1ZM34,26h1v1h-1ZM39,26h1v1h-1ZM40,26h1v1h-1ZM 13 27 \n   v 1 \n   h -1 \n   v -0.5 \n   a 0.5 0.5, 0, 0, 1, 0.5 -0.5M 16 27 \n   v 1 \n   h -1 \n   v -0.5 \n   a 0.5 0.5, 0, 0, 1, 0.5 -0.5M 16 27 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M 22 27 \n   v 1 \n   h -1 \n   v -0.5 \n   a 0.5 0.5, 0, 0, 1, 0.5 -0.5M22,27h1v1h-1ZM32,27h1v1h-1ZM34,27h1v1h-1ZM35,27h1v1h-1ZM36,27h1v1h-1ZM 37 27 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M39,27h1v1h-1ZM 40 27 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M12,28h1v1h-1ZM 13 28 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M 19 28h -0.5a 0.4 0.4, 0, 0, 0, -0.4 0.4v 0.5h 0.5a 0.4 0.4, 0, 0, 0, 0.4 -0.4M 21 28h -0.5a 0.4 0.4, 0, 0, 0, -0.4 0.4v 0.5h 0.5a 0.4 0.4, 0, 0, 0, 0.4 -0.4M 22 28 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M32,28h1v1h-1ZM 33 28 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M35,28h1v1h-1ZM 36 28 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M 39 28 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M 15 29h -0.5a 0.4 0.4, 0, 0, 0, -0.4 0.4v 0.5h 0.5a 0.4 0.4, 0, 0, 0, 0.4 -0.4M 18 29 \n   v 1 \n   h -1 \n   v -0.5 \n   a 0.5 0.5, 0, 0, 1, 0.5 -0.5M 31 29 \n   v 1 \n   h -1 \n   v -0.5 \n   a 0.5 0.5, 0, 0, 1, 0.5 -0.5M 31 29 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M 35 29 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M 38 29 \n   v 1 \n   h -1 \n   v -0.5 \n   a 0.5 0.5, 0, 0, 1, 0.5 -0.5M 38 29 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M 13 30h -0.5a 0.4 0.4, 0, 0, 0, -0.4 0.4v 0.5h 0.5a 0.4 0.4, 0, 0, 0, 0.4 -0.4M 16 30 \n   v 1 \n   h -1 \n   v -0.5 \n   a 0.5 0.5, 0, 0, 1, 0.5 -0.5M16,30h1v1h-1ZM17,30h1v1h-1ZM 18 30 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M 22 30 \n   v 1 \n   h -1 \n   v -0.5 \n   a 0.5 0.5, 0, 0, 1, 0.5 -0.5M 24 30h -0.5a 0.4 0.4, 0, 0, 0, -0.4 0.4v 0.5h 0.5a 0.4 0.4, 0, 0, 0, 0.4 -0.4M 26 30 \n   v 1 \n   h -1 \n   v -0.5 \n   a 0.5 0.5, 0, 0, 1, 0.5 -0.5M 30 30 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M 34 30 \n   v 1 \n   h -1 \n   v -0.5 \n   a 0.5 0.5, 0, 0, 1, 0.5 -0.5M34,30h1v1h-1ZM 37 30 \n   v 1 \n   h -1 \n   v -0.5 \n   a 0.5 0.5, 0, 0, 1, 0.5 -0.5M 37 30 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M 15 31 \n   v 1 \n   h -1 \n   v -0.5 \n   a 0.5 0.5, 0, 0, 1, 0.5 -0.5M 17 31 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M 21 31 \n   v 1 \n   h -1 \n   v -0.5 \n   a 0.5 0.5, 0, 0, 1, 0.5 -0.5M 21 31 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M25,31h1v1h-1ZM 28 31 \n   v 1 \n   h -1 \n   v -0.5 \n   a 0.5 0.5, 0, 0, 1, 0.5 -0.5M28,31h1v1h-1ZM29,31h1v1h-1ZM34,31h1v1h-1ZM36,31h1v1h-1ZM 39 31 \n   v 1 \n   h -1 \n   v -0.5 \n   a 0.5 0.5, 0, 0, 1, 0.5 -0.5M 39 31 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M 14 32 \n   v 1 \n   h -1 \n   v -0.5 \n   a 0.5 0.5, 0, 0, 1, 0.5 -0.5M 14 32 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M 19 32h -0.5a 0.4 0.4, 0, 0, 0, -0.4 0.4v 0.5h 0.5a 0.4 0.4, 0, 0, 0, 0.4 -0.4M 25 32 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M27,32h1v1h-1ZM28,32h1v1h-1ZM29,32h1v1h-1ZM 30 32 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M 33 32 \n   v 1 \n   h -1 \n   v -0.5 \n   a 0.5 0.5, 0, 0, 1, 0.5 -0.5M33,32h1v1h-1ZM34,32h1v1h-1ZM35,32h1v1h-1ZM36,32h1v1h-1ZM37,32h1v1h-1ZM38,32h1v1h-1ZM 21 33h -0.5a 0.4 0.4, 0, 0, 0, -0.4 0.4v 0.5h 0.5a 0.4 0.4, 0, 0, 0, 0.4 -0.4M 23 33 \n   v 1 \n   h -1 \n   v -0.5 \n   a 0.5 0.5, 0, 0, 1, 0.5 -0.5M 27 33h -0.5a 0.4 0.4, 0, 0, 0, -0.4 0.4v 0.5h 0.5a 0.4 0.4, 0, 0, 0, 0.4 -0.4M28,33h1v1h-1ZM 29 33 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M32,33h1v1h-1ZM36,33h1v1h-1ZM38,33h1v1h-1ZM39,33h1v1h-1ZM 40 33 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M22,34h1v1h-1ZM 25 34h -0.5a 0.4 0.4, 0, 0, 0, -0.4 0.4v 0.5h 0.5a 0.4 0.4, 0, 0, 0, 0.4 -0.4M 31 34 \n   v 1 \n   h -1 \n   v -0.5 \n   a 0.5 0.5, 0, 0, 1, 0.5 -0.5M31,34h1v1h-1ZM32,34h1v1h-1ZM 35 34h -0.5a 0.4 0.4, 0, 0, 0, -0.4 0.4v 0.5h 0.5a 0.4 0.4, 0, 0, 0, 0.4 -0.4M36,34h1v1h-1ZM37,34h1v1h-1ZM38,34h1v1h-1ZM39,34h1v1h-1ZM 21 35 \n   v 1 \n   h -1 \n   v -0.5 \n   a 0.5 0.5, 0, 0, 1, 0.5 -0.5M21,35h1v1h-1ZM 22 35 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M 26 35 \n   v 1 \n   h -1 \n   v -0.5 \n   a 0.5 0.5, 0, 0, 1, 0.5 -0.5M26,35h1v1h-1ZM27,35h1v1h-1ZM28,35h1v1h-1ZM 29 35 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M32,35h1v1h-1ZM36,35h1v1h-1ZM39,35h1v1h-1ZM 40 35 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M21,36h1v1h-1ZM 25 36 \n   v 1 \n   h -1 \n   v -0.5 \n   a 0.5 0.5, 0, 0, 1, 0.5 -0.5M25,36h1v1h-1ZM27,36h1v1h-1ZM 28 36 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M32,36h1v1h-1ZM33,36h1v1h-1ZM34,36h1v1h-1ZM35,36h1v1h-1ZM36,36h1v1h-1ZM 39 36 \n   v 1 \n   h -1 \n   v -0.5 \n   a 0.5 0.5, 0, 0, 1, 0.5 -0.5M39,36h1v1h-1ZM 21 37 \n   v 1 \n   h -1 \n   v -0.5 \n   a 0.5 0.5, 0, 0, 1, 0.5 -0.5M21,37h1v1h-1ZM22,37h1v1h-1ZM 23 37 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M25,37h1v1h-1ZM26,37h1v1h-1ZM 30 37h -0.5a 0.4 0.4, 0, 0, 0, -0.4 0.4v 0.5h 0.5a 0.4 0.4, 0, 0, 0, 0.4 -0.4M32,37h1v1h-1ZM 33 37 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M36,37h1v1h-1ZM37,37h1v1h-1ZM 39 37 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M20,38h1v1h-1ZM21,38h1v1h-1ZM 22 38 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M 26 38 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M 32 38 \n   v 1 \n   h -1 \n   v -0.5 \n   a 0.5 0.5, 0, 0, 1, 0.5 -0.5M32,38h1v1h-1ZM 36 38h -0.5a 0.4 0.4, 0, 0, 0, -0.4 0.4v 0.5h 0.5a 0.4 0.4, 0, 0, 0, 0.4 -0.4M37,38h1v1h-1ZM 38 38 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M 41 38h -0.5a 0.4 0.4, 0, 0, 0, -0.4 0.4v 0.5h 0.5a 0.4 0.4, 0, 0, 0, 0.4 -0.4M20,39h1v1h-1ZM21,39h1v1h-1ZM 24 39 \n   v 1 \n   h -1 \n   v -0.5 \n   a 0.5 0.5, 0, 0, 1, 0.5 -0.5M 24 39 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M 28 39h -0.5a 0.4 0.4, 0, 0, 0, -0.4 0.4v 0.5h 0.5a 0.4 0.4, 0, 0, 0, 0.4 -0.4M32,39h1v1h-1ZM33,39h1v1h-1ZM 37 39 \n   v 1 \n   h -1 \n   v -0.5 \n   a 0.5 0.5, 0, 0, 1, 0.5 -0.5M 37 39 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M 40 39 \n   v 1 \n   h -1 \n   v -0.5 \n   a 0.5 0.5, 0, 0, 1, 0.5 -0.5M21,40h1v1h-1ZM 22 40 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M 26 40 \n   v 1 \n   h -1 \n   v -0.5 \n   a 0.5 0.5, 0, 0, 1, 0.5 -0.5M 26 40 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M 29 40h -0.5a 0.4 0.4, 0, 0, 0, -0.4 0.4v 0.5h 0.5a 0.4 0.4, 0, 0, 0, 0.4 -0.4M 31 40 \n   v 1 \n   h -1 \n   v -0.5 \n   a 0.5 0.5, 0, 0, 1, 0.5 -0.5M31,40h1v1h-1ZM32,40h1v1h-1ZM 33 40 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M 36 40 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1M 39 40 \n   v 1 \n   h 0.5 \n   a 0.5 0.5, 0, 0, 0, 0.5 -0.5\n   v -0.5\n   h -1\" shape-rendering=\"geometricPrecision\" data-testid=\"data-modules\"></path><image href=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==\" height=\"5.079166666666667\" width=\"5.079166666666667\" x=\"23.960416666666667\" y=\"23.960416666666667\" preserveAspectRatio=\"none\" opacity=\"1\" crossorigin=\"anonymous\"></image></svg></g></g>",
+  "domLayers": [
+    {
+      "kind": "card",
+      "id": "golden-qr-styled:card",
+      "bounds": {
+        "x": -540,
+        "y": -405,
+        "width": 1080,
+        "height": 810
+      },
+      "style": {
+        "boxSizing": "border-box",
+        "height": 810,
+        "left": -540,
+        "opacity": 1,
+        "position": "absolute",
+        "top": -405,
+        "width": 1080,
+        "zIndex": 0,
+        "filter": "drop-shadow(0px 20px 44px rgba(29, 22, 6, 0.52))",
+        "backgroundColor": "#ffd80a",
+        "borderTopWidth": "0",
+        "borderRightWidth": "0",
+        "borderBottomWidth": "0",
+        "borderLeftWidth": "0",
+        "borderRadius": "28px 28px 28px 28px",
+        "overflow": "hidden"
+      }
+    },
+    {
+      "kind": "qr",
+      "id": "golden-qr-styled:qr",
+      "bounds": {
+        "x": -120,
+        "y": -120,
+        "width": 240,
+        "height": 240
+      },
+      "style": {
+        "boxSizing": "border-box",
+        "height": 240,
+        "left": -120,
+        "opacity": 1,
+        "position": "relative",
+        "top": -120,
+        "width": 240,
+        "zIndex": 1,
+        "overflow": "visible"
+      },
+      "children": [
+        {
+          "kind": "module",
+          "id": "golden-qr-styled:qr-qr-background",
+          "bounds": {
+            "x": 0,
+            "y": 0,
+            "width": 240,
+            "height": 240
+          },
+          "style": {
+            "height": 240,
+            "left": 0,
+            "overflow": "visible",
+            "pointerEvents": "none",
+            "position": "absolute",
+            "top": 0,
+            "width": 240,
+            "zIndex": 0
+          },
+          "svgInner": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"240\" height=\"240\" viewBox=\"0 0 240 240\"><defs></defs><rect x=\"0\" y=\"0\" width=\"240\" height=\"240\" rx=\"0\" fill=\"#f8fafc\"/></svg>"
+        },
+        {
+          "kind": "module",
+          "id": "golden-qr-styled:qr-qr-foreground",
+          "bounds": {
+            "x": -99.31034482758622,
+            "y": -99.31034482758622,
+            "width": 438.62068965517244,
+            "height": 438.62068965517244
+          },
+          "style": {
+            "height": 438.62068965517244,
+            "left": -99.31034482758622,
+            "pointerEvents": "none",
+            "position": "absolute",
+            "top": -99.31034482758622,
+            "width": 438.62068965517244,
+            "zIndex": 10
+          },
+          "qrProps": {
+            "background": "#f8fafc",
+            "backgroundGradient": "none",
+            "boostLevel": true,
+            "colorMode": "solid",
+            "finderInner": "star",
+            "finderOuter": "leaf",
+            "finderInnerColor": "#111827",
+            "finderOuterColor": "#111827",
+            "finderInnerGradient": "none",
+            "finderOuterGradient": "none",
+            "foreground": "#111827",
+            "gradient": "none",
+            "level": "Q",
+            "margin": 12,
+            "minVersion": 1,
+            "module": "leaf",
+            "moduleRoundSize": true,
+            "palette": ["#04879c", "#0c3c78", "#090030", "#f30a49"],
+            "size": 438.62068965517244,
+            "value": "mailto:hello@qrafty.local",
+            "logo": {
+              "crossOrigin": "anonymous",
+              "excavate": true,
+              "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+              "size": 0.1
+            },
+            "style": {
+              "display": "block",
+              "height": "100%",
+              "width": "100%"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "fonts": [],
+  "componentName": "qrstyled"
+}
