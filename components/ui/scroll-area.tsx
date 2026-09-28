@@ -25,7 +25,7 @@ import {
   usePersistedElementScroll,
   useScrollPersistScope,
 } from "@/lib/persisted-element-scroll";
-import { useShape } from "@/lib/shape-context";
+import { shapeClasses } from "@/lib/shape-classes";
 import {
   useScrollEdges,
   ScrollEdgeCue,
@@ -421,7 +421,6 @@ const ScrollBar = forwardRef<
   ComponentPropsWithoutRef<typeof ScrollAreaPrimitive.ScrollAreaScrollbar>
 >(({ className, orientation = "vertical", ...props }, ref) => {
   const isTouch = useContext(ScrollAreaContext);
-  const shape = useShape();
 
   if (isTouch) return null;
 
@@ -455,7 +454,7 @@ const ScrollBar = forwardRef<
         className={cn(
           "relative bg-foreground/25 transition-[background-color,width,height] duration-[var(--motion-ui)] ease-in-out",
           "group-hover/scrollbar:bg-foreground/45 active:!bg-foreground/60",
-          shape.bg,
+          shapeClasses.bg,
           orientation === "vertical" && "mx-auto my-1 w-1 group-hover/scrollbar:w-1.5",
           orientation === "horizontal" && "my-auto mx-1 h-1 group-hover/scrollbar:h-1.5",
         )}

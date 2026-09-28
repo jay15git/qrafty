@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext } from "react";
-import { shapeMap } from "@/lib/shape-context";
+import { shapeClasses } from "@/lib/shape-classes";
 
 // ---------------------------------------------------------------------------
 // Select context
@@ -42,4 +42,4 @@ export const SelectContentContext = createContext<SelectContentContextValue | nu
 // whatever the rest of the UI is shaped: pill corners on a popover distort
 // its padding and break the concentric fit of the rows' hover and selection
 // backgrounds inside it.
-export const popupShape = shapeMap.rounded;
+export const popupShape = shapeClasses;

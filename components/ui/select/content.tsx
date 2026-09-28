@@ -22,10 +22,23 @@ import {
   isDisabledRow,
 } from "@/lib/popup";
 import { useKeyboardNavGate } from "@/lib/hooks/use-keyboard-nav-gate";
-import { Elevated } from "@/lib/elevated";
+import { SurfaceProvider } from "@/lib/surface-context";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useSelectContext, SelectContentContext, popupShape } from "./context";
 import { SelectOverlays } from "./overlays";
+
+// The popup sits at the top of the surface ladder (level 3) and re-provides
+// it so nested scroll fades resolve `--surface-3`.
+const SelectPopupSurface = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, children, ...props }, ref) => (
+    <SurfaceProvider value={3}>
+      <div ref={ref} className={cn("bg-surface-3 shadow-surface-3", className)} {...props}>
+        {children}
+      </div>
+    </SurfaceProvider>
+  ),
+);
+SelectPopupSurface.displayName = "SelectPopupSurface";
 
 interface SelectContentProps extends HTMLAttributes<HTMLDivElement> {
   children: ReactNode;
@@ -181,7 +194,7 @@ export const SelectContent = forwardRef<HTMLDivElement, SelectContentProps>(
           >
             <SelectContentContext.Provider value={contentCtx}>
               <SelectPrimitive.Popup
-                render={<Elevated offset={2} shadowLevel={3} ref={ref} />}
+                render={<SelectPopupSurface ref={ref} />}
                 // Capture phase: the primitive moves focus during its own keydown
                 // handling, so the nav flag must be set before then.
                 onKeyDownCapture={trackKeyboardNav}

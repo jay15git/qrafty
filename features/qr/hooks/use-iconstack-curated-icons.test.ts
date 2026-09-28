@@ -48,7 +48,6 @@ describe("useIconstackCuratedIcons loading", () => {
 
   it("loads curated icons and reuses the shared svg cache", async () => {
     const fetchMock = vi.spyOn(iconstackApi, "fetchIconSvg").mockResolvedValue({
-      fullId: "lucide-link",
       id: "link",
       library: "lucide",
       svg: '<svg xmlns="http://www.w3.org/2000/svg"><path d="M0 0"/></svg>',

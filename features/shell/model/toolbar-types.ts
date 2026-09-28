@@ -1,4 +1,3 @@
-import type { ReactNode } from "react";
 import type {
   QrFinderPatternOuterStyle,
   QrErrorCorrectionLevel,
@@ -13,13 +12,7 @@ import {
   type CanvasCardSizeMode,
   type CanvasCardStyleMode,
 } from "@/features/canvas/model/card-state";
-import type { PaperShaderId } from "@/features/canvas/rendering/paper-shader-definitions";
-import type {
-  CanvasLayer,
-  CanvasTextAlign,
-  CanvasTextFontStyle,
-  CanvasTextFontWeight,
-} from "@/features/canvas/model/layers/shared";
+import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
 import type { CanvasLayerMenuAction } from "@/features/canvas/components/canvas-layer-chrome.constants";
 import type { AppearanceSnapshot } from "@/features/shell/model/appearance";
 import {
@@ -40,11 +33,7 @@ import {
   type QraftyDataModulesStyle,
 } from "@/features/qr/model/state";
 import { type QrInputType } from "@/features/qr/content/input-options";
-import type { SceneLayoutPreset } from "@/features/canvas/model/scene-templates";
 import type { ScanSafetyResult } from "@/features/qr/scan-safety/types";
-import type { CanvasBoardTool } from "@/features/canvas/components/CanvasBoard";
-
-type ToolbarGroup = "QR" | "Add" | "Manage";
 export type ComposeSidebarPanel = "wallpapers" | null;
 export type ToolbarToolId =
   | "layout"
@@ -61,21 +50,8 @@ export type ToolbarToolId =
   | "layers"
   | "export";
 
-export type BackgroundSettingsTab = "paper";
-
 export type SceneTemplateSettings = {
   sizeSettings: CardSizeSettings;
-};
-
-export type LayoutSettings = {
-  layout: SceneLayoutPreset;
-};
-
-export type ToolbarTool = {
-  group: ToolbarGroup;
-  id: ToolbarToolId;
-  title: string;
-  renderIcon: () => ReactNode;
 };
 
 export type ThemeMode = "dark" | "light";
@@ -180,10 +156,6 @@ export type EncodingSettings = {
   valueSegmentsText: string;
 };
 
-export type AccessibilitySettings = {
-  ariaLabel: string;
-};
-
 export type ImageIntent = "image-object" | "logo" | "shape-fill";
 
 export type ImageSettings = {
@@ -197,11 +169,6 @@ export type ImageSettings = {
 export type BackgroundSettings = {
   paperShader: CanvasCardPaperShaderState;
   styleMode: CanvasCardStyleMode;
-};
-
-export type EffectsSettings = {
-  filterId: PaperShaderId;
-  filterPresetName: string;
 };
 
 export type LayerKind = "card" | "image" | "qr" | "shader" | "shape" | "text";
@@ -254,20 +221,6 @@ export type ExportSettings = {
   videoLongEdge: VideoExportLongEdge;
 };
 
-export type TextSettings = {
-  fill: string;
-  fontFamily: string;
-  fontId: string;
-  fontSize: number;
-  fontStyle: CanvasTextFontStyle;
-  fontWeight: CanvasTextFontWeight;
-  letterSpacing: number;
-  lineHeight: number;
-  text: string;
-  textAlign: CanvasTextAlign;
-  underline: boolean;
-};
-
 export type ToolbarController = {
   activeTool: ToolbarToolId | null;
   canRedo?: boolean;
@@ -275,23 +228,17 @@ export type ToolbarController = {
   contentType: QrInputType;
   contentValues: StaticQrContentValues;
   contentValidation: ReturnType<typeof validateStaticQrContent>;
-  encodedContentValue: string;
   patternSettings: PatternSettings;
   logoSettings: LogoSettings;
   cornersSettings: CornersSettings;
   shapeSettings: ShapeSettings;
   motionSettings: MotionSettings;
   encodingSettings: EncodingSettings;
-  accessibilitySettings: AccessibilitySettings;
   imageSettings: ImageSettings;
   backgroundSettings: BackgroundSettings;
-  backgroundSettingsTab?: BackgroundSettingsTab;
-  effectsSettings: EffectsSettings;
   layersSettings: LayersSettings;
   exportSettings: ExportSettings;
-  layoutSettings: LayoutSettings;
   sceneTemplateSettings: SceneTemplateSettings;
-  textSettings: TextSettings;
   insertNodeId?: string;
   composeSidebarPanel?: ComposeSidebarPanel;
   selectedElementLayer?: CanvasLayer | null;
@@ -300,13 +247,8 @@ export type ToolbarController = {
   selectedAppearanceLayer?: CanvasLayer | null;
   appearanceSnapshot?: AppearanceSnapshot | null;
   onInsertLayer?: (layer: CanvasLayer) => void;
-  canvasTool?: CanvasBoardTool | null;
-  onCanvasToolChange?: (tool: CanvasBoardTool | null) => void;
   canAddQrCode?: boolean;
   onAddQrCode?: () => void;
-  onAddTextLayerAt?: (boardId: string, point: { x: number; y: number }) => void;
-  canRemoveQrCode?: boolean;
-  onRemoveQrCode?: () => void;
   onOpenComposeSidebar?: (panel: "wallpapers") => void;
   onCloseComposeSidebar?: () => void;
   onSelectWallpaper?: (imagePath: string) => void;
@@ -316,38 +258,21 @@ export type ToolbarController = {
   onTransformLayerPatch?: (patch: Partial<CanvasLayer>) => void;
   onActiveToolChange: (toolId: ToolbarToolId) => void;
   onRedo?: () => void;
-  onSave?: () => void;
   onUndo?: () => void;
-  onResetDefaults?: () => void;
-  onContentReset: () => void;
   onContentTypeChange: (type: QrInputType) => void;
   onContentPasteApply: (type: QrInputType, values: StaticQrContentValues) => void;
   onContentValueChange: (field: string, value: StaticQrContentValue) => void;
-  onPatternReset: () => void;
   onPatternSettingsChange: (patch: PatternSettingsPatch) => void;
   onUnifiedQrFillSettingsChange?: (
     patches: import("@/features/shell/settings/settings-bridge").UnifiedQrFillPatches,
   ) => void;
-  onLogoReset: () => void;
   onLogoSettingsChange: (patch: LogoSettingsPatch) => void;
-  onCornersReset: () => void;
   onCornersSettingsChange: (patch: Partial<CornersSettings>) => void;
-  onShapeReset: () => void;
   onShapeSettingsChange: (patch: Partial<ShapeSettings>) => void;
-  onMotionReset: () => void;
   onMotionSettingsChange: (patch: QrDotMatrixAnimationPatch) => void;
-  onEncodingReset: () => void;
   onEncodingSettingsChange: (patch: Partial<EncodingSettings>) => void;
-  onAccessibilityReset: () => void;
-  onAccessibilitySettingsChange: (patch: Partial<AccessibilitySettings>) => void;
-  onImageReset: () => void;
   onImageSettingsChange: (patch: Partial<ImageSettings>) => void;
-  onBackgroundReset: () => void;
   onBackgroundSettingsChange: (settings: Partial<BackgroundSettings>) => void;
-  onBackgroundSettingsTabChange?: (tab: BackgroundSettingsTab) => void;
-  onEffectsReset: () => void;
-  onEffectsSettingsChange: (patch: Partial<EffectsSettings>) => void;
-  onLayersReset: () => void;
   onLayersSettingsChange: (patch: Partial<LayersSettings>) => void;
   onLayersReorder?: (orderedIds: string[]) => void;
   onLayerDelete?: (layerId: string) => void;
@@ -355,11 +280,8 @@ export type ToolbarController = {
   onLayerCopy?: () => void;
   canCopyLayers?: boolean;
   canDeleteLayer?: (layerId: string) => boolean;
-  onExportReset: () => void;
   onExportSettingsChange: (patch: Partial<ExportSettings>) => void;
   onExportDownload: () => void;
-  onLayoutPresetSelect?: (preset: SceneLayoutPreset) => void;
-  onLayoutSettingsChange?: (patch: Partial<SceneLayoutPreset>) => void;
   onSceneTemplateSizeChange?: (patch: Partial<SceneTemplateSettings["sizeSettings"]>) => void;
   onSceneTemplateSizeTemplateSelect?: (
     template: import("@/features/canvas/model/size-templates").SizeTemplate,
@@ -371,7 +293,5 @@ export type ToolbarController = {
   exportProgressLabel?: string | null;
   exportProgressRatio?: number | null;
   onExportCancel?: () => void;
-  onTextReset: () => void;
-  onTextSettingsChange: (patch: Partial<TextSettings>) => void;
   scanSafetyResult?: ScanSafetyResult;
 };

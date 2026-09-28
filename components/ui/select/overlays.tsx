@@ -3,7 +3,7 @@
 import { m, AnimatePresence } from "motion/react";
 import { spring } from "@/lib/springs";
 import type { ItemRect, UseFluidHoverReturn } from "@/components/ui/use-fluid-hover";
-import type { ShapeClasses } from "@/lib/shape-context";
+import type { ShapeClasses } from "@/lib/shape-classes";
 import { FluidHoverHighlight } from "@/components/ui/fluid-hover-highlight";
 
 // ---------------------------------------------------------------------------

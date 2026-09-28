@@ -24,7 +24,6 @@ describe("iconstack-svg-cache", () => {
 
   it("reuses cached svg markup across fetches", async () => {
     const fetchMock = vi.spyOn(iconstackApi, "fetchIconSvg").mockResolvedValue({
-      fullId: "lucide-link",
       id: "link",
       library: "lucide",
       svg: '<svg xmlns="http://www.w3.org/2000/svg"><path d="M0 0"/></svg>',
@@ -47,7 +46,6 @@ describe("iconstack-svg-cache", () => {
     expect(listCachedIconstackSelectionIds()).toEqual([]);
 
     vi.spyOn(iconstackApi, "fetchIconSvg").mockResolvedValue({
-      fullId: "lucide-link",
       id: "link",
       library: "lucide",
       svg: '<svg xmlns="http://www.w3.org/2000/svg"><path d="M0 0"/></svg>',

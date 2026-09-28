@@ -59,7 +59,7 @@ function resizeToWebp(inputPath, outputPath, maxWidth) {
  * emit `<id>.webp` + `<id>-preview.webp` into `outDir`, collect a manifest
  * entry, then write the generated TS module and print a summary.
  *
- * items: [{ id, label, resolve(): Promise<string> | string, sourceUrl }]
+ * items: [{ id, label, resolve(): Promise<string> | string }]
  */
 export async function syncWallpapers({ outDir, publicPath, source, items, module }) {
   ensureDir(outDir);
@@ -86,7 +86,6 @@ export async function syncWallpapers({ outDir, publicPath, source, items, module
         path: `${publicPath}/${item.id}.webp`,
         previewPath: `${publicPath}/${item.id}-preview.webp`,
         source,
-        sourceUrl: item.sourceUrl,
       };
     }),
   );
@@ -97,7 +96,6 @@ export async function syncWallpapers({ outDir, publicPath, source, items, module
   path: string
   previewPath: string
   source: "${source}"
-  sourceUrl: string
 }
 
 export const ${module.constName}: readonly ${module.typeName}[] = ${JSON.stringify(manifest, null, 2)} as const

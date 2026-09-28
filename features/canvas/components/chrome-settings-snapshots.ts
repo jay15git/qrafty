@@ -1,8 +1,6 @@
 import type {
-  AccessibilitySettings,
   BackgroundSettings,
   CornersSettings,
-  EffectsSettings,
   EncodingSettings,
   ExportSettings,
   ImageSettings,
@@ -10,18 +8,15 @@ import type {
   LogoSettings,
   PatternSettings,
   ShapeSettings,
-  TextSettings,
 } from "@/features/shell/model/toolbar-types";
 import type { QraftyState } from "@/features/qr/model/state";
 import type { CanvasCardState } from "@/features/canvas/model/card-state";
 import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
 import { createDefaultCanvasLayers } from "@/features/canvas/model/layers/card-qr";
-import type { SceneCompositionState } from "@/features/canvas/model/scene-templates";
 import {
   getAssetSourceMode,
   getExportTarget,
   getLogoSourceMode,
-  getLayerTextSettings,
   toLayerRow,
   type CanvasDownloadTarget,
 } from "@/features/canvas/components/canvas-operations";
@@ -32,10 +27,8 @@ export type ToolbarSettingsSnapshots = {
   cornersSettings: CornersSettings;
   shapeSettings: ShapeSettings;
   encodingSettings: EncodingSettings;
-  accessibilitySettings: AccessibilitySettings;
   imageSettings: ImageSettings;
   backgroundSettings: BackgroundSettings;
-  effectsSettings: EffectsSettings;
   layersSettings: LayersSettings;
   exportSettings: ExportSettings;
   sceneTemplateSettings: {
@@ -47,19 +40,13 @@ export type ToolbarSettingsSnapshots = {
       sizePresetId?: string;
     };
   };
-  layoutSettings: {
-    layout: SceneCompositionState["layout"];
-  };
-  textSettings: TextSettings;
 };
 
 export type BuildToolbarSettingsSnapshotsInput = {
   activeQrNodeId: string;
   activeCanvasLayers: CanvasLayer[];
   activeCanvasLayerRows: CanvasLayer[];
-  activeSceneComposition: SceneCompositionState;
   canvasQraftyState: QraftyState;
-  selectedAriaLabel: string;
   selectedBackgroundColor: string;
   selectedBackgroundColorMode: "solid" | "gradient";
   selectedBackgroundGradient: QraftyState["backgroundGradient"];
@@ -118,7 +105,6 @@ export type BuildToolbarSettingsSnapshotsInput = {
   selectedQrFinderPatternOuterStyle: QraftyState["finderPatternOuterSettings"]["type"];
   selectedQrTypeNumber: QraftyState["qrOptions"]["typeNumber"];
   selectedPhotoLongEdge: ExportSettings["photoLongEdge"];
-  selectedTextLayer: CanvasLayer | null;
   selectedValueSegmentsText: string;
 };
 
@@ -129,10 +115,8 @@ export function buildToolbarSettingsSnapshots(
     activeQrNodeId,
     activeCanvasLayers,
     activeCanvasLayerRows,
-    activeSceneComposition,
     canvasQraftyState,
     selectedCardState,
-    selectedTextLayer,
   } = input;
 
   const patternSettings: PatternSettings = {
@@ -229,10 +213,6 @@ export function buildToolbarSettingsSnapshots(
     valueSegmentsText: input.selectedValueSegmentsText,
   };
 
-  const accessibilitySettings: AccessibilitySettings = {
-    ariaLabel: input.selectedAriaLabel,
-  };
-
   const imageSettings: ImageSettings = {
     fit: selectedCardState.cardImage.fit,
     intent: "shape-fill",
@@ -244,11 +224,6 @@ export function buildToolbarSettingsSnapshots(
   const backgroundSettings: BackgroundSettings = {
     paperShader: selectedCardState.paperShader,
     styleMode: selectedCardState.styleMode,
-  };
-
-  const effectsSettings: EffectsSettings = {
-    filterId: selectedCardState.imageFilter.shaderId,
-    filterPresetName: selectedCardState.imageFilter.presetName,
   };
 
   const layersSettings: LayersSettings = {
@@ -273,10 +248,8 @@ export function buildToolbarSettingsSnapshots(
     cornersSettings,
     shapeSettings,
     encodingSettings,
-    accessibilitySettings,
     imageSettings,
     backgroundSettings,
-    effectsSettings,
     layersSettings,
     exportSettings,
     sceneTemplateSettings: {
@@ -288,28 +261,5 @@ export function buildToolbarSettingsSnapshots(
         sizePresetId: selectedCardState.sizePresetId,
       },
     },
-    layoutSettings: {
-      layout: activeSceneComposition.layout,
-    },
-    textSettings: getLayerTextSettings(selectedTextLayer),
-  };
-}
-
-export function pickToolbarSettingsSnapshots(snapshots: ToolbarSettingsSnapshots) {
-  return {
-    desktopPatternSettings: snapshots.patternSettings,
-    desktopLogoSettings: snapshots.logoSettings,
-    desktopCornersSettings: snapshots.cornersSettings,
-    desktopShapeSettings: snapshots.shapeSettings,
-    desktopEncodingSettings: snapshots.encodingSettings,
-    desktopAccessibilitySettings: snapshots.accessibilitySettings,
-    desktopImageSettings: snapshots.imageSettings,
-    desktopBackgroundSettings: snapshots.backgroundSettings,
-    desktopEffectsSettings: snapshots.effectsSettings,
-    desktopLayersSettings: snapshots.layersSettings,
-    desktopExportSettings: snapshots.exportSettings,
-    desktopSceneTemplateSettings: snapshots.sceneTemplateSettings,
-    desktopLayoutSettings: snapshots.layoutSettings,
-    desktopTextSettings: snapshots.textSettings,
   };
 }

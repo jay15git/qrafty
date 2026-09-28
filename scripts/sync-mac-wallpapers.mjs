@@ -29,7 +29,6 @@ await syncWallpapers({
   items: WALLPAPERS.map(({ id, file, label }) => ({
     id,
     label,
-    sourceUrl: `${SOURCE_BASE}/${file}`,
     resolve: resolve(file),
   })),
   module: {

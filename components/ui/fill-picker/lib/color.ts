@@ -6,10 +6,9 @@ import {
   formatRgb,
   formatCss,
   toGamut as culoriToGamut,
-  wcagContrast,
   type Color,
 } from "culori";
-import type { ColorFormat, ContrastResult, Gamut, GamutInfo, OklchColor } from "./types";
+import type { ColorFormat, Gamut, GamutInfo, OklchColor } from "./types";
 
 const toOklch = converter("oklch");
 const toRgb = converter("rgb");
@@ -402,113 +401,6 @@ function mapToGamutColor(color: OklchColor, gamut: Gamut): OklchColor {
     h: Number.isFinite(back.h) ? (back.h as number) : color.h,
     alpha: color.alpha,
   };
-}
-
-/** Composite fg (with alpha) over an opaque bg in linear-light sRGB. */
-function compositeOnBg(fg: OklchColor, bg: OklchColor): OklchColor {
-  if (fg.alpha >= 1) return fg;
-  const fgRgb = toRgb({ mode: "oklch", ...oklchObj(fg) });
-  const bgRgb = toRgb({ mode: "oklch", ...oklchObj(bg) });
-  if (!fgRgb || !bgRgb) return fg;
-  const a = fg.alpha;
-  const out = {
-    mode: "rgb" as const,
-    r: (fgRgb.r ?? 0) * a + (bgRgb.r ?? 0) * (1 - a),
-    g: (fgRgb.g ?? 0) * a + (bgRgb.g ?? 0) * (1 - a),
-    b: (fgRgb.b ?? 0) * a + (bgRgb.b ?? 0) * (1 - a),
-    alpha: 1,
-  };
-  const oklch = toOklch(out)!;
-  return {
-    l: oklch.l ?? 0,
-    c: Math.max(oklch.c ?? 0, 0),
-    h: Number.isFinite(oklch.h) ? (oklch.h as number) : 0,
-    alpha: 1,
-  };
-}
-
-export function contrast(fg: OklchColor, bg: OklchColor): ContrastResult {
-  const composedFg = compositeOnBg(fg, { ...bg, alpha: 1 });
-  const fgC = toRgb({ mode: "oklch", ...oklchObj(composedFg) });
-  const bgC = toRgb({ mode: "oklch", ...oklchObj({ ...bg, alpha: 1 }) });
-  const ratio = fgC && bgC ? wcagContrast(fgC, bgC) : 1;
-  const safe = Number.isFinite(ratio) ? ratio : 1;
-  return {
-    wcag: round(safe, 2),
-    wcagLevel: {
-      aaNormal: safe >= 4.5,
-      aaLarge: safe >= 3,
-      aaaNormal: safe >= 7,
-      aaaLarge: safe >= 4.5,
-    },
-    apca: apcaContrast(composedFg, { ...bg, alpha: 1 }),
-  };
-}
-
-/**
- * APCA Lc value per APCA-W3 0.1.9 (SACAM 0.98G).
- * Reference: https://github.com/Myndex/SAPC-APCA
- * Returned value is rounded to 2 decimals.
- *  - Positive Lc: dark text on light bg
- *  - Negative Lc: light text on dark bg
- */
-function apcaContrast(fg: OklchColor, bg: OklchColor): number {
-  const fgRgb = toRgb({ mode: "oklch", ...oklchObj(fg) });
-  const bgRgb = toRgb({ mode: "oklch", ...oklchObj(bg) });
-  if (!fgRgb || !bgRgb) return 0;
-
-  const Ytxt = sapcLuminance(fgRgb.r ?? 0, fgRgb.g ?? 0, fgRgb.b ?? 0);
-  const Ybg = sapcLuminance(bgRgb.r ?? 0, bgRgb.g ?? 0, bgRgb.b ?? 0);
-
-  return round(sapcContrast(Ytxt, Ybg), 2);
-}
-
-const SA98G = {
-  mainTRC: 2.4,
-  Rco: 0.2126729,
-  Gco: 0.7151522,
-  Bco: 0.072175,
-  normBG: 0.56,
-  normTXT: 0.57,
-  revTXT: 0.62,
-  revBG: 0.65,
-  blkThrs: 0.022,
-  blkClmp: 1.414,
-  scaleBoW: 1.14,
-  scaleWoB: 1.14,
-  loBoWoffset: 0.027,
-  loWoBoffset: 0.027,
-  deltaYmin: 0.0005,
-  loClip: 0.1,
-};
-
-function sapcLuminance(r: number, g: number, b: number): number {
-  const R = clamp(r, 0, 1) ** SA98G.mainTRC;
-  const G = clamp(g, 0, 1) ** SA98G.mainTRC;
-  const B = clamp(b, 0, 1) ** SA98G.mainTRC;
-  return SA98G.Rco * R + SA98G.Gco * G + SA98G.Bco * B;
-}
-
-function sapcContrast(Ytxt: number, Ybg: number): number {
-  const txt = Ytxt < SA98G.blkThrs ? Ytxt + (SA98G.blkThrs - Ytxt) ** SA98G.blkClmp : Ytxt;
-  const bg = Ybg < SA98G.blkThrs ? Ybg + (SA98G.blkThrs - Ybg) ** SA98G.blkClmp : Ybg;
-
-  if (Math.abs(bg - txt) < SA98G.deltaYmin) return 0;
-
-  let SAPC = 0;
-  let outputContrast = 0;
-
-  if (bg > txt) {
-    // Dark text on light background
-    SAPC = (bg ** SA98G.normBG - txt ** SA98G.normTXT) * SA98G.scaleBoW;
-    outputContrast = SAPC < SA98G.loClip ? 0 : SAPC - SA98G.loBoWoffset;
-  } else {
-    // Light text on dark background
-    SAPC = (bg ** SA98G.revBG - txt ** SA98G.revTXT) * SA98G.scaleWoB;
-    outputContrast = SAPC > -SA98G.loClip ? 0 : SAPC + SA98G.loWoBoffset;
-  }
-
-  return outputContrast * 100;
 }
 
 function clamp(x: number, lo: number, hi: number) {

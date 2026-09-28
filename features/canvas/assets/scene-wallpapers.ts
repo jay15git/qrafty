@@ -8,7 +8,6 @@ export type SceneWallpaper = {
   path: string;
   previewPath: string;
   source: "macos" | "raycast" | "studio";
-  sourceUrl: string;
 };
 
 export const SCENE_WALLPAPERS: readonly SceneWallpaper[] = [

@@ -12,8 +12,6 @@ import {
   type GradientStop,
   type GradientType,
   type LinearGradient,
-  type RadialGradient,
-  type RadialSizeKeyword,
   type ConicGradient,
 } from "../lib/gradient";
 import type { ColorFormat, OklchColor } from "../lib/types";
@@ -34,19 +32,6 @@ interface InternalState {
   // We keep the full gradient object and overlay stops separately.
   gradient: Gradient;
   stops: InternalStop[];
-}
-
-function recomputeAngle(
-  start: { x: number; y: number } | undefined,
-  end: { x: number; y: number } | undefined,
-  fallback: number,
-): number {
-  if (!start || !end) return fallback;
-  const dx = end.x - start.x;
-  const dy = -(end.y - start.y); // y axis is down in box coords
-  if (dx === 0 && dy === 0) return fallback;
-  const deg = (Math.atan2(dx, dy) * 180) / Math.PI;
-  return ((deg % 360) + 360) % 360;
 }
 
 // ---- Helpers ---------------------------------------------------------------
@@ -107,8 +92,6 @@ function sortByPosition(stops: InternalStop[]): InternalStop[] {
   return [...stops].sort((a, b) => a.position - b.position);
 }
 
-const clamp01 = (n: number) => Math.max(0, Math.min(1, n));
-
 function defaultsForType(type: GradientType): Gradient {
   if (type === "linear") return DEFAULT_LINEAR;
   if (type === "radial") return DEFAULT_RADIAL;
@@ -135,7 +118,7 @@ function defaultsForType(type: GradientType): Gradient {
 function reconcileControlledValue(
   value: Gradient,
   prev: InternalState,
-): { next: InternalState; uniqueIds: boolean; structuralMatch: boolean } {
+): { next: InternalState; uniqueIds: boolean } {
   const incoming = [...value.stops].sort((a, b) => a.position - b.position);
   // Identity path: when every incoming stop carries an id and that set is
   // exactly what we hold, pair on the id. This is the only way to follow
@@ -166,7 +149,7 @@ function reconcileControlledValue(
           : prev.stops.map((s, i) => ({ ...incoming[i], id: s.id })),
       }
     : attachIds(value);
-  return { next, uniqueIds, structuralMatch };
+  return { next, uniqueIds };
 }
 
 // ---- Public API types -------------------------------------------------------
@@ -194,62 +177,13 @@ export interface GradientPickerState {
   setGradient: (next: Gradient) => void;
   setType: (type: GradientType) => void;
   setAngle: (angleDeg: number) => void;
-  /**
-   * Set the start endpoint of a linear gradient (normalized 0..1 of the
-   * gradient box). Promotes the gradient to "positioned" mode — when both
-   * `start` and `end` are set, the gradient is treated as a line between
-   * them rather than an angle-only construct. `angle` is kept in sync with
-   * the derived direction. Passing `undefined` clears the override and
-   * returns the gradient to the legacy angle-only behavior.
-   */
-  setLinearStart: (xy: { x: number; y: number } | undefined) => void;
-  /** Set the end endpoint of a linear gradient. See `setLinearStart`. */
-  setLinearEnd: (xy: { x: number; y: number } | undefined) => void;
   setStartAngle: (angleDeg: number) => void;
-  setCenter: (xy: { x: number; y: number }) => void;
   setInterp: (interp: GradientInterp) => void;
-  /**
-   * Toggle the `repeating` flag on the active gradient. When true,
-   * `formatGradient` emits `repeating-<type>-gradient(...)`. Stops are
-   * unaffected — the stop ramp simply tiles instead of stretching to fill
-   * the box.
-   */
-  setRepeating: (repeating: boolean) => void;
-  setRadialShape: (shape: "circle" | "ellipse") => void;
-  setRadialSize: (size: RadialSizeKeyword) => void;
-  /**
-   * Set explicit numeric radii on the active radial gradient. Each value is
-   * a 0..1 fraction of the gradient box (x→width, y→height). Passing
-   * `undefined` clears the explicit override and falls back to the
-   * keyword-based size from `setRadialShape` / `setRadialSize`. Use this
-   * for ellipse-shape radials.
-   */
-  setRadii: (radii: { x: number; y: number } | undefined) => void;
-  /**
-   * Set the explicit circle radius in absolute pixels. Only meaningful
-   * when `shape === "circle"` — produces a CSS `radial-gradient(<px>px
-   * at ...)` form, which is the only way to keep the gradient visually
-   * circular in any consumer container (the percentage pair form always
-   * implies ellipse). Passing `undefined` clears the override.
-   */
-  setRadiusPx: (px: number | undefined) => void;
-  /**
-   * Latest reported width of the visual gradient box (px). Set by
-   * `<GradientPicker.Area>` via its `ResizeObserver`. Used by parts that
-   * want to display radius as a percentage of the picker box (e.g. the
-   * radius input on `<GradientPicker.RadiusInput>`) — they read this to
-   * convert between the absolute-px storage and a friendlier % display.
-   * `null` when no Area is currently mounted.
-   */
-  containerWidth: number | null;
-  setContainerWidth: (width: number | null) => void;
   selectStop: (id: string) => void;
   addStop: (position: number, color?: OklchColor) => string;
   removeStop: (id: string) => void;
   moveStop: (id: string, position: number) => void;
   setStopColor: (id: string, color: OklchColor) => void;
-  setStopHint: (id: string, hint: number | undefined) => void;
-  reverseStops: () => void;
   /**
    * Per-stop display format. Each row tracks its own — changing format
    * in one stop's popover (or in `<GradientPicker.StopColor>`'s
@@ -294,22 +228,6 @@ export function useGradientPicker(props: UseGradientPickerProps = {}): GradientP
   const [selectedStopId, setSelectedStopId] = React.useState<string>(
     () => internal.stops[0]?.id ?? "",
   );
-  // Bumped when a controlled gradient arrives structurally different, so the
-  // layout effect below can clear the per-shape stashes without a render-time
-  // ref write.
-  const [stashEpoch, setStashEpoch] = React.useState(0);
-
-  // Per-shape override stashes. The radial gradient can carry either an
-  // ellipse override (`radii`) or a circle override (`radiusPx`), never
-  // both at once — `setRadii` / `setRadiusPx` cross-clear. But emit logic
-  // in `formatGradient` checks the override fields before the `shape`
-  // flag, so a stale override left over from the previous shape would
-  // silently keep drawing the old ending shape. We stash whichever
-  // override belongs to the shape we're leaving, strip both off the
-  // gradient, then restore the target shape's stash. Toggling back gives
-  // the user their last numeric value instead of nothing.
-  const radiiStashRef = React.useRef<{ x: number; y: number } | undefined>(undefined);
-  const radiusPxStashRef = React.useRef<number | undefined>(undefined);
 
   // Track the last gradient we emitted upward so the controlled-sync path can
   // ignore echoes. Seed with the initial controlled value so the *first* sync
@@ -334,16 +252,6 @@ export function useGradientPicker(props: UseGradientPickerProps = {}): GradientP
     idTrackedRef.current = tracksStopIds;
   });
 
-  // The controlled-sync path clears the per-shape stashes when a new gradient
-  // arrives structurally different. It signals that here (a render-phase state
-  // bump) instead of writing the refs during render; no handler runs between
-  // the render and this effect, so the clear is observed at the same point.
-  React.useLayoutEffect(() => {
-    if (stashEpoch === 0) return;
-    radiiStashRef.current = undefined;
-    radiusPxStashRef.current = undefined;
-  }, [stashEpoch]);
-
   // Sync controlled value during render (the "adjusting state during render"
   // pattern from React docs) instead of an effect. An effect would commit a
   // render with stale `internal`, then schedule a second render — children
@@ -360,10 +268,7 @@ export function useGradientPicker(props: UseGradientPickerProps = {}): GradientP
   if (isControlled && value !== prevControlledValue) {
     setPrevControlledValue(value);
     if (value !== lastEmitted) {
-      const { next, uniqueIds, structuralMatch } = reconcileControlledValue(value, internal);
-      if (!structuralMatch) {
-        setStashEpoch((n) => n + 1);
-      }
+      const { next, uniqueIds } = reconcileControlledValue(value, internal);
       if (uniqueIds !== tracksStopIds) {
         setTracksStopIds(uniqueIds);
       }
@@ -394,10 +299,6 @@ export function useGradientPicker(props: UseGradientPickerProps = {}): GradientP
 
   const setGradient = React.useCallback(
     (next: Gradient) => {
-      // Wholesale gradient replacement invalidates per-shape stashes — the
-      // user is handing us a brand-new gradient, not toggling the current one.
-      radiiStashRef.current = undefined;
-      radiusPxStashRef.current = undefined;
       idTrackedRef.current = hasStopIds(next);
       setTracksStopIds(hasStopIds(next));
       apply(() => attachIds(next));
@@ -410,8 +311,6 @@ export function useGradientPicker(props: UseGradientPickerProps = {}): GradientP
     (type: GradientType) =>
       apply((prev) => {
         if (prev.gradient.type === type) return prev;
-        radiiStashRef.current = undefined;
-        radiusPxStashRef.current = undefined;
         const fallback = defaultsForType(type);
         return {
           gradient: { ...fallback, interp: prev.gradient.interp } as Gradient,
@@ -437,46 +336,6 @@ export function useGradientPicker(props: UseGradientPickerProps = {}): GradientP
     [apply],
   );
 
-  const setLinearStart = React.useCallback(
-    (xy: { x: number; y: number } | undefined) =>
-      apply((prev) => {
-        if (prev.gradient.type !== "linear") return prev;
-        const cur = prev.gradient as LinearGradient;
-        const next: LinearGradient = xy
-          ? {
-              ...cur,
-              start: { x: clamp01(xy.x), y: clamp01(xy.y) },
-              angle: recomputeAngle({ x: clamp01(xy.x), y: clamp01(xy.y) }, cur.end, cur.angle),
-            }
-          : (() => {
-              const { start: _drop, ...rest } = cur;
-              return rest as LinearGradient;
-            })();
-        return { gradient: next, stops: prev.stops };
-      }),
-    [apply],
-  );
-
-  const setLinearEnd = React.useCallback(
-    (xy: { x: number; y: number } | undefined) =>
-      apply((prev) => {
-        if (prev.gradient.type !== "linear") return prev;
-        const cur = prev.gradient as LinearGradient;
-        const next: LinearGradient = xy
-          ? {
-              ...cur,
-              end: { x: clamp01(xy.x), y: clamp01(xy.y) },
-              angle: recomputeAngle(cur.start, { x: clamp01(xy.x), y: clamp01(xy.y) }, cur.angle),
-            }
-          : (() => {
-              const { end: _drop, ...rest } = cur;
-              return rest as LinearGradient;
-            })();
-        return { gradient: next, stops: prev.stops };
-      }),
-    [apply],
-  );
-
   const setStartAngle = React.useCallback(
     (angleDeg: number) =>
       apply((prev) => {
@@ -489,156 +348,12 @@ export function useGradientPicker(props: UseGradientPickerProps = {}): GradientP
     [apply],
   );
 
-  const setCenter = React.useCallback(
-    (xy: { x: number; y: number }) =>
-      apply((prev) => {
-        if (prev.gradient.type === "linear") return prev;
-        return {
-          gradient: {
-            ...(prev.gradient as RadialGradient | ConicGradient),
-            center: { x: clamp01(xy.x), y: clamp01(xy.y) },
-          },
-          stops: prev.stops,
-        };
-      }),
-    [apply],
-  );
-
   const setInterp = React.useCallback(
     (interp: GradientInterp) =>
       apply((prev) => ({
         gradient: { ...prev.gradient, interp } as Gradient,
         stops: prev.stops,
       })),
-    [apply],
-  );
-
-  const setRepeating = React.useCallback(
-    (repeating: boolean) =>
-      apply((prev) => {
-        const cur = prev.gradient;
-        // Strip the flag entirely when toggled off so the gradient stays
-        // structurally identical to one that never had it — keeps equality
-        // checks and serialization minimal.
-        if (!repeating) {
-          if (!cur.repeating) return prev;
-          const { repeating: _drop, ...rest } = cur;
-          return { gradient: rest as Gradient, stops: prev.stops };
-        }
-        if (cur.repeating) return prev;
-        return {
-          gradient: { ...cur, repeating: true } as Gradient,
-          stops: prev.stops,
-        };
-      }),
-    [apply],
-  );
-
-  const setRadialShape = React.useCallback(
-    (shape: "circle" | "ellipse") =>
-      apply((prev) => {
-        if (prev.gradient.type !== "radial") return prev;
-        const cur = prev.gradient as RadialGradient;
-        if (cur.shape === shape) return prev;
-        if (cur.shape === "circle") {
-          radiusPxStashRef.current = cur.radiusPx;
-        } else {
-          radiiStashRef.current = cur.radii;
-        }
-        const { radii: _r, radiusPx: _px, ...rest } = cur;
-        const next: RadialGradient =
-          shape === "circle"
-            ? {
-                ...rest,
-                shape,
-                ...(radiusPxStashRef.current !== undefined
-                  ? { radiusPx: radiusPxStashRef.current }
-                  : {}),
-              }
-            : {
-                ...rest,
-                shape,
-                ...(radiiStashRef.current ? { radii: radiiStashRef.current } : {}),
-              };
-        return { gradient: next, stops: prev.stops };
-      }),
-    [apply],
-  );
-
-  const setRadialSize = React.useCallback(
-    (size: RadialSizeKeyword) =>
-      apply((prev) => {
-        if (prev.gradient.type !== "radial") return prev;
-        const base = prev.gradient as RadialGradient;
-        // The keyword form and the explicit `radii` / `radiusPx` overrides
-        // are mutually exclusive at emit time — `formatGradient` reads the
-        // overrides first and never falls through to `shape size`. Picking
-        // a size keyword is the user explicitly opting back into the
-        // keyword path, so drop the numeric overrides (and the stash) in
-        // the same commit. Without this, the dropdown changes the model
-        // field but the rendered CSS doesn't move.
-        radiiStashRef.current = undefined;
-        radiusPxStashRef.current = undefined;
-        const { radii: _r, radiusPx: _px, ...rest } = base;
-        return {
-          gradient: { ...rest, size } as RadialGradient,
-          stops: prev.stops,
-        };
-      }),
-    [apply],
-  );
-
-  const setRadii = React.useCallback(
-    (radii: { x: number; y: number } | undefined) =>
-      apply((prev) => {
-        if (prev.gradient.type !== "radial") return prev;
-        const base = prev.gradient as RadialGradient;
-        // Setting `radii` is the ellipse path. Three jobs:
-        //   1. Clear `radiusPx` so the two override fields never coexist.
-        //   2. Enforce `shape: "ellipse"` — `formatGradient` emits
-        //      `ellipse <rx> <ry>` regardless of `shape` when `radii` is
-        //      present, so anything else would desync the model from CSS
-        //      (and from the ShapeSwitcher / radius input UI).
-        //   3. If the previous shape was circle, stash its `radiusPx` so the
-        //      user can flip back via ShapeSwitcher without losing it (the
-        //      stash matches `setRadialShape`'s own preservation behavior).
-        if (base.shape === "circle" && base.radiusPx !== undefined) {
-          radiusPxStashRef.current = base.radiusPx;
-        }
-        const { radii: _dropRadii, radiusPx: _dropPx, ...rest } = base;
-        const next: RadialGradient = radii
-          ? {
-              ...rest,
-              shape: "ellipse",
-              radii: { x: Math.max(0, radii.x), y: Math.max(0, radii.y) },
-            }
-          : ({ ...rest, shape: "ellipse" } as RadialGradient);
-        return { gradient: next, stops: prev.stops };
-      }),
-    [apply],
-  );
-
-  const [containerWidth, setContainerWidth] = React.useState<number | null>(null);
-
-  const setRadiusPx = React.useCallback(
-    (px: number | undefined) =>
-      apply((prev) => {
-        if (prev.gradient.type !== "radial") return prev;
-        const base = prev.gradient as RadialGradient;
-        // Setting `radiusPx` is the circle path. Mirror `setRadii`:
-        // clear `radii`, enforce `shape: "circle"` (so the model can't
-        // disagree with CSS / the radius input), and stash any previous
-        // ellipse radii so ShapeSwitcher → ellipse restores them.
-        if (base.shape === "ellipse" && base.radii) {
-          radiiStashRef.current = base.radii;
-        }
-        const { radii: _dropRadii, radiusPx: _dropPx, ...rest } = base;
-        const next: RadialGradient =
-          px !== undefined
-            ? { ...rest, shape: "circle", radiusPx: Math.max(0, px) }
-            : ({ ...rest, shape: "circle" } as RadialGradient);
-        return { gradient: next, stops: prev.stops };
-      }),
     [apply],
   );
 
@@ -705,41 +420,6 @@ export function useGradientPicker(props: UseGradientPickerProps = {}): GradientP
     [apply],
   );
 
-  const setStopHint = React.useCallback(
-    (id: string, hint: number | undefined) =>
-      apply((prev) => ({
-        gradient: prev.gradient,
-        stops: prev.stops.map((s) => (s.id === id ? { ...s, hint } : s)),
-      })),
-    [apply],
-  );
-
-  const reverseStops = React.useCallback(
-    () =>
-      apply((prev) => {
-        if (prev.stops.length < 2) return prev;
-        // Mirror each stop's position around 0.5 so the visual order flips
-        // while ids stay attached to their colors. A hint lives on the stop
-        // that *follows* its segment, so after the flip the mirrored hint
-        // must move to the segment's other stop (the one that follows in
-        // the new order) — keeping it in place would strand it on a stop
-        // that now leads, where formatStops silently drops it.
-        const movedHints = new Map<string, number>();
-        prev.stops.forEach((s, i) => {
-          if (s.hint !== undefined && i > 0) {
-            movedHints.set(prev.stops[i - 1].id, 1 - s.hint);
-          }
-        });
-        const flipped = prev.stops.map((s) => ({
-          ...s,
-          position: 1 - s.position,
-          hint: movedHints.get(s.id),
-        }));
-        return { gradient: prev.gradient, stops: sortByPosition(flipped) };
-      }),
-    [apply],
-  );
-
   // ---- Derived values ------------------------------------------------------
 
   const selectedStop = React.useMemo(
@@ -760,25 +440,13 @@ export function useGradientPicker(props: UseGradientPickerProps = {}): GradientP
     setGradient,
     setType,
     setAngle,
-    setLinearStart,
-    setLinearEnd,
     setStartAngle,
-    setCenter,
     setInterp,
-    setRepeating,
-    setRadialShape,
-    setRadialSize,
-    setRadii,
-    setRadiusPx,
-    containerWidth,
-    setContainerWidth,
     selectStop,
     addStop,
     removeStop,
     moveStop,
     setStopColor,
-    setStopHint,
-    reverseStops,
     getStopColorFormat,
     setStopColorFormat,
   };

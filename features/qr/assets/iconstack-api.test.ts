@@ -82,7 +82,6 @@ describe("iconstack-api", () => {
         JSON.stringify({
           library: "lucide",
           id: "heart",
-          fullId: "lucide-heart",
           svg: '<svg xmlns="http://www.w3.org/2000/svg"><path d="M0 0"/></svg>',
           url: "https://iconstack.io/icon/lucide/heart",
         }),

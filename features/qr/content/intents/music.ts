@@ -9,7 +9,6 @@ export const MUSIC_PLATFORM_DEFS: readonly PlatformDef[] = [
     type: "spotify",
     label: "Spotify",
     description: "Track, album, artist, playlist, show, or episode.",
-    collection: "music",
     category: "music",
     hosts: ["open.spotify.com"],
     intents: [
@@ -25,7 +24,6 @@ export const MUSIC_PLATFORM_DEFS: readonly PlatformDef[] = [
     type: "apple-music",
     label: "Apple Music",
     description: "Song, album, artist, or playlist.",
-    collection: "music",
     category: "music",
     hosts: ["music.apple.com"],
     intents: [
@@ -39,7 +37,6 @@ export const MUSIC_PLATFORM_DEFS: readonly PlatformDef[] = [
     type: "soundcloud",
     label: "SoundCloud",
     description: "Track, user, or playlist.",
-    collection: "music",
     category: "music",
     hosts: ["soundcloud.com"],
     intents: [
@@ -52,7 +49,6 @@ export const MUSIC_PLATFORM_DEFS: readonly PlatformDef[] = [
     type: "youtube-music",
     label: "YouTube Music",
     description: "Track, album, artist, or playlist.",
-    collection: "music",
     category: "music",
     hosts: ["music.youtube.com"],
     brandIconId: "youtube",
@@ -67,7 +63,6 @@ export const MUSIC_PLATFORM_DEFS: readonly PlatformDef[] = [
     type: "deezer",
     label: "Deezer",
     description: "Track, album, artist, or playlist.",
-    collection: "music",
     category: "music",
     hosts: ["deezer.com"],
     intents: [

@@ -6,7 +6,6 @@ export const LOCATION_PLATFORM_DEFS: readonly PlatformDef[] = [
     type: "map-location",
     label: "Google Maps",
     description: "Place, directions, or coordinates.",
-    collection: "contact",
     category: "location",
     hosts: ["maps.google.com", "maps.app.goo.gl"],
     brandIconId: "google-maps",
@@ -60,7 +59,6 @@ export const LOCATION_PLATFORM_DEFS: readonly PlatformDef[] = [
     type: "apple-maps",
     label: "Apple Maps",
     description: "Place or directions.",
-    collection: "contact",
     category: "location",
     hosts: ["maps.apple.com"],
     intents: [
@@ -72,7 +70,6 @@ export const LOCATION_PLATFORM_DEFS: readonly PlatformDef[] = [
     type: "waze",
     label: "Waze",
     description: "Place or navigation link.",
-    collection: "contact",
     category: "location",
     hosts: ["waze.com"],
     intents: [

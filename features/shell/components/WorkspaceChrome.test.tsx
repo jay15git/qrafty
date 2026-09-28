@@ -2,7 +2,7 @@
 
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { act, type ComponentProps, useEffect, useState } from "react";
+import { act, useEffect, useState } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("glimm/next", () => ({
@@ -35,6 +35,10 @@ import {
   createCanvasTextLayer,
 } from "@/features/canvas/model/layers/factories";
 import { renderWithAsyncJsdomRoot } from "@/test-utils/jsdom-react-root";
+import {
+  createToolbarController,
+  useStatefulToolbarController,
+} from "@/test-utils/toolbar-controller";
 
 const NODE_ID = "test-node";
 
@@ -110,21 +114,19 @@ describe("WorkspaceChrome", () => {
 
     function AccordionStickyProbe() {
       const [activeTool, setTool] = useState<ToolbarToolId>("content");
-      const partialController: Partial<
-        NonNullable<ComponentProps<typeof WorkspaceChrome>>["controller"]
-      > = { activeTool, onActiveToolChange: setTool };
 
       useEffect(() => {
         setActiveTool = setTool;
       }, []);
 
+      const controller = useStatefulToolbarController({
+        activeTool,
+        onActiveToolChange: setTool,
+      });
+
       return (
         <CuelumeProvider>
-          <WorkspaceChrome
-            controller={
-              partialController as NonNullable<ComponentProps<typeof WorkspaceChrome>>["controller"]
-            }
-          />
+          <WorkspaceChrome controller={controller} />
         </CuelumeProvider>
       );
     }
@@ -161,6 +163,7 @@ describe("WorkspaceChrome", () => {
         onAppearancePatch: vi.fn(),
         onLayersSettingsChange: vi.fn(),
         selectedAppearanceLayer: layer,
+        selectedElementLayer: null,
         selectedTransformLayer: layer,
         onTransformLayerPatch: vi.fn(),
       },
@@ -840,17 +843,25 @@ async function renderPrototype({
   controller,
   theme = "dark",
 }: {
-  controller?: Partial<NonNullable<ComponentProps<typeof WorkspaceChrome>>["controller"]>;
+  controller?: Parameters<typeof createToolbarController>[0];
   theme?: "light" | "dark";
 } = {}) {
   return renderWithAsyncJsdomRoot(
     <CuelumeProvider>
-      <WorkspaceChrome
-        controller={controller as NonNullable<ComponentProps<typeof WorkspaceChrome>>["controller"]}
-        theme={theme}
-      />
+      <PrototypeChrome overrides={controller} theme={theme} />
     </CuelumeProvider>,
   );
+}
+
+function PrototypeChrome({
+  overrides,
+  theme,
+}: {
+  overrides?: Parameters<typeof createToolbarController>[0];
+  theme?: "light" | "dark";
+}) {
+  const controller = useStatefulToolbarController(overrides);
+  return <WorkspaceChrome controller={controller} theme={theme} />;
 }
 
 function getRequiredElement(container: HTMLElement, selector: string) {

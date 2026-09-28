@@ -27,7 +27,6 @@ export type PlatformDef = {
   type: QrInputType;
   label: string;
   description: string;
-  collection: ContentCollectionId;
   category:
     "social" | "messaging" | "app" | "music" | "business" | "file" | "location" | "developer";
   hosts: readonly string[];

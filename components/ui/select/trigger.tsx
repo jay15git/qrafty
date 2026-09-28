@@ -5,7 +5,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { Select as SelectPrimitive } from "@base-ui/react/select";
 import type { IconComponent } from "@/lib/icon-context";
 import { cn } from "@/lib/utils";
-import { useShape } from "@/lib/shape-context";
+import { shapeClasses } from "@/lib/shape-classes";
 import { useSize, type SizeVariant } from "@/lib/size-context";
 
 const triggerVariants = cva(
@@ -42,7 +42,6 @@ interface SelectTriggerProps
 
 export const SelectTrigger = forwardRef<HTMLButtonElement, SelectTriggerProps>(
   ({ className, variant, icon: Icon, placeholder = "Select…", error, size, ...props }, ref) => {
-    const shape = useShape();
     const sizeClasses = useSize(size);
     const compact = sizeClasses.variant === "compact";
 
@@ -58,7 +57,7 @@ export const SelectTrigger = forwardRef<HTMLButtonElement, SelectTriggerProps>(
             sizeClasses.px,
             sizeClasses.gap,
             compact ? "min-w-[128px]" : "min-w-[160px]",
-            shape.input,
+            shapeClasses.input,
             error && "border-destructive/50 hover:border-destructive/50",
             className,
           )}

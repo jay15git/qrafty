@@ -25,7 +25,6 @@ describe("iconstack curated fetch", () => {
         JSON.stringify({
           library,
           id,
-          fullId: `${library}-${id}`,
           svg: VALID_SVG,
           url: `https://iconstack.io/icon/${library}/${id}`,
         }),

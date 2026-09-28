@@ -2,7 +2,6 @@ import type { CanvasWorkspaceDocumentV1 } from "@/features/canvas/model/document
 import {
   cloneSceneComposition,
   createDefaultSceneComposition,
-  normalizeSceneComposition,
   type SceneCompositionState,
 } from "@/features/canvas/model/scene-templates";
 
@@ -25,21 +24,4 @@ export function cloneSceneCompositionByNodeId(
       cloneSceneComposition(composition),
     ]),
   );
-}
-
-export function applySceneCompositionPatch(
-  sceneCompositionByNodeId: SceneCompositionByNodeId,
-  nodeId: string,
-  patch: Partial<SceneCompositionState>,
-): SceneCompositionByNodeId {
-  const current = sceneCompositionByNodeId[nodeId] ?? createDefaultSceneComposition();
-  return {
-    ...sceneCompositionByNodeId,
-    [nodeId]: normalizeSceneComposition({
-      ...current,
-      ...patch,
-      layout: patch.layout ? { ...current.layout, ...patch.layout } : current.layout,
-      background: patch.background ?? current.background,
-    }),
-  };
 }

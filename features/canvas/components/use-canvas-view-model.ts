@@ -54,10 +54,8 @@ export function useCanvasViewModel({
   });
   const desktopController = buildCanvasWorkspaceController({
     actions,
-    boardToolbarVariant,
     boards,
     persistence,
-    qrControls,
     scanSafetyResult,
     setters,
     state,

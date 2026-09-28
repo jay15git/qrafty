@@ -6,7 +6,6 @@ export type ColorComponent = "l" | "c" | "h" | "alpha";
 export const ALL_FORMATS: ColorFormat[] = ["hex", "rgb", "hsl", "hsb", "oklch", "oklab", "p3"];
 
 export const BLACK: OklchColor = { l: 0, c: 0, h: 0, alpha: 1 };
-export const WHITE: OklchColor = { l: 1, c: 0, h: 0, alpha: 1 };
 
 export function coerce(input: string | OklchColor | undefined, fallback: OklchColor): OklchColor {
   if (!input) return fallback;

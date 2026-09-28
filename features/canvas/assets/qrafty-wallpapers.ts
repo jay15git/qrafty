@@ -4,7 +4,6 @@ export type QraftyWallpaper = {
   path: string;
   previewPath: string;
   source: "studio";
-  sourceUrl: string;
 };
 
 export const QRAFTY_WALLPAPERS: readonly QraftyWallpaper[] = [
@@ -14,7 +13,6 @@ export const QRAFTY_WALLPAPERS: readonly QraftyWallpaper[] = [
     path: "/backgrounds/studio/aqua-glow.webp",
     previewPath: "/backgrounds/studio/aqua-glow-preview.webp",
     source: "studio",
-    sourceUrl: "Aqua glow-4096x4096.png",
   },
   {
     id: "blue-hour",
@@ -22,7 +20,6 @@ export const QRAFTY_WALLPAPERS: readonly QraftyWallpaper[] = [
     path: "/backgrounds/studio/blue-hour.webp",
     previewPath: "/backgrounds/studio/blue-hour-preview.webp",
     source: "studio",
-    sourceUrl: "Blue hour-4096x4096.png",
   },
   {
     id: "celadon-mist",
@@ -30,7 +27,6 @@ export const QRAFTY_WALLPAPERS: readonly QraftyWallpaper[] = [
     path: "/backgrounds/studio/celadon-mist.webp",
     previewPath: "/backgrounds/studio/celadon-mist-preview.webp",
     source: "studio",
-    sourceUrl: "Celadon mist-4096x4096.png",
   },
   {
     id: "cherry-orb",
@@ -38,7 +34,6 @@ export const QRAFTY_WALLPAPERS: readonly QraftyWallpaper[] = [
     path: "/backgrounds/studio/cherry-orb.webp",
     previewPath: "/backgrounds/studio/cherry-orb-preview.webp",
     source: "studio",
-    sourceUrl: "Cherry orb-4096x4096.png",
   },
   {
     id: "conference-hero",
@@ -46,7 +41,6 @@ export const QRAFTY_WALLPAPERS: readonly QraftyWallpaper[] = [
     path: "/backgrounds/studio/conference-hero.webp",
     previewPath: "/backgrounds/studio/conference-hero-preview.webp",
     source: "studio",
-    sourceUrl: "Conference hero-4096x4096.png",
   },
   {
     id: "emerald-night",
@@ -54,7 +48,6 @@ export const QRAFTY_WALLPAPERS: readonly QraftyWallpaper[] = [
     path: "/backgrounds/studio/emerald-night.webp",
     previewPath: "/backgrounds/studio/emerald-night-preview.webp",
     source: "studio",
-    sourceUrl: "Emerald night-4096x4096.png",
   },
   {
     id: "festival-poster",
@@ -62,7 +55,6 @@ export const QRAFTY_WALLPAPERS: readonly QraftyWallpaper[] = [
     path: "/backgrounds/studio/festival-poster.webp",
     previewPath: "/backgrounds/studio/festival-poster-preview.webp",
     source: "studio",
-    sourceUrl: "Festival poster-4096x4096.png",
   },
   {
     id: "golden-hour",
@@ -70,7 +62,6 @@ export const QRAFTY_WALLPAPERS: readonly QraftyWallpaper[] = [
     path: "/backgrounds/studio/golden-hour.webp",
     previewPath: "/backgrounds/studio/golden-hour-preview.webp",
     source: "studio",
-    sourceUrl: "Golden hour-4096x4096.png",
   },
   {
     id: "honeycomb",
@@ -78,7 +69,6 @@ export const QRAFTY_WALLPAPERS: readonly QraftyWallpaper[] = [
     path: "/backgrounds/studio/honeycomb.webp",
     previewPath: "/backgrounds/studio/honeycomb-preview.webp",
     source: "studio",
-    sourceUrl: "Honeycomb-4096x4096.png",
   },
   {
     id: "jade-comb",
@@ -86,7 +76,6 @@ export const QRAFTY_WALLPAPERS: readonly QraftyWallpaper[] = [
     path: "/backgrounds/studio/jade-comb.webp",
     previewPath: "/backgrounds/studio/jade-comb-preview.webp",
     source: "studio",
-    sourceUrl: "Jade comb-4096x4096.png",
   },
   {
     id: "level",
@@ -94,7 +83,6 @@ export const QRAFTY_WALLPAPERS: readonly QraftyWallpaper[] = [
     path: "/backgrounds/studio/level.webp",
     previewPath: "/backgrounds/studio/level-preview.webp",
     source: "studio",
-    sourceUrl: "Level-4096x4096.png",
   },
   {
     id: "moonlit",
@@ -102,7 +90,6 @@ export const QRAFTY_WALLPAPERS: readonly QraftyWallpaper[] = [
     path: "/backgrounds/studio/moonlit.webp",
     previewPath: "/backgrounds/studio/moonlit-preview.webp",
     source: "studio",
-    sourceUrl: "Moonlit-4096x4096.png",
   },
   {
     id: "morning-mist",
@@ -110,7 +97,6 @@ export const QRAFTY_WALLPAPERS: readonly QraftyWallpaper[] = [
     path: "/backgrounds/studio/morning-mist.webp",
     previewPath: "/backgrounds/studio/morning-mist-preview.webp",
     source: "studio",
-    sourceUrl: "Morning mist-4096x4096.png",
   },
   {
     id: "new-york",
@@ -118,7 +104,6 @@ export const QRAFTY_WALLPAPERS: readonly QraftyWallpaper[] = [
     path: "/backgrounds/studio/new-york.webp",
     previewPath: "/backgrounds/studio/new-york-preview.webp",
     source: "studio",
-    sourceUrl: "New York-4096x4096.png",
   },
   {
     id: "open-house",
@@ -126,7 +111,6 @@ export const QRAFTY_WALLPAPERS: readonly QraftyWallpaper[] = [
     path: "/backgrounds/studio/open-house.webp",
     previewPath: "/backgrounds/studio/open-house-preview.webp",
     source: "studio",
-    sourceUrl: "Open house-4096x4096.png",
   },
   {
     id: "paris",
@@ -134,7 +118,6 @@ export const QRAFTY_WALLPAPERS: readonly QraftyWallpaper[] = [
     path: "/backgrounds/studio/paris.webp",
     previewPath: "/backgrounds/studio/paris-preview.webp",
     source: "studio",
-    sourceUrl: "Paris-4096x4096.png",
   },
   {
     id: "reverb",
@@ -142,7 +125,6 @@ export const QRAFTY_WALLPAPERS: readonly QraftyWallpaper[] = [
     path: "/backgrounds/studio/reverb.webp",
     previewPath: "/backgrounds/studio/reverb-preview.webp",
     source: "studio",
-    sourceUrl: "Reverb-4096x4096.png",
   },
   {
     id: "ripple",
@@ -150,7 +132,6 @@ export const QRAFTY_WALLPAPERS: readonly QraftyWallpaper[] = [
     path: "/backgrounds/studio/ripple.webp",
     previewPath: "/backgrounds/studio/ripple-preview.webp",
     source: "studio",
-    sourceUrl: "Ripple-4096x4096.png",
   },
   {
     id: "sea-swirl",
@@ -158,7 +139,6 @@ export const QRAFTY_WALLPAPERS: readonly QraftyWallpaper[] = [
     path: "/backgrounds/studio/sea-swirl.webp",
     previewPath: "/backgrounds/studio/sea-swirl-preview.webp",
     source: "studio",
-    sourceUrl: "Sea swirl-4096x4096.png",
   },
   {
     id: "studio-gradient-1",
@@ -166,7 +146,6 @@ export const QRAFTY_WALLPAPERS: readonly QraftyWallpaper[] = [
     path: "/backgrounds/studio/studio-gradient-1.webp",
     previewPath: "/backgrounds/studio/studio-gradient-1-preview.webp",
     source: "studio",
-    sourceUrl: "studio-gradient (1).png",
   },
   {
     id: "studio-gradient-2",
@@ -174,7 +153,6 @@ export const QRAFTY_WALLPAPERS: readonly QraftyWallpaper[] = [
     path: "/backgrounds/studio/studio-gradient-2.webp",
     previewPath: "/backgrounds/studio/studio-gradient-2-preview.webp",
     source: "studio",
-    sourceUrl: "studio-gradient (2).png",
   },
   {
     id: "studio-gradient-3",
@@ -182,7 +160,6 @@ export const QRAFTY_WALLPAPERS: readonly QraftyWallpaper[] = [
     path: "/backgrounds/studio/studio-gradient-3.webp",
     previewPath: "/backgrounds/studio/studio-gradient-3-preview.webp",
     source: "studio",
-    sourceUrl: "studio-gradient (3).png",
   },
   {
     id: "studio-gradient-4",
@@ -190,7 +167,6 @@ export const QRAFTY_WALLPAPERS: readonly QraftyWallpaper[] = [
     path: "/backgrounds/studio/studio-gradient-4.webp",
     previewPath: "/backgrounds/studio/studio-gradient-4-preview.webp",
     source: "studio",
-    sourceUrl: "studio-gradient (4).png",
   },
   {
     id: "studio-gradient-5",
@@ -198,7 +174,6 @@ export const QRAFTY_WALLPAPERS: readonly QraftyWallpaper[] = [
     path: "/backgrounds/studio/studio-gradient-5.webp",
     previewPath: "/backgrounds/studio/studio-gradient-5-preview.webp",
     source: "studio",
-    sourceUrl: "studio-gradient (5).png",
   },
   {
     id: "studio-gradient",
@@ -206,7 +181,6 @@ export const QRAFTY_WALLPAPERS: readonly QraftyWallpaper[] = [
     path: "/backgrounds/studio/studio-gradient.webp",
     previewPath: "/backgrounds/studio/studio-gradient-preview.webp",
     source: "studio",
-    sourceUrl: "studio-gradient.png",
   },
   {
     id: "sun-rings",
@@ -214,7 +188,6 @@ export const QRAFTY_WALLPAPERS: readonly QraftyWallpaper[] = [
     path: "/backgrounds/studio/sun-rings.webp",
     previewPath: "/backgrounds/studio/sun-rings-preview.webp",
     source: "studio",
-    sourceUrl: "Sun rings-4096x4096.png",
   },
   {
     id: "twilight-wheel",
@@ -222,7 +195,6 @@ export const QRAFTY_WALLPAPERS: readonly QraftyWallpaper[] = [
     path: "/backgrounds/studio/twilight-wheel.webp",
     previewPath: "/backgrounds/studio/twilight-wheel-preview.webp",
     source: "studio",
-    sourceUrl: "Twilight wheel-4096x4096.png",
   },
 ] as const;
 

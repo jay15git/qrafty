@@ -12,11 +12,9 @@ import { MobileTopBar } from "@/features/shell/components/MobileTopBar";
 import { UTILITY_TOOLBAR_SHELL_CLASS } from "@/features/shell/components/utility-toolbar.constants";
 import { DesktopSettingsPanel } from "@/features/shell/settings/DesktopSettingsPanel";
 import { useToolbarSettingsModel } from "@/features/shell/hooks/use-toolbar-settings-model";
-import { TOOLBAR_TOOLS } from "@/features/shell/model/toolbar-tools";
 import type { ThemeMode, ToolbarController } from "@/features/shell/model/toolbar-types";
 export type {
   ComposeSidebarPanel,
-  BackgroundSettingsTab,
   CornersSettings,
   ExportTarget,
   LayerRow,
@@ -24,7 +22,6 @@ export type {
   LogoSourceMode,
   PatternSettings,
   ShapeSettings,
-  TextSettings,
   ThemeMode,
   ToolbarController,
   ToolbarToolId,
@@ -40,32 +37,32 @@ export function WorkspaceChrome({
   theme,
   onThemeChange,
 }: {
-  controller?: ToolbarController;
+  controller: ToolbarController;
   theme?: ThemeMode;
   onThemeChange?: (theme: ThemeMode) => void;
-} = {}) {
+}) {
   const model = useToolbarSettingsModel({ controller, theme, onThemeChange });
   const { actualActiveTool, actualTheme } = model;
   const isMobileWorkspace = useMediaQuery(WORKSPACE_MOBILE_QUERY);
   const islandItems = useToolbarItems({
-    appearance: controller?.appearanceSnapshot,
-    appearanceLayer: controller?.selectedAppearanceLayer,
-    canAddQrCode: controller?.canAddQrCode,
-    insertNodeId: controller?.insertNodeId,
-    onAddQrCode: controller?.onAddQrCode,
-    onBrowseWallpapers: controller?.onOpenComposeSidebar
+    appearance: controller.appearanceSnapshot,
+    appearanceLayer: controller.selectedAppearanceLayer,
+    canAddQrCode: controller.canAddQrCode,
+    insertNodeId: controller.insertNodeId,
+    onAddQrCode: controller.onAddQrCode,
+    onBrowseWallpapers: controller.onOpenComposeSidebar
       ? () => controller.onOpenComposeSidebar?.("wallpapers")
       : undefined,
-    onElementLayerPatch: controller?.onElementLayerPatch,
-    onAppearancePatch: controller?.onAppearancePatch,
-    onInsertLayer: controller?.onInsertLayer,
-    onSelectSizeTemplate: controller?.onSceneTemplateSizeTemplateSelect,
-    onSizeChange: controller?.onSceneTemplateSizeChange,
-    onTransformLayerPatch: controller?.onTransformLayerPatch,
-    selectedElementLayer: controller?.selectedElementLayer,
-    selectedTransformLayer: controller?.selectedTransformLayer,
-    sizePresetId: controller?.sceneTemplateSettings?.sizeSettings?.sizePresetId,
-    sizeSettings: controller?.sceneTemplateSettings?.sizeSettings,
+    onElementLayerPatch: controller.onElementLayerPatch,
+    onAppearancePatch: controller.onAppearancePatch,
+    onInsertLayer: controller.onInsertLayer,
+    onSelectSizeTemplate: controller.onSceneTemplateSizeTemplateSelect,
+    onSizeChange: controller.onSceneTemplateSizeChange,
+    onTransformLayerPatch: controller.onTransformLayerPatch,
+    selectedElementLayer: controller.selectedElementLayer,
+    selectedTransformLayer: controller.selectedTransformLayer,
+    sizePresetId: controller.sceneTemplateSettings.sizeSettings.sizePresetId,
+    sizeSettings: controller.sceneTemplateSettings.sizeSettings,
     theme: actualTheme,
   });
   const toolbarRootRef = useRef<HTMLElement | null>(null);

@@ -1,9 +1,9 @@
 "use client";
 
 import * as React from "react";
-import { formatAll, gamutInfo, contrast } from "../lib/color";
-import type { ColorFormat, ContrastResult, GamutInfo, OklchColor } from "../lib/types";
-import { coerce, ALL_FORMATS, BLACK, WHITE, type ColorComponent } from "../lib/color-components";
+import { formatAll, gamutInfo } from "../lib/color";
+import type { ColorFormat, GamutInfo, OklchColor } from "../lib/types";
+import { coerce, ALL_FORMATS, BLACK, type ColorComponent } from "../lib/color-components";
 import { useResolvedColor } from "./use-resolved-color";
 import { useCommitColor, useColorPickerActions } from "./use-color-picker-actions";
 
@@ -36,8 +36,6 @@ export interface UseColorPickerProps {
    * FormatSwitcher tabs and the default format. Defaults to all formats.
    */
   formats?: ColorFormat[];
-  /** Background used for contrast metrics. */
-  backgroundColor?: string | OklchColor;
 }
 
 export interface ColorPickerState {
@@ -55,8 +53,6 @@ export interface ColorPickerState {
   setFormat: (f: ColorFormat) => void;
   setFromString: (s: string) => boolean;
   gamut: GamutInfo;
-  contrast: ContrastResult;
-  background: OklchColor;
 }
 
 export function useColorPicker(props: UseColorPickerProps = {}): ColorPickerState {
@@ -68,7 +64,6 @@ export function useColorPicker(props: UseColorPickerProps = {}): ColorPickerStat
     defaultFormat = "p3",
     onFormatChange,
     formats: formatsProp,
-    backgroundColor,
   } = props;
 
   const formats = React.useMemo<ColorFormat[]>(
@@ -87,7 +82,6 @@ export function useColorPicker(props: UseColorPickerProps = {}): ColorPickerStat
 
   const { color, lastGoodHue } = useResolvedColor(controlledValue, defaultValue, internalColor);
   const format = isControlledFormat ? controlledFormat! : internalFormat;
-  const background = coerce(backgroundColor, WHITE);
 
   const formatStrings = React.useMemo(
     () => formatAll(color),
@@ -100,21 +94,6 @@ export function useColorPicker(props: UseColorPickerProps = {}): ColorPickerStat
     // eslint-disable-next-line react-hooks/exhaustive-deps -- gamut derives from OKLCH channels only
     [color.l, color.c, color.h, color.alpha],
   );
-  const contrastResult = React.useMemo(
-    () => contrast(color, background),
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- contrast uses OKLCH channels, not object identity
-    [
-      color.l,
-      color.c,
-      color.h,
-      color.alpha,
-      background.l,
-      background.c,
-      background.h,
-      background.alpha,
-    ],
-  );
-
   const { commitColor, formatRef } = useCommitColor(
     format,
     onValueChange,
@@ -145,7 +124,5 @@ export function useColorPicker(props: UseColorPickerProps = {}): ColorPickerStat
     setFormat,
     setFromString,
     gamut,
-    contrast: contrastResult,
-    background,
   };
 }

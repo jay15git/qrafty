@@ -1,10 +1,10 @@
 "use client";
 
-import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from "react";
+import { createContext, useContext, type ReactNode } from "react";
 
-type SizeVariant = "default" | "compact";
+export type SizeVariant = "default" | "compact";
 
-interface SizeClasses {
+export interface SizeClasses {
   /** The variant these classes belong to — handy for conditionals. */
   variant: SizeVariant;
   /** Bounded control height — buttons, inputs, select triggers, subtle tabs —
@@ -69,58 +69,15 @@ const sizeMap: Record<SizeVariant, SizeClasses> = {
   },
 };
 
-interface SizeContextValue {
-  size: SizeVariant;
-  setSize: (size: SizeVariant) => void;
-  classes: SizeClasses;
-}
-
-const SizeContext = createContext<SizeContextValue | null>(null);
-
-/** Resolve the active size variant: explicit prop > provider > "default". */
-function useSizeVariant(override?: SizeVariant | null): SizeVariant {
-  const ctx = useContext(SizeContext);
-  return override ?? ctx?.size ?? "default";
-}
+const SizeContext = createContext<SizeVariant | null>(null);
 
 /** Resolve size classes: explicit prop > provider > "default". */
-function useSize(override?: SizeVariant | null): SizeClasses {
-  return sizeMap[useSizeVariant(override)];
+export function useSize(override?: SizeVariant | null): SizeClasses {
+  const ctx = useContext(SizeContext);
+  return sizeMap[override ?? ctx ?? "default"];
 }
 
-function SizeProvider({
-  children,
-  size,
-  defaultSize = "default",
-}: {
-  children: ReactNode;
-  /** Controlled variant — pin a whole region to one size (e.g. a compact
-   *  filter bar). Overrides internal state. */
-  size?: SizeVariant;
-  defaultSize?: SizeVariant;
-}) {
-  const [internalSize, setInternalSize] = useState<SizeVariant>(defaultSize);
-  const isControlled = size !== undefined;
-  const resolved = size ?? internalSize;
-
-  // Controlled providers ignore setSize entirely — a background write to the
-  // shadowed internal state would pop back out if the size prop were later
-  // removed.
-  const setSize = useCallback(
-    (next: SizeVariant) => {
-      if (isControlled) return;
-      setInternalSize(next);
-    },
-    [isControlled],
-  );
-
-  const value = useMemo(
-    () => ({ size: resolved, setSize, classes: sizeMap[resolved] }),
-    [resolved, setSize],
-  );
-
-  return <SizeContext.Provider value={value}>{children}</SizeContext.Provider>;
+/** Pin a region to one size variant (e.g. a compact filter bar). */
+export function SizeProvider({ children, size }: { children: ReactNode; size: SizeVariant }) {
+  return <SizeContext.Provider value={size}>{children}</SizeContext.Provider>;
 }
-
-export { SizeProvider, useSize };
-export type { SizeVariant, SizeClasses };

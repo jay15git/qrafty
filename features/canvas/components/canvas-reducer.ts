@@ -33,7 +33,6 @@ import {
 } from "@/features/canvas/components/canvas.constants";
 import type { CanvasBoardTool } from "@/features/canvas/components/Canvas";
 import type {
-  BackgroundSettingsTab,
   ToolbarToolId,
   ComposeSidebarPanel,
 } from "@/features/shell/components/WorkspaceChrome";
@@ -63,7 +62,6 @@ export type CanvasAssetSourceMode = Extract<AssetSourceMode, "upload" | "url">;
 
 export type CanvasSurfaceState = {
   desktopRailTool: ToolbarToolId | null;
-  backgroundSettingsTab: BackgroundSettingsTab;
   composeSidebarPanel: ComposeSidebarPanel;
   selectedContentType: QrInputType;
   contentValuesByType: CanvasContentValuesByType;
@@ -192,7 +190,6 @@ function createInitialCanvasSurfaceState(initialActiveTool?: ToolbarToolId): Can
 
   return {
     desktopRailTool: initialActiveTool ?? "content",
-    backgroundSettingsTab: "paper",
     composeSidebarPanel: null,
     selectedContentType: DEFAULT_QR_INPUT_TYPE,
     contentValuesByType: {
@@ -369,7 +366,6 @@ function createCanvasSurfaceSetters(dispatch: Dispatch<CanvasSurfaceAction>): Ca
 
   return {
     setDesktopRailTool: (value) => setField("desktopRailTool", value),
-    setBackgroundSettingsTab: (value) => setField("backgroundSettingsTab", value),
     setComposeSidebarPanel: (value) => setField("composeSidebarPanel", value),
     setSelectedContentType: (value) => setField("selectedContentType", value),
     setContentValuesByType: (value) => setField("contentValuesByType", value),

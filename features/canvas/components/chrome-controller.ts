@@ -1,56 +1,32 @@
-import { createDefaultCanvasCardState } from "@/features/canvas/model/card-state";
-import { createDefaultCanvasLayers } from "@/features/canvas/model/layers/card-qr";
-import { createDefaultCanvasWorkspaceQrState } from "@/features/canvas/model/document";
-import { applySceneCompositionPatch } from "@/features/canvas/model/apply-scene-template";
 import { getCanvasSizeFromTemplate } from "@/features/canvas/model/size-templates";
 import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
 import { isLayerDeletable } from "@/features/canvas/model/layers/shared";
 import type {
-  SceneCompositionState,
-  SceneLayoutPreset,
-} from "@/features/canvas/model/scene-templates";
-import type {
-  CanvasBoardTool,
-  CanvasBoardToolbarVariant,
-} from "@/features/canvas/components/Canvas";
-import { DEFAULT_DRAFTING_STUDIO_STATE } from "@/features/canvas/components/canvas.constants";
-import { DEFAULT_DRAFTING_TEXT_LAYER } from "@/features/canvas/model/layers/shared";
-import type {
   CanvasSurfaceSetters,
   CanvasSurfaceState,
 } from "@/features/canvas/components/canvas-reducer";
-import {
-  buildToolbarSettingsSnapshots,
-  pickToolbarSettingsSnapshots,
-} from "@/features/canvas/components/chrome-settings-snapshots";
+import { buildToolbarSettingsSnapshots } from "@/features/canvas/components/chrome-settings-snapshots";
 import type { CanvasBoards } from "@/features/canvas/components/use-canvas-boards";
 import type { CanvasPersistence } from "@/features/canvas/components/use-canvas-persistence";
 import type { CanvasWorkspaceActions } from "@/features/canvas/components/use-canvas-actions";
-import type { QrControlsApi } from "@/features/canvas/canvas/qr-controls";
 import type { CanvasLayerMenuAction } from "@/features/canvas/components/canvas-layer-chrome.constants";
 import type { AppearanceSnapshot } from "@/features/shell/model/appearance";
 import type {
   ComposeSidebarPanel,
-  AccessibilitySettings,
-  BackgroundSettingsTab,
   BackgroundSettings,
   CornersSettings,
-  EffectsSettings,
   EncodingSettings,
   ExportSettings,
   ImageSettings,
   LayersSettings,
-  LayoutSettings,
   LogoSettings,
   MotionSettings,
   PatternSettings,
   SceneTemplateSettings,
   ShapeSettings,
-  TextSettings,
   ToolbarController,
   ToolbarToolId,
 } from "@/features/shell/model/toolbar-types";
-import { DEFAULT_DESKTOP_EXPORT_SETTINGS } from "@/features/shell/model/toolbar-defaults";
 import type { ScanSafetyResult } from "@/features/qr/scan-safety/types";
 import type {
   StaticQrContentValue,
@@ -77,16 +53,12 @@ type CoreControllerParams = {
   contentValidation: StaticQrValidationResult;
   contentValues: StaticQrContentValues;
   contentType: QrInputType;
-  encodedContentValue: string;
   insertNodeId: string;
   onActiveToolChange: (toolId: ToolbarToolId) => void;
   onContentPasteApply: (type: QrInputType, values: StaticQrContentValues) => void;
-  onContentReset: () => void;
   onContentTypeChange: (type: QrInputType) => void;
   onContentValueChange: (field: string, value: StaticQrContentValue) => void;
   onRedo: () => void;
-  onResetDefaults: () => void;
-  onSave: () => void;
   onUndo: () => void;
   scanSafetyResult: ScanSafetyResult | undefined;
   selectedAppearanceLayer: CanvasLayer | null;
@@ -96,52 +68,28 @@ type CoreControllerParams = {
 };
 
 type QrSettingsControllerParams = {
-  accessibilitySettings: AccessibilitySettings;
-  backgroundSettingsTab: BackgroundSettingsTab;
   backgroundSettings: BackgroundSettings;
   cornersSettings: CornersSettings;
-  effectsSettings: EffectsSettings;
   encodingSettings: EncodingSettings;
   imageSettings: ImageSettings;
   logoSettings: LogoSettings;
   motionSettings: MotionSettings;
-  onAccessibilityReset: () => void;
-  onAccessibilitySettingsChange: ToolbarController["onAccessibilitySettingsChange"];
-  onBackgroundSettingsTabChange: (tab: BackgroundSettingsTab) => void;
-  onBackgroundReset: () => void;
   onBackgroundSettingsChange: ToolbarController["onBackgroundSettingsChange"];
-  onCornersReset: () => void;
   onCornersSettingsChange: ToolbarController["onCornersSettingsChange"];
-  onEffectsReset: () => void;
-  onEffectsSettingsChange: ToolbarController["onEffectsSettingsChange"];
-  onEncodingReset: () => void;
   onEncodingSettingsChange: ToolbarController["onEncodingSettingsChange"];
-  onImageReset: () => void;
   onImageSettingsChange: ToolbarController["onImageSettingsChange"];
-  onLogoReset: () => void;
   onLogoSettingsChange: ToolbarController["onLogoSettingsChange"];
-  onMotionReset: () => void;
   onMotionSettingsChange: ToolbarController["onMotionSettingsChange"];
-  onPatternReset: () => void;
   onPatternSettingsChange: ToolbarController["onPatternSettingsChange"];
-  onShapeReset: () => void;
   onShapeSettingsChange: ToolbarController["onShapeSettingsChange"];
-  onTextReset: () => void;
-  onTextSettingsChange: ToolbarController["onTextSettingsChange"];
   onUnifiedQrFillSettingsChange: ToolbarController["onUnifiedQrFillSettingsChange"];
   patternSettings: PatternSettings;
   shapeSettings: ShapeSettings;
-  textSettings: TextSettings;
 };
 
 type SceneControllerParams = {
-  activeQrNodeId: string;
-  activeSceneComposition: SceneCompositionState;
-  layoutSettings: LayoutSettings;
   onBackgroundTabChange: (tab: "shader" | "image" | "color") => void;
   onCloseComposeSidebar: () => void;
-  onLayoutPresetSelect: (preset: SceneLayoutPreset) => void;
-  onLayoutSettingsChange: (patch: Partial<SceneLayoutPreset>) => void;
   onOpenComposeSidebar: (panel: "wallpapers") => void;
   onSceneTemplateSizeChange: ToolbarController["onSceneTemplateSizeChange"];
   onSceneTemplateSizeTemplateSelect: ToolbarController["onSceneTemplateSizeTemplateSelect"];
@@ -150,13 +98,8 @@ type SceneControllerParams = {
 };
 
 type CanvasControllerParams = {
-  canRemoveQrCode: boolean;
-  canvasTool: CanvasBoardTool | null;
   onAddQrCode: () => void;
-  onAddTextLayerAt: (boardId: string, point: { x: number; y: number }) => void;
-  onCanvasToolChange: (tool: CanvasBoardTool | null) => void;
   onInsertLayer: (layer: CanvasLayer) => void;
-  onRemoveQrCode: (() => void) | undefined;
   qrLayerCount: number;
 };
 
@@ -179,7 +122,6 @@ type ExportControllerParams = {
   exportSettings: ExportSettings;
   onExportCancel: () => void;
   onExportDownload: () => void;
-  onExportReset: () => void;
   onExportSettingsChange: ToolbarController["onExportSettingsChange"];
 };
 
@@ -189,7 +131,6 @@ type LayersControllerParams = {
   layersSettings: LayersSettings;
   onLayerAction: (nodeId: string, layerIds: string[], action: CanvasLayerMenuAction) => void;
   onLayerCopy: () => void;
-  onLayersReset: () => void;
   onLayersReorder: (orderedIds: string[]) => void;
   onLayersSettingsChange: ToolbarController["onLayersSettingsChange"];
   selectedLayerIds: string[];
@@ -206,23 +147,13 @@ type ToolbarControllerParams = {
 };
 
 function buildCanvasController({
-  canRemoveQrCode,
-  canvasTool,
   onAddQrCode,
-  onAddTextLayerAt,
-  onCanvasToolChange,
   onInsertLayer,
-  onRemoveQrCode,
   qrLayerCount,
 }: CanvasControllerParams) {
   return {
-    canvasTool,
-    onCanvasToolChange,
     canAddQrCode: qrLayerCount < 10,
     onAddQrCode,
-    onAddTextLayerAt,
-    canRemoveQrCode,
-    onRemoveQrCode,
     onInsertLayer,
   };
 }
@@ -257,14 +188,12 @@ function buildLayersController({
   layersSettings,
   onLayerAction,
   onLayerCopy,
-  onLayersReset,
   onLayersReorder,
   onLayersSettingsChange,
   selectedLayerIds,
 }: LayersControllerParams) {
   return {
     layersSettings,
-    onLayersReset,
     onLayersSettingsChange,
     onLayersReorder,
     onLayerDelete: (layerId: string) => {
@@ -307,31 +236,24 @@ function buildToolbarController({
  */
 export function buildCanvasWorkspaceController({
   actions,
-  boardToolbarVariant,
   boards,
   persistence,
-  qrControls,
   scanSafetyResult,
   setters,
   state,
 }: {
   actions: CanvasWorkspaceActions;
-  boardToolbarVariant: CanvasBoardToolbarVariant;
   boards: CanvasBoards;
   persistence: CanvasPersistence;
-  qrControls: QrControlsApi;
   scanSafetyResult: ScanSafetyResult | undefined;
   setters: CanvasSurfaceSetters;
   state: CanvasSurfaceState;
 }): ToolbarController {
   const {
     activeQrNodeId,
-    backgroundSettingsTab,
     composeSidebarPanel,
-    desktopCanvasTool,
     desktopRailTool,
     exportDownloadError,
-    selectedAriaLabel,
     selectedBackgroundColor,
     selectedBackgroundColorMode,
     selectedBackgroundGradient,
@@ -395,49 +317,18 @@ export function buildCanvasWorkspaceController({
     selectedVideoFrameRate,
     selectedVideoLongEdge,
   } = state;
-  const {
-    setBackgroundSettingsTab,
-    setComposeSidebarPanel,
-    setDesktopCanvasTool,
-    setDesktopRailTool,
-    setExportDownloadError,
-    setLayerStateByNodeId,
-    setSceneCompositionByNodeId,
-    setSelectedAriaLabel,
-    setSelectedBoostLevel,
-    setSelectedCardState,
-    setSelectedDotMatrixAnimation,
-    setSelectedDownloadExtension,
-    setSelectedDownloadTarget,
-    setSelectedExportMediaKind,
-    setSelectedPhotoLongEdge,
-    setSelectedQrErrorCorrectionLevel,
-    setSelectedQrMode,
-    setSelectedQrTypeNumber,
-    setSelectedValueSegmentsText,
-    setSelectedVideoDurationSeconds,
-    setSelectedVideoFormat,
-    setSelectedVideoFrameRate,
-    setSelectedVideoLongEdge,
-  } = setters;
-  const {
-    canvasQraftyState,
-    selectedContentValidation,
-    selectedContentValue,
-    selectedContentValues,
-  } = persistence;
+  const { setComposeSidebarPanel, setDesktopCanvasTool, setDesktopRailTool, setSelectedCardState } =
+    setters;
+  const { canvasQraftyState, selectedContentValidation, selectedContentValues } = persistence;
   const {
     activeCanvasLayerRows,
     activeCanvasLayers,
-    activeSceneComposition,
     appearanceTargetLayer,
     canExportVideo,
-    canRemoveQrCode,
     desktopAppearanceSnapshot,
     propertiesTransformLayer,
     qrCanvasLayers,
     selectedElementLayer,
-    selectedTextLayer,
     selectedTransformLayer,
   } = boards;
   const {
@@ -450,7 +341,6 @@ export function buildCanvasWorkspaceController({
     exportProgressLabel,
     exportProgressRatio,
     handleAddQrCode,
-    handleAddTextLayerAt,
     handleCanvasContentPasteApply,
     handleCanvasContentTypeChange,
     handleCanvasContentValueChange,
@@ -461,16 +351,8 @@ export function buildCanvasWorkspaceController({
     handleLayerChange,
     handleLayerReorder,
     handleRedoCanvasWorkspace,
-    handleRemoveQrCode,
-    handleSaveCanvasWorkspace,
     handleUndoCanvasWorkspace,
-    resetCanvasWorkspace,
-    resetDesktopContent,
-    resetDesktopLogoSettings,
-    resetDesktopPatternSettings,
-    resetDesktopShapeSettings,
     selectSingleLayer,
-    updateDesktopAccessibilitySettings,
     updateDesktopCornersSettings,
     updateDesktopEncodingSettings,
     updateDesktopExportSettings,
@@ -480,95 +362,85 @@ export function buildCanvasWorkspaceController({
     updateDesktopMotionSettings,
     updateDesktopPatternSettings,
     updateDesktopShapeSettings,
-    updateDesktopTextSettings,
     updateDesktopUnifiedQrFillSettings,
   } = actions;
 
   const {
-    desktopPatternSettings,
-    desktopLogoSettings,
-    desktopCornersSettings,
-    desktopShapeSettings,
-    desktopEncodingSettings,
-    desktopAccessibilitySettings,
-    desktopImageSettings,
-    desktopBackgroundSettings,
-    desktopEffectsSettings,
-    desktopLayersSettings,
-    desktopExportSettings,
-    desktopSceneTemplateSettings,
-    desktopLayoutSettings,
-    desktopTextSettings,
-  } = pickToolbarSettingsSnapshots(
-    buildToolbarSettingsSnapshots({
-      activeQrNodeId,
-      activeCanvasLayers,
-      activeCanvasLayerRows,
-      activeSceneComposition,
-      canvasQraftyState,
-      selectedAriaLabel,
-      selectedBackgroundColor,
-      selectedBackgroundColorMode,
-      selectedBackgroundGradient,
-      selectedBackgroundShapeId,
-      selectedBackgroundShapeOptions,
-      selectedBoostLevel,
-      selectedCardState,
-      selectedCornerDotColor,
-      selectedCornerDotColorMode,
-      selectedCornerDotGradient,
-      selectedCornerSquareColor,
-      selectedCornerSquareColorMode,
-      selectedCornerSquareGradient,
-      selectedDotColor,
-      selectedDotType,
-      selectedDotsColorMode,
-      selectedDotsGradient,
-      selectedDotsPalette,
-      selectedDotsPalettePreset,
-      selectedModuleFillImageUrl,
-      selectedModuleFillImageSourceMode,
-      selectedModuleFillRemoteUrl,
-      selectedDownloadExtension,
-      selectedDownloadTarget,
-      selectedExportMediaKind,
-      selectedVideoDurationSeconds,
-      selectedVideoFormat,
-      selectedVideoFrameRate,
-      selectedVideoLongEdge,
-      selectedGradientLinkMode,
-      selectedHideBackgroundDots,
-      selectedLayerId,
-      selectedLogoAssetSourceMode,
-      selectedLogoColor,
-      selectedLogoColorMode,
-      selectedLogoCrossOrigin,
-      selectedLogoGradient,
-      selectedLogoHeightPx,
-      selectedLogoLockAspect,
-      selectedLogoMargin,
-      selectedLogoOffsetX,
-      selectedLogoOffsetY,
-      selectedLogoOpacity,
-      selectedLogoPositionMode,
-      selectedLogoPresetId: selectedLogoPresetId ?? null,
-      selectedLogoRemoteUrl,
-      selectedLogoSize,
-      selectedLogoSizeMode,
-      selectedLogoSourceMode,
-      selectedLogoWidthPx,
-      selectedModuleLineWidth,
-      selectedModuleRoundSize,
-      selectedModuleSize,
-      selectedQrErrorCorrectionLevel,
-      selectedQrFinderPatternInnerStyle,
-      selectedQrFinderPatternOuterStyle,
-      selectedQrTypeNumber,
-      selectedPhotoLongEdge,
-      selectedTextLayer,
-      selectedValueSegmentsText,
-    }),
-  );
+    patternSettings: desktopPatternSettings,
+    logoSettings: desktopLogoSettings,
+    cornersSettings: desktopCornersSettings,
+    shapeSettings: desktopShapeSettings,
+    encodingSettings: desktopEncodingSettings,
+    imageSettings: desktopImageSettings,
+    backgroundSettings: desktopBackgroundSettings,
+    layersSettings: desktopLayersSettings,
+    exportSettings: desktopExportSettings,
+    sceneTemplateSettings: desktopSceneTemplateSettings,
+  } = buildToolbarSettingsSnapshots({
+    activeQrNodeId,
+    activeCanvasLayers,
+    activeCanvasLayerRows,
+    canvasQraftyState,
+    selectedBackgroundColor,
+    selectedBackgroundColorMode,
+    selectedBackgroundGradient,
+    selectedBackgroundShapeId,
+    selectedBackgroundShapeOptions,
+    selectedBoostLevel,
+    selectedCardState,
+    selectedCornerDotColor,
+    selectedCornerDotColorMode,
+    selectedCornerDotGradient,
+    selectedCornerSquareColor,
+    selectedCornerSquareColorMode,
+    selectedCornerSquareGradient,
+    selectedDotColor,
+    selectedDotType,
+    selectedDotsColorMode,
+    selectedDotsGradient,
+    selectedDotsPalette,
+    selectedDotsPalettePreset,
+    selectedModuleFillImageUrl,
+    selectedModuleFillImageSourceMode,
+    selectedModuleFillRemoteUrl,
+    selectedDownloadExtension,
+    selectedDownloadTarget,
+    selectedExportMediaKind,
+    selectedVideoDurationSeconds,
+    selectedVideoFormat,
+    selectedVideoFrameRate,
+    selectedVideoLongEdge,
+    selectedGradientLinkMode,
+    selectedHideBackgroundDots,
+    selectedLayerId,
+    selectedLogoAssetSourceMode,
+    selectedLogoColor,
+    selectedLogoColorMode,
+    selectedLogoCrossOrigin,
+    selectedLogoGradient,
+    selectedLogoHeightPx,
+    selectedLogoLockAspect,
+    selectedLogoMargin,
+    selectedLogoOffsetX,
+    selectedLogoOffsetY,
+    selectedLogoOpacity,
+    selectedLogoPositionMode,
+    selectedLogoPresetId: selectedLogoPresetId ?? null,
+    selectedLogoRemoteUrl,
+    selectedLogoSize,
+    selectedLogoSizeMode,
+    selectedLogoSourceMode,
+    selectedLogoWidthPx,
+    selectedModuleLineWidth,
+    selectedModuleRoundSize,
+    selectedModuleSize,
+    selectedQrErrorCorrectionLevel,
+    selectedQrFinderPatternInnerStyle,
+    selectedQrFinderPatternOuterStyle,
+    selectedQrTypeNumber,
+    selectedPhotoLongEdge,
+    selectedValueSegmentsText,
+  });
 
   return buildToolbarController({
     core: {
@@ -580,7 +452,6 @@ export function buildCanvasWorkspaceController({
       contentValidation: selectedContentValidation,
       contentValues: selectedContentValues,
       contentType: selectedContentType,
-      encodedContentValue: selectedContentValue,
       insertNodeId: activeQrNodeId,
       onActiveToolChange: (toolId) => {
         setComposeSidebarPanel(null);
@@ -588,12 +459,9 @@ export function buildCanvasWorkspaceController({
         setDesktopRailTool(toolId);
       },
       onContentPasteApply: handleCanvasContentPasteApply,
-      onContentReset: resetDesktopContent,
       onContentTypeChange: handleCanvasContentTypeChange,
       onContentValueChange: handleCanvasContentValueChange,
       onRedo: handleRedoCanvasWorkspace,
-      onResetDefaults: resetCanvasWorkspace,
-      onSave: handleSaveCanvasWorkspace,
       onUndo: handleUndoCanvasWorkspace,
       scanSafetyResult,
       selectedAppearanceLayer: appearanceTargetLayer,
@@ -602,24 +470,12 @@ export function buildCanvasWorkspaceController({
       selectedTransformLayer: propertiesTransformLayer,
     },
     qrSettings: {
-      accessibilitySettings: desktopAccessibilitySettings,
-      backgroundSettingsTab,
       backgroundSettings: desktopBackgroundSettings,
       cornersSettings: desktopCornersSettings,
-      effectsSettings: desktopEffectsSettings,
       encodingSettings: desktopEncodingSettings,
       imageSettings: desktopImageSettings,
       logoSettings: desktopLogoSettings,
       motionSettings: selectedDotMatrixAnimation as MotionSettings,
-      onAccessibilityReset: () => setSelectedAriaLabel(""),
-      onAccessibilitySettingsChange: updateDesktopAccessibilitySettings,
-      onBackgroundSettingsTabChange: setBackgroundSettingsTab,
-      onBackgroundReset: () =>
-        setSelectedCardState((current) => ({
-          ...current,
-          paperShader: createDefaultCanvasCardState().paperShader,
-          styleMode: "paper-shader",
-        })),
       onBackgroundSettingsChange: (settings) =>
         setSelectedCardState((current) => ({
           ...current,
@@ -628,51 +484,18 @@ export function buildCanvasWorkspaceController({
             settings.styleMode ??
             (settings.paperShader !== undefined ? "paper-shader" : current.styleMode),
         })),
-      onCornersReset: () => qrControls.applyQrState(createDefaultCanvasWorkspaceQrState()),
       onCornersSettingsChange: updateDesktopCornersSettings,
-      onEffectsReset: resetDesktopShapeSettings,
-      onEffectsSettingsChange: (patch) =>
-        setSelectedCardState((current) => ({
-          ...current,
-          imageFilter: {
-            ...current.imageFilter,
-            presetName: patch.filterPresetName ?? current.imageFilter.presetName,
-            shaderId: patch.filterId ?? current.imageFilter.shaderId,
-          },
-          styleMode: patch.filterId ? "image-filter" : current.styleMode,
-        })),
-      onEncodingReset: () => {
-        setSelectedQrTypeNumber(DEFAULT_DRAFTING_STUDIO_STATE.qrOptions.typeNumber);
-        setSelectedQrErrorCorrectionLevel(
-          DEFAULT_DRAFTING_STUDIO_STATE.qrOptions.errorCorrectionLevel,
-        );
-        setSelectedBoostLevel(DEFAULT_DRAFTING_STUDIO_STATE.qrOptions.boostLevel);
-        setSelectedQrMode(DEFAULT_DRAFTING_STUDIO_STATE.qrOptions.mode);
-        setSelectedValueSegmentsText("");
-      },
       onEncodingSettingsChange: updateDesktopEncodingSettings,
-      onImageReset: resetDesktopShapeSettings,
       onImageSettingsChange: updateDesktopImageSettings,
-      onLogoReset: resetDesktopLogoSettings,
       onLogoSettingsChange: updateDesktopLogoSettings,
-      onMotionReset: () =>
-        setSelectedDotMatrixAnimation({ ...DEFAULT_DRAFTING_STUDIO_STATE.dotMatrixAnimation }),
       onMotionSettingsChange: updateDesktopMotionSettings,
-      onPatternReset: resetDesktopPatternSettings,
       onPatternSettingsChange: updateDesktopPatternSettings,
-      onShapeReset: resetDesktopShapeSettings,
       onShapeSettingsChange: updateDesktopShapeSettings,
-      onTextReset: () => updateDesktopTextSettings({ ...DEFAULT_DRAFTING_TEXT_LAYER }),
-      onTextSettingsChange: updateDesktopTextSettings,
       onUnifiedQrFillSettingsChange: updateDesktopUnifiedQrFillSettings,
       patternSettings: desktopPatternSettings,
       shapeSettings: desktopShapeSettings,
-      textSettings: desktopTextSettings,
     },
     scene: {
-      activeQrNodeId,
-      activeSceneComposition,
-      layoutSettings: desktopLayoutSettings,
       onBackgroundTabChange: (tab) => {
         setSelectedCardState((current) => {
           if (tab === "shader") {
@@ -694,18 +517,6 @@ export function buildCanvasWorkspaceController({
       },
       onCloseComposeSidebar: () => {
         setComposeSidebarPanel(null);
-      },
-      onLayoutPresetSelect: (preset) => {
-        setSceneCompositionByNodeId((current) =>
-          applySceneCompositionPatch(current, activeQrNodeId, { layout: preset }),
-        );
-      },
-      onLayoutSettingsChange: (patch) => {
-        setSceneCompositionByNodeId((current) =>
-          applySceneCompositionPatch(current, activeQrNodeId, {
-            layout: { ...activeSceneComposition.layout, ...patch },
-          }),
-        );
       },
       onOpenComposeSidebar: (panel) => {
         setComposeSidebarPanel(panel);
@@ -737,16 +548,10 @@ export function buildCanvasWorkspaceController({
       sceneTemplateSettings: desktopSceneTemplateSettings,
     },
     canvas: {
-      canRemoveQrCode,
-      canvasTool: boardToolbarVariant === "zoom" ? desktopCanvasTool : null,
       onAddQrCode: () => {
         void handleAddQrCode();
       },
-      onAddTextLayerAt: handleAddTextLayerAt,
-      onCanvasToolChange: boardToolbarVariant === "zoom" ? setDesktopCanvasTool : () => undefined,
       onInsertLayer: handleInsertLayer,
-      onRemoveQrCode:
-        canRemoveQrCode && selectedLayerId ? () => handleRemoveQrCode(selectedLayerId) : undefined,
       qrLayerCount: qrCanvasLayers.length,
     },
     element: {
@@ -771,17 +576,6 @@ export function buildCanvasWorkspaceController({
       onExportDownload: () => {
         void handleDownload();
       },
-      onExportReset: () => {
-        setExportDownloadError(null);
-        setSelectedDownloadExtension("png");
-        setSelectedDownloadTarget("surface");
-        setSelectedPhotoLongEdge(DEFAULT_DESKTOP_EXPORT_SETTINGS.photoLongEdge);
-        setSelectedExportMediaKind(DEFAULT_DESKTOP_EXPORT_SETTINGS.mediaKind);
-        setSelectedVideoDurationSeconds(DEFAULT_DESKTOP_EXPORT_SETTINGS.videoDurationSeconds);
-        setSelectedVideoFormat(DEFAULT_DESKTOP_EXPORT_SETTINGS.videoFormat);
-        setSelectedVideoFrameRate(DEFAULT_DESKTOP_EXPORT_SETTINGS.videoFrameRate);
-        setSelectedVideoLongEdge(DEFAULT_DESKTOP_EXPORT_SETTINGS.videoLongEdge);
-      },
       onExportSettingsChange: updateDesktopExportSettings,
     },
     layers: {
@@ -792,15 +586,6 @@ export function buildCanvasWorkspaceController({
       onLayerCopy: () => {
         void copySelectedCanvasLayers(selectedLayerIds);
       },
-      onLayersReset: () =>
-        setLayerStateByNodeId((current) => ({
-          ...current,
-          [activeQrNodeId]: createDefaultCanvasLayers(
-            activeQrNodeId,
-            canvasQraftyState,
-            selectedCardState,
-          ),
-        })),
       onLayersReorder: handleLayerReorder,
       onLayersSettingsChange: updateDesktopLayersSettings,
       selectedLayerIds,

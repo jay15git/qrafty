@@ -46,10 +46,9 @@ await syncWallpapers({
   outDir: OUT_DIR,
   publicPath: "/backgrounds/studio",
   source: "studio",
-  items: collectSources().map(({ id, file, label, sourcePath }) => ({
+  items: collectSources().map(({ id, label, sourcePath }) => ({
     id,
     label,
-    sourceUrl: file,
     resolve: () => sourcePath,
   })),
   module: {

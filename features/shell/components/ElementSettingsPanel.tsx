@@ -38,7 +38,6 @@ import {
 import {
   SettingsSliderRow,
   SettingsNumberField,
-  SettingsScrollArea,
   SettingsValueGrid,
 } from "@/features/shell/components/SettingsRows";
 import {
@@ -46,7 +45,6 @@ import {
   getLayerFontWeight,
   getNearestFontWeight,
 } from "@/features/shell/model/font-weight";
-import { EffectsAccordion } from "@/features/shell/components/EffectsAccordion";
 import { ElementShapeOptionGrid } from "@/features/canvas/components/ElementShapeOptionGrid";
 import { PaperShaderOptionGrid } from "@/features/canvas/components/PaperShaderOptionGrid";
 import { SettingsPaperShaderControls } from "@/features/shell/settings/PaperShaderSettings";
@@ -104,47 +102,6 @@ export function LayerStyleSettings({
       {layer.kind === "shader" ? (
         <LayerShaderSettings category={category} layer={layer} onPatch={onPatch} />
       ) : null}
-    </div>
-  );
-}
-
-export function ElementSettingsPanel({
-  layer,
-  onPatch,
-}: {
-  layer: CanvasLayer;
-  onPatch: (patch: Partial<CanvasLayer>) => void;
-}) {
-  return (
-    <div data-slot="element-panel" className="flex min-h-0 min-w-0 flex-1 flex-col">
-      <SettingsScrollArea>
-        <LayerStyleSettings layer={layer} onPatch={onPatch} />
-        <EffectsAccordion layer={layer} onPatch={onPatch} />
-      </SettingsScrollArea>
-    </div>
-  );
-}
-
-export function TransformPanel({
-  layer,
-  onPatch,
-}: {
-  layer: CanvasLayer | null | undefined;
-  onPatch: (patch: Partial<CanvasLayer>) => void;
-}) {
-  return (
-    <div data-slot="transform-panel" className="flex min-h-0 min-w-0 flex-1 flex-col">
-      <SettingsScrollArea>
-        {layer ? (
-          <TransformSection layer={layer} onPatch={onPatch} />
-        ) : (
-          <SettingsSection>
-            <p className="ds-type-value text-center font-semibold text-[var(--fg-muted)]">
-              Select a layer to edit position, size, and rotation.
-            </p>
-          </SettingsSection>
-        )}
-      </SettingsScrollArea>
     </div>
   );
 }

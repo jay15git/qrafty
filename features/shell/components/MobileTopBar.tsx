@@ -2,7 +2,7 @@
 
 import { ExportDownloadPopover } from "@/features/shell/components/ExportDownloadPopover";
 import { UtilityToolbar } from "@/features/shell/components/UtilityToolbar";
-import { MobileRedoIcon, MobileUndoIcon } from "@/features/shell/components/MobileHistoryIcons";
+import { RedoIcon, UndoIcon } from "@/features/shell/components/toolbar-icons";
 import type { SettingsModel } from "@/features/shell/hooks/use-toolbar-settings-model";
 import type { ThemeMode } from "@/features/shell/model/toolbar-types";
 import { cn } from "@/lib/utils";
@@ -31,7 +31,7 @@ export function MobileTopBar({
           type="button"
           onClick={() => controller?.onUndo?.()}
         >
-          <MobileUndoIcon className="size-3.5" />
+          <UndoIcon className="size-3.5" />
         </button>
         <button
           aria-label="Redo"
@@ -42,7 +42,7 @@ export function MobileTopBar({
           type="button"
           onClick={() => controller?.onRedo?.()}
         >
-          <MobileRedoIcon className="size-3.5" />
+          <RedoIcon className="size-3.5" />
         </button>
       </div>
       <UtilityToolbar data-slot="mobile-utility-toolbar" className="pointer-events-auto gap-0 p-0">

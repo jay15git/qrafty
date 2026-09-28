@@ -14,7 +14,6 @@ export const DEVELOPER_PLATFORM_DEFS: readonly PlatformDef[] = [
     type: "github",
     label: "GitHub",
     description: "User, repo, issue, or gist.",
-    collection: "more",
     category: "developer",
     hosts: ["github.com", "gist.github.com"],
     intents: [
@@ -36,7 +35,6 @@ export const DEVELOPER_PLATFORM_DEFS: readonly PlatformDef[] = [
     type: "gitlab",
     label: "GitLab",
     description: "User, project, or issue.",
-    collection: "more",
     category: "developer",
     hosts: ["gitlab.com"],
     intents: [
@@ -49,7 +47,6 @@ export const DEVELOPER_PLATFORM_DEFS: readonly PlatformDef[] = [
     type: "notion",
     label: "Notion",
     description: "Notion page link.",
-    collection: "more",
     category: "developer",
     hosts: ["notion.so", "notion.site"],
     intents: [urlIntent("page", "Page")],
@@ -58,7 +55,6 @@ export const DEVELOPER_PLATFORM_DEFS: readonly PlatformDef[] = [
     type: "medium",
     label: "Medium",
     description: "Profile or story.",
-    collection: "more",
     category: "developer",
     hosts: ["medium.com"],
     intents: [
@@ -70,7 +66,6 @@ export const DEVELOPER_PLATFORM_DEFS: readonly PlatformDef[] = [
     type: "substack",
     label: "Substack",
     description: "Publication or post.",
-    collection: "more",
     category: "developer",
     hosts: ["substack.com"],
     intents: [

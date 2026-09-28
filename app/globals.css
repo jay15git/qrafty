@@ -163,23 +163,11 @@
   :focus-visible {
     outline: 1px solid var(--focus-ring, #6b97ff);
     outline-offset: 2px;
-    border-radius: var(--shape-input-radius, 8px);
+    border-radius: 8px;
   }
   a:focus-visible {
     border-radius: 2px;
   }
-}
-
-html.transitioning *,
-html.transitioning *::before,
-html.transitioning *::after {
-  transition:
-    border-radius 180ms ease-in-out,
-    background-color 180ms ease-in-out,
-    color 180ms ease-in-out,
-    border-color 180ms ease-in-out,
-    fill 180ms ease-in-out,
-    stroke 180ms ease-in-out !important;
 }
 
 @property --sf-start {

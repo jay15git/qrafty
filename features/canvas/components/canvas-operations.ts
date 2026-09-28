@@ -2,13 +2,9 @@ import type {
   ExportTarget,
   LayerRow,
   LogoSourceMode,
-  TextSettings,
 } from "@/features/shell/components/WorkspaceChrome";
 import type { ExternalAssetSourceMode } from "@/features/shell/model/toolbar-types";
-import {
-  DEFAULT_DRAFTING_TEXT_LAYER,
-  type CanvasLayer,
-} from "@/features/canvas/model/layers/shared";
+import { type CanvasLayer } from "@/features/canvas/model/layers/shared";
 import { cloneCanvasLayer } from "@/features/canvas/model/layers/fallback";
 import { patchCanvasLayer } from "@/features/canvas/model/layers/patch";
 import type { AssetSourceMode } from "@/features/qr/model/state";
@@ -104,23 +100,6 @@ export function ensureMandatoryLayerRows(
   }
 
   return [...rows, toLayerRow(cardLayer)];
-}
-
-export function getLayerTextSettings(layer: CanvasLayer | null): TextSettings {
-  const textLayer = layer?.kind === "text" ? layer : null;
-  return {
-    fill: textLayer?.fill ?? DEFAULT_DRAFTING_TEXT_LAYER.fill,
-    fontFamily: textLayer?.fontFamily ?? DEFAULT_DRAFTING_TEXT_LAYER.fontFamily,
-    fontId: textLayer?.fontId ?? DEFAULT_DRAFTING_TEXT_LAYER.fontId,
-    fontSize: textLayer?.fontSize ?? DEFAULT_DRAFTING_TEXT_LAYER.fontSize,
-    fontStyle: textLayer?.fontStyle ?? DEFAULT_DRAFTING_TEXT_LAYER.fontStyle,
-    fontWeight: textLayer?.fontWeight ?? DEFAULT_DRAFTING_TEXT_LAYER.fontWeight,
-    letterSpacing: textLayer?.letterSpacing ?? DEFAULT_DRAFTING_TEXT_LAYER.letterSpacing,
-    lineHeight: textLayer?.lineHeight ?? DEFAULT_DRAFTING_TEXT_LAYER.lineHeight,
-    text: textLayer?.text ?? DEFAULT_DRAFTING_TEXT_LAYER.text,
-    textAlign: textLayer?.textAlign ?? DEFAULT_DRAFTING_TEXT_LAYER.textAlign,
-    underline: textLayer?.underline ?? DEFAULT_DRAFTING_TEXT_LAYER.underline,
-  };
 }
 
 export function patchCanvasLayerById(

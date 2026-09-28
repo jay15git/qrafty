@@ -59,7 +59,6 @@ export type IconstackSearchResponse = {
 export type IconstackSvgResponse = {
   library: string;
   id: string;
-  fullId: string;
   svg: string;
   url: string;
 };

@@ -1,32 +1,26 @@
 import { DEFAULT_BRAND_ICON_COLOR } from "@/features/qr/assets/brand-icon-svg";
-import { DEFAULT_DRAFTING_TEXT_LAYER } from "@/features/canvas/model/layers/shared";
 import {
   createDefaultCanvasCardPaperShader,
   DEFAULT_DRAFTING_CARD_STATE,
 } from "@/features/canvas/model/card-state";
-import { getCardImageFilterDefinitions } from "@/features/canvas/rendering/paper-shader-definitions";
 import {
   DEFAULT_DOT_MATRIX_ANIMATION,
   DEFAULT_BACKGROUND_SHAPE_OPTIONS,
   type QraftyGradient,
 } from "@/features/qr/model/state";
 import type {
-  AccessibilitySettings,
   BackgroundSettings,
   CornersSettings,
-  EffectsSettings,
   EncodingSettings,
   ExportSettings,
   ImageSettings,
   LayerRow,
   LayersSettings,
-  LayoutSettings,
   LogoSettings,
   MotionSettings,
   PatternSettings,
   SceneTemplateSettings,
   ShapeSettings,
-  TextSettings,
 } from "@/features/shell/model/toolbar-types";
 
 const DEFAULT_DESKTOP_DOTS_GRADIENT: QraftyGradient = {
@@ -179,10 +173,6 @@ export const DEFAULT_DESKTOP_ENCODING_SETTINGS: EncodingSettings = {
   valueSegmentsText: "",
 };
 
-export const DEFAULT_DESKTOP_ACCESSIBILITY_SETTINGS: AccessibilitySettings = {
-  ariaLabel: "",
-};
-
 export const DEFAULT_DESKTOP_IMAGE_SETTINGS: ImageSettings = {
   fit: "cover",
   intent: "image-object",
@@ -194,11 +184,6 @@ export const DEFAULT_DESKTOP_IMAGE_SETTINGS: ImageSettings = {
 export const DEFAULT_DESKTOP_BACKGROUND_SETTINGS: BackgroundSettings = {
   paperShader: createDefaultCanvasCardPaperShader(DEFAULT_DRAFTING_CARD_STATE.paperShader.shaderId),
   styleMode: DEFAULT_DRAFTING_CARD_STATE.styleMode,
-};
-
-export const DEFAULT_DESKTOP_EFFECTS_SETTINGS: EffectsSettings = {
-  filterId: getCardImageFilterDefinitions()[0]?.id ?? "paper-texture",
-  filterPresetName: getCardImageFilterDefinitions()[0]?.presets[0]?.name ?? "",
 };
 
 const DEFAULT_DESKTOP_LAYERS: LayerRow[] = [
@@ -277,10 +262,6 @@ export const DEFAULT_DESKTOP_EXPORT_SETTINGS: ExportSettings = {
   videoLongEdge: 1080,
 };
 
-export const DEFAULT_DESKTOP_LAYOUT_SETTINGS: LayoutSettings = {
-  layout: { id: "flat", label: "Flat", rotation: 0, tiltX: 0, tiltY: 0, zoom: 1 },
-};
-
 export const DEFAULT_DESKTOP_SCENE_TEMPLATE_SETTINGS: SceneTemplateSettings = {
   sizeSettings: {
     cardHeight: 810,
@@ -289,18 +270,4 @@ export const DEFAULT_DESKTOP_SCENE_TEMPLATE_SETTINGS: SceneTemplateSettings = {
     sizeMode: "fixed",
     sizePresetId: "ratio-4-3",
   },
-};
-
-export const DEFAULT_DESKTOP_TEXT_SETTINGS: TextSettings = {
-  fill: DEFAULT_DRAFTING_TEXT_LAYER.fill,
-  fontFamily: DEFAULT_DRAFTING_TEXT_LAYER.fontFamily,
-  fontId: DEFAULT_DRAFTING_TEXT_LAYER.fontId,
-  fontSize: DEFAULT_DRAFTING_TEXT_LAYER.fontSize,
-  fontStyle: DEFAULT_DRAFTING_TEXT_LAYER.fontStyle,
-  fontWeight: DEFAULT_DRAFTING_TEXT_LAYER.fontWeight,
-  letterSpacing: DEFAULT_DRAFTING_TEXT_LAYER.letterSpacing,
-  lineHeight: DEFAULT_DRAFTING_TEXT_LAYER.lineHeight,
-  text: DEFAULT_DRAFTING_TEXT_LAYER.text,
-  textAlign: DEFAULT_DRAFTING_TEXT_LAYER.textAlign,
-  underline: DEFAULT_DRAFTING_TEXT_LAYER.underline,
 };

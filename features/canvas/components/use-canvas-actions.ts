@@ -40,8 +40,6 @@ import {
   useCanvasShortcuts,
   type CanvasShortcutHandlers,
 } from "@/features/canvas/canvas/use-canvas-shortcuts";
-import { DEFAULT_DESKTOP_EXPORT_SETTINGS } from "@/features/shell/model/toolbar-defaults";
-import type { BrandIconCategory } from "@/features/qr/assets/brand-icons";
 import { isRasterExportExtension } from "@/features/qr/export/raster-export";
 import { DASHBOARD_QR_NODE_ID } from "@/features/qr/rendering/compose-scene";
 import {
@@ -56,8 +54,6 @@ import {
   isPlatformType,
 } from "@/features/qr/content/platform-intents";
 import { DEFAULT_QR_INPUT_TYPE, type QrInputType } from "@/features/qr/content/input-options";
-
-type CanvasBrandIconCategoryFilter = BrandIconCategory | "all";
 
 /**
  * Workspace actions: history, export, logo/layer/settings action hooks, and
@@ -115,19 +111,13 @@ export function useCanvasActions({
     setContentTypeByLayerId,
     setContentTypeByNodeId,
     setContentValuesByType,
-    setDesktopRailTool,
     setExportDownloadError,
     setLayerStateByNodeId,
     setQrStateByLayerId,
     setQrStateByNodeId,
     setSceneCompositionByNodeId,
-    setSelectedBackgroundShapeId,
-    setSelectedBackgroundTransparent,
     setSelectedCardState,
     setSelectedContentType,
-    setSelectedDownloadExtension,
-    setSelectedDownloadTarget,
-    setSelectedPhotoLongEdge,
     setIsCanvasWorkspaceReady,
   } = setters;
   const {
@@ -143,11 +133,8 @@ export function useCanvasActions({
     qrBackgroundVisible,
     qrBoardNamesById,
     qrCanvasLayers,
-    selectedTextLayer,
   } = boards;
 
-  const brandIconQueryRef = useRef("");
-  const brandIconCategoryRef = useRef<CanvasBrandIconCategoryFilter>("all");
   const canvasLayerClipboardRef = useRef<string>("");
   const logoUploadObjectUrlRef = useRef<string | null>(null);
   const shortcutHandlersRef = useRef<CanvasShortcutHandlers>({} as CanvasShortcutHandlers);
@@ -192,7 +179,6 @@ export function useCanvasActions({
     canRedo: canRedoCanvasWorkspace,
     canUndo: canUndoCanvasWorkspace,
     redo: handleRedoCanvasWorkspace,
-    save: handleSaveCanvasWorkspace,
     shouldReplaceCurrentEntryRef: shouldReplaceCurrentCanvasHistoryEntryRef,
     undo: handleUndoCanvasWorkspace,
   } = useCanvasHistory({
@@ -408,48 +394,6 @@ export function useCanvasActions({
     shouldReplaceCurrentEntryRef: shouldReplaceCurrentCanvasHistoryEntryRef,
   });
 
-  function resetCanvasWorkspace() {
-    const nextState = createDefaultCanvasWorkspaceQrState();
-
-    setDesktopRailTool("content");
-    qrControls.applyQrState(nextState);
-    brandIconQueryRef.current = "";
-    brandIconCategoryRef.current = "all";
-    setActiveQrLayerId(getCanvasQrLayerId(DASHBOARD_QR_NODE_ID));
-    setActiveQrNodeId(DASHBOARD_QR_NODE_ID);
-    setContentTypeByNodeId({
-      [DASHBOARD_QR_NODE_ID]: DEFAULT_QR_INPUT_TYPE,
-    });
-    setContentTypeByLayerId({
-      [getCanvasQrLayerId(DASHBOARD_QR_NODE_ID)]: DEFAULT_QR_INPUT_TYPE,
-    });
-    setQrStateByLayerId({
-      [getCanvasQrLayerId(DASHBOARD_QR_NODE_ID)]: cloneCanvasQrState(nextState),
-    });
-    setQrStateByNodeId({
-      [DASHBOARD_QR_NODE_ID]: cloneCanvasQrState(nextState),
-    });
-    const nextCardState = createDefaultCanvasCardState();
-    setSelectedCardState(cloneCanvasCardState(nextCardState));
-    setCardStateByNodeId({
-      [DASHBOARD_QR_NODE_ID]: cloneCanvasCardState(nextCardState),
-    });
-    setLayerStateByNodeId({
-      [DASHBOARD_QR_NODE_ID]: createDefaultCanvasLayers(
-        DASHBOARD_QR_NODE_ID,
-        nextState,
-        nextCardState,
-      ),
-    });
-    selectSingleLayer(getCanvasQrLayerId(DASHBOARD_QR_NODE_ID));
-
-    setSelectedDownloadExtension("png");
-    setSelectedDownloadTarget("surface");
-    setSelectedPhotoLongEdge(DEFAULT_DESKTOP_EXPORT_SETTINGS.photoLongEdge);
-    setSelectedBackgroundTransparent(false);
-    setSelectedBackgroundShapeId(nextState.backgroundShapeId);
-  }
-
   async function handleAddQrCode() {
     if (qrCanvasLayers.length >= 10) return;
 
@@ -501,8 +445,6 @@ export function useCanvasActions({
     qrBackgroundVisible,
     qrControls,
     resolveLiveQrPersistState,
-    selectedTextLayer,
-    selectSingleLayer,
   });
 
   useEffect(() => {
@@ -568,10 +510,8 @@ export function useCanvasActions({
     handleLayerAction,
     handleLayerChange,
     handleRedoCanvasWorkspace,
-    handleSaveCanvasWorkspace,
     handleUndoCanvasWorkspace,
     pasteCanvasLayers,
-    resetCanvasWorkspace,
     resolveWorkspaceExportTargetDimensions,
     selectAllActiveCanvasLayers,
     selectSingleLayer,

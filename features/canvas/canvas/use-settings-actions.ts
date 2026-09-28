@@ -11,7 +11,6 @@ import {
 import { findBrandIconById } from "@/features/qr/assets/brand-icons";
 import { createBrandIconDataUrl } from "@/features/qr/assets/brand-icon-svg";
 import { parseIconstackSelectionId } from "@/features/qr/assets/iconstack-api";
-import { getDefaultStaticQrValues } from "@/features/qr/content/static-payload";
 import { setDotMatrixAnimationOptions, type QraftyState } from "@/features/qr/model/state";
 import { createUniformCornerRadii } from "@/features/canvas/model/corner-radius";
 import {
@@ -27,14 +26,8 @@ import {
   layoutCanvasCardInsetLayers,
 } from "@/features/canvas/model/layers/card-qr";
 import { createCanvasTextLayer } from "@/features/canvas/model/layers/factories";
-import {
-  createDefaultCanvasCardState,
-  normalizeCanvasCardState,
-  type CanvasCardState,
-} from "@/features/canvas/model/card-state";
-import { createDefaultCanvasWorkspaceQrState } from "@/features/canvas/model/document";
+import { normalizeCanvasCardState, type CanvasCardState } from "@/features/canvas/model/card-state";
 import type {
-  AccessibilitySettings,
   EncodingSettings,
   ExportSettings,
   ImageSettings,
@@ -44,7 +37,6 @@ import type {
   MotionSettings,
   PatternSettingsPatch,
   ShapeSettings,
-  TextSettings,
 } from "@/features/shell/model/toolbar-types";
 import type { CornersSettings } from "@/features/shell/model/toolbar-types";
 import type { UnifiedQrFillPatches } from "@/features/shell/settings/settings-bridge";
@@ -69,7 +61,6 @@ import type {
 import type { createQrControls } from "@/features/canvas/canvas/qr-controls";
 import type { useQrLogoActions } from "@/features/canvas/canvas/use-qr-logo-actions";
 import type { CanvasLayerMenuAction } from "@/features/canvas/components/Artboard";
-import { DEFAULT_QR_INPUT_TYPE } from "@/features/qr/content/input-options";
 import {
   DEFAULT_DRAFTING_STUDIO_STATE,
   type CanvasDownloadExtension,
@@ -88,10 +79,8 @@ type SettingsState = Pick<
 
 type SettingsSetters = Pick<
   CanvasSurfaceSetters,
-  | "setContentValuesByType"
   | "setLayerStateByNodeId"
   | "setLogoUploadObjectUrl"
-  | "setSelectedAriaLabel"
   | "setSelectedBackgroundColor"
   | "setSelectedBackgroundColorMode"
   | "setSelectedBackgroundGradient"
@@ -100,7 +89,6 @@ type SettingsSetters = Pick<
   | "setSelectedBackgroundTransparent"
   | "setSelectedBoostLevel"
   | "setSelectedCardState"
-  | "setSelectedContentType"
   | "setSelectedCornerDotColor"
   | "setSelectedCornerDotColorMode"
   | "setSelectedCornerDotGradient"
@@ -161,12 +149,8 @@ export function useSettingsActions({
   selectedLogoRemoteUrl,
   selectedModuleFillImageSourceMode,
   selectedModuleFillImageUrl,
-  selectedTextLayer,
-  selectSingleLayer,
-  setContentValuesByType,
   setLayerStateByNodeId,
   setLogoUploadObjectUrl,
-  setSelectedAriaLabel,
   setSelectedBackgroundColor,
   setSelectedBackgroundColorMode,
   setSelectedBackgroundGradient,
@@ -175,7 +159,6 @@ export function useSettingsActions({
   setSelectedBackgroundTransparent,
   setSelectedBoostLevel,
   setSelectedCardState,
-  setSelectedContentType,
   setSelectedCornerDotColor,
   setSelectedCornerDotColorMode,
   setSelectedCornerDotGradient,
@@ -232,8 +215,6 @@ export function useSettingsActions({
     qrBackgroundVisible: boolean;
     qrControls: ReturnType<typeof createQrControls>;
     resolveLiveQrPersistState: () => QraftyState;
-    selectedTextLayer: CanvasLayer | null;
-    selectSingleLayer: (layerId: string | null) => void;
   }) {
   function handleDesktopAppearancePatch(patch: AppearancePatch) {
     if (!appearanceTargetLayer) {
@@ -280,17 +261,6 @@ export function useSettingsActions({
           : current.shadow,
       }));
     }
-  }
-
-  function resetDesktopContent() {
-    setSelectedContentType(DEFAULT_QR_INPUT_TYPE);
-    setContentValuesByType((current) => ({
-      ...current,
-      [DEFAULT_QR_INPUT_TYPE]: {
-        ...getDefaultStaticQrValues(DEFAULT_QR_INPUT_TYPE),
-        url: DEFAULT_DRAFTING_STUDIO_STATE.data,
-      },
-    }));
   }
 
   function applyDesktopPatternPatchToControls(patch: PatternSettingsPatch) {
@@ -414,22 +384,6 @@ export function useSettingsActions({
     qrControls.syncLogo(nextState);
   }
 
-  function resetDesktopPatternSettings() {
-    setSelectedDotType(DEFAULT_DRAFTING_STUDIO_STATE.dataModulesSettings.type);
-    setSelectedDotsColorMode(DEFAULT_DRAFTING_STUDIO_STATE.dotsColorMode);
-    setSelectedDotColor(DEFAULT_DRAFTING_STUDIO_STATE.dataModulesSettings.color);
-    setSelectedDotsGradient(structuredClone(DEFAULT_DRAFTING_STUDIO_STATE.dataModulesGradient));
-    setSelectedDotsPalette([...DEFAULT_DRAFTING_STUDIO_STATE.dotsPalette]);
-    setSelectedDotsPalettePreset("Signal");
-    setSelectedModuleFillImageUrl("");
-    setSelectedModuleFillRemoteUrl("");
-    setSelectedModuleFillImageSourceMode("upload");
-    setSelectedModuleRoundSize(DEFAULT_DRAFTING_STUDIO_STATE.dataModulesSettings.roundSize);
-    setSelectedModuleSize(undefined);
-    setSelectedModuleLineWidth(undefined);
-    setSelectedGradientLinkMode(DEFAULT_DRAFTING_STUDIO_STATE.gradientLinkMode);
-  }
-
   function updateDesktopLogoSettings(patch: LogoSettingsPatch) {
     if (patch.uploadedFile) {
       const uploadValue = replaceTrackedObjectUrl(
@@ -483,10 +437,6 @@ export function useSettingsActions({
     if (patch.solidColor) void logoActions.changeLogoColor(patch.solidColor);
     if (patch.gradient) void logoActions.changeLogoGradient({ ...patch.gradient, enabled: true });
     logoActions.patchLogoImageOptions(patch);
-  }
-
-  function resetDesktopLogoSettings() {
-    qrControls.applyQrState(createDefaultCanvasWorkspaceQrState());
   }
 
   function updateDesktopCornersSettings(patch: Partial<CornersSettings>) {
@@ -673,20 +623,6 @@ export function useSettingsActions({
     });
   }
 
-  function resetDesktopShapeSettings() {
-    const defaultCard = createDefaultCanvasCardState();
-    setSelectedCardState(defaultCard);
-    setSelectedBackgroundColor(DEFAULT_DRAFTING_STUDIO_STATE.backgroundOptions.color);
-    setSelectedBackgroundColorMode(
-      DEFAULT_DRAFTING_STUDIO_STATE.backgroundGradient.enabled ? "gradient" : "solid",
-    );
-    setSelectedBackgroundGradient(
-      structuredClone(DEFAULT_DRAFTING_STUDIO_STATE.backgroundGradient),
-    );
-    setSelectedBackgroundShapeId(DEFAULT_DRAFTING_STUDIO_STATE.backgroundShapeId);
-    setSelectedBackgroundShapeOptions({ ...DEFAULT_DRAFTING_STUDIO_STATE.backgroundShapeOptions });
-  }
-
   function updateDesktopMotionSettings(patch: Parameters<typeof setDotMatrixAnimationOptions>[1]) {
     if (patch.enabled !== undefined) {
       clearQrEncodeMarkupCache();
@@ -708,31 +644,6 @@ export function useSettingsActions({
     if (patch.boostLevel !== undefined) setSelectedBoostLevel(patch.boostLevel);
     if (patch.valueSegmentsText !== undefined)
       setSelectedValueSegmentsText(patch.valueSegmentsText);
-  }
-
-  function updateDesktopAccessibilitySettings(patch: Partial<AccessibilitySettings>) {
-    if (patch.ariaLabel !== undefined) setSelectedAriaLabel(patch.ariaLabel);
-  }
-
-  function updateDesktopTextSettings(patch: Partial<TextSettings>) {
-    if (selectedTextLayer?.kind === "text") {
-      handleLayerChange(activeQrNodeId, selectedTextLayer.id, patch);
-      return;
-    }
-    const layers =
-      layerStateByNodeId[activeQrNodeId] ??
-      createDefaultCanvasLayers(activeQrNodeId, canvasQraftyState, selectedCardState);
-    const maxZIndex = layers.reduce((max, layer) => Math.max(max, layer.zIndex), -1);
-    const textLayer = createCanvasTextLayer(activeQrNodeId, {
-      ...patch,
-      id: `${activeQrNodeId}:text:${Date.now()}`,
-      zIndex: maxZIndex + 1,
-    });
-    setLayerStateByNodeId((current) => ({
-      ...current,
-      [activeQrNodeId]: [...layers.map(cloneCanvasLayer), textLayer],
-    }));
-    selectSingleLayer(textLayer.id);
   }
 
   function updateDesktopLayersSettings(patch: Partial<LayersSettings>) {
@@ -787,26 +698,20 @@ export function useSettingsActions({
 
   return {
     handleDesktopAppearancePatch,
-    resetDesktopContent,
     applyDesktopPatternPatchToControls,
     applyDesktopCornersPatchToControls,
     applyDesktopUnifiedLogoPatchToControls,
     updateDesktopPatternSettings,
     updateDesktopUnifiedQrFillSettings,
-    resetDesktopPatternSettings,
     updateDesktopLogoSettings,
-    resetDesktopLogoSettings,
     updateDesktopCornersSettings,
     mergeCardStateFromShapePatch,
     cardShadowFromPatch,
     relayoutCardInset,
     updateDesktopShapeSettings,
     updateDesktopImageSettings,
-    resetDesktopShapeSettings,
     updateDesktopMotionSettings,
     updateDesktopEncodingSettings,
-    updateDesktopAccessibilitySettings,
-    updateDesktopTextSettings,
     updateDesktopLayersSettings,
     updateDesktopExportSettings,
   };

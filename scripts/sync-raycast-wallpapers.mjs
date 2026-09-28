@@ -69,7 +69,6 @@ await syncWallpapers({
   items: WALLPAPERS.map(({ id, file, label }) => ({
     id,
     label,
-    sourceUrl: `${RAYCAST_BASE}/${file}`,
     resolve: resolve(file),
   })),
   module: {
