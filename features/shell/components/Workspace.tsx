@@ -10,7 +10,7 @@ import {
 import { useWorkspaceThemeSync } from "@/features/shell/hooks/use-workspace-theme-sync";
 import { SettingsThemeContext } from "@/features/shell/settings/theme-context";
 import "@/features/canvas/workspace-tokens.css";
-import { WorkspaceStyles } from "@/features/shell/components/workspace-styles";
+import "./workspace.css";
 import { WorkspaceEntrance } from "@/features/shell/components/WorkspaceEntrance";
 import { CuelumeProvider } from "@/features/shell/hooks/use-cuelume";
 import { WORKSPACE_MOBILE_QUERY, useMediaQuery } from "@/lib/hooks/use-media-query";
@@ -65,7 +65,6 @@ export function Workspace({
           </BlurFadeThemeTransition>
         </CuelumeProvider>
       </SettingsThemeContext.Provider>
-      <WorkspaceStyles />
     </section>
   );
 }

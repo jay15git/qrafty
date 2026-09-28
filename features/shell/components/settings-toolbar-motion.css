@@ -209,18 +209,6 @@
 
 [data-slot="workspace"]
   [data-slot="canvas-workspace"][data-canvas-frame="true"]
-  [data-slot="canvas-toolbar-anchor"] {
-  position: fixed;
-  /* Center on the canvas band (below top chrome), not the raw viewport. */
-  top: calc(50% + var(--canvas-inset-top, 0px) / 2);
-  right: var(--toolbar-chrome-gap);
-  bottom: auto;
-  left: auto;
-  transform: translateY(-50%);
-  z-index: var(--z-compose-toolbar);
-}
-[data-slot="workspace"]
-  [data-slot="canvas-workspace"][data-canvas-frame="true"]
   [data-slot="canvas-surface"][data-canvas-appearance="workspace"] {
   background-color: transparent !important;
   background-image: none !important;
@@ -254,7 +242,6 @@
       ) /
       2 + (var(--toolbar-rail-hitbox-size) - var(--toolbar-rail-icon-size)) / 2
   );
-  --toolbar-top-inset: 0.75rem;
 }
 
 @media (max-width: 767px) {
@@ -294,11 +281,6 @@
   box-sizing: border-box;
 }
 
-[data-slot="desktop-settings-shell"] [data-slot="floating-toolbar"] {
-  padding-top: var(--toolbar-top-inset);
-  box-sizing: border-box;
-}
-
 /*
  * Radix ScrollArea content wrapper is `display: table; min-width: 100%`, which
  * grows to the widest child. That makes horizontal option shelves inflate the
@@ -310,11 +292,4 @@
   width: 100% !important;
   min-width: 0 !important;
   max-width: 100% !important;
-}
-
-[data-slot="pattern-preset-shelf-scroll-area"] {
-  display: block;
-  width: 100%;
-  max-width: 100%;
-  min-width: 0;
 }

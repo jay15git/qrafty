@@ -1,4 +1,3 @@
-import { readFileSync } from "node:fs";
 import { isValidElement } from "react";
 import { describe, expect, it, vi } from "vitest";
 
@@ -49,15 +48,5 @@ describe("desktop page", () => {
     expect(client.type).toBe(WorkspacePageClient);
     expect(client.props.fontClassName).toBe("mock-satoshi-font");
     expect(client.props.initialTheme).toBe("dark");
-  });
-
-  it("keeps portaled appearance popovers in sync with desktop light mode", () => {
-    const workspaceSource = readFileSync("features/shell/components/workspace-styles.tsx", "utf8");
-
-    expect(workspaceSource).toContain(
-      'body:has([data-slot="workspace"][data-shell-theme="light"]) [data-slot^="appearance-"][data-slot$="-popover"]',
-    );
-    expect(workspaceSource).toContain("rgba(255, 255, 255, 0.86)");
-    expect(workspaceSource).toContain('input[type="number"]');
   });
 });

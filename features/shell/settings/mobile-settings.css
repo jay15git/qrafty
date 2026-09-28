@@ -79,9 +79,7 @@
 /* Keep mobile drawer text on the instrument scale; only line-height relaxes
    for touch targets. */
 [data-slot="mobile-settings-drawer-root"][data-mobile-settings] .ds-type-value,
-[data-slot="mobile-settings-drawer-root"][data-mobile-settings] .ds-type-body,
 .ds-portal-surface[data-mobile-settings] .ds-type-value,
-.ds-portal-surface[data-mobile-settings] .ds-type-body,
 [data-slot="mobile-settings-drawer-root"][data-mobile-settings] .ds-type-meta,
 .ds-portal-surface[data-mobile-settings] .ds-type-meta {
   line-height: 1.35;
@@ -209,13 +207,6 @@
   border-radius: var(--radius-xs);
 }
 
-[data-slot="mobile-settings-drawer-root"][data-mobile-settings] .ds-option-scroll-chip,
-.ds-portal-surface[data-mobile-settings] .ds-option-scroll-chip {
-  min-height: var(--control-height);
-  height: var(--control-height);
-  font-size: var(--type-caption);
-}
-
 [data-slot="mobile-settings-drawer-root"][data-mobile-settings] .ds-preset-item,
 .ds-portal-surface[data-mobile-settings] .ds-preset-item {
   min-height: var(--control-height);
@@ -291,12 +282,7 @@
 /* Layer settings + wallpapers under drawer host */
 [data-slot="mobile-settings-drawer-root"][data-mobile-settings]
   [data-slot="wallpaper-panel"]
-  button,
-[data-slot="mobile-settings-drawer-root"][data-mobile-settings] [data-slot="element-panel"] input,
-[data-slot="mobile-settings-drawer-root"][data-mobile-settings]
-  [data-slot="element-panel"]
-  textarea,
-[data-slot="mobile-settings-drawer-root"][data-mobile-settings] [data-slot="element-panel"] button {
+  :is(button, input, textarea) {
   min-height: var(--control-height);
 }
 
@@ -453,10 +439,7 @@
 
 [data-slot="mobile-layer-toolbar"][data-mobile-settings]
   [data-slot="canvas-layer-floating-toolbar-color"]
-  button,
-[data-slot="mobile-layer-toolbar"][data-mobile-settings]
-  [data-slot="canvas-layer-floating-toolbar-color"]
-  [data-slot="fill-swatch-button"] {
+  button {
   width: var(--icon-hit);
   height: var(--icon-hit);
 }
@@ -472,25 +455,6 @@
 .ds-portal-surface[data-mobile-settings]
   [data-slot="canvas-layer-text-size-settings"]
   button[aria-pressed="true"] {
-  background: var(--control);
-  color: var(--fg);
-}
-
-.ds-portal-surface[data-mobile-settings]
-  [data-slot="canvas-layer-text-typography-settings"]
-  [data-slot="canvas-layer-floating-toolbar-button"] {
-  width: var(--icon-hit);
-  height: var(--icon-hit);
-  border-radius: var(--radius-sm);
-  color: var(--fg);
-}
-
-.ds-portal-surface[data-mobile-settings]
-  [data-slot="canvas-layer-text-typography-settings"]
-  [data-slot="canvas-layer-floating-toolbar-button"]:hover,
-.ds-portal-surface[data-mobile-settings]
-  [data-slot="canvas-layer-text-typography-settings"]
-  [data-slot="canvas-layer-floating-toolbar-button"][aria-pressed="true"] {
   background: var(--control);
   color: var(--fg);
 }

@@ -296,32 +296,6 @@
   transform: scale(1);
 }
 
-.ds-option-scroll-row {
-  display: flex;
-  --option-gap: var(--space-inline);
-  gap: var(--option-gap);
-  overflow-x: auto;
-  overflow-y: hidden;
-  padding-block: 0.125rem;
-  padding-inline: 0.125rem;
-  margin-inline: -0.125rem;
-  scrollbar-width: thin;
-  scrollbar-color: color-mix(in srgb, var(--muted) 40%, transparent) transparent;
-}
-
-.ds-option-scroll-row::-webkit-scrollbar {
-  height: 3px;
-}
-
-.ds-option-scroll-row::-webkit-scrollbar-thumb {
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--muted) 40%, transparent);
-}
-
-.ds-option-scroll-row--fill {
-  overflow: visible;
-}
-
 .ds-content-type-select {
   width: 100%;
   min-width: 0;
@@ -436,19 +410,6 @@
   font-weight: 500;
   line-height: 1;
   letter-spacing: var(--tracking-tight);
-}
-
-.ds-option-scroll-tile {
-  min-height: var(--control-height);
-  height: var(--control-height);
-}
-
-.ds-option-scroll-row--fill .ds-option-scroll-tile {
-  display: inline-flex;
-  flex: 1 1 0;
-  align-items: center;
-  justify-content: center;
-  min-width: 0;
 }
 
 .ds-preview-tile {
@@ -624,8 +585,7 @@
 
 /* Keep visual tile gaps but extend each option's hit box through half the
    gap so the pointer never drops to default between tiles. */
-:is(.ds-preview-row, .ds-option-scroll-row)
-  > :is(button, a, [role="button"], [data-slot="image-upload-tile"]) {
+.ds-preview-row > :is(button, a, [role="button"], [data-slot="image-upload-tile"]) {
   margin-inline: calc(var(--option-gap, var(--space-inline)) / -2);
   margin-block: 0;
   position: relative;
@@ -644,8 +604,7 @@
 }
 
 @media (hover: hover) and (pointer: fine) {
-  :is(.ds-preview-row, .ds-option-scroll-row)
-    > :is(button, a, [role="button"]):is(:hover, :focus-visible),
+  .ds-preview-row > :is(button, a, [role="button"]):is(:hover, :focus-visible),
   :is(.ds-insert-menu-option-grid) > :is(button, a, [role="button"]):is(:hover, :focus-visible) {
     z-index: 1;
   }
@@ -1349,41 +1308,18 @@
   background: transparent;
 }
 
-.ds-settings-accordion
-  [role="region"]
-  .ds-option-tile:not(.ds-option-scroll-chip):not(.ds-content-type-segment-tab):not(
-    .ds-option-scroll-tile
-  ) {
+.ds-settings-accordion [role="region"] .ds-option-tile:not(.ds-content-type-segment-tab) {
   background: transparent;
   border: 2px solid transparent;
 }
 
-.ds-settings-accordion [role="region"] .ds-option-scroll-chip,
-.ds-settings-accordion [role="region"] .ds-option-scroll-tile {
-  background: var(--control);
-  border: 2px solid transparent;
-}
-
 .ds-settings-accordion
   [role="region"]
-  .ds-option-tile:not(.ds-option-scroll-chip):not(.ds-content-type-segment-tab):not(
-    .ds-option-scroll-tile
-  )[aria-pressed="true"],
+  .ds-option-tile:not(.ds-content-type-segment-tab)[aria-pressed="true"],
 .ds-settings-accordion
   [role="region"]
-  .ds-option-tile:not(.ds-option-scroll-chip):not(.ds-content-type-segment-tab):not(
-    .ds-option-scroll-tile
-  )[data-selected="true"] {
+  .ds-option-tile:not(.ds-content-type-segment-tab)[data-selected="true"] {
   background: transparent;
-}
-
-.ds-settings-accordion [role="region"] .ds-option-scroll-chip[aria-pressed="true"],
-.ds-settings-accordion [role="region"] .ds-option-scroll-chip[data-selected="true"],
-.ds-settings-accordion [role="region"] .ds-option-scroll-tile[aria-pressed="true"],
-.ds-settings-accordion [role="region"] .ds-option-scroll-tile[data-selected="true"] {
-  background: var(--control-hover);
-  box-shadow: none;
-  color: var(--fg);
 }
 
 .ds-settings-accordion [role="region"] .ds-settings-row {
@@ -1816,7 +1752,7 @@
   min-width: 0;
 }
 
-.ds-insert-menu-popover .ds-option-tile:not(.ds-option-scroll-chip) {
+.ds-insert-menu-popover .ds-option-tile {
   background: transparent;
   border: 2px solid transparent;
 }

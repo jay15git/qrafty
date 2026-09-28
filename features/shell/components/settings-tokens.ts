@@ -41,10 +41,6 @@ const SETTINGS_RESET_CLASS = cn(
   "flex h-[length:var(--control-height)] w-full cursor-pointer items-center justify-center gap-[length:var(--space-inline)] rounded-[length:var(--radius-control)] border border-transparent bg-transparent px-[length:var(--row-px)] font-medium text-[var(--fg-secondary)] transition-[background-color,border-color,color] duration-150 ease-out hover:border-[var(--control-border-hover)] hover:bg-[var(--control-hover)] hover:text-[var(--fg-primary)] active:bg-[var(--control-active)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus)]",
   SETTINGS_TYPE_VALUE_CLASS,
 );
-const SETTINGS_DROPDOWN_ITEM_CLASS = cn(
-  "h-[length:var(--control-height-compact)] cursor-pointer rounded-[length:var(--radius-control)] px-[length:var(--row-px)] font-medium text-[var(--fg-tertiary)] outline-none transition focus:bg-[var(--control-hover)] focus:text-[var(--fg-primary)] focus:**:text-[var(--fg-primary)] data-[highlighted]:bg-[var(--control-hover)] data-[highlighted]:text-[var(--fg-primary)] data-[highlighted]:**:text-[var(--fg-primary)] data-[state=checked]:bg-[var(--option-selected-bg)] data-[state=checked]:text-[var(--fg-primary)] data-[state=checked]:focus:bg-[var(--option-selected-bg)] data-[state=checked]:focus:text-[var(--fg-primary)] data-[state=checked]:data-[highlighted]:bg-[var(--option-selected-bg)] data-[state=checked]:data-[highlighted]:text-[var(--fg-primary)] [&_[data-slot=dropdown-menu-radio-item-indicator]]:hidden",
-  SETTINGS_TYPE_VALUE_CLASS,
-);
 export const SETTINGS_OPTION_TILE_BUTTON_CLASS =
   "cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/35";
 /** Option tiles: no grey hover fill. Selected chrome stays white pill. */

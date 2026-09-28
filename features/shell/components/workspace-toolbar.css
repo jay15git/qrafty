@@ -6,18 +6,12 @@ body:has([data-slot="chrome-root"]) {
   --glass-button-hover-bg: rgba(255, 255, 255, 0.11);
   --glass-button-hover-fg: rgba(255, 255, 255, 1);
   --glass-button-focus-ring: rgba(255, 255, 255, 0.45);
-  --appearance-popover-bg: #1d1d1d;
-  --appearance-popover-border: rgba(255, 255, 255, 0.06);
-  --appearance-popover-shadow: var(--glass-shadow);
   --fg-primary: rgba(255, 255, 255, 0.94);
   --fg-secondary: rgba(255, 255, 255, 0.76);
   --fg-tertiary: rgba(255, 255, 255, 0.5);
   --fg-muted: rgba(255, 255, 255, 0.42);
   --fg-label: var(--fg-secondary);
   --error: rgba(248, 113, 113, 0.92);
-  --elevated: rgba(0, 0, 0, 0.9);
-  --elevated: var(--canvas-shell, #000000);
-  --dropdown-border: rgba(255, 255, 255, 0.06);
   --option-selected-bg: rgba(255, 255, 255, 0.14);
   --toolbar-pill-bg: var(--glass-bg);
   --chrome-fg: var(--glass-fg);
@@ -31,119 +25,15 @@ body:has([data-slot="chrome-root"][data-shell-theme="light"]) {
   --glass-button-hover-bg: rgba(15, 23, 42, 0.08);
   --glass-button-hover-fg: rgba(15, 23, 42, 0.95);
   --glass-button-focus-ring: rgba(15, 23, 42, 0.36);
-  --appearance-popover-bg: #ffffff;
-  --appearance-popover-border: rgba(15, 23, 42, 0.12);
-  --appearance-popover-shadow:
-    0 24px 64px rgba(15, 23, 42, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.9);
   --fg-primary: rgba(15, 23, 42, 0.9);
   --fg-secondary: rgba(15, 23, 42, 0.66);
   --fg-tertiary: rgba(15, 23, 42, 0.44);
   --fg-muted: rgba(15, 23, 42, 0.38);
   --fg-label: rgba(15, 23, 42, 0.85);
   --error: rgba(220, 38, 38, 0.88);
-  --elevated: rgba(255, 255, 255, 0.84);
-  --elevated: rgb(255, 255, 255);
-  --dropdown-border: rgba(15, 23, 42, 0.09);
   --option-selected-bg: rgba(15, 23, 42, 0.08);
-  --toolbar-line: rgba(15, 23, 42, 0.11);
   --toolbar-pill-bg: rgb(255, 255, 255);
   --chrome-fg: rgba(15, 23, 42, 0.76);
-}
-
-[data-slot="settings-filter-trigger"] {
-  color: var(--fg-tertiary) !important;
-}
-
-[data-slot="settings-filter-trigger"]:hover,
-[data-slot="settings-filter-trigger"][data-state="open"] {
-  color: var(--fg-secondary) !important;
-}
-
-[data-slot="settings-filter-trigger"] span {
-  color: inherit !important;
-}
-
-[data-slot~="settings-filter-menu"] {
-  background-color: var(--elevated) !important;
-  border-color: var(--dropdown-border) !important;
-  color: var(--fg-secondary) !important;
-  box-shadow: var(--glass-shadow) !important;
-  --tw-ring-color: transparent !important;
-}
-
-[data-slot~="settings-filter-menu"] [data-slot="dropdown-menu-radio-item"] {
-  color: var(--fg-tertiary) !important;
-}
-
-[data-slot~="settings-filter-menu"]
-  [data-slot="dropdown-menu-radio-item"]:is(:focus, [data-highlighted]) {
-  background-color: var(--control-hover) !important;
-  color: var(--fg-secondary) !important;
-}
-
-[data-slot~="settings-filter-menu"] [data-slot="dropdown-menu-radio-item"][data-state="checked"] {
-  background-color: var(--option-selected-bg) !important;
-  color: var(--fg-secondary) !important;
-}
-
-[data-slot~="settings-filter-menu"]
-  [data-slot="dropdown-menu-radio-item"][data-state="checked"]:is(:focus, [data-highlighted]) {
-  background-color: var(--option-selected-bg) !important;
-  color: var(--fg-secondary) !important;
-}
-
-[data-slot~="settings-filter-menu"] .bg-hover {
-  left: 0 !important;
-  width: 100% !important;
-  background-color: var(--control-hover) !important;
-}
-
-[data-slot~="settings-filter-menu"] .bg-active {
-  left: 0 !important;
-  width: 100% !important;
-  background-color: var(--option-selected-bg) !important;
-}
-
-[data-slot~="settings-filter-menu"] .text-muted-foreground {
-  color: var(--fg-tertiary) !important;
-}
-
-[data-slot~="settings-filter-menu"] .text-foreground,
-[data-slot~="settings-filter-menu"] [role="menuitemradio"]:hover .text-muted-foreground {
-  color: var(--fg-primary) !important;
-}
-
-[data-slot~="settings-filter-menu"] [role="menu"] {
-  background-color: transparent !important;
-  box-shadow: none !important;
-}
-
-[data-slot="desktop-settings-panel-host"]
-  .ds-morph-filter[data-open="true"]
-  [data-slot~="settings-filter-menu"] {
-  --foreground: var(--fg-primary);
-  --muted-foreground: var(--fg-tertiary);
-  --background: var(--elevated);
-  background-color: var(--elevated) !important;
-  border-color: transparent !important;
-  box-shadow: none !important;
-  color: var(--fg-secondary) !important;
-}
-
-[data-shell-theme="light"]
-  [data-slot="desktop-settings-panel-host"]
-  .ds-morph-filter[data-open="true"]
-  [data-slot~="settings-filter-menu"] {
-  --control-hover: rgba(15, 23, 42, 0.06);
-  --option-selected-bg: rgba(15, 23, 42, 0.08);
-}
-
-[data-shell-theme="light"] .ds-morph-filter[data-open="true"] {
-  --scroll-edge-fade-color: rgba(255, 255, 255, 0.88);
-}
-
-[data-shell-theme="dark"] .ds-morph-filter[data-open="true"] {
-  --scroll-edge-fade-color: var(--elevated);
 }
 
 [data-shell-theme="light"] {
@@ -154,25 +44,12 @@ body:has([data-slot="chrome-root"][data-shell-theme="light"]) {
   color-scheme: dark;
 }
 
-[data-shell-theme="dark"] [data-slot="document-toolbar"],
-[data-shell-theme="dark"] [data-slot="action-toolbar"] {
-  box-shadow: var(--glass-shadow) !important;
-}
-
 [data-shell-theme="dark"] [data-slot="utility-toolbar"],
 [data-shell-theme="dark"] [data-slot="mobile-utility-toolbar"],
 [data-shell-theme="dark"] [data-slot="dynamic-island"] {
   background: transparent !important;
   border-color: transparent !important;
   box-shadow: none !important;
-}
-
-[data-shell-theme="light"] [data-slot="document-toolbar"],
-[data-shell-theme="light"] [data-slot="action-toolbar"] {
-  background: var(--glass-bg) !important;
-  border-color: var(--glass-border) !important;
-  color: var(--glass-fg) !important;
-  box-shadow: var(--glass-shadow) !important;
 }
 
 [data-shell-theme="light"] [data-slot="utility-toolbar"],
@@ -200,49 +77,11 @@ body:has([data-slot="chrome-root"][data-shell-theme="light"]) {
   box-shadow: none !important;
 }
 
-[data-shell-theme="light"] [data-slot="floating-toolbar"] button:not([data-proximity-index]):hover,
-[data-shell-theme="light"] [data-slot="document-toolbar"] button:hover,
-[data-shell-theme="light"] [data-slot="action-toolbar"] button:hover {
-  color: var(--toolbar-fg-hover) !important;
-}
-
 [data-shell-theme="light"]
   [data-slot="utility-toolbar"]
   button:hover:not([data-slot="download-trigger"]),
 [data-shell-theme="light"] [data-slot="dynamic-island"] button:hover {
   color: var(--toolbar-fg-hover) !important;
-}
-
-[data-shell-theme="light"] [data-slot="floating-toolbar"] {
-  --toolbar-fg: rgba(15, 23, 42, 0.48);
-  --toolbar-fg-hover: rgba(15, 23, 42, 0.62);
-  --toolbar-fg-active: rgba(15, 23, 42, 0.9);
-  color: var(--toolbar-fg) !important;
-}
-
-[data-shell-theme="light"]
-  [data-slot="floating-toolbar"]
-  button:not([data-proximity-index])[aria-pressed="true"] {
-  background: var(--toolbar-line) !important;
-  color: var(--toolbar-fg-active) !important;
-}
-
-[data-shell-theme="light"] [data-slot="floating-toolbar"] button[data-proximity-index]:hover,
-[data-shell-theme="light"]
-  [data-slot="floating-toolbar"]
-  button[data-proximity-index][aria-pressed="true"] {
-  background: transparent !important;
-  color: inherit !important;
-}
-
-[data-shell-theme="light"]
-  [data-slot="floating-toolbar"]
-  [data-slot="tabs-subtle-icon-rail-separator"] {
-  background-color: var(--toolbar-line) !important;
-}
-
-[data-shell-theme="light"] [data-slot="floating-toolbar"] [class*="border-white"] {
-  border-color: var(--toolbar-line) !important;
 }
 
 [data-slot="layers-popover"],
@@ -251,7 +90,6 @@ body:has([data-slot="chrome-root"][data-shell-theme="light"]) {
 [data-slot="layer-border-popover"],
 [data-slot="layer-shadows-popover"],
 [data-slot="layer-effects-popover"],
-[data-slot="shader-settings-popover"],
 [data-slot="toolbar-popover"] {
   --type-value: 0.8125rem;
   --type-label: 0.6875rem;
@@ -263,47 +101,18 @@ body:has([data-slot="chrome-root"][data-shell-theme="light"]) {
   gap: 0.625rem;
 }
 
-[data-slot^="layer-"][data-slot$="-popover"] [data-slot="effect-row-body"] {
-  min-width: 0;
-}
-
 [data-slot="layers-popover"] .ds-root.ds-embedded,
 [data-slot="layer-style-popover"] .ds-root.ds-embedded,
 [data-slot="layer-border-popover"] .ds-root.ds-embedded,
 [data-slot="layer-shadows-popover"] .ds-root.ds-embedded,
 [data-slot="layer-effects-popover"] .ds-root.ds-embedded,
-[data-slot="shader-settings-popover"] .ds-root.ds-embedded,
 [data-slot="layer-transform-popover"] .ds-root.ds-embedded,
-[data-slot="layer-appearance-popover"] .ds-root.ds-embedded,
-[data-slot="export-popover"] .ds-root.ds-embedded,
-[data-slot^="appearance-"][data-slot$="-popover"] .ds-root.ds-embedded {
+[data-slot="export-popover"] .ds-root.ds-embedded {
   background: transparent;
 }
 
 [data-slot="layer-row"][data-selected="true"] .layer-row-action:hover:not(:disabled) {
   background-color: color-mix(in srgb, var(--option-selected-fg, #fff) 12%, transparent);
-}
-
-body:has([data-slot="chrome-root"][data-shell-theme="light"])
-  [data-slot^="appearance-"][data-slot$="-popover"],
-body:has([data-slot="workspace"][data-shell-theme="light"])
-  [data-slot^="appearance-"][data-slot$="-popover"] {
-  --scroll-edge-fade-color: rgba(255, 255, 255, 0.88);
-  --scroll-edge-chevron-color: rgba(15, 23, 42, 0.42);
-}
-
-[data-slot="keyboard-shortcuts-scrollbar"][data-state="hidden"],
-[data-slot="shape-preset-shelf-scrollbar"][data-state="hidden"],
-[data-slot="corner-frame-preset-shelf-scrollbar"][data-state="hidden"],
-[data-slot="corner-dot-preset-shelf-scrollbar"][data-state="hidden"] {
-  opacity: 0;
-}
-
-[data-slot="keyboard-shortcuts-scrollbar"],
-[data-slot="shape-preset-shelf-scrollbar"],
-[data-slot="corner-frame-preset-shelf-scrollbar"],
-[data-slot="corner-dot-preset-shelf-scrollbar"] {
-  transition: opacity 150ms ease;
 }
 
 [data-slot="style-preview-surface"] {
@@ -335,63 +144,6 @@ body:has([data-slot="workspace"][data-shell-theme="light"])
   color: var(--style-preview-icon, rgba(15, 23, 42, 0.9)) !important;
 }
 
-[data-slot="floating-toolbar"] {
-  --toolbar-fg: rgba(255, 255, 255, 0.56);
-  --toolbar-fg-hover: rgba(255, 255, 255, 0.72);
-  --toolbar-fg-active: rgba(255, 255, 255, 0.94);
-  color: var(--toolbar-fg);
-}
-
-[data-slot="floating-toolbar"] [data-proximity-index] [data-slot="tabs-subtle-icon-rail-icon"] {
-  color: var(--toolbar-fg);
-  transition: color 80ms;
-}
-
-[data-slot="floating-toolbar"] [data-proximity-index] [data-slot="tabs-subtle-icon-rail-icon"] svg,
-[data-slot="floating-toolbar"]
-  [data-proximity-index]
-  [data-slot="tabs-subtle-icon-rail-icon"]
-  svg
-  * {
-  transition:
-    color 80ms,
-    stroke-width 80ms;
-}
-
-[data-slot="floating-toolbar"]
-  [data-proximity-index]:not([data-active])
-  [data-slot="tabs-subtle-icon-rail-icon"]
-  svg {
-  stroke-width: 1.5;
-}
-
-[data-slot="floating-toolbar"]
-  [data-proximity-index][data-active]
-  [data-slot="tabs-subtle-icon-rail-icon"] {
-  color: var(--toolbar-fg-hover);
-}
-
-[data-slot="floating-toolbar"]
-  [data-proximity-index][data-active]
-  [data-slot="tabs-subtle-icon-rail-icon"]
-  svg {
-  stroke-width: 2;
-}
-
-[data-slot="floating-toolbar"]
-  [data-proximity-index][data-selected]
-  [data-slot="tabs-subtle-icon-rail-icon"] {
-  color: var(--toolbar-fg-active);
-}
-
-[data-slot="floating-toolbar"] button:not([data-proximity-index]):hover {
-  color: var(--toolbar-fg-hover);
-}
-
-[data-slot="floating-toolbar"] button:not([data-proximity-index])[aria-pressed="true"] {
-  color: var(--toolbar-fg-active);
-}
-
 [data-shell-theme="dark"] [data-slot="desktop-settings-panel-host"] {
   --scroll-edge-fade-color: var(--bg);
   --scroll-edge-chevron-color: rgba(255, 255, 255, 0.45);
@@ -402,71 +154,11 @@ body:has([data-slot="workspace"][data-shell-theme="light"])
   --scroll-edge-chevron-color: var(--muted);
 }
 
-[data-slot^="appearance-"][data-slot$="-popover"] [data-slot="appearance-filter-select-trigger"] {
-  min-width: 0 !important;
-  border-color: var(--control-border-hover) !important;
-  background-color: var(--control) !important;
-  color: var(--fg-primary) !important;
-}
-
-[data-slot^="appearance-"][data-slot$="-popover"]
-  [data-slot="appearance-filter-select-trigger"]:hover {
-  background-color: var(--control-hover) !important;
-  border-color: var(--control-border-hover) !important;
-}
-
-[data-slot^="appearance-"][data-slot$="-popover"]
-  [data-slot="appearance-filter-select-trigger"]:focus-visible {
-  ring-color: var(--focus) !important;
-}
-
-[data-slot^="appearance-"][data-slot$="-popover"]
-  [data-slot="appearance-filter-select-trigger"]
-  svg {
-  color: var(--fg-tertiary) !important;
-}
-
-body:has([data-slot^="appearance-"][data-slot$="-popover"])
-  [data-slot="appearance-filter-select-menu"] {
-  --foreground: rgba(255, 255, 255, 0.94);
-  --muted-foreground: rgba(255, 255, 255, 0.5);
-  --background: var(--appearance-popover-bg);
-  --border: var(--appearance-popover-border);
-  --color-hover: var(--control-hover);
-  --color-active: var(--option-selected-bg);
-  --surface-1: var(--appearance-popover-bg);
-  --surface-2: rgba(255, 255, 255, 0.055);
-  --surface-3: rgba(255, 255, 255, 0.14);
-  background-color: var(--appearance-popover-bg) !important;
-  border: 1px solid var(--appearance-popover-border) !important;
-  box-shadow: var(--appearance-popover-shadow) !important;
-  color: var(--fg-secondary) !important;
-}
-
 [data-slot="desktop-settings-panel-host"] :is(input, textarea, select) {
   background-color: var(--control) !important;
   border-color: transparent !important;
   color: currentColor !important;
   box-shadow: none !important;
-}
-
-[data-slot="shader-settings-popover"] [data-slot="palette-color-stop-list"] > div {
-  border-color: transparent;
-  background: var(--control);
-}
-
-[data-slot="shader-settings-popover"] [data-slot="palette-color-stop-list"] input {
-  background: var(--control) !important;
-  border-color: transparent !important;
-  color: var(--fg-primary) !important;
-}
-
-[data-slot="shader-settings-popover"]
-  [data-slot="palette-color-stop-list"]
-  button[aria-label^="Remove color"] {
-  border-color: transparent;
-  background: var(--control);
-  color: var(--fg-tertiary);
 }
 
 [data-slot="desktop-settings-panel-host"] :is(input, textarea, select):focus,
