@@ -8,6 +8,7 @@ import {
 } from "@/features/canvas/model/corner-radius";
 import { normalizeCanvasCardBorder } from "@/features/canvas/model/card-state";
 import {
+  DEFAULT_DRAFTING_TEXT_COLOR,
   DEFAULT_DRAFTING_TEXT_LAYER,
   type CanvasLayer,
   type CanvasTextRun,
@@ -26,7 +27,8 @@ import {
 } from "@/features/canvas/rendering/layer-appearance";
 import { clampBackgroundShapeTilt } from "@/features/qr/model/state";
 import { cssFillToBackgroundStyle } from "@/features/canvas/model/css-fill-style";
-import { qraftyGradientToFillCss } from "@/features/shell/settings/settings-bridge";
+import { paintSolidColor, paintToCss } from "@/features/canvas/model/paint";
+import { formatFill } from "@/components/ui/fill-picker/lib/gradient";
 import { shouldRenderShapeFillGradient } from "@/features/canvas/rendering/layer-fill";
 import {
   getBackgroundShapeCssTiltTransform,
@@ -170,20 +172,19 @@ export function getExportLayerEffectStyle(layer: CanvasLayer): Record<string, st
 }
 
 export function getTextLayerStyle(layer: CanvasLayer): CSSProperties {
-  const gradient =
-    shouldRenderShapeFillGradient(layer) && layer.fillGradient ? layer.fillGradient : null;
+  const gradient = shouldRenderShapeFillGradient(layer) ? (layer.fill?.gradient ?? null) : null;
 
   return {
     ...(gradient
       ? {
-          backgroundImage: qraftyGradientToFillCss(gradient),
+          backgroundImage: formatFill({ kind: "gradient", gradient }),
           WebkitBackgroundClip: "text",
           backgroundClip: "text",
           color: "transparent",
           WebkitTextFillColor: "transparent",
-          caretColor: layer.fill ?? "#171717",
+          caretColor: paintSolidColor(layer.fill, "#171717"),
         }
-      : { color: layer.fill ?? "#171717" }),
+      : { color: paintSolidColor(layer.fill, "#171717") }),
     fontFamily: getCanvasTextFontFamily(layer),
     fontSize: layer.fontSize ?? 32,
     fontStyle: layer.fontStyle ?? "normal",
@@ -201,12 +202,12 @@ export function getTextRunStyle(
   layer: CanvasLayer,
   run: CanvasTextRun,
 ): Record<string, string | number> {
-  const hasLayerGradient = shouldRenderShapeFillGradient(layer) && Boolean(layer.fillGradient);
+  const hasLayerGradient = shouldRenderShapeFillGradient(layer);
 
   return {
     color:
       run.fill ??
-      (hasLayerGradient ? "transparent" : (layer.fill ?? DEFAULT_DRAFTING_TEXT_LAYER.fill)),
+      (hasLayerGradient ? "transparent" : paintSolidColor(layer.fill, DEFAULT_DRAFTING_TEXT_COLOR)),
     fontFamily: getCanvasFontCssFamily({
       fontFamily: run.fontFamily ?? layer.fontFamily,
       fontId: run.fontId ?? layer.fontId,
@@ -270,7 +271,7 @@ export function getCanvasCardDomStyle(
     : getCanvasPerSideBorderStyle(border.sides);
 
   return serializeCssProperties({
-    ...cssFillToBackgroundStyle(cardState.fill),
+    ...cssFillToBackgroundStyle(paintToCss(cardState.fill)),
     ...cardImageStyle,
     ...borderStyle,
     borderRadius: cornerRadiiToCss(
@@ -302,14 +303,14 @@ export function getCanvasImageDomStyle(layer: CanvasLayer): Record<string, strin
 }
 
 export function getCanvasShapeDomStyle(layer: CanvasLayer): Record<string, string | number> {
-  if (layer.fillMode === "none") {
+  if (!layer.fill || layer.fill.kind === "none") {
     return { backgroundColor: "transparent" };
   }
 
-  if (layer.fillMode === "image" && layer.imageValue) {
+  if (layer.fill.kind === "image" && layer.fill.image) {
     return {
       backgroundColor: "transparent",
-      backgroundImage: `url("${layer.imageValue}")`,
+      backgroundImage: `url("${layer.fill.image}")`,
       backgroundPosition: "center",
       backgroundRepeat: "no-repeat",
       backgroundSize: layer.imageFit ?? "cover",

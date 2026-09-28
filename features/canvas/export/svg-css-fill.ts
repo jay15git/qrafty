@@ -5,6 +5,7 @@ import {
   type Gradient,
   type GradientStop,
 } from "@/components/ui/fill-picker/public-api";
+import { paintSolidColor, type Paint } from "@/features/canvas/model/paint";
 
 /** CSS 0deg = up. SVG default linearGradient is left→right (= CSS 90deg). */
 const CSS_TO_SVG_LINEAR_OFFSET_DEG = 90;
@@ -95,23 +96,20 @@ export function isConicCssFill(fillCss: string) {
   return parsed?.kind === "gradient" && parsed.gradient.type === "conic";
 }
 
-export function paintConicCssFill(
+export function isConicPaintFill(paint: Paint | undefined) {
+  return paint?.kind === "gradient" && paint.gradient?.type === "conic";
+}
+
+export function paintConicGradientFill(
   context: CanvasRenderingContext2D,
-  fillCss: string,
+  gradient: Extract<Gradient, { type: "conic" }>,
   width: number,
   height: number,
 ) {
-  const parsed = parseFill(fillCss);
-
-  if (!parsed || parsed.kind !== "gradient" || parsed.gradient.type !== "conic") {
-    throw new Error("Expected a conic gradient fill.");
-  }
-
   if (typeof context.createConicGradient !== "function") {
     throw new Error("This browser cannot export conic gradients.");
   }
 
-  const gradient = parsed.gradient;
   const startAngle = ((gradient.startAngle - CSS_TO_CANVAS_CONIC_OFFSET_DEG) * Math.PI) / 180;
   const paint = context.createConicGradient(
     startAngle,
@@ -137,7 +135,11 @@ export function paintConicCssFill(
   context.fillRect(0, 0, width, height);
 }
 
-export function rasterizeConicCssFillToDataUrl(fillCss: string, width: number, height: number) {
+export function rasterizeConicGradientToDataUrl(
+  gradient: Extract<Gradient, { type: "conic" }>,
+  width: number,
+  height: number,
+) {
   if (typeof document === "undefined") {
     return undefined;
   }
@@ -151,8 +153,28 @@ export function rasterizeConicCssFillToDataUrl(fillCss: string, width: number, h
     return undefined;
   }
 
-  paintConicCssFill(context, fillCss, canvas.width, canvas.height);
+  paintConicGradientFill(context, gradient, canvas.width, canvas.height);
   return canvas.toDataURL("image/png");
+}
+
+/** Emit an SVG paint (def + fill reference) directly from a Paint. */
+export function paintToSvgPaint(paint: Paint, gradientId: string) {
+  if (paint.kind === "gradient" && paint.gradient) {
+    const gradient = paint.gradient;
+
+    if (gradient.type === "conic") {
+      return { def: "", fill: firstStopHex(gradient) };
+    }
+
+    const def =
+      gradient.type === "linear"
+        ? linearGradientMarkup(gradient, gradientId)
+        : radialGradientMarkup(gradient, gradientId);
+
+    return { def, fill: `url(#${gradientId})` };
+  }
+
+  return { def: "", fill: paintSolidColor(paint) };
 }
 
 export function cssFillToSvgPaint(fillCss: string, gradientId: string) {

@@ -15,8 +15,7 @@ import { buildLayeredSvgParts } from "@/features/canvas/export/layered-svg-parts
 import { getArtboardExportBounds } from "@/features/canvas/export/pipeline/bounds";
 import {
   cssFillToCanvasColor,
-  isConicCssFill,
-  paintConicCssFill,
+  paintConicGradientFill,
 } from "@/features/canvas/export/svg-css-fill";
 import {
   buildAnimatedQrMarkupAtTime,
@@ -231,9 +230,14 @@ function drawCanvasFace(
     return;
   }
 
-  if (layer.kind === "card" && cardState.styleMode === "solid" && isConicCssFill(cardState.fill)) {
+  if (
+    layer.kind === "card" &&
+    cardState.styleMode === "solid" &&
+    cardState.fill.kind === "gradient" &&
+    cardState.fill.gradient?.type === "conic"
+  ) {
     clipCardRoundedRect(context, layer, cardState, renderScale);
-    paintConicCssFill(context, cardState.fill, layerWidth, layerHeight);
+    paintConicGradientFill(context, cardState.fill.gradient, layerWidth, layerHeight);
     context.restore();
     return;
   }

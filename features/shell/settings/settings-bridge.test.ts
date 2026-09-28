@@ -20,6 +20,7 @@ import {
   DEFAULT_DESKTOP_PATTERN_SETTINGS,
 } from "@/features/shell/model/toolbar-defaults";
 import { cssFillToBackgroundStyle } from "@/features/canvas/model/css-fill-style";
+import { paintToCss } from "@/features/canvas/model/paint";
 
 const SAMPLE_GRADIENT: QraftyGradient = {
   enabled: true,
@@ -195,8 +196,10 @@ describe("settings fill bridge", () => {
   it("keeps card fill CSS for gradients", () => {
     const fill = parseFill(qraftyGradientToFillCss(SAMPLE_GRADIENT));
     expect(fill).not.toBeNull();
-    expect(applyCardFill(fill as Fill)).toEqual({ cardFill: formatFill(fill as Fill) });
-    expect(applyCardFill(fillFromHex("#ff0000")).cardFill.toLowerCase()).toBe("#ff0000");
+    expect(paintToCss(applyCardFill(fill as Fill).cardFill)).toBe(formatFill(fill as Fill));
+    expect(paintToCss(applyCardFill(fillFromHex("#ff0000")).cardFill).toLowerCase()).toBe(
+      "#ff0000",
+    );
   });
 
   it("paints gradient card fills as background-image", () => {

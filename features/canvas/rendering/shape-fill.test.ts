@@ -1,7 +1,5 @@
 import { describe, expect, it } from "vitest";
 
-import { formatFill } from "@/components/ui/fill-picker/public-api";
-import { fillFromHex } from "@/features/shell/settings/FillPicker.utils";
 import { patchCanvasLayer } from "@/features/canvas/model/layers/patch";
 import {
   createCanvasShapeLayer,
@@ -14,105 +12,67 @@ import {
   patchTextLayerFillFromPicker,
 } from "@/features/canvas/rendering/layer-fill";
 
-describe("shape-fill", () => {
-  it("stores shape gradients on fillGradient instead of fill css", () => {
-    const layer = createCanvasShapeLayer("preview", "flower");
-    const gradientCss = formatFill({
-      kind: "gradient",
-      gradient: {
-        type: "linear",
-        angle: 135,
-        interp: "oklch",
-        stops: [
-          {
-            color: { l: 0.2, c: 0.05, h: 260, alpha: 1 },
-            position: 0,
-          },
-          {
-            color: { l: 0.85, c: 0.08, h: 40, alpha: 1 },
-            position: 1,
-          },
-        ],
-      },
-    });
+const gradientFill = {
+  kind: "gradient" as const,
+  gradient: {
+    type: "linear" as const,
+    angle: 135,
+    interp: "oklch" as const,
+    stops: [
+      { color: { l: 0.2, c: 0.05, h: 260, alpha: 1 }, position: 0 },
+      { color: { l: 0.85, c: 0.08, h: 40, alpha: 1 }, position: 1 },
+    ],
+  },
+};
 
-    const patch = patchShapeLayerFillFromPicker(
-      layer,
-      {
-        kind: "gradient",
-        gradient: {
-          type: "linear",
-          angle: 135,
-          interp: "oklch",
-          stops: [
-            { color: { l: 0.2, c: 0.05, h: 260, alpha: 1 }, position: 0 },
-            { color: { l: 0.85, c: 0.08, h: 40, alpha: 1 }, position: 1 },
-          ],
-        },
-      },
-      gradientCss,
-    );
+describe("shape-fill", () => {
+  it("stores shape gradients as gradient paint with a solid fallback color", () => {
+    const layer = createCanvasShapeLayer("preview", "flower");
+
+    const patch = patchShapeLayerFillFromPicker(layer, gradientFill);
     const nextLayer = patchCanvasLayer(layer, patch);
 
-    expect(nextLayer.fillMode).toBe("gradient");
-    expect(nextLayer.fillGradient?.enabled).toBe(true);
-    expect(nextLayer.fill).toMatch(/^#[0-9a-f]{6}$/i);
+    expect(nextLayer.fill?.kind).toBe("gradient");
+    expect(nextLayer.fill?.gradient?.stops).toHaveLength(2);
+    expect(nextLayer.fill?.solid).toMatch(/^#[0-9a-f]{6}$/i);
     expect(getShapeLayerFillCssValue(nextLayer)).toContain("gradient");
   });
 
   it("keeps solid fills as hex", () => {
     const layer = createCanvasShapeLayer("preview", "rect");
-    const solidCss = formatFill(fillFromHex("#ff3366"));
-    const patch = patchShapeLayerFillFromPicker(
-      layer,
-      { kind: "color", color: { l: 0.6, c: 0.2, h: 10, alpha: 1 } },
-      solidCss,
-    );
+    const patch = patchShapeLayerFillFromPicker(layer, {
+      kind: "color",
+      color: { l: 0.6, c: 0.2, h: 10, alpha: 1 },
+    });
     const nextLayer = patchCanvasLayer(layer, patch);
 
-    expect(nextLayer.fillMode).toBe("solid");
-    expect(nextLayer.fill).toBe("#FF3366");
+    expect(nextLayer.fill?.kind).toBe("solid");
+    expect(nextLayer.fill?.solid).toMatch(/^#[0-9a-f]{6}$/i);
   });
 });
 
 describe("text-fill", () => {
-  const gradientFill = {
-    kind: "gradient" as const,
-    gradient: {
-      type: "linear" as const,
-      angle: 135,
-      interp: "oklch" as const,
-      stops: [
-        { color: { l: 0.2, c: 0.05, h: 260, alpha: 1 }, position: 0 },
-        { color: { l: 0.85, c: 0.08, h: 40, alpha: 1 }, position: 1 },
-      ],
-    },
-  };
-
-  it("stores text gradients on fillGradient instead of fill css", () => {
+  it("stores text gradients as gradient paint with a solid fallback color", () => {
     const layer = createCanvasTextLayer("preview");
-    const gradientCss = formatFill(gradientFill);
-    const patch = patchTextLayerFillFromPicker(layer, gradientFill, gradientCss);
+    const patch = patchTextLayerFillFromPicker(layer, gradientFill);
     const nextLayer = patchCanvasLayer(layer, patch);
 
-    expect(nextLayer.fillMode).toBe("gradient");
-    expect(nextLayer.fillGradient?.enabled).toBe(true);
-    expect(nextLayer.fill).toMatch(/^#[0-9a-f]{6}$/i);
+    expect(nextLayer.fill?.kind).toBe("gradient");
+    expect(nextLayer.fill?.gradient?.stops).toHaveLength(2);
+    expect(nextLayer.fill?.solid).toMatch(/^#[0-9a-f]{6}$/i);
     expect(getTextLayerFillCssValue(nextLayer)).toContain("gradient");
   });
 
   it("keeps text solid fills as hex", () => {
     const layer = createCanvasTextLayer("preview");
-    const solidCss = formatFill(fillFromHex("#ff3366"));
-    const patch = patchTextLayerFillFromPicker(
-      layer,
-      { kind: "color", color: { l: 0.6, c: 0.2, h: 10, alpha: 1 } },
-      solidCss,
-    );
+    const patch = patchTextLayerFillFromPicker(layer, {
+      kind: "color",
+      color: { l: 0.6, c: 0.2, h: 10, alpha: 1 },
+    });
     const nextLayer = patchCanvasLayer(layer, patch);
 
-    expect(nextLayer.fillMode).toBe("solid");
-    expect(nextLayer.fill).toBe("#FF3366");
+    expect(nextLayer.fill?.kind).toBe("solid");
+    expect(nextLayer.fill?.solid).toMatch(/^#[0-9a-f]{6}$/i);
     expect(getTextLayerFillCssValue(nextLayer)).toContain("oklch");
   });
 });

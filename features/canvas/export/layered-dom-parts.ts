@@ -2,11 +2,7 @@ import { type DomLayerNode } from "@qrafty/qr-internal/codegen";
 
 import type { CanvasCardState } from "@/features/canvas/model/card-state";
 import { cornerRadiiToCss, resolveLayerCornerRadii } from "@/features/canvas/model/corner-radius";
-import {
-  DEFAULT_DRAFTING_TEXT_LAYER,
-  type CanvasLayer,
-  type CanvasTextRun,
-} from "@/features/canvas/model/layers/shared";
+import type { CanvasLayer, CanvasTextRun } from "@/features/canvas/model/layers/shared";
 import { layoutCanvasText } from "@/features/canvas/rendering/text-layout";
 import {
   getShapeStrokeViewBoxScale,
@@ -14,6 +10,7 @@ import {
 } from "@/features/canvas/rendering/shape-layer-paths";
 import { getCanvasPerSideBorderStyle } from "@/features/canvas/rendering/layer-appearance";
 import { QR_BACKGROUND_SHAPES } from "@/features/qr/styles/background-shapes";
+import { paintSolidColor } from "@/features/canvas/model/paint";
 import {
   cssPropertiesToInlineStyle,
   getCanvasCardDomStyle,
@@ -222,7 +219,8 @@ function getCanvasImageLayerDom(layer: CanvasLayer): DomLayerNode {
 function getCanvasShapeLayerDom(layer: CanvasLayer): DomLayerNode {
   const shapeId = layer.shapeId ?? "rounded-square";
   const definition = QR_BACKGROUND_SHAPES.find((shape) => shape.id === shapeId);
-  const fill = layer.fillMode === "none" ? "none" : escapeXml(layer.fill ?? "#E8E8E8");
+  const fill =
+    layer.fill?.kind === "none" ? "none" : escapeXml(paintSolidColor(layer.fill, "#E8E8E8"));
   const strokeWidth = layer.strokeWidth ?? 0;
   const stroke = layer.stroke ?? "#171717";
   const strokeOpacity = (layer.strokeOpacity ?? 100) / 100;

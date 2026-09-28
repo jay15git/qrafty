@@ -14,6 +14,7 @@ import {
 import { getCanvasCardLayerId, type CanvasLayer } from "@/features/canvas/model/layers/shared";
 import type { QraftyState } from "@/features/qr/model/state";
 import type { ExportClockMode } from "@/features/canvas/export/pipeline/clock";
+import { solidPaint } from "@/features/canvas/model/paint";
 
 /** Tiny opaque pixel used for every image-valued fixture field. Data URLs are
  * inlined verbatim, so the export never touches the network. */
@@ -90,7 +91,7 @@ export const GOLDEN_FIXTURES: GoldenFixture[] = [
   fixture("card-solid", () => {
     const input = base("golden-card-solid", ({ cardState }) => {
       cardState.styleMode = "solid";
-      cardState.fill = "#1e3a8a";
+      cardState.fill = solidPaint("#1e3a8a");
       cardState.cornerRadius = 48;
     });
     return input;
@@ -341,7 +342,7 @@ export const GOLDEN_FIXTURES: GoldenFixture[] = [
         }),
         createCanvasShapeLayer(nodeId, "burst-star", {
           id: `${nodeId}:shape:golden-star`,
-          fill: "#facc15",
+          fill: solidPaint("#facc15"),
           x: 900,
           y: 90,
           width: 96,

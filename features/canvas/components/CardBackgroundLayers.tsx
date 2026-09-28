@@ -9,6 +9,7 @@ import type {
   CanvasCardState,
 } from "@/features/canvas/model/card-state";
 import { cssFillToBackgroundStyle } from "@/features/canvas/model/css-fill-style";
+import { paintToCss } from "@/features/canvas/model/paint";
 import { cn } from "@/lib/utils";
 
 const CROSSFADE_MS = 180;
@@ -184,7 +185,7 @@ export function CardBackgroundLayers({
 }: CardBackgroundLayersProps) {
   const activeMode = resolveBackgroundMode(isPaperShaderMode, isImageMode, isImageFilterMode);
   const mountedModes = useMountedBackgroundModes(activeMode, animateTransitions);
-  const fillStyle = cssFillToBackgroundStyle(cardState.fill);
+  const fillStyle = cssFillToBackgroundStyle(paintToCss(cardState.fill));
   const zIndexFor = (mode: BackgroundMode) => (activeMode === mode ? "z-[2]" : "z-[1]");
 
   return (

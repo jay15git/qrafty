@@ -53,9 +53,9 @@ import {
   DEFAULT_DRAFTING_SHAPE_LAYER,
   DEFAULT_DRAFTING_TEXT_LAYER,
   type CanvasLayer,
-  type CanvasShapeFillMode,
 } from "@/features/canvas/model/layers/shared";
 import { createDefaultCanvasCardPaperShader } from "@/features/canvas/model/card-state";
+import { imagePaint, paintForKind, type PaintKind } from "@/features/canvas/model/paint";
 import {
   DRAFTING_FONT_CATEGORY_LABELS,
   getCanvasFontCssFamily,
@@ -452,9 +452,7 @@ function LayerTextSettings({
             hint="Text fill"
             title="Text fill"
             value={getTextLayerFillCssValue(layer)}
-            onValueChange={(fill, css) =>
-              patchTextLayer(patchTextLayerFillFromPicker(layer, fill, css))
-            }
+            onValueChange={(fill) => patchTextLayer(patchTextLayerFillFromPicker(layer, fill))}
           />
         </SettingsSection>
       ) : null}
@@ -497,7 +495,7 @@ function LayerShapeSettings({
   onPatch: (patch: Partial<CanvasLayer>) => void;
 }) {
   const shapeId = layer.shapeId ?? DEFAULT_DRAFTING_SHAPE_LAYER.shapeId;
-  const fillMode = layer.fillMode ?? DEFAULT_DRAFTING_SHAPE_LAYER.fillMode;
+  const fillMode = layer.fill?.kind ?? "solid";
 
   return (
     <>
@@ -522,7 +520,7 @@ function LayerShapeSettings({
           <SegmentTabs
             items={["solid", "gradient", "image", "none"]}
             value={fillMode}
-            onChange={(mode) => onPatch({ fillMode: mode as CanvasShapeFillMode })}
+            onChange={(mode) => onPatch({ fill: paintForKind(mode as PaintKind, layer.fill) })}
           />
 
           {fillMode === "image" ? (
@@ -530,11 +528,17 @@ function LayerShapeSettings({
               <SettingsTextInput
                 aria-label="Shape fill image URL"
                 placeholder="https://example.com/texture.png"
-                value={layer.imageSource === "url" ? (layer.imageValue ?? "") : ""}
+                value={
+                  layer.imageSource === "url"
+                    ? layer.fill?.kind === "image"
+                      ? layer.fill.image
+                      : ""
+                    : ""
+                }
                 onChange={(event) =>
                   onPatch({
                     imageSource: event.currentTarget.value ? "url" : "none",
-                    imageValue: event.currentTarget.value || undefined,
+                    fill: imagePaint(event.currentTarget.value, layer.fill),
                   })
                 }
               />
@@ -545,7 +549,7 @@ function LayerShapeSettings({
                 onUploadSuccess={(file) => {
                   onPatch({
                     imageSource: "upload",
-                    imageValue: URL.createObjectURL(file),
+                    fill: imagePaint(URL.createObjectURL(file), layer.fill),
                   });
                 }}
                 uploadDelay={0}
@@ -563,7 +567,7 @@ function LayerShapeSettings({
             solidOnly={fillMode === "solid"}
             title="Fill color"
             value={getShapeLayerFillCssValue(layer)}
-            onValueChange={(fill, css) => onPatch(patchShapeLayerFillFromPicker(layer, fill, css))}
+            onValueChange={(fill, css) => onPatch(patchShapeLayerFillFromPicker(layer, fill))}
           />
         </SettingsSection>
       ) : null}
@@ -599,7 +603,13 @@ function LayerImageSettings({
           <SettingsTextInput
             aria-label="Image URL"
             placeholder="https://example.com/photo.png"
-            value={layer.imageSource === "url" ? (layer.imageValue ?? "") : ""}
+            value={
+              layer.imageSource === "url"
+                ? layer.fill?.kind === "image"
+                  ? layer.fill.image
+                  : ""
+                : ""
+            }
             onChange={(event) =>
               onPatch({
                 imageSource: event.currentTarget.value ? "url" : "none",

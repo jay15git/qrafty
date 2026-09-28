@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { formatFill } from "@/components/ui/fill-picker/public-api";
+import { gradientPaint } from "@/features/canvas/model/paint";
 import { createDefaultQraftyState } from "@/features/qr/model/state";
 import { createDefaultCanvasCardState } from "@/features/canvas/model/card-state";
 import { createDefaultCanvasLayers } from "@/features/canvas/model/layers/card-qr";
@@ -46,18 +46,15 @@ describe("export compositor faces", () => {
 
     const conicCard = {
       ...solidCard,
-      fill: formatFill({
-        kind: "gradient",
-        gradient: {
-          type: "conic",
-          startAngle: 0,
-          center: { x: 0.5, y: 0.5 },
-          interp: "oklch",
-          stops: [
-            { position: 0, color: { l: 1, c: 0, h: 0, alpha: 1 } },
-            { position: 1, color: { l: 0, c: 0, h: 0, alpha: 1 } },
-          ],
-        },
+      fill: gradientPaint({
+        type: "conic",
+        startAngle: 0,
+        center: { x: 0.5, y: 0.5 },
+        interp: "oklch",
+        stops: [
+          { position: 0, color: { l: 1, c: 0, h: 0, alpha: 1 } },
+          { position: 1, color: { l: 0, c: 0, h: 0, alpha: 1 } },
+        ],
       }),
     };
 

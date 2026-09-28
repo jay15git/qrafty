@@ -1,11 +1,33 @@
 import type { Fill } from "@/components/ui/fill-picker/public-api";
-import { DEFAULT_DESKTOP_SHAPE_SETTINGS } from "@/features/shell/model/toolbar-defaults";
-import { fillPreviewHex } from "@/features/shell/settings/FillPicker.utils";
 import {
-  fillCssToQraftyGradient,
-  solidColorToFillCss,
-  qraftyGradientToFillCss,
-} from "@/features/shell/settings/settings-bridge";
+  paintFromPickerFill,
+  paintSolidColor,
+  paintToCss,
+  paintToPickerCss,
+} from "@/features/canvas/model/paint";
+import { normalizeFillForQrTarget } from "@/features/shell/settings/FillPicker.utils";
+
+/**
+ * The QR-style SVG defs path only supports linear/radial two-stop gradients.
+ * Clamp picker output the way `fillCssToQraftyGradient` used to: conic →
+ * radial, exotic radials → circle, multi-stop ramps → first + last stops.
+ */
+function clampPickerFillForCanvas(fill: Fill): Fill {
+  const normalized = normalizeFillForQrTarget(fill);
+
+  if (normalized.kind !== "gradient" || normalized.gradient.stops.length <= 2) {
+    return normalized;
+  }
+
+  const stops = [...normalized.gradient.stops].sort((a, b) => a.position - b.position);
+  const first = stops[0];
+  const last = stops[stops.length - 1];
+
+  return {
+    kind: "gradient",
+    gradient: { ...normalized.gradient, stops: [first, last] },
+  };
+}
 import {
   DEFAULT_DRAFTING_SHAPE_LAYER,
   DEFAULT_DRAFTING_TEXT_LAYER,
@@ -13,61 +35,22 @@ import {
 } from "@/features/canvas/model/layers/shared";
 
 export function getShapeLayerFillCssValue(layer: CanvasLayer) {
-  if (layer.fillMode === "gradient" && layer.fillGradient) {
-    return qraftyGradientToFillCss(layer.fillGradient);
-  }
-
-  return solidColorToFillCss(layer.fill ?? DEFAULT_DRAFTING_SHAPE_LAYER.fill);
+  return paintToPickerCss(layer.fill ?? DEFAULT_DRAFTING_SHAPE_LAYER.fill);
 }
 
 export function patchShapeLayerFillFromPicker(
   layer: CanvasLayer,
   fill: Fill,
-  css: string,
 ): Partial<CanvasLayer> {
-  const fallbackGradient = layer.fillGradient ?? DEFAULT_DESKTOP_SHAPE_SETTINGS.shapeGradient;
-
-  if (fill.kind === "gradient") {
-    return {
-      fill: fillPreviewHex(css),
-      fillGradient: fillCssToQraftyGradient(css, fallbackGradient),
-      fillMode: "gradient",
-    };
-  }
-
-  return {
-    fill: fillPreviewHex(css),
-    fillMode: "solid",
-  };
+  return { fill: paintFromPickerFill(clampPickerFillForCanvas(fill), layer.fill) };
 }
 
 export function getTextLayerFillCssValue(layer: CanvasLayer) {
-  if (layer.fillMode === "gradient" && layer.fillGradient) {
-    return qraftyGradientToFillCss(layer.fillGradient);
-  }
-
-  return solidColorToFillCss(layer.fill ?? DEFAULT_DRAFTING_TEXT_LAYER.fill);
+  return paintToPickerCss(layer.fill ?? DEFAULT_DRAFTING_TEXT_LAYER.fill);
 }
 
-export function patchTextLayerFillFromPicker(
-  layer: CanvasLayer,
-  fill: Fill,
-  css: string,
-): Partial<CanvasLayer> {
-  const fallbackGradient = layer.fillGradient ?? DEFAULT_DESKTOP_SHAPE_SETTINGS.shapeGradient;
-
-  if (fill.kind === "gradient") {
-    return {
-      fill: fillPreviewHex(css),
-      fillGradient: fillCssToQraftyGradient(css, fallbackGradient),
-      fillMode: "gradient",
-    };
-  }
-
-  return {
-    fill: fillPreviewHex(css),
-    fillMode: "solid",
-  };
+export function patchTextLayerFillFromPicker(layer: CanvasLayer, fill: Fill): Partial<CanvasLayer> {
+  return { fill: paintFromPickerFill(clampPickerFillForCanvas(fill), layer.fill) };
 }
 
 export function getShapeLayerGradientId(layerId: string) {
@@ -75,11 +58,14 @@ export function getShapeLayerGradientId(layerId: string) {
 }
 
 export function shouldRenderShapeFillGradient(layer: CanvasLayer) {
-  return layer.fillMode === "gradient" && layer.fillGradient?.enabled !== false;
+  const gradient = layer.fill?.kind === "gradient" ? layer.fill.gradient : undefined;
+  return Boolean(gradient) && gradient?.type !== "conic";
 }
 
 export function resolveShapeSvgFill(layer: CanvasLayer): string {
-  if (layer.fillMode === "none") {
+  const paint = layer.fill;
+
+  if (!paint || paint.kind === "none") {
     return "none";
   }
 
@@ -87,5 +73,5 @@ export function resolveShapeSvgFill(layer: CanvasLayer): string {
     return `url(#${getShapeLayerGradientId(layer.id)})`;
   }
 
-  return layer.fill ?? DEFAULT_DRAFTING_SHAPE_LAYER.fill;
+  return paintSolidColor(paint, paintToCss(DEFAULT_DRAFTING_SHAPE_LAYER.fill));
 }

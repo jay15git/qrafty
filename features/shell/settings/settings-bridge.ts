@@ -19,6 +19,7 @@ import {
 } from "@/features/qr/styles/qrafty-gradient-geometry";
 import { degreesToRadians, radiansToDegrees } from "@/features/qr/styles/gradient-controls";
 import { fillFromHex, fillPreviewHex } from "@/features/shell/settings/FillPicker.utils";
+import { paintFromPickerFill, type Paint } from "@/features/canvas/model/paint";
 const FALLBACK_OKLCH = { l: 0, c: 0, h: 0, alpha: 1 } as const;
 
 /** CSS `linear-gradient` angles are 90° ahead of studio SVG rotation. */
@@ -302,12 +303,8 @@ export function applyLogoFill(fill: Fill, settings: LogoSettings): Partial<LogoS
   };
 }
 
-export function applyCardFill(fill: Fill): { cardFill: string } {
-  if (fill.kind === "gradient") {
-    return { cardFill: formatFill(fill) };
-  }
-
-  return { cardFill: solidHexFromFill(fill) };
+export function applyCardFill(fill: Fill, previous?: Paint): { cardFill: Paint } {
+  return { cardFill: paintFromPickerFill(fill, previous) };
 }
 
 export type UnifiedQrFillSettings = {

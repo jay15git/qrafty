@@ -12,6 +12,7 @@ import {
   createCanvasTextLayer,
 } from "@/features/canvas/model/layers/factories";
 import { buildLayeredSvgParts } from "@/features/canvas/export/layered-svg-parts";
+import { paintFromCss } from "@/features/canvas/model/paint";
 import { qraftyGradientToFillCss } from "@/features/shell/settings/settings-bridge";
 import { degreesToRadians } from "@/features/qr/styles/gradient-controls";
 
@@ -168,15 +169,17 @@ describe("layered svg z-order", () => {
     const cardState: CanvasCardState = {
       ...createDefaultCanvasCardState(),
       styleMode: "solid",
-      fill: qraftyGradientToFillCss({
-        enabled: true,
-        type: "linear",
-        rotation: degreesToRadians(45),
-        colorStops: [
-          { offset: 0, color: "#ff0000" },
-          { offset: 1, color: "#0000ff" },
-        ],
-      }),
+      fill: paintFromCss(
+        qraftyGradientToFillCss({
+          enabled: true,
+          type: "linear",
+          rotation: degreesToRadians(45),
+          colorStops: [
+            { offset: 0, color: "#ff0000" },
+            { offset: 1, color: "#0000ff" },
+          ],
+        }),
+      ),
     };
     const layers = createDefaultCanvasLayers("node", state, cardState);
     const cardLayer = layers.find((layer) => layer.kind === "card");
@@ -203,16 +206,17 @@ describe("layered svg z-order", () => {
     const layers = createDefaultCanvasLayers("node", state, cardState);
     const textLayer = patchCanvasLayer(
       createCanvasTextLayer("node", {
-        fillGradient: {
-          enabled: true,
-          type: "linear",
-          rotation: degreesToRadians(45),
-          colorStops: [
-            { offset: 0, color: "#ff0000" },
-            { offset: 1, color: "#0000ff" },
-          ],
-        },
-        fillMode: "gradient",
+        fill: paintFromCss(
+          qraftyGradientToFillCss({
+            enabled: true,
+            type: "linear",
+            rotation: degreesToRadians(45),
+            colorStops: [
+              { offset: 0, color: "#ff0000" },
+              { offset: 1, color: "#0000ff" },
+            ],
+          }),
+        ),
         height: 60,
         text: "Gradient heading",
         width: 320,

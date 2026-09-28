@@ -490,7 +490,7 @@ function TextLayerFloatingSettings({
         theme={theme}
         title="Text color"
         value={getTextLayerFillCssValue(layer)}
-        onValueChange={(fill, css) => patchText(patchTextLayerFillFromPicker(layer, fill, css))}
+        onValueChange={(fill) => patchText(patchTextLayerFillFromPicker(layer, fill))}
       />
       <LayerFloatingSettingsButton
         active={fontWeight >= 700}
@@ -569,7 +569,7 @@ export function FloatingLayerToolbarSettings({
         theme={theme}
         title="Shape fill"
         value={getShapeLayerFillCssValue(layer)}
-        onValueChange={(fill, css) => onPatch(patchShapeLayerFillFromPicker(layer, fill, css))}
+        onValueChange={(fill) => onPatch(patchShapeLayerFillFromPicker(layer, fill))}
       />
     );
   }

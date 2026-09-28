@@ -35,6 +35,7 @@ import { groupCanvasLayers, ungroupCanvasLayer } from "@/features/canvas/model/l
 import { createDefaultCanvasCardState } from "@/features/canvas/model/card-state";
 import { DEFAULT_DRAFTING_OUTLINE } from "@/features/canvas/model/effects";
 import { createDefaultQraftyState } from "@/features/qr/model/state";
+import { solidPaint } from "@/features/canvas/model/paint";
 
 describe("canvas layer state actions", () => {
   it("keeps the card background layer visible and protected", () => {
@@ -302,7 +303,7 @@ describe("canvas layer state actions", () => {
 
   it("creates and normalizes Avnac-style text layers", () => {
     const textLayer = createCanvasTextLayer("preview", {
-      fill: "#ff00aa",
+      fill: solidPaint("#ff00aa"),
       fontFamily: "General Sans",
       fontId: "fontshare:general-sans",
       fontSize: 44,
@@ -318,7 +319,7 @@ describe("canvas layer state actions", () => {
     });
 
     expect(textLayer).toMatchObject({
-      fill: "#ff00aa",
+      fill: { kind: "solid", solid: "#ff00aa" },
       fontFamily: "General Sans",
       fontId: "fontshare:general-sans",
       fontSize: 44,
@@ -576,7 +577,7 @@ describe("canvas layer state actions", () => {
       imageValue: "https://example.com/photo.png",
     });
     const shapeLayer = createCanvasShapeLayer("preview", "hexagon", {
-      fill: "#abcdef",
+      fill: solidPaint("#abcdef"),
     });
 
     expect(imageLayer).toMatchObject({
@@ -588,8 +589,7 @@ describe("canvas layer state actions", () => {
       name: "Image",
     });
     expect(shapeLayer).toMatchObject({
-      fill: "#abcdef",
-      fillMode: "solid",
+      fill: { kind: "solid", solid: "#abcdef" },
       kind: "shape",
       name: "Shape",
       shapeId: "hexagon",
@@ -681,7 +681,7 @@ describe("canvas layer state actions", () => {
         },
         {
           cornerRadius: 8,
-          fill: "#ff00aa",
+          fill: solidPaint("#ff00aa"),
           height: 80,
           id: "preview:shape:1",
           kind: "shape",
@@ -709,7 +709,7 @@ describe("canvas layer state actions", () => {
     });
     expect(shape).toMatchObject({
       cornerRadius: 8,
-      fill: "#ff00aa",
+      fill: { kind: "solid", solid: "#ff00aa" },
       kind: "shape",
       scaleX: -1,
       scaleY: 1,
@@ -720,7 +720,7 @@ describe("canvas layer state actions", () => {
 
   it("preserves text fields through copy, paste, group, and ungroup", () => {
     const textLayer = createCanvasTextLayer("preview", {
-      fill: "#123456",
+      fill: solidPaint("#123456"),
       id: "text-1",
       text: "Table 7",
       zIndex: 2,
@@ -733,7 +733,7 @@ describe("canvas layer state actions", () => {
     });
 
     expect(pasted[0]).toMatchObject({
-      fill: "#123456",
+      fill: { kind: "solid", solid: "#123456" },
       kind: "text",
       nodeId: "preview-2",
       text: "Table 7",
@@ -749,7 +749,7 @@ describe("canvas layer state actions", () => {
     const restored = ungroupCanvasLayer(grouped, "group-1");
 
     expect(restored.find((layer) => layer.kind === "text")).toMatchObject({
-      fill: "#123456",
+      fill: { kind: "solid", solid: "#123456" },
       text: "Table 7",
     });
   });

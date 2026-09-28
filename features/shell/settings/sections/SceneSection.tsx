@@ -29,6 +29,7 @@ import { SettingsLabeledSelect, SettingsTabPanel } from "@/features/shell/settin
 import { SettingsImageUploadTile } from "@/features/shell/settings/SettingsFillOptionGrid";
 import { SETTINGS_PREVIEW_TILE_FLUID } from "@/features/shell/settings/SettingsPreviewTiles";
 import { cn } from "@/lib/utils";
+import { paintToCss, type Paint } from "@/features/canvas/model/paint";
 
 function PaperShaderPreviewRow({
   selected,
@@ -163,7 +164,7 @@ const SCENE_BACKGROUND_TABS: readonly SceneBackgroundTab[] = [
   ...BACKGROUND_FILL_MODE_TABS,
 ];
 
-function normalizeSceneBackgroundTab(tab: string, cardFill: string): SceneBackgroundTab {
+function normalizeSceneBackgroundTab(tab: string, cardFill: Paint): SceneBackgroundTab {
   if (tab === "Shader" || tab === "Image") return tab;
   if ((BACKGROUND_FILL_MODE_TABS as readonly string[]).includes(tab)) {
     return tab as BackgroundFillModeTab;
@@ -173,7 +174,7 @@ function normalizeSceneBackgroundTab(tab: string, cardFill: string): SceneBackgr
 
 function backgroundTabFromStyleMode(
   styleMode: SettingsModel["actualBackgroundSettings"]["styleMode"],
-  cardFill: string,
+  cardFill: Paint,
 ): SceneBackgroundTab {
   if (styleMode === "image" || styleMode === "image-filter") {
     return "Image";
@@ -253,7 +254,7 @@ export function SceneSection({ model }: { model: SettingsModel }) {
         ) : (
           <FillModePresetControls
             mode={tab}
-            value={backgroundFill}
+            value={paintToCss(backgroundFill)}
             applyFill={(fill) => onShapeSettingsChange(applyCardFill(fill))}
           />
         )}

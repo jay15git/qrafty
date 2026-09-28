@@ -3,6 +3,7 @@ import type { PaperShaderId } from "@/features/canvas/rendering/paper-shader-def
 import { createFallbackLayer } from "@/features/canvas/model/layers/fallback";
 import { patchCanvasLayer } from "@/features/canvas/model/layers/patch";
 import { normalizeElementShapeId } from "@/features/canvas/model/layers/shape";
+import { nonePaint, paintSolidColor } from "@/features/canvas/model/paint";
 import {
   DEFAULT_DRAFTING_SHAPE_LAYER,
   type CanvasLayer,
@@ -77,8 +78,13 @@ export function createCanvasShapeLayer(
       shapeId: resolvedShapeId,
       ...(isStrokePrimitive
         ? {
-            fillMode: options.fillMode ?? "none",
-            stroke: options.stroke ?? options.fill ?? DEFAULT_DRAFTING_SHAPE_LAYER.fill,
+            fill: options.fill ?? nonePaint(),
+            stroke:
+              options.stroke ??
+              paintSolidColor(
+                options.fill ?? DEFAULT_DRAFTING_SHAPE_LAYER.fill,
+                DEFAULT_DRAFTING_SHAPE_LAYER.stroke,
+              ),
             strokeWidth: options.strokeWidth ?? 4,
           }
         : null),

@@ -517,7 +517,7 @@ function MobileLayerTextTools({
         theme={theme}
         title="Text color"
         value={getTextLayerFillCssValue(layer)}
-        onValueChange={(fill, css) => patchText(patchTextLayerFillFromPicker(layer, fill, css))}
+        onValueChange={(fill) => patchText(patchTextLayerFillFromPicker(layer, fill))}
       />
       <MobileLayerToolbarDetailButton
         ariaLabel="Text font"

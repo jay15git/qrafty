@@ -13,6 +13,7 @@ import {
   useMobileLiveDetail,
 } from "@/features/shell/settings/MobileDrawerNavigationContext";
 import { applyCardFill } from "@/features/shell/settings/settings-bridge";
+import { paintToCss } from "@/features/canvas/model/paint";
 import { getActiveFillPresetForStoredValue } from "@/features/shell/settings/settings-fill-preset-match";
 import { SETTINGS_PREVIEW_TILE } from "@/features/shell/settings/SettingsPreviewTiles";
 import { SegmentTabs } from "@/features/shell/settings/settings-ui";
@@ -40,6 +41,7 @@ export function MobileBackgroundRailRow({ model }: MobileRailRowProps) {
   const modelRef = useLatestModel(model);
   const mode = railMode?.mode ?? sceneFillModeFromModel(model);
   const value = model.actualShapeSettings.cardFill;
+  const valueCss = paintToCss(value);
   const paperShader = model.actualBackgroundSettings.paperShader;
 
   const shaderDetail = useMobileLiveDetail({
@@ -58,7 +60,7 @@ export function MobileBackgroundRailRow({ model }: MobileRailRowProps) {
   });
   const applyBackground = (fill: Fill, css: string) => {
     const m = modelRef.current;
-    m.onShapeSettingsChange(applyCardFill(fill));
+    m.onShapeSettingsChange(applyCardFill(fill, m.actualShapeSettings.cardFill));
     m.controller?.onCanvasBackgroundTabChange?.("color");
     setSettingsSectionTab("background", backgroundFillTabName(css));
   };
@@ -131,7 +133,7 @@ export function MobileBackgroundRailRow({ model }: MobileRailRowProps) {
     );
   }
   const presets = fillPresetsForMode(mode);
-  const activePreset = getActiveFillPresetForStoredValue(value, presets);
+  const activePreset = getActiveFillPresetForStoredValue(valueCss, presets);
 
   return (
     <>
@@ -146,7 +148,7 @@ export function MobileBackgroundRailRow({ model }: MobileRailRowProps) {
                   <LazySettingsFillPicker
                     lockedFillMode={lockedFillModeForRailMode(mode)}
                     qrGradient
-                    value={value}
+                    value={valueCss}
                     onValueChange={(fill, css) => applyBackground(fill, css)}
                   />
                 </div>

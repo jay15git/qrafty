@@ -3,16 +3,17 @@ import {
   getCanvasFontById,
   resolveCanvasFont,
 } from "@/features/canvas/model/fonts";
+import { normalizePaint } from "@/features/canvas/model/paint";
 import {
   clamp,
+  DEFAULT_DRAFTING_TEXT_COLOR,
   DEFAULT_DRAFTING_TEXT_LAYER,
   isRecord,
+  legacyLayerFillPaint,
   normalizeHexColor,
-  normalizeShapeFillGradient,
   normalizeSharedCanvasLayerFields,
   readFiniteNumber,
   type CanvasLayer,
-  type CanvasShapeFillMode,
   type CanvasTextAlign,
   type CanvasTextFontWeight,
   type CanvasTextRun,
@@ -30,9 +31,9 @@ export function normalizeTextCanvasLayer(
 
   return {
     ...normalizeSharedCanvasLayerFields(context),
-    fill: normalizeHexColor(value.fill, fallback.fill ?? DEFAULT_DRAFTING_TEXT_LAYER.fill),
-    fillGradient: normalizeShapeFillGradient(value.fillGradient, fallback.fillGradient),
-    fillMode: normalizeTextFillMode(value.fillMode, fallback.fillMode),
+    fill:
+      legacyLayerFillPaint(value) ??
+      normalizePaint(value.fill, fallback.fill ?? DEFAULT_DRAFTING_TEXT_LAYER.fill),
     fontFamily: normalizeTextFontFamily(value, fallback),
     fontId: normalizeTextFontId(value, fallback),
     fontSize: clamp(
@@ -67,17 +68,6 @@ export function normalizeTextCanvasLayer(
         ? value.underline
         : (fallback.underline ?? DEFAULT_DRAFTING_TEXT_LAYER.underline),
   } satisfies CanvasLayer;
-}
-
-function normalizeTextFillMode(
-  value: unknown,
-  fallback: CanvasShapeFillMode | undefined,
-): CanvasShapeFillMode {
-  if (value === "gradient" || value === "solid") {
-    return value;
-  }
-
-  return fallback === "gradient" ? "gradient" : "solid";
 }
 
 function normalizeTextAlign(value: unknown, fallback: unknown): CanvasTextAlign {
@@ -178,7 +168,7 @@ function normalizeTextRunArray(value: unknown, text: string): CanvasTextRun[] | 
       return {
         fill:
           typeof run.fill === "string"
-            ? normalizeHexColor(run.fill, DEFAULT_DRAFTING_TEXT_LAYER.fill)
+            ? normalizeHexColor(run.fill, DEFAULT_DRAFTING_TEXT_COLOR)
             : undefined,
         fontFamily,
         fontId,

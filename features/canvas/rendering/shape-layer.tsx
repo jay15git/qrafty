@@ -32,14 +32,14 @@ function getShapeDefinition(shapeId: NonNullable<CanvasLayer["shapeId"]>) {
 }
 
 function getShapeFillStyle(layer: CanvasLayer): CSSProperties {
-  if (layer.fillMode === "none") {
+  if (!layer.fill || layer.fill.kind === "none") {
     return { backgroundColor: "transparent" };
   }
 
-  if (layer.fillMode === "image" && layer.imageValue) {
+  if (layer.fill.kind === "image" && layer.fill.image) {
     return {
       backgroundColor: "transparent",
-      backgroundImage: `url("${layer.imageValue}")`,
+      backgroundImage: `url("${layer.fill.image}")`,
       backgroundPosition: "center",
       backgroundRepeat: "no-repeat",
       backgroundSize: layer.imageFit ?? "cover",
@@ -56,11 +56,13 @@ function getShapePathFill(layer: CanvasLayer) {
 }
 
 function renderShapeGradientDefs(layer: CanvasLayer) {
-  if (!shouldRenderShapeFillGradient(layer) || !layer.fillGradient) {
+  const gradient = layer.fill?.kind === "gradient" ? layer.fill.gradient : undefined;
+
+  if (!shouldRenderShapeFillGradient(layer) || !gradient) {
     return null;
   }
 
-  return <ShapeFillGradientDefs gradient={layer.fillGradient} layerId={layer.id} />;
+  return <ShapeFillGradientDefs gradient={gradient} layerId={layer.id} />;
 }
 
 function renderPrimitiveShape(shapeId: "arrow" | "ellipse" | "line" | "rect", layer: CanvasLayer) {

@@ -1,4 +1,4 @@
-import type { CanvasCardShadowState, CanvasCardState } from "@/features/canvas/model/card-state";
+import type { CanvasCardShadowState } from "@/features/canvas/model/card-state";
 import {
   normalizeCanvasCardShadow,
   type CanvasCardPaperShaderState,
@@ -25,7 +25,15 @@ import {
 } from "@/features/canvas/model/filters";
 import { DEFAULT_DRAFTING_FONT_ID } from "@/features/canvas/model/fonts";
 import type { QrBackgroundShapeId } from "@/features/qr/styles/background-shapes";
-import { clampBackgroundShapeTilt, type QraftyGradient } from "@/features/qr/model/state";
+import { clampBackgroundShapeTilt } from "@/features/qr/model/state";
+import {
+  imagePaint,
+  nonePaint,
+  paintFromQraftyGradient,
+  solidPaint,
+  type Paint,
+} from "@/features/canvas/model/paint";
+import type { QraftyGradient } from "@/features/qr/model/state";
 import {
   cornerRadiiToLegacyRadius,
   normalizeCornerRadiiState,
@@ -37,7 +45,6 @@ import type { CanvasIllustrationColorStop } from "@/features/canvas/assets/illus
 export type CanvasLayerKind = "card" | "group" | "image" | "qr" | "shader" | "shape" | "text";
 export type CanvasImageSourceMode = "none" | "upload" | "url";
 export type CanvasImageFit = "contain" | "cover";
-export type CanvasShapeFillMode = "gradient" | "image" | "none" | "solid";
 export type CanvasShapePrimitiveId = "arrow" | "ellipse" | "line" | "rect";
 export type CanvasElementShapeId = CanvasShapePrimitiveId | Exclude<QrBackgroundShapeId, "none">;
 export type CanvasTextAlign = "center" | "left" | "right";
@@ -63,9 +70,7 @@ export type CanvasLayer = {
   kind: CanvasLayerKind;
   cornerRadius?: number;
   cornerRadii?: CanvasCornerRadiiState;
-  fill?: string;
-  fillGradient?: QraftyGradient;
-  fillMode?: CanvasShapeFillMode;
+  fill?: Paint;
   fontFamily?: string;
   fontId?: string;
   fontSize?: number;
@@ -124,8 +129,10 @@ export const DEFAULT_DRAFTING_LAYER_SHADOW: CanvasCardShadowState = {
   spread: 0,
   visible: false,
 };
+export const DEFAULT_DRAFTING_TEXT_COLOR = "#171717";
+
 export const DEFAULT_DRAFTING_TEXT_LAYER = {
-  fill: "#171717",
+  fill: solidPaint(DEFAULT_DRAFTING_TEXT_COLOR),
   fontFamily: "Satoshi",
   fontId: DEFAULT_DRAFTING_FONT_ID,
   fontSize: 32,
@@ -147,8 +154,7 @@ export const DEFAULT_DRAFTING_IMAGE_LAYER = {
 
 export const DEFAULT_DRAFTING_SHAPE_LAYER = {
   cornerRadius: 16,
-  fill: "#E8E8E8",
-  fillMode: "solid",
+  fill: solidPaint("#E8E8E8"),
   shapeId: "rounded-square",
   stroke: "#171717",
   strokeOpacity: 100,
@@ -422,56 +428,30 @@ export function normalizeImageSourceMode(
   return fallback ?? DEFAULT_DRAFTING_IMAGE_LAYER.imageSource;
 }
 
-export function normalizeShapeFillGradient(
-  value: unknown,
-  fallback: QraftyGradient | undefined,
-): QraftyGradient | undefined {
-  if (!isRecord(value)) {
-    return fallback;
-  }
-
-  const colorStops = Array.isArray(value.colorStops) ? value.colorStops : null;
-  if (!colorStops || colorStops.length < 2) {
-    return fallback;
-  }
-
-  const firstStop = colorStops[0];
-  const secondStop = colorStops[1];
-
-  if (!isRecord(firstStop) || !isRecord(secondStop)) {
-    return fallback;
-  }
-
-  return {
-    colorStops: [
-      {
-        color: typeof firstStop.color === "string" ? firstStop.color : "#111111",
-        offset: clamp(readFiniteNumber(firstStop.offset, 0), 0, 1),
-      },
-      {
-        color: typeof secondStop.color === "string" ? secondStop.color : "#ffffff",
-        offset: clamp(readFiniteNumber(secondStop.offset, 1), 0, 1),
-      },
-    ],
-    center:
-      isRecord(value.center) &&
-      typeof value.center.x === "number" &&
-      typeof value.center.y === "number"
-        ? {
-            x: clamp(value.center.x, 0, 1),
-            y: clamp(value.center.y, 0, 1),
-          }
-        : fallback?.center,
-    enabled: typeof value.enabled === "boolean" ? value.enabled : true,
-    rotation: readFiniteNumber(value.rotation, 0),
-    type: value.type === "radial" ? "radial" : "linear",
-  };
-}
-
 export function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
 }
 
 export function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+/**
+ * Fold the legacy `fillMode`/`fillGradient`/`imageValue` triple (pre-Paint
+ * serialized documents) into a Paint. Returns undefined for "solid"/unknown
+ * modes so callers fall back to the plain `fill` field.
+ */
+export function legacyLayerFillPaint(value: Record<string, unknown>): Paint | undefined {
+  if (value.fillMode === "gradient" && isRecord(value.fillGradient)) {
+    return paintFromQraftyGradient(value.fillGradient as QraftyGradient);
+  }
+  if (value.fillMode === "image" && typeof value.imageValue === "string" && value.imageValue) {
+    return imagePaint(value.imageValue);
+  }
+  if (value.fillMode === "none") {
+    return nonePaint(
+      typeof value.fill === "string" ? { kind: "solid", solid: value.fill } : undefined,
+    );
+  }
+  return undefined;
 }

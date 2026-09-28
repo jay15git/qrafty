@@ -7,7 +7,6 @@ import { patchCanvasLayer } from "@/features/canvas/model/layers/patch";
 import { createCanvasShapeLayer } from "@/features/canvas/model/layers/factories";
 import { patchShapeLayerFillFromPicker } from "@/features/canvas/rendering/layer-fill";
 import { CanvasShapeLayerContent } from "@/features/canvas/rendering/shape-layer";
-import { formatFill } from "@/components/ui/fill-picker/public-api";
 
 describe("CanvasShapeLayerContent", () => {
   it("renders decorative shapes from shapeId without a solid square backdrop", () => {
@@ -38,12 +37,12 @@ describe("CanvasShapeLayerContent", () => {
     const arrow = createCanvasShapeLayer("preview", "arrow");
 
     expect(line).toMatchObject({
-      fillMode: "none",
+      fill: { kind: "none" },
       shapeId: "line",
       strokeWidth: 4,
     });
     expect(arrow).toMatchObject({
-      fillMode: "none",
+      fill: { kind: "none" },
       shapeId: "arrow",
       strokeWidth: 4,
     });
@@ -51,36 +50,20 @@ describe("CanvasShapeLayerContent", () => {
 
   it("renders svg gradient defs for gradient shape fills", () => {
     const layer = createCanvasShapeLayer("preview", "flower");
-    const gradientCss = formatFill({
-      kind: "gradient",
-      gradient: {
-        type: "linear",
-        angle: 90,
-        interp: "oklch",
-        stops: [
-          { color: { l: 0.2, c: 0.05, h: 260, alpha: 1 }, position: 0 },
-          { color: { l: 0.85, c: 0.08, h: 40, alpha: 1 }, position: 1 },
-        ],
-      },
-    });
     const gradientLayer = patchCanvasLayer(
       layer,
-      patchShapeLayerFillFromPicker(
-        layer,
-        {
-          kind: "gradient",
-          gradient: {
-            type: "linear",
-            angle: 90,
-            interp: "oklch",
-            stops: [
-              { color: { l: 0.2, c: 0.05, h: 260, alpha: 1 }, position: 0 },
-              { color: { l: 0.85, c: 0.08, h: 40, alpha: 1 }, position: 1 },
-            ],
-          },
+      patchShapeLayerFillFromPicker(layer, {
+        kind: "gradient",
+        gradient: {
+          type: "linear",
+          angle: 90,
+          interp: "oklch",
+          stops: [
+            { color: { l: 0.2, c: 0.05, h: 260, alpha: 1 }, position: 0 },
+            { color: { l: 0.85, c: 0.08, h: 40, alpha: 1 }, position: 1 },
+          ],
         },
-        gradientCss,
-      ),
+      }),
     );
     const markup = renderToStaticMarkup(<CanvasShapeLayerContent layer={gradientLayer} />);
 

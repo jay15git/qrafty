@@ -1,18 +1,17 @@
 import { normalizeBorderStyle } from "@/features/canvas/model/effects";
-import type { QraftyGradient } from "@/features/qr/model/state";
+import { normalizePaint } from "@/features/canvas/model/paint";
 import {
   clamp,
   DEFAULT_DRAFTING_SHAPE_LAYER,
+  legacyLayerFillPaint,
   normalizeCanvasLayerBorderSides,
   normalizeHexColor,
   normalizeImageSourceMode,
   normalizeLayerCornerRadiusFields,
-  normalizeShapeFillGradient,
   normalizeSharedCanvasLayerFields,
   readFiniteNumber,
   type CanvasLayer,
   type CanvasElementShapeId,
-  type CanvasShapeFillMode,
   type CanvasShapePrimitiveId,
   type NormalizeCanvasLayerContext,
 } from "@/features/canvas/model/layers/shared";
@@ -26,9 +25,9 @@ export function normalizeShapeCanvasLayer(
     ...normalizeSharedCanvasLayerFields(context),
     borderSides: normalizeCanvasLayerBorderSides(value.borderSides, fallback.borderSides),
     ...normalizeLayerCornerRadiusFields(value, fallback, DEFAULT_DRAFTING_SHAPE_LAYER.cornerRadius),
-    fill: normalizeHexColor(value.fill, fallback.fill ?? DEFAULT_DRAFTING_SHAPE_LAYER.fill),
-    fillGradient: normalizeShapeFillGradient(value.fillGradient, fallback.fillGradient),
-    fillMode: normalizeShapeFillMode(value.fillMode, fallback.fillMode),
+    fill:
+      legacyLayerFillPaint(value) ??
+      normalizePaint(value.fill, fallback.fill ?? DEFAULT_DRAFTING_SHAPE_LAYER.fill),
     imageFit:
       value.imageFit === "contain" || value.imageFit === "cover"
         ? value.imageFit
@@ -59,17 +58,6 @@ export function normalizeShapeCanvasLayer(
       64,
     ),
   } satisfies CanvasLayer;
-}
-
-function normalizeShapeFillMode(
-  value: unknown,
-  fallback: CanvasShapeFillMode | undefined,
-): CanvasShapeFillMode {
-  if (value === "gradient" || value === "image" || value === "none" || value === "solid") {
-    return value;
-  }
-
-  return fallback ?? DEFAULT_DRAFTING_SHAPE_LAYER.fillMode;
 }
 
 const DRAFTING_SHAPE_PRIMITIVE_IDS = new Set<CanvasShapePrimitiveId>([

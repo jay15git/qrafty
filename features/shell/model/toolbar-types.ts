@@ -34,6 +34,7 @@ import {
 } from "@/features/qr/model/state";
 import { type QrInputType } from "@/features/qr/content/input-options";
 import type { ScanSafetyResult } from "@/features/qr/scan-safety/types";
+import type { Paint } from "@/features/canvas/model/paint";
 export type ComposeSidebarPanel = "wallpapers" | null;
 export type ToolbarToolId =
   | "layout"
@@ -124,7 +125,7 @@ export type ShapeColorMode = "solid" | "gradient";
 export type ShapeSettings = {
   backgroundShapeId: QrBackgroundShapeId;
   bottomSpace: number;
-  cardFill: string;
+  cardFill: Paint;
   cardHeight: number;
   cardRadius: number;
   cardWidth: number;

@@ -21,6 +21,7 @@ import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
 import { cloneCanvasLayer } from "@/features/canvas/model/layers/fallback";
 import type { CanvasCardState } from "@/features/canvas/model/card-state";
 import type { CanvasQrStateByLayerId } from "@/features/canvas/model/document";
+import { paintSolidColor } from "@/features/canvas/model/paint";
 import { DASHBOARD_QR_NODE_ID } from "@/features/qr/rendering/compose-scene";
 import type { QraftyState } from "@/features/qr/model/state";
 import type { VideoExportLongEdge } from "@/features/qr/export/video-export";
@@ -106,7 +107,7 @@ export function useWorkspaceExport({
 
       const targetDimensions = resolveTargetDimensions(cardLayer);
       const qualityPercent = state.rasterExportQualityPercent;
-      const backgroundColor = cardState.fill || "#ffffff";
+      const backgroundColor = paintSolidColor(cardState.fill, "#ffffff");
       const isVideoExport =
         exportMediaKind === "video" && sceneHasVideoExportContent(cardState, exportLayers, state);
 

@@ -22,6 +22,7 @@ import {
 import { type SnapGuides } from "@/features/canvas/components/canvas-layer-geometry";
 import { getCanvasCardBorderStyle } from "@/features/canvas/rendering/layer-dom-styles";
 import { cssFillToBackgroundStyle } from "@/features/canvas/model/css-fill-style";
+import { paintToCss } from "@/features/canvas/model/paint";
 import { useTouchPrimary } from "@/lib/hooks/use-touch-primary";
 import {
   getPreviewCameraStyle,
@@ -110,11 +111,11 @@ function resolveCardChrome(cardState: CanvasCardState) {
   const cardStyle: CSSProperties = {
     ...(isPaperShaderMode || isImageFilterMode || isImageMode
       ? { backgroundColor: "transparent" }
-      : cssFillToBackgroundStyle(cardState.fill)),
+      : cssFillToBackgroundStyle(paintToCss(cardState.fill))),
     ...cardImageStyle,
     ...getCanvasCardBorderStyle(cardState),
     borderRadius: cornerRadiiToCss(cardState.cornerRadii),
-    ...(hasTranslucentCardFill(cardState.fill) ? { backdropFilter: "blur(16px)" } : {}),
+    ...(hasTranslucentCardFill(paintToCss(cardState.fill)) ? { backdropFilter: "blur(16px)" } : {}),
   };
   const imageFilterShader = {
     ...cardState.imageFilter,

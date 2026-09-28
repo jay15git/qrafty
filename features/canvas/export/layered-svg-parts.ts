@@ -1,11 +1,11 @@
 import type { CanvasCardState } from "@/features/canvas/model/card-state";
 import {
   buildRoundedRectPath,
-  cornerRadiiToCss,
   resolveCornerRadii,
   resolveLayerCornerRadii,
 } from "@/features/canvas/model/corner-radius";
 import {
+  DEFAULT_DRAFTING_TEXT_COLOR,
   DEFAULT_DRAFTING_TEXT_LAYER,
   type CanvasLayer,
   type CanvasTextRun,
@@ -20,11 +20,10 @@ import {
   getShapeSvgPath,
 } from "@/features/canvas/rendering/shape-layer-paths";
 import {
-  cssFillToSvgPaint,
-  isConicCssFill,
-  rasterizeConicCssFillToDataUrl,
+  paintToSvgPaint,
+  rasterizeConicGradientToDataUrl,
 } from "@/features/canvas/export/svg-css-fill";
-import { qraftyGradientToFillCss } from "@/features/shell/settings/settings-bridge";
+import { paintSolidColor } from "@/features/canvas/model/paint";
 import { shouldRenderShapeFillGradient } from "@/features/canvas/rendering/layer-fill";
 import { QR_BACKGROUND_SHAPES } from "@/features/qr/styles/background-shapes";
 import {
@@ -215,8 +214,10 @@ function conicFillLayerMarkup(
 ) {
   const conicClipId = `${getSvgId(layer.id)}-conic-clip`;
   const conicSnapshot =
-    !options?.omitShaderLayers && isConicCssFill(cardState.fill)
-      ? rasterizeConicCssFillToDataUrl(cardState.fill, layer.width, layer.height)
+    !options?.omitShaderLayers &&
+    cardState.fill.kind === "gradient" &&
+    cardState.fill.gradient?.type === "conic"
+      ? rasterizeConicGradientToDataUrl(cardState.fill.gradient, layer.width, layer.height)
       : undefined;
   if (conicSnapshot && options?.clipDefs) {
     options.clipDefs.push(`<clipPath id="${conicClipId}"><path d="${cardPath}"/></clipPath>`);
@@ -274,7 +275,7 @@ function getCanvasCardLayerSvg(
   const cardPath = buildRoundedRectPath(layer.width, layer.height, cardRadii);
   const strokeClip =
     strokeWidth > 0 ? `<clipPath id="${borderClipId}"><path d="${cardPath}"/></clipPath>` : "";
-  const fillPaint = cssFillToSvgPaint(cardState.fill, `${getSvgId(layer.id)}-fill-gradient`);
+  const fillPaint = paintToSvgPaint(cardState.fill, `${getSvgId(layer.id)}-fill-gradient`);
   if (fillPaint.def && options?.clipDefs) {
     options.clipDefs.push(fillPaint.def);
   }
@@ -342,7 +343,8 @@ function getCanvasShapeLayerSvg(layer: CanvasLayer) {
   const filter = getCanvasLayerFilterAttr(layer);
   const shapeId = layer.shapeId ?? "rounded-square";
   const definition = QR_BACKGROUND_SHAPES.find((shape) => shape.id === shapeId);
-  const fill = layer.fillMode === "none" ? "none" : escapeXml(layer.fill ?? "#E8E8E8");
+  const fill =
+    layer.fill?.kind === "none" ? "none" : escapeXml(paintSolidColor(layer.fill, "#E8E8E8"));
   const strokeWidth = layer.strokeWidth ?? 0;
   const isStrokeOnlyShape = shapeId === "line" || shapeId === "arrow";
   const strokeClipId = `${getSvgId(layer.id)}-stroke-clip`;
@@ -410,12 +412,9 @@ function getCanvasTextLayerSvg(layer: CanvasLayer, options?: Pick<LayeredSvgOpti
     layer.textRuns?.map((run) => run.text).join("") === (layer.text ?? "");
 
   const fillPaint =
-    shouldRenderShapeFillGradient(layer) && layer.fillGradient
-      ? cssFillToSvgPaint(
-          qraftyGradientToFillCss(layer.fillGradient),
-          `${getSvgId(layer.id)}-text-fill-gradient`,
-        )
-      : { def: "", fill: layer.fill ?? DEFAULT_DRAFTING_TEXT_LAYER.fill };
+    shouldRenderShapeFillGradient(layer) && layer.fill?.kind === "gradient"
+      ? paintToSvgPaint(layer.fill, `${getSvgId(layer.id)}-text-fill-gradient`)
+      : { def: "", fill: paintSolidColor(layer.fill, DEFAULT_DRAFTING_TEXT_COLOR) };
   if (fillPaint.def && options?.clipDefs) {
     options.clipDefs.push(fillPaint.def);
   }

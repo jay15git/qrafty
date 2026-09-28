@@ -59,6 +59,7 @@ import { createCanvasQrArtworkState } from "@/features/canvas/rendering/qr-artwo
 import type { CanvasQrStateByLayerId } from "@/features/canvas/model/document";
 import type { CanvasCardState } from "@/features/canvas/model/card-state";
 import { clearCanvasQrMarkupCache } from "@/features/canvas/hooks/use-canvas-qr-markup";
+import { solidPaint } from "@/features/canvas/model/paint";
 
 const cleanupCallbacks: Array<() => void> = [];
 
@@ -263,7 +264,7 @@ describe("Artboard", () => {
         width: 6,
       },
       cornerRadius: 24,
-      fill: "#ffcc00",
+      fill: solidPaint("#ffcc00"),
       styleMode: "solid",
       padding: 20,
       shadow: {
@@ -331,7 +332,7 @@ describe("Artboard", () => {
     };
     const cardState = {
       ...createDefaultCanvasCardState(),
-      fill: "#ffffff",
+      fill: solidPaint("#ffffff"),
       shadow: {
         ...DEFAULT_DRAFTING_LAYER_SHADOW,
         blur: 30,
@@ -932,7 +933,7 @@ describe("Artboard", () => {
     const onLayerChange = vi.fn();
     const onLayerSelect = vi.fn();
     const textLayer = createCanvasTextLayer("preview", {
-      fill: "#123456",
+      fill: solidPaint("#123456"),
       fontFamily: "Manrope",
       fontSize: 38,
       id: "preview:text",

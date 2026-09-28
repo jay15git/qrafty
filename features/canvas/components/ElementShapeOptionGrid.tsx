@@ -108,7 +108,7 @@ export function ElementShapeOptionGrid({
   onSelect,
   optionsDataSlot,
   selectedShapeId = DEFAULT_DRAFTING_SHAPE_LAYER.shapeId,
-  shapeFill = DEFAULT_DRAFTING_SHAPE_LAYER.fill ?? "#18181b",
+  shapeFill = DEFAULT_DRAFTING_SHAPE_LAYER.fill.solid ?? "#18181b",
   variant,
 }: ElementShapeOptionGridProps) {
   if (variant === "settings") {

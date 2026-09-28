@@ -19,6 +19,7 @@ import {
   SECTION_STACK,
 } from "@/features/shell/settings/sections/shared";
 import { applyShapeFill, readShapeFillCss } from "@/features/shell/settings/settings-bridge";
+import { paintFromCss } from "@/features/canvas/model/paint";
 import { SettingsLabeledSelect, SettingsSlider } from "@/features/shell/settings/settings-ui";
 import { SETTINGS_PREVIEW_TILE_FLUID } from "@/features/shell/settings/SettingsPreviewTiles";
 import { SettingsThemeContext } from "@/features/shell/settings/theme-context";
@@ -162,7 +163,7 @@ export function CardSection({ model }: { model: SettingsModel }) {
   const { actualShapeSettings, onShapeSettingsChange } = model;
   const cardFill = readShapeFillCss(actualShapeSettings);
   const [fillMode, setFillMode] = useState<BackgroundFillModeTab>(() =>
-    backgroundFillModeTab(cardFill),
+    backgroundFillModeTab(paintFromCss(cardFill)),
   );
 
   return (

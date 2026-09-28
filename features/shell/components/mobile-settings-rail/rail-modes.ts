@@ -68,14 +68,15 @@ export function sceneFillModeFromModel(model: SettingsModel): string {
   if (styleMode === "paper-shader") {
     return "shader";
   }
-  const css = model.actualShapeSettings.cardFill;
-  if (css.startsWith("radial-gradient")) {
-    return "radial";
+  const fill = model.actualShapeSettings.cardFill;
+  if (fill.kind !== "gradient") {
+    return "solid";
   }
-  if (css.startsWith("linear-gradient")) {
-    return "linear";
-  }
-  return "solid";
+  return fill.gradient?.type === "radial"
+    ? "radial"
+    : fill.gradient?.type === "linear"
+      ? "linear"
+      : "solid";
 }
 
 /** The mode a family's pills should light up before anything is browsed. */

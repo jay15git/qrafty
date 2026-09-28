@@ -13,6 +13,7 @@ import {
   type CanvasCornerRadiiState,
 } from "@/features/canvas/model/corner-radius";
 import { getCanvasSizeFromTemplate, getSizeTemplate } from "@/features/canvas/model/size-templates";
+import { normalizePaint, solidPaint, type Paint } from "@/features/canvas/model/paint";
 import {
   createDefaultPaperShaderParams,
   DEFAULT_PAPER_SHADER_ID,
@@ -93,7 +94,7 @@ export type CanvasCardState = {
   cornerRadius: number;
   cornerRadii: CanvasCornerRadiiState;
   enabled: boolean;
-  fill: string;
+  fill: Paint;
   height: number;
   imageFilter: CanvasCardPaperShaderState;
   lockAspectRatio: boolean;
@@ -130,7 +131,7 @@ function buildDefaultCanvasCardState(): CanvasCardState {
     cornerRadius: 28,
     cornerRadii: createUniformCornerRadii(28),
     enabled: true,
-    fill: "#ffd80a",
+    fill: solidPaint("#ffd80a"),
     height: 1080,
     imageFilter: createDefaultCanvasCardPaperShader("image-dithering"),
     lockAspectRatio: true,
@@ -212,7 +213,7 @@ export function normalizeCanvasCardState(
     cornerRadius: cornerRadiiToLegacyRadius(cornerRadii),
     cornerRadii,
     enabled: state.enabled ?? fallback.enabled,
-    fill: state.fill ?? fallback.fill,
+    fill: normalizePaint(state.fill, fallback.fill) ?? fallback.fill,
     height: clampCardSize(resolvedHeight, fallback.height),
     imageFilter: state.imageFilter
       ? cloneCanvasCardPaperShaderState(state.imageFilter)

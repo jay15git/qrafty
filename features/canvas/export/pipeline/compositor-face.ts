@@ -1,6 +1,6 @@
 import type { CanvasCardState } from "@/features/canvas/model/card-state";
 import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
-import { isConicCssFill } from "@/features/canvas/export/svg-css-fill";
+import { isConicPaintFill } from "@/features/canvas/export/svg-css-fill";
 
 export function resolveCardShaderMode(cardState: CanvasCardState) {
   return cardState.styleMode === "paper-shader" || cardState.styleMode === "image-filter";
@@ -23,7 +23,7 @@ export function cardLayerNeedsCanvasFace(layer: CanvasLayer, cardState: CanvasCa
     return true;
   }
 
-  return cardState.styleMode === "solid" && isConicCssFill(cardState.fill);
+  return cardState.styleMode === "solid" && isConicPaintFill(cardState.fill);
 }
 
 export function computeObjectFitRect(

@@ -9,6 +9,7 @@ import {
 import { getActiveFillPresetForStoredValue } from "@/features/shell/settings/settings-fill-preset-match";
 import { SETTINGS_FILL_PRESETS } from "@/features/shell/settings/settings-fill-presets";
 import { DEFAULT_DESKTOP_SHAPE_SETTINGS } from "@/features/shell/model/toolbar-defaults";
+import { paintToCss } from "@/features/canvas/model/paint";
 
 function readStoredShapeFillCss(preset: string) {
   const fill = parseFill(preset);
@@ -40,7 +41,7 @@ describe("settings fill option grid preset matching", () => {
       }
 
       const stored = applyCardFill(fill).cardFill;
-      const active = getActiveFillPresetForStoredValue(stored);
+      const active = getActiveFillPresetForStoredValue(paintToCss(stored));
 
       expect(active).toBe(preset);
     });

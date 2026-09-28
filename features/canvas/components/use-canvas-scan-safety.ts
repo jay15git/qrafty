@@ -13,6 +13,7 @@ import { previewSession } from "@/features/canvas/preview/preview-session";
 import { DASHBOARD_QR_NODE_ID } from "@/features/qr/rendering/compose-scene";
 import { useQrScanSafety } from "@/features/qr/hooks/use-qr-scan-safety";
 import type { QraftyState } from "@/features/qr/model/state";
+import { paintSolidColor } from "@/features/canvas/model/paint";
 
 type ResolveTargetDimensions = (cardLayer: CanvasLayer) => OutputDimensions | undefined;
 
@@ -101,7 +102,7 @@ export function useCanvasScanSafety({
     () =>
       scanSafetyCardLayer
         ? {
-            backgroundColor: selectedCardState.fill || "#ffffff",
+            backgroundColor: paintSolidColor(selectedCardState.fill, "#ffffff"),
             cardState: selectedCardState,
             extension: selectedDownloadExtension,
             layers: scanSafetyLayers,

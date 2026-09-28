@@ -1,6 +1,7 @@
 "use client";
 
 import type { Fill } from "@/components/ui/fill-picker/public-api";
+import type { Paint } from "@/features/canvas/model/paint";
 import { SettingsFillPresetSection } from "@/features/shell/settings/settings-ui";
 import {
   SETTINGS_FILL_LINEAR_PRESETS,
@@ -13,9 +14,10 @@ export const SECTION_STACK = "ds-section-stack";
 export const BACKGROUND_FILL_MODE_TABS = ["Solid", "Linear", "Radial"] as const;
 export type BackgroundFillModeTab = (typeof BACKGROUND_FILL_MODE_TABS)[number];
 
-export function backgroundFillModeTab(fill: string): BackgroundFillModeTab {
-  if (fill.startsWith("radial-gradient")) return "Radial";
-  if (fill.startsWith("linear-gradient")) return "Linear";
+export function backgroundFillModeTab(fill: Paint): BackgroundFillModeTab {
+  if (fill.kind !== "gradient") return "Solid";
+  if (fill.gradient?.type === "radial") return "Radial";
+  if (fill.gradient?.type === "linear") return "Linear";
   return "Solid";
 }
 
