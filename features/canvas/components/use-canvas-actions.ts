@@ -16,10 +16,6 @@ import {
   type CanvasWorkspaceDocumentV1,
 } from "@/features/canvas/model/document";
 import {
-  cloneSceneCompositionByNodeId,
-  createDefaultSceneCompositionByNodeId,
-} from "@/features/canvas/model/apply-scene-template";
-import {
   buildCanvasWorkspaceDocumentFromState,
   resolveActiveQrLayerIdFromLayers,
 } from "@/features/canvas/components/canvas-document";
@@ -86,7 +82,6 @@ export function useCanvasActions({
     contentValuesByType,
     layerStateByNodeId,
     qrStateByLayerId,
-    sceneCompositionByNodeId,
     selectedCardState,
     selectedContentType,
     selectedDownloadExtension,
@@ -114,7 +109,6 @@ export function useCanvasActions({
     setLayerStateByNodeId,
     setQrStateByLayerId,
     setQrStateByNodeId,
-    setSceneCompositionByNodeId,
     setSelectedCardState,
     setSelectedContentType,
   } = setters;
@@ -164,7 +158,6 @@ export function useCanvasActions({
       canvasQraftyState,
       layerStateByNodeId,
       qrStateByLayerId,
-      sceneCompositionByNodeId,
       selectedCardState,
       selectedContentType,
     ],
@@ -287,7 +280,6 @@ export function useCanvasActions({
       canvasQraftyState,
       layerStateByNodeId,
       qrStateByLayerId,
-      sceneCompositionByNodeId,
       selectedCardState,
       selectedContentType,
     });
@@ -351,12 +343,6 @@ export function useCanvasActions({
     setLayerStateByNodeId({
       [activeNodeId]: layers,
     });
-    setSceneCompositionByNodeId(
-      cloneSceneCompositionByNodeId(
-        nextDocument.sceneCompositionByNodeId ??
-          createDefaultSceneCompositionByNodeId(nextDocument),
-      ),
-    );
     setContentTypeByLayerId(structuredClone(nextDocument.contentTypeByLayerId));
     setContentTypeByNodeId(structuredClone(nextDocument.contentTypeByNodeId));
     setSelectedContentType(nextDocument.selectedContentType);

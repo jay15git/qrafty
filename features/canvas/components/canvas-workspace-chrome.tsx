@@ -28,11 +28,9 @@ import {
   getChromeFrameRect,
   getFloatingLayerToolbarPosition,
 } from "@/features/canvas/components/canvas-layer-chrome-overlay";
-import { SceneCompositionTransform } from "@/features/canvas/components/SceneBackgroundLayer";
 import { CanvasDocumentCardLayer } from "@/features/canvas/components/CanvasLayerViews";
 import { cornerRadiiToCss } from "@/features/canvas/model/corner-radius";
 import type { CanvasCardState } from "@/features/canvas/model/card-state";
-import type { SceneCompositionState } from "@/features/canvas/model/scene-templates";
 import type { PreviewStageSize } from "@/features/canvas/preview/preview-camera";
 import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
 import type { ThemeMode } from "@/features/shell/components/WorkspaceChrome";
@@ -533,7 +531,6 @@ export type CanvasWorkspaceContentProps = CanvasChromeOverlayProps & {
   previewStageBorderRadius: string;
   previewStageSize: PreviewStageSize;
   renderLayerView: (layer: CanvasLayer) => ReactNode;
-  sceneLayout: SceneCompositionState["layout"];
   visibleLayers: CanvasLayer[];
 };
 
@@ -554,7 +551,6 @@ export function CanvasWorkspaceContent(props: CanvasWorkspaceContentProps) {
     previewStageBorderRadius,
     previewStageSize,
     renderLayerView,
-    sceneLayout,
     visibleLayers,
   } = props;
 
@@ -591,22 +587,18 @@ export function CanvasWorkspaceContent(props: CanvasWorkspaceContentProps) {
                   layer={layer}
                 />
               ))}
-              <SceneCompositionTransform layout={sceneLayout}>
-                <div
-                  className="relative h-full w-full"
-                  data-slot="canvas-content-zoom"
-                  style={contentTransformStyle}
-                >
-                  {props.contentLayers.map((layer) => renderLayerView(layer))}
-                </div>
-              </SceneCompositionTransform>
+              <div
+                className="relative h-full w-full"
+                data-slot="canvas-content-zoom"
+                style={contentTransformStyle}
+              >
+                {props.contentLayers.map((layer) => renderLayerView(layer))}
+              </div>
             </div>
           ) : (
-            <SceneCompositionTransform layout={sceneLayout}>
-              <div className="relative h-full w-full" data-export-root>
-                {visibleLayers.map((layer) => renderLayerView(layer))}
-              </div>
-            </SceneCompositionTransform>
+            <div className="relative h-full w-full" data-export-root>
+              {visibleLayers.map((layer) => renderLayerView(layer))}
+            </div>
           )}
         </div>
       </div>

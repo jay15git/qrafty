@@ -3,8 +3,6 @@ import type { SceneIr, SceneIrFontRef } from "@qrafty/qr-internal/codegen";
 import type { QraftyState } from "@/features/qr/model/state";
 import type { CanvasCardState } from "@/features/canvas/model/card-state";
 import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
-import type { SceneCompositionState } from "@/features/canvas/model/scene-templates";
-import type { SceneBackground } from "@/features/canvas/model/scene-templates";
 import {
   buildLayeredSvgParts,
   type LayeredSvgParts,
@@ -20,7 +18,6 @@ import {
 export type BuildSceneIrOptions = {
   cardState: CanvasCardState;
   layers: CanvasLayer[];
-  sceneComposition?: SceneCompositionState;
   state: QraftyState;
   qrMarkup: string;
   componentName?: string;
@@ -59,7 +56,6 @@ function collectFontRefs(layers: CanvasLayer[]): SceneIrFontRef[] {
 export async function buildSceneIr({
   cardState,
   layers,
-  sceneComposition,
   state,
   qrMarkup,
   componentName,

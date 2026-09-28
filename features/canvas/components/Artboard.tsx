@@ -13,7 +13,6 @@ type ArtboardProps = CanvasWorkspaceProps;
 
 const PANE_MEMO_COMPARE_KEYS = [
   "cardState",
-  "sceneComposition",
   "isSelected",
   "viewFitScale",
   "contentOnlyZoom",

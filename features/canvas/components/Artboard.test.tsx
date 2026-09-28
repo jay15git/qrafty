@@ -56,7 +56,6 @@ import {
 } from "@/features/qr/model/state";
 import { renderDashboardQrSvgMarkup } from "@/features/qr/rendering/qr-svg";
 import { createCanvasQrArtworkState } from "@/features/canvas/rendering/qr-artwork";
-import { createDefaultSceneComposition } from "@/features/canvas/model/scene-templates";
 import type { CanvasQrStateByLayerId } from "@/features/canvas/model/document";
 import type { CanvasCardState } from "@/features/canvas/model/card-state";
 import { clearCanvasQrMarkupCache } from "@/features/canvas/hooks/use-canvas-qr-markup";
@@ -166,18 +165,13 @@ describe("Artboard", () => {
     const layers = createDefaultCanvasLayers(nodeId, state, cardState);
     const { container } = renderArtboard(state, false, cardState, {
       layers,
-      sceneComposition: createDefaultSceneComposition(),
     });
 
     await waitForQrArtboardRender();
 
     const card = container.querySelector('[data-slot="canvas-card"]');
-    const sceneBackground = card?.querySelector('[data-slot="scene-background-layer"]');
-    const artboard = container.querySelector('[data-slot="canvas-artboard"]');
 
     expect(card).not.toBeNull();
-    expect(sceneBackground).toBeNull();
-    expect(artboard?.querySelector(':scope > [data-slot="scene-background-layer"]')).toBeNull();
   });
 
   it("lets the qr canvas fill the preview board", async () => {
@@ -2365,7 +2359,6 @@ function renderArtboard(
     snapEnabled?: boolean;
     viewFitScale?: number;
     interactionScale?: number;
-    sceneComposition?: import("@/features/canvas/model/scene-templates").SceneCompositionState;
   } = {},
 ) {
   const container = document.createElement("div");
@@ -2389,7 +2382,6 @@ function renderArtboard(
         onLayerSelectionChange={props.onLayerSelectionChange}
         onQrClick={() => undefined}
         onSelect={() => undefined}
-        sceneComposition={props.sceneComposition}
         selectedLayerId={props.selectedLayerId}
         selectedLayerIds={props.selectedLayerIds}
         snapEnabled={props.snapEnabled}

@@ -38,7 +38,6 @@ type CanvasProps = {
   selectedLayerIds?: string[];
   toolbarVariant?: CanvasBoardToolbarVariant;
   layerEditingEnabled?: boolean;
-  previewLocked?: boolean;
   fitCanvasToViewport?: boolean;
   theme?: ThemeMode;
 };
@@ -65,7 +64,6 @@ export function Canvas({
   selectedLayerIds,
   toolbarVariant = "default",
   layerEditingEnabled = true,
-  previewLocked = false,
   fitCanvasToViewport = false,
   theme,
 }: CanvasProps) {
@@ -126,7 +124,6 @@ export function Canvas({
             board={activeBoard}
             boardPan={panOffsets[activeBoard.id] ?? { x: 0, y: 0 }}
             boardZoom={zoomLevels[activeBoard.id] ?? 1}
-            previewLocked={previewLocked}
             selectedLayerId={selectedLayerId}
             selectedLayerIds={selectedLayerIds}
             snapEnabled

@@ -65,7 +65,6 @@ describe("Canvas", () => {
     const workspace = renderWorkspace({
       layerEditingEnabled: true,
       boardCount: 1,
-      previewLocked: false,
       toolbarVariant: "zoom",
     });
     const [board] = getBoardCanvases(workspace.container, 1);
@@ -75,43 +74,9 @@ describe("Canvas", () => {
     });
 
     expect(board.getAttribute("data-canvas-appearance")).toBe("workspace");
-    expect(board.getAttribute("data-preview-locked")).toBe("false");
     expect(board.className).toContain("bg-[var(--canvas-bg,#f0f1f2)]");
     expect(board.querySelector('[data-slot="free-edit-artboard"]')).not.toBeNull();
     expect(workspace.container.querySelector('[data-slot="resize-toolbar"]')).toBeNull();
-  });
-
-  it("blocks preview wheel zoom when preview is locked", async () => {
-    const workspace = renderWorkspace({
-      boardCount: 1,
-      previewLocked: true,
-      toolbarVariant: "zoom",
-    });
-    const [board] = getBoardCanvases(workspace.container, 1);
-    const viewport = board.querySelector('[data-slot="template-edit-zone"]') as HTMLElement;
-
-    expect(board.getAttribute("data-preview-locked")).toBe("true");
-    expect(workspace.container.querySelector('[data-slot="resize-toolbar"]')).toBeNull();
-    expect(workspace.container.querySelector('button[aria-label="Pan canvas"]')).toBeNull();
-
-    await act(async () => {
-      await flushPromises();
-    });
-
-    const transformBefore = viewport.style.transform;
-
-    await act(async () => {
-      board.dispatchEvent(
-        new WheelEvent("wheel", {
-          bubbles: true,
-          cancelable: true,
-          deltaY: -100,
-        }),
-      );
-      await flushPromises();
-    });
-
-    expect(viewport.style.transform).toBe(transformBefore);
   });
 
   it("zooms the active preview with the mouse wheel", async () => {
@@ -476,7 +441,6 @@ function renderWorkspace({
   selectedLayerIds,
   toolbarVariant,
   layerEditingEnabled,
-  previewLocked,
 }: {
   activeCanvasTool?: ComponentProps<typeof Canvas>["activeCanvasTool"];
   onCanvasToolChange?: ComponentProps<typeof Canvas>["onCanvasToolChange"];
@@ -488,7 +452,6 @@ function renderWorkspace({
   selectedLayerIds?: ComponentProps<typeof Canvas>["selectedLayerIds"];
   toolbarVariant?: ComponentProps<typeof Canvas>["toolbarVariant"];
   layerEditingEnabled?: ComponentProps<typeof Canvas>["layerEditingEnabled"];
-  previewLocked?: ComponentProps<typeof Canvas>["previewLocked"];
 } = {}) {
   const container = document.createElement("div");
   const root = createRoot(container);
@@ -508,7 +471,6 @@ function renderWorkspace({
         selectedLayerIds={selectedLayerIds}
         toolbarVariant={toolbarVariant}
         layerEditingEnabled={layerEditingEnabled}
-        previewLocked={previewLocked}
       />,
     );
   }

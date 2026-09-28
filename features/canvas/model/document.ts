@@ -3,10 +3,6 @@ import { cloneCanvasLayerStateByNodeId } from "@/features/canvas/model/layers/fa
 import type { CanvasLayerStateByNodeId } from "@/features/canvas/model/layers/shared";
 import { createDefaultQraftyState, type QraftyState } from "@/features/qr/model/state";
 import { type QrInputType } from "@/features/qr/content/input-options";
-import {
-  cloneSceneCompositionByNodeId,
-  type SceneCompositionByNodeId,
-} from "@/features/canvas/model/apply-scene-template";
 import { type StaticQrContentValues } from "@/features/qr/content/static-payload";
 
 export type CanvasQrStateByNodeId = Record<string, QraftyState>;
@@ -26,7 +22,6 @@ export type CanvasWorkspaceDocumentV1 = {
   qrOrder: string[];
   qrStateByLayerId: CanvasQrStateByLayerId;
   qrStateByNodeId: CanvasQrStateByNodeId;
-  sceneCompositionByNodeId: SceneCompositionByNodeId;
   selectedContentType: QrInputType;
   version: 1;
 };
@@ -62,7 +57,6 @@ export function cloneCanvasWorkspaceDocument(
         cloneCanvasQrState(state),
       ]),
     ),
-    sceneCompositionByNodeId: cloneSceneCompositionByNodeId(document.sceneCompositionByNodeId),
     selectedContentType: document.selectedContentType,
     version: 1,
   };

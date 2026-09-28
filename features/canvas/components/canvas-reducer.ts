@@ -24,8 +24,6 @@ import {
   type CanvasQrStateByLayerId,
   type CanvasQrStateByNodeId,
 } from "@/features/canvas/model/document";
-import type { SceneCompositionByNodeId } from "@/features/canvas/model/apply-scene-template";
-import { createDefaultSceneComposition } from "@/features/canvas/model/scene-templates";
 import {
   DEFAULT_DRAFTING_PANE_QR_SIZE,
   DEFAULT_DRAFTING_STUDIO_STATE,
@@ -134,7 +132,6 @@ export type CanvasSurfaceState = {
   qrStateByNodeId: CanvasQrStateByNodeId;
   selectedCardState: CanvasCardState;
   cardStateByNodeId: CanvasCardStateByNodeId;
-  sceneCompositionByNodeId: SceneCompositionByNodeId;
   layerStateByNodeId: CanvasLayerStateByNodeId;
   selectedLayerId: string | null;
   selectedLayerIds: string[];
@@ -302,9 +299,6 @@ function createInitialCanvasSurfaceState(initialActiveTool?: ToolbarToolId): Can
     cardStateByNodeId: {
       [DASHBOARD_QR_NODE_ID]: defaultCardState,
     },
-    sceneCompositionByNodeId: {
-      [DASHBOARD_QR_NODE_ID]: createDefaultSceneComposition(),
-    },
     layerStateByNodeId: {
       [DASHBOARD_QR_NODE_ID]: createDefaultCanvasLayers(
         DASHBOARD_QR_NODE_ID,
@@ -439,7 +433,6 @@ function createCanvasSurfaceSetters(dispatch: Dispatch<CanvasSurfaceAction>): Ca
     setQrStateByNodeId: (value) => setField("qrStateByNodeId", value),
     setSelectedCardState: (value) => setField("selectedCardState", value),
     setCardStateByNodeId: (value) => setField("cardStateByNodeId", value),
-    setSceneCompositionByNodeId: (value) => setField("sceneCompositionByNodeId", value),
     setLayerStateByNodeId: (value) => setField("layerStateByNodeId", value),
     setSelectedLayerId: (value) => setField("selectedLayerId", value),
     setSelectedLayerIds: (value) => setField("selectedLayerIds", value),

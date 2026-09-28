@@ -5,7 +5,6 @@ import { mergeLiveQrStateByLayerId } from "@/features/canvas/components/canvas-d
 import type { CanvasSurfaceState } from "@/features/canvas/components/canvas-reducer";
 import {
   resolveActiveCanvasLayers,
-  resolveActiveSceneComposition,
   resolveAppearanceSnapshot,
   resolveCanRemoveQrCode,
   resolveLayerTargets,
@@ -39,16 +38,11 @@ export function useCanvasBoards({
     activeQrNodeId,
     layerStateByNodeId,
     qrStateByLayerId,
-    sceneCompositionByNodeId,
     selectedCardState,
     selectedLayerId,
     selectedLayerIds,
   } = state;
 
-  const activeSceneComposition = resolveActiveSceneComposition(
-    sceneCompositionByNodeId,
-    activeQrNodeId,
-  );
   const activeCanvasLayers = resolveActiveCanvasLayers(
     layerStateByNodeId,
     activeQrNodeId,
@@ -95,7 +89,6 @@ export function useCanvasBoards({
         layers: activeCanvasLayers,
         name: "QR Code",
         qrStateByLayerId: mergedQrStateByLayerId,
-        sceneComposition: activeSceneComposition,
         state: canvasQraftyState,
       },
     ];
@@ -103,7 +96,6 @@ export function useCanvasBoards({
     activeCanvasLayers,
     activeQrLayerId,
     activeQrNodeId,
-    activeSceneComposition,
     canvasQraftyState,
     qrStateByLayerId,
     selectedCardState,
@@ -132,7 +124,6 @@ export function useCanvasBoards({
   return {
     activeCanvasLayerRows,
     activeCanvasLayers,
-    activeSceneComposition,
     appearanceTargetLayer,
     boards,
     canExportVideo,

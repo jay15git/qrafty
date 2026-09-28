@@ -1,4 +1,4 @@
-export const TEMPLATE_PREVIEW_FIT_PADDING = 48;
+export const CANVAS_FIT_PADDING = 48;
 export const DESKTOP_CANVAS_FIT_PADDING = 20;
 export const DESKTOP_ARTBOARD_VIEW_INSETS = {
   top: 24,
@@ -15,23 +15,21 @@ export const MOBILE_ARTBOARD_VIEW_INSETS = {
   left: 16,
 } as const;
 
-export type TemplatePreviewFitInsets = {
+export type CanvasFitInsets = {
   bottom: number;
   left: number;
   right: number;
   top: number;
 };
 
-export type TemplatePreviewFitOptions = {
+export type CanvasFitOptions = {
   allowUpscale?: boolean;
-  insets?: Partial<TemplatePreviewFitInsets>;
+  insets?: Partial<CanvasFitInsets>;
   padding?: number;
 };
 
-function resolveTemplatePreviewFitInsets(
-  options: TemplatePreviewFitOptions,
-): TemplatePreviewFitInsets {
-  const padding = options.padding ?? TEMPLATE_PREVIEW_FIT_PADDING;
+function resolveCanvasFitInsets(options: CanvasFitOptions): CanvasFitInsets {
+  const padding = options.padding ?? CANVAS_FIT_PADDING;
 
   return {
     top: options.insets?.top ?? padding,
@@ -41,12 +39,12 @@ function resolveTemplatePreviewFitInsets(
   };
 }
 
-export function computeTemplatePreviewFit(
+export function computeCanvasFit(
   card: { height: number; width: number },
   viewport: { height: number; width: number },
-  options: TemplatePreviewFitOptions = {},
+  options: CanvasFitOptions = {},
 ): number {
-  const insets = resolveTemplatePreviewFitInsets(options);
+  const insets = resolveCanvasFitInsets(options);
   const availableWidth = Math.max(1, viewport.width - insets.left - insets.right);
   const availableHeight = Math.max(1, viewport.height - insets.top - insets.bottom);
   const cardWidth = Math.max(1, card.width);

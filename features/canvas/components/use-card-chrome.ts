@@ -22,7 +22,6 @@ import {
 import { type SnapGuides } from "@/features/canvas/components/canvas-layer-geometry";
 import { getCanvasCardBorderStyle } from "@/features/canvas/rendering/layer-dom-styles";
 import { cssFillToBackgroundStyle } from "@/features/canvas/model/css-fill-style";
-import { type SceneCompositionState } from "@/features/canvas/model/scene-templates";
 import { useTouchPrimary } from "@/lib/hooks/use-touch-primary";
 import {
   getPreviewCameraStyle,
@@ -90,12 +89,6 @@ function buildChromeSpace(
   };
 }
 
-function resolveSceneLayoutZoom(sceneComposition: SceneCompositionState) {
-  return Number.isFinite(sceneComposition.layout.zoom) && sceneComposition.layout.zoom > 0
-    ? sceneComposition.layout.zoom
-    : 1;
-}
-
 function resolveSnapGuideClipBounds(visibleLayers: CanvasLayer[], chromeSpace: ChromeSpace) {
   const snapGuideClipLayer = visibleLayers.find((layer) => layer.kind === "card") ?? null;
   return snapGuideClipLayer ? getChromeFrameRect(snapGuideClipLayer, 0, chromeSpace) : null;
@@ -151,7 +144,6 @@ export type CanvasCardChromeInput = {
   contentOnlyZoom: boolean;
   contentPan?: { x: number; y: number };
   interactionScale: number;
-  sceneComposition: SceneCompositionState;
   selectedVisibleLayerIds: string[];
   snapGuides: SnapGuides;
   viewFitScale: number;
@@ -164,7 +156,6 @@ export function useCardChrome({
   contentOnlyZoom,
   contentPan,
   interactionScale,
-  sceneComposition,
   selectedVisibleLayerIds,
   snapGuides,
   viewFitScale,
@@ -275,8 +266,7 @@ export function useCardChrome({
     horizontal: snapGuides.horizontal.map((y) => documentToChromeOffset(0, y, chromeSpace).y),
     vertical: snapGuides.vertical.map((x) => documentToChromeOffset(x, 0, chromeSpace).x),
   };
-  const sceneLayoutZoom = resolveSceneLayoutZoom(sceneComposition);
-  const qrOverlayScale = getChromeVisualScale(chromeSpace) * sceneLayoutZoom;
+  const qrOverlayScale = getChromeVisualScale(chromeSpace);
   const snapGuideClipBounds = resolveSnapGuideClipBounds(visibleLayers, chromeSpace);
 
   useLayoutEffect(() => {

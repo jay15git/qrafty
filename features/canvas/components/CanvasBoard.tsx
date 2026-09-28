@@ -30,7 +30,6 @@ export type CanvasBoardPane = {
   layers?: CanvasLayer[];
   name: string;
   qrStateByLayerId: CanvasQrStateByLayerId;
-  sceneComposition?: import("@/features/canvas/model/scene-templates").SceneCompositionState;
   state: QraftyState;
 };
 
@@ -60,7 +59,6 @@ type CanvasBoardProps = {
   board: CanvasBoardPane;
   boardPan: { x: number; y: number };
   boardZoom: number;
-  previewLocked?: boolean;
   fitCanvasToViewport?: boolean;
   selectedLayerId?: string | null;
   selectedLayerIds?: string[];
@@ -95,7 +93,6 @@ export function CanvasBoard({
   board,
   boardPan,
   boardZoom,
-  previewLocked = false,
   fitCanvasToViewport = false,
   selectedLayerId,
   selectedLayerIds,
@@ -122,7 +119,6 @@ export function CanvasBoard({
     board,
     boardPan,
     boardZoom,
-    previewLocked,
     toolbarVariant,
   });
 
@@ -168,7 +164,6 @@ export function CanvasBoard({
       onCanvasTouchStart={interactions.handleTouchStart}
       board={board}
       panOverlayRef={interactions.panOverlayRef}
-      previewLocked={previewLocked}
       selectedLayerId={selectedLayerId}
       selectedLayerIds={selectedLayerIds}
       snapEnabled={snapEnabled}

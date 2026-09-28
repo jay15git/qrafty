@@ -8,7 +8,6 @@ import type {
   CanvasQrStateByNodeId,
   CanvasWorkspaceDocumentV1,
 } from "@/features/canvas/model/document";
-import { type SceneCompositionByNodeId } from "@/features/canvas/model/apply-scene-template";
 import { type CanvasCardState } from "@/features/canvas/model/card-state";
 import {
   getCanvasQrLayerId,
@@ -85,7 +84,6 @@ export type BuildCanvasWorkspaceDocumentInput = {
   canvasQraftyState: QraftyState;
   layerStateByNodeId: CanvasLayerStateByNodeId;
   qrStateByLayerId: CanvasQrStateByLayerId;
-  sceneCompositionByNodeId: SceneCompositionByNodeId;
   selectedCardState: CanvasCardState;
   selectedContentType: QrInputType;
 };
@@ -100,7 +98,6 @@ export function buildCanvasWorkspaceDocumentFromState({
   canvasQraftyState,
   layerStateByNodeId,
   qrStateByLayerId,
-  sceneCompositionByNodeId,
   selectedCardState,
   selectedContentType,
 }: BuildCanvasWorkspaceDocumentInput): CanvasWorkspaceDocumentV1 {
@@ -152,7 +149,6 @@ export function buildCanvasWorkspaceDocumentFromState({
     qrStateByNodeId: {
       [nodeId]: primaryState,
     } satisfies CanvasQrStateByNodeId,
-    sceneCompositionByNodeId,
     selectedContentType,
     version: 1,
   };

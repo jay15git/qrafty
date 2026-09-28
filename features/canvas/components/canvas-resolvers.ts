@@ -2,11 +2,6 @@ import type { CanvasCardState } from "@/features/canvas/model/card-state";
 import type { CanvasLayer, CanvasLayerStateByNodeId } from "@/features/canvas/model/layers/shared";
 import { createDefaultCanvasLayers } from "@/features/canvas/model/layers/card-qr";
 import type { CanvasContentValuesByType } from "@/features/canvas/model/document";
-import type { SceneCompositionByNodeId } from "@/features/canvas/model/apply-scene-template";
-import {
-  createDefaultSceneComposition,
-  normalizeSceneComposition,
-} from "@/features/canvas/model/scene-templates";
 import type { CanvasBoardToolbarVariant } from "@/features/canvas/components/Canvas";
 import { findCanvasLayerById } from "@/features/canvas/components/canvas-operations";
 import { getAppearanceSnapshot } from "@/features/shell/model/appearance";
@@ -29,15 +24,6 @@ export function resolveSelectedContentValues(
   selectedContentType: QrInputType,
 ) {
   return contentValuesByType[selectedContentType] ?? getDefaultStaticQrValues(selectedContentType);
-}
-
-export function resolveActiveSceneComposition(
-  sceneCompositionByNodeId: SceneCompositionByNodeId,
-  activeQrNodeId: string,
-) {
-  return normalizeSceneComposition(
-    sceneCompositionByNodeId[activeQrNodeId] ?? createDefaultSceneComposition(),
-  );
 }
 
 export function resolveActiveCanvasLayers(

@@ -55,11 +55,10 @@ type CanvasViewportProps = {
   onBeginBoardPan: (event: ReactPointerEvent<HTMLDivElement>) => void;
   board: CanvasBoardPane;
   panOverlayRef: RefObject<HTMLDivElement | null>;
-  previewLocked?: boolean;
   selectedLayerId?: string | null;
   selectedLayerIds?: string[];
   snapEnabled: boolean;
-  canvasAppearance: "template" | "workspace" | "neutral";
+  canvasAppearance: "workspace" | "neutral";
   canvasRef: RefObject<HTMLDivElement | null>;
   viewFitScale?: number;
   theme?: ThemeMode;
@@ -83,7 +82,6 @@ type CanvasBoardContentProps = Pick<
   | "onQrClick"
   | "onSelect"
   | "board"
-  | "previewLocked"
   | "selectedLayerId"
   | "selectedLayerIds"
   | "snapEnabled"
@@ -108,7 +106,6 @@ function CanvasBoardContent({
   onQrClick,
   onSelect,
   board,
-  previewLocked = false,
   selectedLayerId,
   selectedLayerIds,
   snapEnabled,
@@ -118,8 +115,8 @@ function CanvasBoardContent({
   return (
     <div
       data-slot={
-        previewLocked || fitCanvasToViewport
-          ? "template-edit-zone"
+        fitCanvasToViewport
+          ? "canvas-fit-viewport"
           : isFreeEditWorkspace
             ? "free-edit-artboard"
             : undefined
@@ -143,7 +140,6 @@ function CanvasBoardContent({
         viewFitScale={viewFitScale}
         layers={board.layers}
         qrStateByLayerId={board.qrStateByLayerId}
-        sceneComposition={board.sceneComposition}
         snapEnabled={snapEnabled}
         state={board.state}
         isSelected={isSelected}
@@ -184,7 +180,6 @@ type CanvasPanOverlayProps = Pick<
   | "onCanvasPointerMove"
   | "onCanvasPointerUp"
   | "panOverlayRef"
-  | "previewLocked"
 >;
 
 function CanvasPanOverlay({
@@ -195,9 +190,8 @@ function CanvasPanOverlay({
   onCanvasPointerMove,
   onCanvasPointerUp,
   panOverlayRef,
-  previewLocked = false,
 }: CanvasPanOverlayProps) {
-  if (activeCanvasTool !== "pan" || previewLocked) {
+  if (activeCanvasTool !== "pan") {
     return null;
   }
 
@@ -280,7 +274,6 @@ export function CanvasViewport({
   onCanvasTouchStart,
   board,
   panOverlayRef,
-  previewLocked = false,
   selectedLayerId,
   selectedLayerIds,
   snapEnabled,
@@ -295,7 +288,6 @@ export function CanvasViewport({
       key={board.id}
       data-slot="canvas-surface"
       data-canvas-appearance={canvasAppearance}
-      data-preview-locked={previewLocked ? "true" : "false"}
       data-dragging={draggingBoardId === board.id ? "true" : "false"}
       data-panning={isPanning ? "true" : "false"}
       data-snap-target={isSnapTarget ? "true" : "false"}
@@ -310,10 +302,9 @@ export function CanvasViewport({
       )}
       style={{
         gridArea: areaName,
-        backgroundImage:
-          !isFreeEditWorkspace && !previewLocked
-            ? "radial-gradient(circle, rgb(var(--canvas-dot-rgb) / var(--canvas-dot-opacity)) 2.4px, transparent 3px)"
-            : "none",
+        backgroundImage: !isFreeEditWorkspace
+          ? "radial-gradient(circle, rgb(var(--canvas-dot-rgb) / var(--canvas-dot-opacity)) 2.4px, transparent 3px)"
+          : "none",
         backgroundPosition: "0 0",
         backgroundSize: "30px 30px",
       }}
@@ -352,7 +343,6 @@ export function CanvasViewport({
         onQrClick={onQrClick}
         onSelect={onSelect}
         board={board}
-        previewLocked={previewLocked}
         selectedLayerId={selectedLayerId}
         selectedLayerIds={selectedLayerIds}
         snapEnabled={snapEnabled}
@@ -367,7 +357,6 @@ export function CanvasViewport({
         onCanvasPointerMove={onCanvasPointerMove}
         onCanvasPointerUp={onCanvasPointerUp}
         panOverlayRef={panOverlayRef}
-        previewLocked={previewLocked}
       />
       <CanvasTextPlacementOverlay
         activeCanvasTool={activeCanvasTool}

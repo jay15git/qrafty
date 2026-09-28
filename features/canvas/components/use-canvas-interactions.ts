@@ -16,11 +16,11 @@ import type { CanvasBoardPane, CanvasBoardTool } from "@/features/canvas/compone
 import { isTouchLikePointer } from "@/features/canvas/components/canvas-interaction-utils";
 import { WORKSPACE_MOBILE_QUERY } from "@/lib/hooks/use-media-query";
 import {
-  computeTemplatePreviewFit,
+  computeCanvasFit,
   DESKTOP_ARTBOARD_VIEW_INSETS,
   DESKTOP_CANVAS_FIT_PADDING,
   MOBILE_ARTBOARD_VIEW_INSETS,
-} from "@/features/canvas/model/template-preview-fit";
+} from "@/features/canvas/model/canvas-fit";
 import { previewDrawerResize } from "@/features/canvas/preview/preview-drawer-resize";
 import {
   ENTRANCE_COMPLETE_EVENT,
@@ -77,7 +77,6 @@ type UseCanvasInteractionsArgs = {
   board: CanvasBoardPane;
   boardPan: { x: number; y: number };
   boardZoom: number;
-  previewLocked?: boolean;
   toolbarVariant?: "default" | "zoom";
 };
 
@@ -95,7 +94,6 @@ export function useCanvasInteractions({
   board,
   boardPan,
   boardZoom,
-  previewLocked = false,
   toolbarVariant = "default",
 }: UseCanvasInteractionsArgs) {
   const hideLayerSelectionChrome = activeCanvasTool === "pan" || !layerEditingEnabled;
@@ -123,14 +121,10 @@ export function useCanvasInteractions({
   const didTouchPanRef = useRef(false);
   const [viewFitScale, setViewFitScale] = useState(1);
   const effectiveZoom = boardZoom;
-  const effectivePan = previewLocked ? { x: 0, y: 0 } : boardPan;
-  const isFreeEditWorkspace = toolbarVariant === "zoom" && layerEditingEnabled && !previewLocked;
-  const shouldAutoFitViewport = previewLocked || fitCanvasToViewport;
-  const canvasAppearance: "template" | "workspace" | "neutral" = previewLocked
-    ? "template"
-    : isFreeEditWorkspace
-      ? "workspace"
-      : "neutral";
+  const effectivePan = boardPan;
+  const isFreeEditWorkspace = toolbarVariant === "zoom" && layerEditingEnabled;
+  const shouldAutoFitViewport = fitCanvasToViewport;
+  const canvasAppearance: "workspace" | "neutral" = isFreeEditWorkspace ? "workspace" : "neutral";
   const hasSeededFitZoomRef = useRef(false);
   const updateFitScaleRef = useRef<(() => void) | null>(null);
 
@@ -167,14 +161,12 @@ export function useCanvasInteractions({
           ? MOBILE_ARTBOARD_VIEW_INSETS
           : DESKTOP_ARTBOARD_VIEW_INSETS;
 
-      const nextFitScale = computeTemplatePreviewFit(
+      const nextFitScale = computeCanvasFit(
         { width: board.cardState.width, height: board.cardState.height },
         { width: rect.width, height: rect.height },
         isFreeEditWorkspace
           ? { allowUpscale: true, insets: artboardInsets }
-          : fitCanvasToViewport
-            ? { allowUpscale: true, padding: DESKTOP_CANVAS_FIT_PADDING }
-            : undefined,
+          : { allowUpscale: true, padding: DESKTOP_CANVAS_FIT_PADDING },
       );
 
       if (isFreeEditWorkspace) {
@@ -340,10 +332,6 @@ export function useCanvasInteractions({
 
   const beginBoardPan = useCallback(
     (event: ReactPointerEvent<HTMLDivElement>) => {
-      if (previewLocked) {
-        return;
-      }
-
       event.preventDefault();
       event.stopPropagation();
       const captureTarget = panOverlayRef.current ?? event.currentTarget;
@@ -359,7 +347,7 @@ export function useCanvasInteractions({
       lockCanvasPanCursor();
       setIsPanning(true);
     },
-    [board.id, boardPan.x, boardPan.y, previewLocked],
+    [board.id, boardPan.x, boardPan.y],
   );
 
   const handleBoardPointerDownCapture = useCallback(
@@ -400,7 +388,7 @@ export function useCanvasInteractions({
         return;
       }
 
-      if (isTouchLikePointer(event) && !previewLocked) {
+      if (isTouchLikePointer(event)) {
         pendingTouchPanRef.current = {
           pointerId: event.pointerId,
           startClientX: event.clientX,
@@ -425,7 +413,6 @@ export function useCanvasInteractions({
       board.id,
       boardPan.x,
       boardPan.y,
-      previewLocked,
     ],
   );
 
@@ -485,7 +472,7 @@ export function useCanvasInteractions({
 
   const handleWheel = useCallback(
     (event: Pick<WheelEvent<HTMLDivElement>, "preventDefault" | "stopPropagation" | "deltaY">) => {
-      if (previewLocked || isFreeEditWorkspace) {
+      if (isFreeEditWorkspace) {
         return;
       }
 
@@ -498,13 +485,13 @@ export function useCanvasInteractions({
       );
       onBoardZoom(board.id, nextZoom);
     },
-    [isFreeEditWorkspace, onBoardZoom, board.id, boardZoom, previewLocked],
+    [isFreeEditWorkspace, onBoardZoom, board.id, boardZoom],
   );
 
   useEffect(() => {
     const canvas = canvasRef.current;
 
-    if (!canvas || previewLocked || isFreeEditWorkspace) {
+    if (!canvas || isFreeEditWorkspace) {
       return;
     }
 
@@ -517,14 +504,10 @@ export function useCanvasInteractions({
     return () => {
       canvas.removeEventListener("wheel", onWheel);
     };
-  }, [handleWheel, isFreeEditWorkspace, previewLocked]);
+  }, [handleWheel, isFreeEditWorkspace]);
 
   const handleTouchStart = useCallback(
     (event: TouchEvent<HTMLDivElement>) => {
-      if (previewLocked) {
-        return;
-      }
-
       const distance = getTouchDistance(event.touches);
 
       if (distance === null) {
@@ -543,15 +526,11 @@ export function useCanvasInteractions({
       pinchDistanceRef.current = distance;
       pinchZoomRef.current = boardZoom;
     },
-    [board.id, boardZoom, previewLocked],
+    [board.id, boardZoom],
   );
 
   const handleTouchMove = useCallback(
     (event: TouchEvent<HTMLDivElement>) => {
-      if (previewLocked) {
-        return;
-      }
-
       const startDistance = pinchDistanceRef.current;
       const nextDistance = getTouchDistance(event.touches);
 
@@ -567,7 +546,7 @@ export function useCanvasInteractions({
         clampPreviewZoom(pinchZoomRef.current * (nextDistance / startDistance)),
       );
     },
-    [onBoardZoom, board.id, previewLocked],
+    [onBoardZoom, board.id],
   );
 
   const handleTouchEnd = useCallback((event: TouchEvent<HTMLDivElement>) => {

@@ -14,10 +14,6 @@ import type { ThemeMode } from "@/features/shell/components/WorkspaceChrome";
 import type { QraftyState } from "@/features/qr/model/state";
 import type { StaticQrValidationResult } from "@/features/qr/content/static-payload";
 import type { CanvasQrStateByLayerId } from "@/features/canvas/model/document";
-import {
-  createDefaultSceneComposition,
-  type SceneCompositionState,
-} from "@/features/canvas/model/scene-templates";
 import { CanvasWorkspaceInteractive } from "@/features/canvas/components/canvas-layer-a11y";
 import { PreviewRuntimeProvider } from "@/features/canvas/preview/preview-context";
 import {
@@ -45,7 +41,6 @@ export type CanvasWorkspaceProps = {
   onSelect: () => void;
   onQrClick: () => void;
   qrStateByLayerId: CanvasQrStateByLayerId;
-  sceneComposition?: SceneCompositionState;
   selectedLayerId?: string | null;
   selectedLayerIds?: string[];
   snapEnabled?: boolean;
@@ -73,7 +68,6 @@ export function CanvasWorkspace({
   onSelect,
   onQrClick,
   qrStateByLayerId,
-  sceneComposition = createDefaultSceneComposition(),
   selectedLayerId,
   selectedLayerIds,
   theme = "dark",
@@ -160,7 +154,6 @@ export function CanvasWorkspace({
     onSelect,
     onQrClick,
     qrStateByLayerId,
-    sceneComposition,
     selectedLayerId,
     selectedLayerIds,
     theme,
@@ -245,7 +238,6 @@ export function CanvasWorkspace({
     renderLayerView,
     rotatingLayerId,
     rotationPreviewDegrees,
-    sceneLayout: sceneComposition.layout,
     selectedVisibleLayers,
     selectedVisibleLayerIds,
     snapGuideClipBounds,

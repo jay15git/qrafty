@@ -12,7 +12,6 @@ import type { ThemeMode } from "@/features/shell/components/WorkspaceChrome";
 import type { QraftyState } from "@/features/qr/model/state";
 import type { StaticQrValidationResult } from "@/features/qr/content/static-payload";
 import type { CanvasQrStateByLayerId } from "@/features/canvas/model/document";
-import { type SceneCompositionState } from "@/features/canvas/model/scene-templates";
 import { useCardChrome } from "@/features/canvas/components/use-card-chrome";
 import {
   useLayerContextMenu,
@@ -48,7 +47,6 @@ export type CanvasWorkspaceInteractionsInput = {
   onSelect: () => void;
   onQrClick: () => void;
   qrStateByLayerId: CanvasQrStateByLayerId;
-  sceneComposition: SceneCompositionState;
   selectedLayerId?: string | null;
   selectedLayerIds?: string[];
   snapEnabled: boolean;
@@ -122,7 +120,6 @@ export function useCanvasWorkspaceInteractions({
   onSelect,
   onQrClick,
   qrStateByLayerId,
-  sceneComposition,
   selectedLayerId,
   selectedLayerIds,
   theme,
@@ -329,7 +326,6 @@ export function useCanvasWorkspaceInteractions({
     contentOnlyZoom,
     contentPan,
     interactionScale,
-    sceneComposition,
     selectedVisibleLayerIds,
     snapGuides,
     viewFitScale,
