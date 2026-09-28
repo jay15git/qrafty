@@ -1,7 +1,5 @@
 "use client";
 
-import { useState } from "react";
-
 import { WallpaperOptionPreview } from "@/features/canvas/components/WallpaperOptionPreview";
 import { PaperShaderOptionPreview } from "@/features/canvas/components/PaperShaderOptionPreview";
 import { isSceneWallpaperPath, SCENE_WALLPAPERS } from "@/features/canvas/assets/scene-wallpapers";
@@ -24,8 +22,8 @@ import {
 } from "@/features/shell/settings/sections/shared";
 import { applyCardFill } from "@/features/shell/settings/settings-bridge";
 import {
-  getSettingsSectionTab,
   setSettingsSectionTab,
+  useSettingsSectionTab,
 } from "@/features/shell/settings/settings-section-tabs";
 import { SettingsLabeledSelect, SettingsTabPanel } from "@/features/shell/settings/settings-ui";
 import { SettingsImageUploadTile } from "@/features/shell/settings/SettingsFillOptionGrid";
@@ -198,24 +196,16 @@ export function SceneSection({ model }: { model: SettingsModel }) {
     onImageSettingsChange,
     onShapeSettingsChange,
   } = model;
-  const [tab, setTab] = useState<SceneBackgroundTab>(() =>
-    normalizeSceneBackgroundTab(
-      getSettingsSectionTab(
-        "background",
-        backgroundTabFromStyleMode(
-          actualBackgroundSettings.styleMode,
-          actualShapeSettings.cardFill,
-        ),
-      ),
-      actualShapeSettings.cardFill,
-    ),
+  const storedTab = useSettingsSectionTab(
+    "background",
+    backgroundTabFromStyleMode(actualBackgroundSettings.styleMode, actualShapeSettings.cardFill),
   );
+  const tab = normalizeSceneBackgroundTab(storedTab, actualShapeSettings.cardFill);
   const paperShader = actualBackgroundSettings.paperShader;
   const backgroundFill = actualShapeSettings.cardFill;
 
   function handleBackgroundTabChange(nextTab: string) {
     const resolvedTab = normalizeSceneBackgroundTab(nextTab, backgroundFill);
-    setTab(resolvedTab);
     setSettingsSectionTab("background", resolvedTab);
     controller?.onCanvasBackgroundTabChange?.(
       resolvedTab === "Shader" ? "shader" : resolvedTab === "Image" ? "image" : "color",

@@ -1,19 +1,24 @@
 import { Suspense, useContext } from "react";
 
+import { Settings2 } from "lucide-react";
+
 import { parseFill } from "@/components/ui/fill-picker/lib/gradient";
 import type { Fill } from "@/components/ui/fill-picker/public-api";
 import { PaperShaderOptionPreview } from "@/features/canvas/components/PaperShaderOptionPreview";
 import { createDefaultCanvasCardPaperShader } from "@/features/canvas/model/card-state";
 import { getCardGeneratedShaderDefinitions } from "@/features/canvas/rendering/paper-shader-definitions";
 import { setSettingsSectionTab } from "@/features/shell/settings/settings-section-tabs";
-import { useMobileDrawerNavigation } from "@/features/shell/settings/MobileDrawerNavigationContext";
+import {
+  useMobileDrawerNavigation,
+  useMobileLiveDetail,
+} from "@/features/shell/settings/MobileDrawerNavigationContext";
 import { applyCardFill } from "@/features/shell/settings/settings-bridge";
 import { getActiveFillPresetForStoredValue } from "@/features/shell/settings/settings-fill-preset-match";
 import { SETTINGS_PREVIEW_TILE } from "@/features/shell/settings/SettingsPreviewTiles";
 import { SegmentTabs } from "@/features/shell/settings/settings-ui";
 import { cn } from "@/lib/utils";
 
-import { LazySettingsFillPicker } from "../lazy-details";
+import { LazySettingsFillPicker, LazySettingsPaperShaderControls } from "../lazy-details";
 import { MobileRailModeContext, useLatestModel, type MobileRailRowProps } from "../rail-context";
 import {
   fillPresetsForMode,
@@ -35,14 +40,28 @@ export function MobileBackgroundRailRow({ model }: MobileRailRowProps) {
   const modelRef = useLatestModel(model);
   const mode = railMode?.mode ?? sceneFillModeFromModel(model);
   const value = model.actualShapeSettings.cardFill;
+  const paperShader = model.actualBackgroundSettings.paperShader;
 
+  const shaderDetail = useMobileLiveDetail({
+    content: (
+      <Suspense fallback={null}>
+        <LazySettingsPaperShaderControls
+          paperShader={paperShader}
+          onPaperShaderChange={(nextPaperShader) =>
+            modelRef.current.onBackgroundSettingsChange({ paperShader: nextPaperShader })
+          }
+        />
+      </Suspense>
+    ),
+    enabled: mode === "shader",
+    title: "Shader settings",
+  });
   const applyBackground = (fill: Fill, css: string) => {
     const m = modelRef.current;
     m.onShapeSettingsChange(applyCardFill(fill));
     m.controller?.onCanvasBackgroundTabChange?.("color");
     setSettingsSectionTab("background", backgroundFillTabName(css));
   };
-
   if (mode === "image") {
     const imageUrl = model.actualImageSettings.remoteUrl ?? "";
     return (
@@ -73,34 +92,44 @@ export function MobileBackgroundRailRow({ model }: MobileRailRowProps) {
   }
 
   if (mode === "shader") {
-    const selected = model.actualBackgroundSettings.paperShader.shaderId;
+    const selected = paperShader.shaderId;
     return (
       <>
         {getCardGeneratedShaderDefinitions().map((option) => (
-          <button
-            key={option.id}
-            aria-label={`Use ${option.label} shader`}
-            aria-pressed={selected === option.id}
-            className={cn(SETTINGS_PREVIEW_TILE)}
-            data-slot="mobile-rail-option"
-            title={option.label}
-            type="button"
-            onClick={() =>
-              modelRef.current.onBackgroundSettingsChange({
-                paperShader: createDefaultCanvasCardPaperShader(option.id),
-              })
-            }
-          >
-            <PaperShaderOptionPreview
-              className="relative z-10 block size-full overflow-hidden ds-squircle-xs"
-              shaderId={option.id}
-            />
-          </button>
+          <span key={option.id} className="relative inline-flex" data-slot="mobile-rail-option">
+            <button
+              aria-label={`Use ${option.label} shader`}
+              aria-pressed={selected === option.id}
+              className={cn(SETTINGS_PREVIEW_TILE, "size-full")}
+              title={option.label}
+              type="button"
+              onClick={() =>
+                modelRef.current.onBackgroundSettingsChange({
+                  paperShader: createDefaultCanvasCardPaperShader(option.id),
+                })
+              }
+            >
+              <PaperShaderOptionPreview
+                className="relative z-10 block size-full overflow-hidden ds-squircle-xs"
+                shaderId={option.id}
+              />
+            </button>
+            {selected === option.id ? (
+              <button
+                aria-label={`${option.label} shader settings`}
+                className="ds-mobile-shader-settings-button"
+                type="button"
+                onClick={() => shaderDetail.open()}
+              >
+                <Settings2 aria-hidden className="size-3.5" strokeWidth={2.25} />
+              </button>
+            ) : null}
+          </span>
         ))}
+        {shaderDetail.portal}
       </>
     );
   }
-
   const presets = fillPresetsForMode(mode);
   const activePreset = getActiveFillPresetForStoredValue(value, presets);
 

@@ -21,7 +21,7 @@ export function MobileTopBar({
       className="pointer-events-none fixed inset-x-0 top-0 z-40 flex items-center justify-between px-2.5 pt-[max(0.625rem,env(safe-area-inset-top,0px))]"
       data-slot="mobile-top-bar"
     >
-      <div className="pointer-events-auto flex items-center gap-1 rounded-full bg-[var(--glass-bg)] p-1 text-[var(--glass-fg)] shadow-sm backdrop-blur-md">
+      <div className="pointer-events-auto flex items-center gap-1 rounded-full bg-[var(--glass-bg)] p-1 text-[var(--glass-fg)] backdrop-blur-md">
         <button
           aria-label="Undo"
           className={cn(

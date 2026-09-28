@@ -218,12 +218,13 @@ describe("WorkspaceChrome", () => {
     expect(dynamicIsland?.querySelector('button[aria-label="Redo"]')).toBeNull();
   });
 
-  it("places a pill download button in the top-right utility toolbar", async () => {
+  it("places a download/options pill in the top-right utility toolbar", async () => {
     const surface = await renderPrototype();
     const utilityToolbar = surface.container.querySelector('[data-slot="utility-toolbar"]');
 
     expect(surface.container.querySelector('[data-slot="document-toolbar"]')).toBeNull();
     expect(utilityToolbar?.querySelector('[data-slot="download-trigger"]')).not.toBeNull();
+    expect(utilityToolbar?.querySelector('[data-slot="workspace-options-trigger"]')).not.toBeNull();
     expect(utilityToolbar?.querySelector('[data-slot="save-trigger"]')).toBeNull();
     expect(utilityToolbar?.querySelector('[data-slot="keyboard-shortcuts-trigger"]')).toBeNull();
     expect(utilityToolbar?.querySelector('[data-slot="theme-toggle"]')).toBeNull();
@@ -266,13 +267,8 @@ describe("WorkspaceChrome", () => {
 
     expect(surface.container.querySelector('[data-slot="action-toolbar"]')).toBeNull();
     expect(surface.container.querySelector('[data-slot="dynamic-island-anchor"]')).not.toBeNull();
-    expect(utilityToolbar?.className).toContain("min-h-11");
-    expect(getRequiredButton(utilityToolbar as HTMLElement, "Download").textContent?.trim()).toBe(
-      "Download",
-    );
-    expect(getRequiredButton(utilityToolbar as HTMLElement, "Download").className).toContain(
-      "rounded-full",
-    );
+    expect(getRequiredButton(utilityToolbar as HTMLElement, "Download")).not.toBeNull();
+    expect(getRequiredButton(utilityToolbar as HTMLElement, "More options")).not.toBeNull();
     expect(utilityToolbar?.querySelector('[data-slot="save-trigger"]')).toBeNull();
 
     await act(async () => {

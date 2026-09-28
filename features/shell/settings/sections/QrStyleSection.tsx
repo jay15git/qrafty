@@ -1,7 +1,5 @@
 "use client";
 
-import { useState } from "react";
-
 import { Ellipsis } from "lucide-react";
 import { QrStyleOptionPreview } from "@/features/qr/components/QrStyleOptionPreview";
 import type { StylePreviewKind } from "@/features/qr/components/StylePreview";
@@ -26,8 +24,8 @@ import { SettingsImageUploadTile } from "@/features/shell/settings/SettingsFillO
 import { LogoIconPicker, LogoPickerTileIcon } from "@/features/shell/settings/SettingsPickers";
 import { SETTINGS_PREVIEW_TILE_FLUID } from "@/features/shell/settings/SettingsPreviewTiles";
 import {
-  getSettingsSectionTab,
   setSettingsSectionTab,
+  useSettingsSectionTab,
 } from "@/features/shell/settings/settings-section-tabs";
 import {
   SettingsLabeledSelect,
@@ -151,7 +149,7 @@ function logoSourceTab(sourceMode: LogoSettings["sourceMode"]): LogoSettingsTab 
 }
 
 export function QrStyleSection({ model }: { model: SettingsModel }) {
-  const [tab, setTab] = useState(() => getSettingsSectionTab("qr-style", "Module"));
+  const tab = useSettingsSectionTab("qr-style", "Module");
   const {
     actualEncodingSettings,
     actualLogoSettings,
@@ -179,7 +177,6 @@ export function QrStyleSection({ model }: { model: SettingsModel }) {
           placeholder="Part"
           value={tab}
           onChange={(nextTab) => {
-            setTab(nextTab);
             setSettingsSectionTab("qr-style", nextTab);
           }}
         />

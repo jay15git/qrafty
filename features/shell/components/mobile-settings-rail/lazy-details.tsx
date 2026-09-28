@@ -33,3 +33,8 @@ export const LazyPatternColorPickerContent = lazy(() =>
     default: module.PatternColorPickerContent,
   })),
 );
+export const LazySettingsPaperShaderControls = lazy(() =>
+  import("@/features/shell/settings/PaperShaderSettings").then((module) => ({
+    default: module.SettingsPaperShaderControls,
+  })),
+);

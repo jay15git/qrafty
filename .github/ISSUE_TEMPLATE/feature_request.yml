@@ -1,0 +1,41 @@
+name: Feature request
+description: Suggest a capability or improvement.
+title: "[Feature]: "
+labels: [enhancement, triage]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Search existing issues and discussions first. Focus on the problem,
+        not a specific implementation.
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Canvas (layers, editing, selection)
+        - QR styling (modules, eyes, frames, fills)
+        - Content (payload types, input fields)
+        - Mobile rail / drawer
+        - Export (download, animation)
+        - Landing page
+        - Build, CI, or tooling
+        - Docs
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What are you trying to do that QRafty doesn't support?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Optional. Sketches, references, prior art all welcome.

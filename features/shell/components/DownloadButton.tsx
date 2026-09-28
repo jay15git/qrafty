@@ -16,7 +16,7 @@ export const DownloadButton = forwardRef<HTMLButtonElement, DownloadButtonProps>
         ref={ref}
         aria-label="Download"
         className={cn(
-          "relative inline-flex h-9 shrink-0 cursor-pointer items-center gap-2 rounded-full border-0 bg-transparent px-3 text-sm font-medium whitespace-nowrap text-[var(--glass-fg)] shadow-none transition-colors hover:text-[var(--glass-button-hover-fg,currentColor)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--glass-button-focus-ring)] motion-reduce:transition-none",
+          "relative grid size-9 shrink-0 cursor-pointer place-items-center rounded-full border-0 bg-transparent p-0 text-[var(--glass-fg)] shadow-none transition-colors hover:text-[var(--glass-button-hover-fg,currentColor)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--glass-button-focus-ring)] motion-reduce:transition-none max-md:size-11",
           className,
         )}
         data-slot="download-trigger"
@@ -26,7 +26,6 @@ export const DownloadButton = forwardRef<HTMLButtonElement, DownloadButtonProps>
         {...props}
       >
         <HugeiconsIcon icon={Download02Icon} size={16} color="currentColor" strokeWidth={2} />
-        <span className="leading-none tracking-tight">Download</span>
       </button>
     );
   },

@@ -211,7 +211,7 @@ describe("CanvasSurface", () => {
       Array.from(utilityToolbar.querySelectorAll("button")).map((button) =>
         button.getAttribute("aria-label"),
       ),
-    ).toEqual(["Download"]);
+    ).toEqual(["Download", "More options"]);
     expect(utilityToolbar.querySelector('[data-slot="keyboard-shortcuts-trigger"]')).toBeNull();
     expect(utilityToolbar.querySelector('[data-slot="theme-toggle"]')).toBeNull();
 

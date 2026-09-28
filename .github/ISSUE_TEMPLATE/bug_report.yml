@@ -1,0 +1,85 @@
+name: Bug report
+description: Broken behavior, regressions, crashes, or reliability issues.
+title: "[Bug]: "
+labels: [bug, triage]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form for broken behavior, regressions, or crashes.
+        Search existing issues first and keep the report focused on one problem.
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched existing issues and did not find a duplicate.
+          required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Canvas (layers, editing, selection)
+        - QR styling (modules, eyes, frames, fills)
+        - Content (payload types, input fields)
+        - Mobile rail / drawer
+        - Export (download, animation)
+        - Landing page
+        - Build, CI, or tooling
+        - Docs
+        - Not sure
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Minimal, deterministic repro.
+      placeholder: |
+        1. Open /design
+        2. ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Impact
+      options:
+        - Blocks work completely
+        - Major degradation or frequent failure
+        - Minor bug or occasional failure
+        - Cosmetic issue
+    validations:
+      required: true
+
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: "macOS 15, Safari 18, iPhone 15 — mobile or desktop"
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or console errors
+      description: Paste the most relevant output only.
+      render: shell

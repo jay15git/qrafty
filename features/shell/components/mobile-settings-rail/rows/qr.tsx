@@ -10,6 +10,8 @@ import { SegmentTabs } from "@/features/shell/settings/settings-ui";
 import { QrStyleOptionPreview } from "@/features/qr/components/QrStyleOptionPreview";
 import { cn } from "@/lib/utils";
 
+import { setSettingsSectionTab } from "@/features/shell/settings/settings-section-tabs";
+
 import {
   MobileRailPartContext,
   type MobileRailOption,
@@ -88,6 +90,7 @@ export function MobileQrRailFooter({ openDrawer }: MobileRailRowProps) {
             railPart?.selectPart(option.drillsTo);
             return;
           }
+          setSettingsSectionTab("qr-style", "Logo");
           openDrawer();
         }}
       />

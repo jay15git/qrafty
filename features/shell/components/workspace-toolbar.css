@@ -160,6 +160,7 @@ body:has([data-slot="chrome-root"][data-shell-theme="light"]) {
 }
 
 [data-shell-theme="dark"] [data-slot="utility-toolbar"],
+[data-shell-theme="dark"] [data-slot="mobile-utility-toolbar"],
 [data-shell-theme="dark"] [data-slot="dynamic-island"] {
   background: transparent !important;
   border-color: transparent !important;
@@ -175,6 +176,7 @@ body:has([data-slot="chrome-root"][data-shell-theme="light"]) {
 }
 
 [data-shell-theme="light"] [data-slot="utility-toolbar"],
+[data-shell-theme="light"] [data-slot="mobile-utility-toolbar"],
 [data-shell-theme="light"] [data-slot="dynamic-island"] {
   background: transparent !important;
   border-color: transparent !important;

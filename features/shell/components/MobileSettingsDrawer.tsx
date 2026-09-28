@@ -117,7 +117,7 @@ function MobileDrawerHeader({
         type="button"
         onClick={onDiscard}
       >
-        <X aria-hidden className="size-5 shrink-0" strokeWidth={2.25} />
+        <X aria-hidden className="size-[1.125rem] shrink-0" strokeWidth={2.25} />
       </button>
       <h2 className="ds-mobile-drawer-nested-header__title">{title}</h2>
       <button
@@ -127,7 +127,7 @@ function MobileDrawerHeader({
         type="button"
         onClick={onSave}
       >
-        <Check aria-hidden className="size-5 shrink-0" strokeWidth={2.25} />
+        <Check aria-hidden className="size-[1.125rem] shrink-0" strokeWidth={2.25} />
       </button>
     </header>
   );
@@ -172,7 +172,7 @@ function MobileSettingDetailView({ model, onSave }: { model: SettingsModel; onSa
               type="button"
               onClick={() => navigation?.closeDetail()}
             >
-              <X aria-hidden className="size-5 shrink-0" strokeWidth={2.25} />
+              <X aria-hidden className="size-[1.125rem] shrink-0" strokeWidth={2.25} />
             </button>
             <h2 className="ds-mobile-drawer-nested-header__title">{title}</h2>
             <button
@@ -182,7 +182,7 @@ function MobileSettingDetailView({ model, onSave }: { model: SettingsModel; onSa
               type="button"
               onClick={onSave}
             >
-              <Check aria-hidden className="size-5 shrink-0" strokeWidth={2.25} />
+              <Check aria-hidden className="size-[1.125rem] shrink-0" strokeWidth={2.25} />
             </button>
           </header>
           <MobileDetailStackOutlets />

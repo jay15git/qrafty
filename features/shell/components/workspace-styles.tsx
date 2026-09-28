@@ -123,6 +123,7 @@ const WORKSPACE_SURFACE_STYLES = `
       [data-slot="workspace"][data-shell-theme="light"] [data-toolbar-appearance="glass"]:not(
           [data-slot="dynamic-island"],
           [data-slot="utility-toolbar"],
+          [data-slot="mobile-utility-toolbar"],
           [data-slot="canvas-toolbar"]
         ) {
         background: var(--canvas-page-bg) !important;
