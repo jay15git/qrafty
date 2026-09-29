@@ -12,9 +12,6 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ["@hugeicons/core-free-icons"],
   },
-  async redirects() {
-    return [{ source: "/desktop", destination: "/design", permanent: true }];
-  },
 };
 
 export default nextConfig;

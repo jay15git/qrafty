@@ -1,0 +1,134 @@
+# QRafty Round-2 Cleanup Plan
+
+> Status: **plan only — nothing executed.** Audit performed 2026-09-29 by five parallel read-only passes over `features/canvas`, `features/shell` + `components`, `features/qr` + `packages/qr`, all CSS, and `app/` + tests + deps. Every "dead" claim was verified by import-site / render-site / `var()`-read greps — knip and fallow were not used.
+>
+> Baseline: product ~103k LOC (ts/tsx/css excl. tests, incl. ~3.2k vendored react-qr-code + ~5.4k generated catalogs), tests ~20k LOC / 126 files, 227 `!important` across 13 CSS files.
+
+## 0. Reality check
+
+The original ~40k estimate is unreachable. T1–T4.7 already removed the easy dead weight; what remains is:
+
+- **~5–6k confirmed dead product code** (this doc, §1)
+- **~3.5–4k** from the deferred deep T4.5 (fold `svg-extension/*` into emitter options)
+- **~4k** of test pruning (§5)
+- **~2.5–4k more** only by cutting working features (§4 — needs product sign-off)
+
+Realistic end state: **~85–88k product, ~16k tests**. Below that requires removing real user-facing features.
+
+Every tier must leave `pnpm typecheck && pnpm test && pnpm lint && pnpm knip && pnpm exec fallow dead-code && pnpm build && pnpm format:check && pnpm doctor` green.
+
+---
+
+## 1. Verified dead code (~5–6k product LOC)
+
+| # | Item | LOC | Evidence | Risk |
+|---|------|-----|----------|------|
+| 1.1 | **Image-filter card mode — entire feature unreachable** | ~1.1–1.2k | `cardState.styleMode === "image-filter"` has **no writer** — `use-settings-actions.ts` only ever sets `solid` / `paper-shader` / `image` (:457, :570, :591). Dead: 7 shader defs in `paper-shader-definitions.ts` (fluted-glass, image-dithering, heatmap, liquid-metal, halftone-dots, halftone-cmyk, gem-smoke), ~776 LOC of generated presets (`paper-shader-presets.generated.ts:2311-3087`), `paper-shaders/image-filters.ts` (195), all `isImageFilterMode` / `image-filter` branches in `CardBackgroundLayers.tsx`, `use-card-chrome.ts:101`, `layer-dom-styles.ts:257`, `shader-snapshots.ts:24`, `compositor-face.ts:6`, `clock.ts:65`, `layered-svg-parts.ts:241`, `rail-modes.ts:65`, `SceneSection.tsx:179`, the `imageFilter` card field, and prop threading in `CanvasLayerViews` | medium |
+| 1.2 | **Platform-intent machinery** — 56 of 58 platform defs dead | ~1.2k slim / ~2.4k full | `input-options.ts:50-132` lists ~90 `QrInputType`s; picker renders only `PICKER_QR_INPUT_TYPES` = 13 structured + whatsapp + map-location. Paste-apply is gated by `isPickerQrInputType` (`ContentFields.tsx:158`) so non-picker platform types can never be set. Dead: `buildPlatformPayload`, `extractPlatformValuesFromUrl`, `getPlatformDefaultValues(ForIntent)`, `validatePlatformContent` (+`isWrongPlatformIntent`, map-location validators), `platform-samples.ts` (277), platform branches in `static-payload.ts` (~200), `content-field-definitions.ts` platform branch, `apply-pasted-content.ts:50-68`, `buildPlatformContentMeta`. **Keep**: `detectPlatformIntentFromUrl` + `platform-path-matching.ts` + slimmed `PlatformDef` {type,label,category,hosts,matchHost,brandIconId,intent matchPath+label} for the detection chip; whatsapp + map-location defs fully. Option B: delete detection entirely (~2.4k) if the chip label isn't worth it | medium |
+| 1.3 | **`domLayers` write-only export half** | ~574 | `buildLayeredDomParts` (392, `export/layered-dom-parts.ts`) + `toQraftyQrConfig` (182, `features/qr/adapters/qrafty-config.ts`) feed `SceneIr.domLayers` — `emitSvg` (`packages/qr/src/scene/codegen/emit-svg.ts:28-33`) reads only bounds/defs/body/fonts. Zero readers of `.domLayers`/`.qrProps` repo-wide. Computed and discarded on every photo export; also drops `qrProps` from `DomLayerNode` | safe |
+| 1.4 | **Vendored `ReactQRCode` component layer** | ~1.1k | Only 2 live render sites: `insert-menu-root-previews.tsx:74`, `StylePreview.tsx:69,98` (latter via `renderToStaticMarkup` in the generator). Emitter already byte-parity-proven (`qr-svg-base-parity.test.ts`). Migrate previews to `emitReactQrCodeMarkup` + `parseSvgIrMarkup`, then delete `react-qr-code.tsx` (133) + `components/*` (655) + `hooks/*` (74) + `utils/download.ts` (109). **Keep**: qrcodegen, constants, `utils/{data-modules,finder-patterns-*,qr-code,settings,svg}`, types — `emit-markup.ts` imports them. `@qrafty/qr/react` export entry also dead (imported by nothing) | medium |
+| 1.5 | **Dead dot-matrix presets** | ~830 | UI offers exactly 7 loaders (`QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS`, `state.ts:244-255`). `animation-presets.ts` (985) defines 47 presets; 40 unreachable. `DEPRECATED_DOT_MATRIX_LOADERS` duplicated in `state.ts:257` + `packages/qr/src/dot-matrix/loader-to-preset.ts` — dead since draft persistence was removed. Keep NeonDrift, FluxColumns, RadialExpand, DiamondExpand, HeartExpand, StarExpand, ChevronSweep + shared helpers | safe-med |
+| 1.6 | **Preview subsystem — producers with no consumer** | ~280 prod + ~170 test | `beginInteraction`/`endInteraction` (`preview-session.ts`, 39) — zero prod callers, `isInteracting` permanently false → dead branches in `preview-context.tsx:41-47`, `CanvasLayerViews.tsx:117,~158`, `use-canvas-qr-markup.ts:34,37-39,50-52,71-75`, `use-canvas-scan-safety.ts:42-53`, `use-canvas-history.ts:69`. `beginResize`/`subscribe`/`notifyResizeListeners` (`preview-drawer-resize.ts`, 87) — zero callers → `MobileWorkspaceInsetTransitionBridge.tsx` (37) is an `endResize()` no-op, `WorkspaceEntrance.tsx:42` gate dead, `subscribeOnEnded` callbacks never fire (`use-canvas-interactions.ts:187`, `use-card-chrome.ts:226,236`). `preview-performance.ts` (32) — `performance.mark/measure` output read nowhere | medium |
+| 1.7 | **`kind: "shader"` canvas layers — no creation path** | ~250–300 | `createCanvasShaderLayer` (`model/layers/factories.ts:46`) called only by tests + golden fixtures. Insert menu creates text/shape/emoji/image/QR only (`InsertMenuPanelStack.tsx:222-256`); no persistence remains to hydrate legacy docs. Dead: two shader views in `CanvasLayerViews.tsx` (~120), branches in `layered-dom-parts`, `layered-svg-parts`, `compositor`, `compositor-face`, `clock`, `shader-snapshots`, `canvas-layer-a11y`, `canvas-operations`, `use-layer-actions`, `canvas-resolvers`, `normalize`, `fallback`. Drop `"shader"` from `CanvasLayerKind` (keep normalize shim only if legacy docs matter — they can't exist anymore) | medium |
+| 1.8 | **Dead draft chains + action returns** | ~300–400 | ~20 `setSelected*` setters never invoked: `AriaLabel`, `QrMode`, `QrMargin`, `QrRadius`, `RasterExportQualityPercent`, `LogoSize/Margin/Opacity/SizeMode/WidthPx/HeightPx/LockAspect/PositionMode/OffsetX/OffsetY/CrossOrigin/PresetId/PresetValue/RemoteUrl/UploadValue`, `HideBackgroundDots`, `BackgroundAssetSourceMode`, `BackgroundRemoteUrl`. Fully dead fields: `selectedAriaLabel`, `selectedQrMode`, `selectedRasterExportQualityPercent`, `selectedBackgroundAssetSourceMode`, `selectedBackgroundRemoteUrl` (~30 LOC chain each). `setLogoValueFromBuffers` url/upload branches unreachable (sole caller passes "preset", `use-settings-actions.ts:389`). `use-layer-actions.ts` dead returns + bodies: `applyLayerSelection`, `getActiveSelectableLayers`, `getSelectedActiveLayers`, `handleAddFrameCardLayer`, `handleAddTextLayer`, `handleRemoveQrCode` (~90-120). `use-settings-actions.ts` ~668-685: 6 dead return entries. `use-qr-logo-actions.ts`: `resolveIconstackSvgMarkup` | safe-med (`handleRemoveQrCode` = plausible unwired context-menu action) |
+| 1.9 | **`motion/loader.tsx` dead variants** | ~400–450 of 592 | Only `dots` (`SettingsPickers.tsx:446`) and `percent` (`ExportSettingsPanel.tsx:184`) rendered. Dead fns: Spinner, Ascii, Morph, Comet, Scramble, Metaballs, Newton, Helix, Bars, DotMatrix (lines 110-527) | safe |
+| 1.10 | **Insert-menu `isPopover=false` branches** | ~130 | All 3 call sites pass true (`AppearanceIsland.tsx:226`, `ElementsSection.tsx:25`, `MobileLayerToolbar.tsx:252`). Dead: `InsertMenuInlinePanels` (~63) + plumbing, non-popover `InsertMenuRootPanel` variant (~40), `InsertMenuPopoverContent.tsx` false-branches | safe |
+| 1.11 | **`file-upload-dropzone.tsx`** | 348 | Zero importers; sibling `file-upload.tsx` live via `ElementSettingsPanel.tsx:545,621` | safe |
+| 1.12 | **`image-cropper.tsx` dead surface** | ~250–300 of 1359 | All 3 call sites (`FillPicker.tsx:366`, `SettingsFillOptionGrid.tsx:58`, `InsertMenuPanels.tsx:330`) pass only value/onChange/onImageCropped/className/compact/tile/placeholder/etc. Nobody passes `aspectRatio`, `fixedSize`, `imgClassName`, `dialogContentClassName`, `onBlur`, `error`, `disabled`, `name`, `supportedFormats` → dead ratio branches (:61-84, :86-109), "(target: X:1)" UI (:792-793, 937-939), `currentAspectRatio`. Bonus: `badge.tsx` (32) + `dialog.tsx` (84) are imported **only** by the cropper | medium |
+| 1.13 | **family-drawer → inline into MobileSettingsDrawer** | ~490 net | `components/ui/family-drawer/*` (443) + barrel + test (192): single consumer, `defaultOpen`/`onViewChange` unused, `repositionInputs={false}` disables the vaul path it wraps. Collapses to ~150 LOC inside `MobileSettingsDrawer` | medium |
+| 1.14 | **`use-fluid-hover` + `fluid-hover-highlight`** | 683 | 555-LOC hook + 128-LOC component; all 4 consumers inside `components/ui/select/*` — an animated hover pill a CSS transition replaces | medium |
+| 1.15 | **Canvas tool chain + instrumentation attrs + misc** | ~200 | `desktopCanvasTool`/`toolbarVariant`: only value ever written is `"select"` → `CanvasPanOverlay`/`CanvasTextPlacementOverlay` (~60, `canvas-viewport.tsx:169-218`) unreachable, `resolveCanvasSurfaceTool` + field + setter dead (~30). 11 write-only `data-*` attrs on `CanvasSurface.tsx:80-85` (only `data-qr-content-value` test-asserted) + ~10 orphan view-model fields. `PaperShaderOptionGrid` `insert-desktop`/`insert-canvas` variants + `InsertPaperShaderOptionTile` (~70 — only `variant="settings"` used, `ElementSettingsPanel.tsx:665`). Dead identical-branch ternary `canvas-viewport.tsx:280`. `fontClassName` prop on `CanvasSurface` never used (`Workspace.tsx:93` drills, nothing reads). `syncCornerRadiusFields` + size-templates exports → test-only, unexport. `DN` re-export in `settings-ui.tsx` | safe-med |
+| 1.16 | **Brand-icon catalog prune** | ~450 | 63 of 89 `brand-icons.ts` entries exist only so the detection chip can show a logo (no catalog search — picker renders 11 popular + iconstack). `.category` field has zero readers | low-med |
+| 1.17 | **`lib/svg-path-to-vertices.ts` + `svg-path-commander` dep** | 29 + dep | Sole importer `qr-module-metrics.test.ts:10` — T1.4 deletion never landed | safe |
+| 1.18 | **`packages/qr` tsup build** | config | Exports map points at `src/*.ts` directly; `dist/` unused by the app (private workspace package). Drop `build:packages` script + tsup devDep | safe |
+| 1.19 | **Dead `state.ts` exports + `QrDotMatrixAnimationOptions` fields** | ~100 | `clampDotMatrixAnimationSpeed/OverlayScale/Opacity` — zero non-test consumers. Dead options fields written/parsed but never read: `autoAnimate`, `autoAnimateInterval`, `dotShape`, `matrixSize` (+MIN/MAX/STEP constants), `hoverEffect`, `hoverColorMode`, `overlayScale`, `exportAnimatedSvg`, `durationSeconds`/`frameRate`/`videoFormat` (verify vs export dialog state first), `motionIntensity`, `pattern`, `paperShader`, `customColorBase`, `customColor`. Dead types: `QrDotMatrixPattern`, `QrDotMatrixDotShape`, `QrMotionIntensity`, `QrMotionHoverColorMode`, `QrMotionHoverEffect`, `QrMotionStandardPreset` | medium (`state.test.ts` pins coercion — delete pins with fields) |
+| 1.20 | **`secondary-button.tsx` merge + switch compact metrics** | ~80 | `secondary-button.tsx` (51) has 1 consumer — fold into `button.tsx`. `switch.tsx` compact `METRICS` (~25) never reached (verify `SizeProvider` never yields compact first) | safe-med |
+
+---
+
+## 2. Latent bug — fix, not cleanup
+
+`chrome-controller.ts:92,494` emits **`onBackgroundTabChange`** but `SettingsController` (`settings-model.ts:256`) and all consumers (`SceneSection.tsx:211`, `mobile-settings-rail/rows/background.tsx:64,210`) use **`onCanvasBackgroundTabChange`**. The handler is dead AND canvas background-tab sync is silently broken. Rename the emitted key.
+
+---
+
+## 3. Structural problems (fix even where LOC-neutral)
+
+| Problem | Detail |
+|---|---|
+| **Theme stack has 6 channels** | `THEME_COOKIE` + localStorage + `next-themes` context + `SettingsThemeContext` + `data-shell-theme` + `.dark` on both `<html>` and workspace section. `Workspace.tsx:45-53` re-seeds next-themes because it distrusts its reading. T3's "single source" decision never completed. Options: (a) finish consolidating onto next-themes, or (b) drop next-themes for ~30 LOC of cookie+`useState` — also removes the `patches/next-themes@0.4.6.patch` (~15KB patched dep). |
+| **227 `!important`** | 135 in `settings.css` alone; densest in the fill-picker override zone (~lines 2000-2100, 31 in 100 lines) — CSS fighting TSX utility classes. Structural refactor target (cascade layer or styled API on the vendored picker), not deletion. |
+| **`'use client'` on hookless files** | ~10 files (`dot-matrix-bridge.ts`, `shader-frames.ts`, `pointer-drag.ts`, `stop-list-shared.ts`…) carry the directive with zero hooks — pulls pure utils into the client graph. Drop where all importers are already client. |
+| **Fonts loaded sitewide** | Kodchasan + Manrope used only by landing (`landing-hero-text`, `landing-card-wheel`); `/design` ships unused font CSS. Move both to `app/page.tsx` scope. Dead `<link rel=preconnect>` to fonts.googleapis.com/gstatic in `layout.tsx` — `next/font` self-hosts. `theme-contract.test.ts` pins the current arrangement via source-grep — delete the test. |
+| **`WorkspacePageClient` exists only for `useSearchParams`** | Forces `Suspense fallback={null}` blank paint. `app/design/page.tsx` is a server component — read `searchParams` prop, pass `initialActiveTool`, delete the 28-LOC wrapper + Suspense. |
+| **Render-time setState** | `use-canvas-qr-markup.ts:71-75` (dies with the preview-session removal), `use-card-chrome.ts:~300` `setRatioMorph` (intentional but flagged), `use-illustration-svg.ts` (legit idiom). |
+| **`Artboard.tsx` memo key list** | Hand-maintained `PANE_MEMO_COMPARE_KEYS` — any new prop silently bypasses or is wrongly ignored. Exists mostly as a seam for `Artboard.test.tsx` (2,495 LOC). Inline the comparator onto `CanvasWorkspace` or accept the risk consciously. |
+| **`proxy.ts` rate limiter** | Exists solely for `/api/icons/*`; in-memory Map per instance — ineffective on serverless. Either decorative (drop) or needs a real store. |
+| **`/desktop` redirect** | `next.config.ts` — nothing links to `/desktop` (only test payload strings). Drop unless external links exist. |
+| **Duplicated finders math** | `getFinderCornerRegions`/`getQrSvgNumCells` implemented twice: `svg-extension/finder-corner-gradient.ts` vs `packages/qr/src/core/finder-gradient-overlays.ts` (~350 mergeable). Partially absorbed by deep T4.5. |
+| **Layer editor duplication** | `ImageFitSettings`/`TextSizeSettings` in `FloatingLayerToolbarSettings.tsx` vs `ElementSettingsPanel.tsx` controls; `IllustrationFloatingColorControl` vs `IllustrationSettingsColorSection`; mobile lazy-wraps panels desktop imports statically. A shared single-property schema (deferred T4.4 item) merges ~800-1,000 LOC. |
+| **QR fill translation duplicated** | `mobile-settings-rail/qr-fill.ts` vs `settings/settings-bridge.ts` (392) — both translate Fill → QR-part patches. |
+| **Conic gradient path in fill-picker** | `GRADIENT_TYPE_OPTIONS` includes conic but every call site locks `allowedTypes` to linear/radial (`QR_GRADIENT_TYPES`, `FillPicker.tsx:36`). Verify no non-QR `FillPopover` leaves it undefined, then cut the conic branch in `lib/gradient.ts` (699). |
+
+---
+
+## 4. Removable features (live but questionable — product decisions)
+
+| Feature | Saves | Cost / notes |
+|---|---|---|
+| Video export (`mediabunny` + `fflate`) | ~1,050 + 2 deps | Live and wired end-to-end (`ExportSettingsPanel` Video tab → `use-workspace-export.ts:111-146` → `pipeline/video.ts`). NOT dead — cut only if unused. |
+| Iconstack logo/icon search | ~600 prod + ~460 test + API route + `proxy.ts` | Deletes the whole cluster: `iconstack-*.ts`, `use-iconstack-*` hooks, `app/api/icons/search/route.ts`, the proxy rate limiter. |
+| Marketing landing page | ~1.2k + `public/landing` + 2 fonts | If product-only: delete `features/marketing`, turn `app/page.tsx` into a redirect to `/design`. |
+| Cuelume UI sounds | ~340 + dep + test | `audio/cuelume.ts` + `use-cuelume.tsx` + ~15 callsite attr spreads + settings toggle. Pure decoration. |
+| Emoji picker | 144 + `frimousse` | **Desktop-only divergence** — no mobile path reaches it (`FloatingLayerToolbarSettings` + `InsertMenuPanels` only). Ship on mobile or cut. |
+| agentation dev toolbar | 12 + devDep | Already dev-gated; workflow question. |
+| Golden snapshot fixtures | 8.3k checked-in snapshot bytes | Keep — they're the refactor safety net, not product LOC. |
+
+---
+
+## 5. Test suite (~4k of 20k prunable)
+
+| Item | LOC | Verdict |
+|---|---|---|
+| Generators disguised as tests: `generate-shape-previews.test.ts`, `generate-style-option-previews.test.tsx`, `landing-wheel-qr-assets.test.ts` | ~168 | Not tests — asset generators gated on env vars with `expect(true).toBe(true)` fillers. Move to `scripts/`; delete fillers. |
+| Tests pinning dead code | ~1,600 | `platform-intents.test.ts` (352), `static-payload.test.ts` (350), `svg-extension.test.ts` (1,197 — internals; golden covers output), `dot-matrix-bridge.test.ts` (313), `content-field-definitions/validation/input-options` tests (~150), preset-iteration tests in `packages/qr` (~285), `preview-drawer-resize`/`preview-performance`/parts of `use-canvas-qr-markup` + `canvas-reducer` (~250), `qrafty-config.test.ts` (127 — pins dead adapter). Delete with the code per repo rule. |
+| `qr-svg-base-parity.test.ts` | 310 | Exists only to lock `ReactQRCode === emitReactQrCodeMarkup`; dies with §1.4. |
+| Impl-pinning to prune | ~1,500+ | `Artboard.test.tsx` (2,495 — className/`toHaveBeenCalledTimes` pins), `theme-contract.test.ts` (69 — source-grep), `app/design/page.test.tsx` (mock echoes), `WorkspaceChrome.test.tsx` (934 — styling pins among legit slot contracts), `state.test.ts` dead-field coercion pins, `scroll-area.test.tsx` (internal branch pokes), `family-drawer.test.tsx`, `switch.test.tsx`, `secondary-button.test.tsx`. Suite-wide: ~65 className assertions + ~59 call-count assertions are the pinning minority; ~426 `data-slot` queries are a legitimate contract — keep those. |
+| Test-only prod exports | ~50 | Unexport/delete: `resetSettingsSectionTabsForTests`, `resetPersistedElementScrollForTests`, `syncCornerRadiusFields`, `SIZE_TEMPLATE_GROUPS`/`getSizeTemplatesByGroup`/`formatAspectRatio`/`normalizeCanvasSize`/`DRAFTING_CANVAS_BASELINE_MAX_EDGE`, `clampDotMatrixAnimation*`, `createCanvasShaderLayer` (dies with §1.7), preview-session fns. |
+| `qr` devDep | dep only | Used only by `scan-safety-model.test.ts` as a reference encoder — legitimate cross-check; keep or drop the test. |
+| `fixtures.ts` in prod tree | 357 | Golden fixture file lives under `export/golden/`; it's test data — fine as-is or move under `test-utils/`. |
+
+---
+
+## 6. CSS (~450 LOC)
+
+- **Truly dead ~95-130**: `--color-focus-ring` + `--color-surface-1/2` + whole `--shadow-1/2/3` chain in `globals.css` (~15 — `theme-contract.test.ts` pins them), `--card-foreground` ×3 in `settings.css`, icon-rail tokens `--toolbar-rail-*` (`settings-toolbar-motion.css:231-260`) + the `padding-inline-end` reserving space for the deleted rail (~30), `.t-resize` duplicate of `.ds-resize` (~10), misc.
+- **Consolidatable ~250-350 (medium risk, visual check each)**: byte-identical `.ds-content-type-select*` / `.ds-fill-picker-select*` clones (:299-384, merge via `:is()`, ~35), 3 copies of the shadcn role-map alias block (~50-70), duplicated `::after` ring-overlay + pressed-state blocks (~20), dark/light embedded transparent resets (:174-225, ~25), 4× split `@media (max-width: 767px)` (~12), write-only `--tw-*` resets (~8, medium).
+- **Verified NOT dead**: zero dead `data-slot` selectors (including dynamic `${slot}-popover` templates), zero dead classes, `mobile-settings.css` is mobile-specific not a duplicate scale, `workspace-tokens.css` fully read.
+
+---
+
+## 7. Execution order
+
+| Tier | Content | Est. cut | Gate |
+|---|---|---|---|
+| **R2.0** | Fix `onBackgroundTabChange` → `onCanvasBackgroundTabChange` bug | 0 | typecheck + targeted rail/SceneSection test |
+| **R2.1 — safe sweep** | Preview subsystem (1.6), domLayers (1.3), dead presets (1.5), loader variants (1.9), dropzone (1.11), insert-menu branches (1.10), dead action returns + fully-dead draft chains (1.8 partial), svg-path dep (1.17), tsup build (1.18), test-only unexports, dead CSS lines, generator tests → scripts | ~2.5k prod + ~0.6k test | full suite |
+| **R2.2 — medium** | Image-filter cluster (1.1), platform-intent slim (1.2 opt A), shader-layer kind (1.7), cropper surface + badge/dialog (1.12), canvas-tool chain + data-attrs (1.15), draft write-path removal (1.8 rest), dead options fields (1.19), brand-icon prune (1.16), CSS consolidation | ~4k prod + ~1.5k test | full suite + visual pass |
+| **R2.3 — deep T4.5** | Fold `svg-extension/*` (~2.5k) into `emit-markup` options; delete `svg-element.ts` (408); migrate 2 ReactQRCode preview sites and delete vendored layer (1.4); merge finders math | ~3.5–4k | golden snapshots byte-identical |
+| **R2.4 — structure** | Theme single-source, font scoping, `use client` pruning, WorkspacePageClient removal, family-drawer inline, fluid-hover → CSS, shared layer-property schema, fill-bridge merge | ~1.5k + bug-risk reduction | full suite + manual |
+| **R2.5 — feature cuts** | §4 items as approved | up to ~4k | product sign-off |
+| **R2.6 — test prune** | §5 impl-pinning removals not already covered | ~1.5k test | suite stays green |
+
+**Housekeeping**: drop `stash@{0}` ("pre-main-merge agent docs" — stale), delete `.audit-tmp/` references from CLEANUP_CONTEXT.md (already gone on disk).
+
+## 8. What NOT to touch (verified live)
+
+- `layered-dom-parts` → `buildSceneIr` → `emitSvg` SVG path — live; only the `domLayers` half is dead.
+- Video export pipeline (`pipeline/*`) — fully wired, keep/cut is §4.
+- Illustration sets (448 assets) + paper-shader catalog (non-image-filter defs) + wallpapers — all reachable.
+- `MobileOptionRail`, `SettingsControls`, all `settings-ui` exports except `DN` — live.
+- `motion-faqs-accordion` (unlumen-ui) — 1 live consumer (`settings-ui/Panel.tsx:83`).
+- `@paper-design/shaders` + `-react` dual deps — intentional (RSC boundary, documented).
+- `vaul`, `frimousse`, `mediabunny`, `fflate`, `dompurify`, `slot-text`, `culori`, `react-use-measure` — 1 prod consumer each, all live.
+- Radix → Base UI swap — stays a deferred tier; radix-ui only 4 prod files now, ~0 LOC delta.

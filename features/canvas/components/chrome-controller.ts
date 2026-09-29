@@ -89,7 +89,7 @@ type QrSettingsControllerParams = {
 };
 
 type SceneControllerParams = {
-  onBackgroundTabChange: (tab: "shader" | "image" | "color") => void;
+  onCanvasBackgroundTabChange: (tab: "shader" | "image" | "color") => void;
   onCloseComposeSidebar: () => void;
   onOpenComposeSidebar: (panel: "wallpapers") => void;
   onCanvasSizeChange: SettingsController["onCanvasSizeChange"];
@@ -491,7 +491,7 @@ export function buildCanvasWorkspaceController({
       shapeSettings: desktopShapeSettings,
     },
     scene: {
-      onBackgroundTabChange: (tab) => {
+      onCanvasBackgroundTabChange: (tab) => {
         setSelectedCardState((current) => {
           if (tab === "shader") {
             return { ...current, styleMode: "paper-shader" };

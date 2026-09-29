@@ -6,11 +6,7 @@
   "license": "MIT",
   "type": "module",
   "sideEffects": false,
-  "files": [
-    "dist"
-  ],
   "scripts": {
-    "build": "tsup",
     "test": "vitest run"
   },
   "exports": {
@@ -45,7 +41,6 @@
     }
   },
   "devDependencies": {
-    "tsup": "^8.5.0",
     "typescript": "^5.9.3",
     "vitest": "^4.1.4"
   }

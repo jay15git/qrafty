@@ -277,7 +277,7 @@ export function CanvasViewport({
       draggable={canSwap}
       className={cn(
         "relative flex h-full w-full flex-col items-center justify-center overflow-hidden touch-none overscroll-none outline-none transition-opacity duration-[var(--motion-fast)] ease-out",
-        isFreeEditWorkspace ? "bg-[var(--canvas-bg,#f0f1f2)]" : "bg-[var(--canvas-bg,#f0f1f2)]",
+        "bg-[var(--canvas-bg,#f0f1f2)]",
         canSwap && "cursor-grab active:cursor-grabbing",
         draggingBoardId === board.id && "opacity-55",
         isSnapTarget &&

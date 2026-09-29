@@ -17,7 +17,7 @@ type CanvasWorkspaceController = SettingsController;
 
 type CanvasSurfaceProps = {
   theme?: ThemeMode;
-  fontClassName?: string;
+
   initialActiveTool?: SettingsToolId;
   onThemeChange?: (theme: ThemeMode) => void;
   boardToolbarVariant?: CanvasBoardToolbarVariant;
@@ -26,7 +26,6 @@ type CanvasSurfaceProps = {
 
 export function CanvasSurface({
   theme = "light",
-  fontClassName,
   initialActiveTool,
   onThemeChange,
   boardToolbarVariant = "default",

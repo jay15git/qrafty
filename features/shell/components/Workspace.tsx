@@ -90,7 +90,6 @@ export function Workspace({
             <WorkspaceEntrance theme={theme}>
               <CanvasSurface
                 theme={theme}
-                fontClassName={fontClassName}
                 initialActiveTool={initialActiveTool}
                 onThemeChange={onThemeChange}
                 boardToolbarVariant="zoom"

@@ -75,8 +75,6 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="flex min-h-full cursor-default flex-col">
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <ThemeProvider>
           <GlimmRootProvider>
             <MotionProvider>{children}</MotionProvider>
