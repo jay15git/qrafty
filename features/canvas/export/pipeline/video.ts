@@ -202,7 +202,6 @@ export async function exportWorkspaceVideo({
   await shaderSession.mount({
     cardLayer,
     cardState,
-    layers,
     mode: "video",
     videoTimeMs: 0,
   });

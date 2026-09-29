@@ -2,36 +2,51 @@
 
 import { m, AnimatePresence } from "motion/react";
 import { spring } from "@/lib/springs";
-import type { ItemRect, UseFluidHoverReturn } from "@/components/ui/use-fluid-hover";
 import type { ShapeClasses } from "@/lib/shape-classes";
-import { FluidHoverHighlight } from "@/components/ui/fluid-hover-highlight";
+import { cn } from "@/lib/utils";
 
 // ---------------------------------------------------------------------------
 // SelectOverlays
 //
 // The three absolutely positioned overlays inside the popup: the selected-row
-// background, the fluid hover pill, and the keyboard focus ring. They
-// exit-animate inside AnimatePresence boundaries that stay mounted across
-// opens; each child is keyed by the open epoch so a still-exiting overlay is
-// never re-adopted under its old key on reopen (`initial` would never run
-// again and it would spring from the stale row). The popup's own fade covers
-// their disappearance.
+// background, the hover pill, and the keyboard focus ring. They exit-animate
+// inside AnimatePresence boundaries that stay mounted across opens; each child
+// is keyed by the open epoch so a still-exiting overlay is never re-adopted
+// under its old key on reopen (`initial` would never run again and it would
+// spring from the stale row). The popup's own fade covers their disappearance.
+//
+// The hover pill's slide between rows is a plain CSS transition — transform
+// and size move on their own duration while mount/unmount opacity fades stay
+// with AnimatePresence. A fresh session re-keys the element so the pill fades
+// in on the pointed row instead of sliding over from the last one.
 // ---------------------------------------------------------------------------
+
+/** A row's position inside the scroll container's layout space. */
+export interface ItemRect {
+  top: number;
+  height: number;
+  left: number;
+  width: number;
+}
 
 export function SelectOverlays({
   open,
   openEpoch,
   checkedRect,
   focusRect,
+  hoverRect,
+  hoverSession,
   shape,
-  hover,
 }: {
   open: boolean;
   openEpoch: number;
   checkedRect: ItemRect | null;
   focusRect: ItemRect | null;
+  hoverRect: ItemRect | null;
+  /** Increments when the pointer enters the popup — re-keys the pill so it
+   *  fades in on the pointed row rather than sliding from the stale one. */
+  hoverSession: number;
   shape: ShapeClasses;
-  hover: UseFluidHoverReturn;
 }) {
   return (
     <>
@@ -67,8 +82,31 @@ export function SelectOverlays({
         )}
       </AnimatePresence>
 
-      {/* Hover background */}
-      <FluidHoverHighlight hover={hover} hidden={!open} className={shape.bg} />
+      {/* Hover background — CSS transition on transform/size replaces the old
+          spring travel; opacity stays on AnimatePresence. Reduced motion drops
+          the travel and keeps the fade. */}
+      <AnimatePresence>
+        {open && hoverRect && (
+          <m.div
+            key={hoverSession}
+            data-slot="select-hover-highlight"
+            className={cn(
+              "pointer-events-none absolute left-0 top-0 bg-hover",
+              "transition-[transform,width,height] duration-100 ease-out motion-reduce:transition-none",
+              shape.bg,
+            )}
+            style={{
+              transform: `translate(${hoverRect.left}px, ${hoverRect.top}px)`,
+              width: hoverRect.width,
+              height: hoverRect.height,
+            }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0, transition: { duration: 0.06 } }}
+            transition={{ opacity: { duration: 0.08 } }}
+          />
+        )}
+      </AnimatePresence>
 
       {/* Focus ring */}
       <AnimatePresence>

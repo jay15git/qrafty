@@ -3,19 +3,10 @@
 import { useCallback, useState } from "react";
 
 import type { CanvasLayerInteractionProps } from "@/features/canvas/components/canvas-control-props";
-import {
-  type CanvasBoardPane,
-  type CanvasBoardTool,
-  type CanvasBoardToolbarVariant,
-} from "@/features/canvas/components/CanvasBoard";
+import type { CanvasBoardPane } from "@/features/canvas/components/CanvasBoard";
 import type { ThemeMode } from "@/features/shell/components/WorkspaceChrome";
 
 import { CanvasBoard } from "@/features/canvas/components/CanvasBoard";
-
-export type {
-  CanvasBoardTool,
-  CanvasBoardToolbarVariant,
-} from "@/features/canvas/components/CanvasBoard";
 
 const MIN_PREVIEW_ZOOM = 0.1;
 const MAX_PREVIEW_ZOOM = 4;
@@ -30,12 +21,8 @@ type CanvasProps = {
   onLayerPaste?: CanvasLayerInteractionProps["onLayerPaste"];
   onLayerSelect?: CanvasLayerInteractionProps["onLayerSelect"];
   onLayerSelectionChange?: CanvasLayerInteractionProps["onLayerSelectionChange"];
-  activeCanvasTool?: CanvasBoardTool | null;
-  onAddTextLayerAt?: (point: { x: number; y: number }) => void;
-  onCanvasToolChange?: (tool: CanvasBoardTool | null) => void;
   selectedLayerId?: string | null;
   selectedLayerIds?: string[];
-  toolbarVariant?: CanvasBoardToolbarVariant;
   layerEditingEnabled?: boolean;
   fitCanvasToViewport?: boolean;
   theme?: ThemeMode;
@@ -55,12 +42,8 @@ export function Canvas({
   onLayerPaste,
   onLayerSelect,
   onLayerSelectionChange,
-  activeCanvasTool,
-  onAddTextLayerAt,
-  onCanvasToolChange,
   selectedLayerId,
   selectedLayerIds,
-  toolbarVariant = "default",
   layerEditingEnabled = true,
   fitCanvasToViewport = false,
   theme,
@@ -93,7 +76,6 @@ export function Canvas({
           </div>
         ) : (
           <CanvasBoard
-            activeCanvasTool={activeCanvasTool}
             fitCanvasToViewport={fitCanvasToViewport}
             interaction={{
               canSwap: false,
@@ -102,8 +84,6 @@ export function Canvas({
             }}
             draggingBoardId={null}
             layerEditingEnabled={layerEditingEnabled}
-            onAddTextLayerAt={onAddTextLayerAt}
-            onCanvasToolChange={onCanvasToolChange}
             onLayerAction={onLayerAction}
             onLayerChange={onLayerChange}
             onLayerCopy={onLayerCopy}
@@ -124,7 +104,6 @@ export function Canvas({
             selectedLayerId={selectedLayerId}
             selectedLayerIds={selectedLayerIds}
             snapEnabled
-            toolbarVariant={toolbarVariant}
             theme={theme}
           />
         )}

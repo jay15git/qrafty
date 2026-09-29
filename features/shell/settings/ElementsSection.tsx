@@ -22,7 +22,6 @@ export function ElementsSection({ model }: { model: SettingsModel }) {
     nodeId && onInsertLayer ? (
       <InsertMenuPanelStack
         canAddQrCode={controller?.canAddQrCode}
-        isPopover
         nodeId={nodeId}
         onAddQrCode={controller?.onAddQrCode}
         onBrowseWallpapers={

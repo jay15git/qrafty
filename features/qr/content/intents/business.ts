@@ -1,4 +1,3 @@
-import { normalizeUrl, stringFieldValue } from "@/features/qr/content/platform-builders";
 import {
   isAcuityAppointmentPath,
   isAcuitySchedulePath,
@@ -27,250 +26,243 @@ import {
   isVenmoPaymentPath,
   isVenmoProfilePath,
 } from "@/features/qr/content/platform-path-matching";
-import { urlField, urlIntent, type PlatformDef } from "@/features/qr/content/intents/shared";
+import type { PlatformDef } from "@/features/qr/content/intents/shared";
 
 export const BUSINESS_PLATFORM_DEFS: readonly PlatformDef[] = [
   {
     type: "google-review",
     label: "Google Review",
-    description: "Google business review link.",
     category: "business",
     hosts: ["g.page", "business.google.com", "maps.google.com"],
-    intents: [urlIntent("place", "Place")],
+    intents: [{ id: "place", label: "Place" }],
   },
   {
     type: "calendly",
     label: "Calendly",
-    description: "Profile, event, one-off, or collective link.",
     category: "business",
     hosts: ["calendly.com"],
     brandIconId: "calendly",
-    defaultIntentId: "event",
     intents: [
-      urlIntent("one-off", "One-off", (p) => isCalendlyOneOffPath(p)),
-      urlIntent("collective", "Collective", (p) => isCalendlyCollectivePath(p)),
-      urlIntent("event", "Event", (p) => isCalendlyEventPath(p)),
-      urlIntent("profile", "Profile", (p) => isCalendlyProfilePath(p)),
+      { id: "one-off", label: "One-off", matchPath: (p) => isCalendlyOneOffPath(p) },
+      { id: "collective", label: "Collective", matchPath: (p) => isCalendlyCollectivePath(p) },
+      { id: "event", label: "Event", matchPath: (p) => isCalendlyEventPath(p) },
+      { id: "profile", label: "Profile", matchPath: (p) => isCalendlyProfilePath(p) },
     ],
   },
   {
     type: "cal-com",
     label: "Cal.com",
-    description: "User, event, team, or private booking link.",
     category: "business",
     hosts: ["cal.com"],
     brandIconId: "calendly",
-    defaultIntentId: "event",
     intents: [
-      urlIntent("private", "Private link", (p) => isCalComPrivatePath(p)),
-      urlIntent("team", "Team event", (p) => isCalComTeamPath(p)),
-      urlIntent("event", "Event", (p) => isCalComEventPath(p)),
-      urlIntent("user", "User", (p) => isCalComUserPath(p)),
+      { id: "private", label: "Private link", matchPath: (p) => isCalComPrivatePath(p) },
+      { id: "team", label: "Team event", matchPath: (p) => isCalComTeamPath(p) },
+      { id: "event", label: "Event", matchPath: (p) => isCalComEventPath(p) },
+      { id: "user", label: "User", matchPath: (p) => isCalComUserPath(p) },
     ],
   },
   {
     type: "booking-com",
     label: "Booking.com",
-    description: "Hotel or share link.",
     category: "business",
     hosts: ["booking.com"],
     brandIconId: "booking-com",
-    defaultIntentId: "hotel",
     intents: [
-      urlIntent("share", "Share", (p) => isBookingComSharePath(p)),
-      urlIntent("hotel", "Hotel", (p) => isBookingComHotelPath(p)),
+      { id: "share", label: "Share", matchPath: (p) => isBookingComSharePath(p) },
+      { id: "hotel", label: "Hotel", matchPath: (p) => isBookingComHotelPath(p) },
     ],
   },
   {
     type: "acuity",
     label: "Acuity",
-    description: "Schedule or appointment link.",
     category: "business",
     hosts: ["acuityscheduling.com", "as.me"],
     brandIconId: "calendly",
-    defaultIntentId: "schedule",
     intents: [
-      urlIntent("appointment", "Appointment", (p, params) => isAcuityAppointmentPath(p, params)),
-      urlIntent("schedule", "Schedule", (p, _params, hostname) =>
-        isAcuitySchedulePath(p, hostname ?? ""),
-      ),
+      {
+        id: "appointment",
+        label: "Appointment",
+        matchPath: (p, params) => isAcuityAppointmentPath(p, params),
+      },
+      {
+        id: "schedule",
+        label: "Schedule",
+        matchPath: (p, _params, hostname) => isAcuitySchedulePath(p, hostname ?? ""),
+      },
     ],
   },
   {
     type: "stripe",
     label: "Stripe",
-    description: "Pay, book, donate, or checkout link.",
     category: "business",
     hosts: ["buy.stripe.com", "book.stripe.com", "donate.stripe.com", "checkout.stripe.com"],
     brandIconId: "stripe",
-    defaultIntentId: "pay",
     intents: [
-      urlIntent(
-        "checkout",
-        "Checkout",
-        (_p, _params, hostname) => hostname === "checkout.stripe.com",
-      ),
-      urlIntent("donate", "Donate", (_p, _params, hostname) => hostname === "donate.stripe.com"),
-      urlIntent("book", "Book", (_p, _params, hostname) => hostname === "book.stripe.com"),
-      urlIntent("pay", "Pay", (_p, _params, hostname) => hostname === "buy.stripe.com"),
+      {
+        id: "checkout",
+        label: "Checkout",
+        matchPath: (_p, _params, hostname) => hostname === "checkout.stripe.com",
+      },
+      {
+        id: "donate",
+        label: "Donate",
+        matchPath: (_p, _params, hostname) => hostname === "donate.stripe.com",
+      },
+      {
+        id: "book",
+        label: "Book",
+        matchPath: (_p, _params, hostname) => hostname === "book.stripe.com",
+      },
+      {
+        id: "pay",
+        label: "Pay",
+        matchPath: (_p, _params, hostname) => hostname === "buy.stripe.com",
+      },
     ],
   },
   {
     type: "razorpay",
     label: "Razorpay",
-    description: "Payment link or invoice.",
     category: "business",
     hosts: ["rzp.io", "razorpay.com"],
     brandIconId: "razorpay",
-    defaultIntentId: "link",
     intents: [
-      urlIntent("invoice", "Invoice", (p, _params, hostname) =>
-        isRazorpayInvoicePath(p, hostname ?? ""),
-      ),
-      urlIntent("link", "Payment link", (p, _params, hostname) =>
-        isRazorpayShortLinkPath(p, hostname ?? ""),
-      ),
+      {
+        id: "invoice",
+        label: "Invoice",
+        matchPath: (p, _params, hostname) => isRazorpayInvoicePath(p, hostname ?? ""),
+      },
+      {
+        id: "link",
+        label: "Payment link",
+        matchPath: (p, _params, hostname) => isRazorpayShortLinkPath(p, hostname ?? ""),
+      },
     ],
   },
   {
     type: "square",
     label: "Square",
-    description: "Checkout or pay link.",
     category: "business",
     hosts: ["square.link", "squareup.com"],
     brandIconId: "square",
-    defaultIntentId: "checkout",
     intents: [
-      urlIntent("pay", "Pay", (p, _params, hostname) => isSquarePayPath(p, hostname ?? "")),
-      urlIntent("checkout", "Checkout", (_p, _params, hostname) => hostname === "square.link"),
+      {
+        id: "pay",
+        label: "Pay",
+        matchPath: (p, _params, hostname) => isSquarePayPath(p, hostname ?? ""),
+      },
+      {
+        id: "checkout",
+        label: "Checkout",
+        matchPath: (_p, _params, hostname) => hostname === "square.link",
+      },
     ],
   },
   {
     type: "paypal-me",
     label: "PayPal.me",
-    description: "PayPal.me profile with optional amount.",
     category: "business",
     hosts: ["paypal.me"],
-    intents: [
-      {
-        id: "profile",
-        label: "Profile",
-        fields: [
-          urlField(),
-          { key: "amount", kind: "text", label: "Amount (optional)", required: false },
-        ],
-        build: (values) => {
-          const url = normalizeUrl(stringFieldValue(values, "url"));
-          const amount = stringFieldValue(values, "amount");
-          if (!amount) {
-            return url;
-          }
-
-          return url.endsWith("/") ? `${url}${amount}` : `${url}/${amount}`;
-        },
-      },
-    ],
+    intents: [{ id: "profile", label: "Profile" }],
   },
   {
     type: "venmo",
     label: "Venmo",
-    description: "Venmo profile or payment.",
     category: "business",
     hosts: ["venmo.com"],
     intents: [
-      urlIntent("payment", "Payment", (p, params) => isVenmoPaymentPath(p, params)),
-      urlIntent("profile", "Profile", (p, params) => isVenmoProfilePath(p, params)),
+      { id: "payment", label: "Payment", matchPath: (p, params) => isVenmoPaymentPath(p, params) },
+      { id: "profile", label: "Profile", matchPath: (p, params) => isVenmoProfilePath(p, params) },
     ],
   },
   {
     type: "cash-app",
     label: "Cash App",
-    description: "Cash App $cashtag link.",
     category: "business",
     hosts: ["cash.app"],
-    intents: [urlIntent("cashtag", "Cashtag", (p) => p.includes("/$"))],
+    intents: [{ id: "cashtag", label: "Cashtag", matchPath: (p) => p.includes("/$") }],
   },
   {
     type: "google-forms",
     label: "Google Forms",
-    description: "Short or full Google Forms link.",
     category: "business",
     hosts: ["forms.gle", "docs.google.com"],
     brandIconId: "google",
-    defaultIntentId: "form",
     matchHost: (hostname, pathname) => isGoogleFormsHost(hostname, pathname),
     intents: [
-      urlIntent("short", "Short link", (_p, _params, hostname) =>
-        isGoogleFormsShortHost(hostname ?? ""),
-      ),
-      urlIntent("form", "Form", (p) => isGoogleFormsFullPath(p)),
+      {
+        id: "short",
+        label: "Short link",
+        matchPath: (_p, _params, hostname) => isGoogleFormsShortHost(hostname ?? ""),
+      },
+      { id: "form", label: "Form", matchPath: (p) => isGoogleFormsFullPath(p) },
     ],
   },
   {
     type: "microsoft-forms",
     label: "Microsoft Forms",
-    description: "Form or response page link.",
     category: "business",
     hosts: ["forms.office.com", "forms.microsoft.com"],
     brandIconId: "microsoft",
-    defaultIntentId: "form",
     intents: [
-      urlIntent("page", "Response page", (p) => isMicrosoftFormsPagePath(p)),
-      urlIntent("form", "Form", (p) => isMicrosoftFormsShortPath(p)),
+      { id: "page", label: "Response page", matchPath: (p) => isMicrosoftFormsPagePath(p) },
+      { id: "form", label: "Form", matchPath: (p) => isMicrosoftFormsShortPath(p) },
     ],
   },
   {
     type: "typeform",
     label: "Typeform",
-    description: "Typeform survey link.",
     category: "business",
     hosts: ["typeform.com", "form.typeform.com"],
-    defaultIntentId: "form",
-    intents: [urlIntent("form", "Form", (p) => isTypeformPath(p))],
+    intents: [{ id: "form", label: "Form", matchPath: (p) => isTypeformPath(p) }],
   },
   {
     type: "tally",
     label: "Tally",
-    description: "Tally form link.",
     category: "business",
     hosts: ["tally.so"],
-    defaultIntentId: "form",
-    intents: [urlIntent("form", "Form", (p) => isTallyFormPath(p))],
+    intents: [{ id: "form", label: "Form", matchPath: (p) => isTallyFormPath(p) }],
   },
   {
     type: "jotform",
     label: "Jotform",
-    description: "Form or submit link.",
     category: "business",
     hosts: ["jotform.com", "form.jotform.com"],
-    defaultIntentId: "form",
     intents: [
-      urlIntent("submit", "Submit", (p) => isJotformSubmitPath(p)),
-      urlIntent("form", "Form", (p, _params, hostname) => isJotformFormHost(hostname ?? "", p)),
+      { id: "submit", label: "Submit", matchPath: (p) => isJotformSubmitPath(p) },
+      {
+        id: "form",
+        label: "Form",
+        matchPath: (p, _params, hostname) => isJotformFormHost(hostname ?? "", p),
+      },
     ],
   },
   {
     type: "zoom",
     label: "Zoom",
-    description: "Zoom meeting link.",
     category: "business",
     hosts: ["zoom.us"],
-    intents: [urlIntent("meeting", "Meeting", (p) => p.includes("/j/") || p.includes("/meeting/"))],
+    intents: [
+      {
+        id: "meeting",
+        label: "Meeting",
+        matchPath: (p) => p.includes("/j/") || p.includes("/meeting/"),
+      },
+    ],
   },
   {
     type: "google-meet",
     label: "Google Meet",
-    description: "Google Meet link.",
     category: "business",
     hosts: ["meet.google.com"],
-    intents: [urlIntent("meeting", "Meeting")],
+    intents: [{ id: "meeting", label: "Meeting" }],
   },
   {
     type: "microsoft-teams",
     label: "Microsoft Teams",
-    description: "Teams meeting link.",
     category: "business",
     hosts: ["teams.microsoft.com", "teams.live.com"],
-    intents: [urlIntent("meeting", "Meeting")],
+    intents: [{ id: "meeting", label: "Meeting" }],
   },
 ];

@@ -109,7 +109,7 @@ export function useWorkspaceExport({
       const qualityPercent = state.rasterExportQualityPercent;
       const backgroundColor = paintSolidColor(cardState.fill, "#ffffff");
       const isVideoExport =
-        exportMediaKind === "video" && sceneHasVideoExportContent(cardState, exportLayers, state);
+        exportMediaKind === "video" && sceneHasVideoExportContent(cardState, state);
 
       const onProgress = (progress: WorkspaceExportProgress) => {
         if (progress.kind === "video") {

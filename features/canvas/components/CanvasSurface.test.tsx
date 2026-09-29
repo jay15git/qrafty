@@ -140,7 +140,7 @@ afterEach(() => {
 describe("CanvasSurface", () => {
   it("deletes removable selected layers from the floating canvas toolbar", async () => {
     buildCanvasQraftyMarkupSpy.mockReturnValue(QR_PAYLOAD.markup);
-    const canvas = renderCanvas({ boardToolbarVariant: "zoom" });
+    const canvas = renderCanvas();
 
     await waitForCanvasSurface();
 
@@ -188,7 +188,7 @@ describe("CanvasSurface", () => {
   });
 
   it("renders the desktop chrome across the dynamic island, utility toolbar, and settings panel", async () => {
-    const canvas = renderCanvas({ boardToolbarVariant: "zoom" });
+    const canvas = renderCanvas();
 
     await waitForCanvasSurface();
 
@@ -245,7 +245,7 @@ describe("CanvasSurface", () => {
   });
 
   it("opens keyboard shortcuts from the settings panel footer", () => {
-    const canvas = renderCanvas({ boardToolbarVariant: "zoom" });
+    const canvas = renderCanvas();
     const shortcutsTrigger = getRequiredElement(
       canvas.container,
       '[data-slot="keyboard-shortcuts-trigger"]',
@@ -261,7 +261,7 @@ describe("CanvasSurface", () => {
   });
 
   it("does not expose the dashboard edit mode toggle or edit rail on canvas", async () => {
-    const canvas = renderCanvas({ boardToolbarVariant: "zoom" });
+    const canvas = renderCanvas();
 
     await waitForCanvasSurface();
 
@@ -284,7 +284,7 @@ describe("CanvasSurface", () => {
 
   it("adds a fresh qr layer from the bottom toolbar and selects it", async () => {
     buildCanvasQraftyMarkupSpy.mockReturnValue(QR_PAYLOAD.markup);
-    const canvas = renderCanvas({ boardToolbarVariant: "zoom" });
+    const canvas = renderCanvas();
 
     await waitForCanvasSurface();
 
@@ -308,7 +308,7 @@ describe("CanvasSurface", () => {
     buildCanvasQraftyMarkupSpy.mockImplementation(
       (state: QraftyState) => `<svg data-value="${state.data ?? ""}" />`,
     );
-    const canvas = renderCanvas({ boardToolbarVariant: "zoom" });
+    const canvas = renderCanvas();
 
     await waitForCanvasSurface();
 
@@ -345,7 +345,7 @@ describe("CanvasSurface", () => {
 
   it("keeps the qr renderer foreground-only on first render and after reset", async () => {
     buildCanvasQraftyMarkupSpy.mockReturnValue(QR_PAYLOAD.markup);
-    const canvas = renderCanvas({ boardToolbarVariant: "zoom" });
+    const canvas = renderCanvas();
 
     await waitForCanvasSurface();
 
@@ -365,7 +365,7 @@ describe("CanvasSurface", () => {
   });
 
   it("renders a faint dotted texture behind the neutral board workspace", async () => {
-    const canvas = renderCanvas({ boardToolbarVariant: "zoom" });
+    const canvas = renderCanvas();
 
     await waitForCanvasSurface();
     const composeCanvas = getRequiredElement(canvas.container, '[data-slot="canvas-surface"]');
@@ -375,7 +375,7 @@ describe("CanvasSurface", () => {
   });
 
   it("undoes and redoes QR content edits from the bottom toolbar", async () => {
-    const canvas = renderCanvas({ boardToolbarVariant: "zoom" });
+    const canvas = renderCanvas();
 
     await waitForCanvasSurface();
 
@@ -428,7 +428,7 @@ describe("CanvasSurface", () => {
   });
 
   it("uses keyboard shortcuts for undo and redo without intercepting text input undo", async () => {
-    const canvas = renderCanvas({ boardToolbarVariant: "zoom" });
+    const canvas = renderCanvas();
 
     await waitForCanvasSurface();
 
@@ -494,7 +494,7 @@ describe("CanvasSurface", () => {
   it("uses keyboard shortcuts from body focus for layer nudging, ordering, and duplicating QR codes", async () => {
     vi.useFakeTimers();
     buildCanvasQraftyMarkupSpy.mockReturnValue(QR_PAYLOAD.markup);
-    const canvas = renderCanvas({ boardToolbarVariant: "zoom" });
+    const canvas = renderCanvas();
 
     await waitForCanvasSurface();
 
@@ -547,7 +547,7 @@ describe("CanvasSurface", () => {
       configurable: true,
       value: { readText, writeText },
     });
-    const canvas = renderCanvas({ boardToolbarVariant: "zoom" });
+    const canvas = renderCanvas();
 
     await waitForCanvasSurface();
 
@@ -605,7 +605,7 @@ describe("CanvasSurface", () => {
         }),
       },
     });
-    const canvas = renderCanvas({ boardToolbarVariant: "zoom" });
+    const canvas = renderCanvas();
 
     await waitForCanvasSurface();
 
@@ -687,7 +687,7 @@ describe("CanvasSurface", () => {
 
   it("uses keyboard shortcuts to group and ungroup selected layers", async () => {
     buildCanvasQraftyMarkupSpy.mockReturnValue(QR_PAYLOAD.markup);
-    const canvas = renderCanvas({ boardToolbarVariant: "zoom" });
+    const canvas = renderCanvas();
 
     await waitForCanvasSurface();
 
@@ -742,7 +742,7 @@ describe("CanvasSurface", () => {
   it("keeps editing fields native for select-all, delete, clipboard, and layer shortcuts", async () => {
     vi.useFakeTimers();
     buildCanvasQraftyMarkupSpy.mockReturnValue(QR_PAYLOAD.markup);
-    const canvas = renderCanvas({ boardToolbarVariant: "zoom" });
+    const canvas = renderCanvas();
 
     await waitForCanvasSurface();
 
@@ -784,7 +784,7 @@ describe("CanvasSurface", () => {
     vi.useFakeTimers();
     buildCanvasQraftyMarkupSpy.mockReturnValue(QR_PAYLOAD.markup);
     let copiedText = "";
-    const canvas = renderCanvas({ boardToolbarVariant: "zoom" });
+    const canvas = renderCanvas();
 
     await waitForCanvasSurface();
 
@@ -825,7 +825,7 @@ describe("CanvasSurface", () => {
   it("focuses the canvas after selecting a canvas layer", async () => {
     vi.useFakeTimers();
     buildCanvasQraftyMarkupSpy.mockReturnValue(QR_PAYLOAD.markup);
-    const canvas = renderCanvas({ boardToolbarVariant: "zoom" });
+    const canvas = renderCanvas();
 
     await waitForCanvasSurface();
 
@@ -844,7 +844,7 @@ describe("CanvasSurface", () => {
   });
 
   it("keeps add QR and reset changes undoable", async () => {
-    const canvas = renderCanvas({ boardToolbarVariant: "zoom" });
+    const canvas = renderCanvas();
 
     await waitForCanvasSurface();
 
@@ -898,7 +898,7 @@ describe("CanvasSurface", () => {
   });
 
   it("starts a fresh default document after remount", async () => {
-    const firstCanvas = renderCanvas({ boardToolbarVariant: "zoom" });
+    const firstCanvas = renderCanvas();
 
     await waitForCanvasSurface();
 
@@ -914,7 +914,7 @@ describe("CanvasSurface", () => {
     await advanceCanvasTimers();
 
     firstCanvas.unmount();
-    const secondCanvas = renderCanvas({ boardToolbarVariant: "zoom" });
+    const secondCanvas = renderCanvas();
     await waitForCanvasSurface();
     await advanceCanvasTimers();
 

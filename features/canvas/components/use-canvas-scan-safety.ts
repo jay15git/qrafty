@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useSyncExternalStore } from "react";
+import { useMemo } from "react";
 
 import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
 import { cloneCanvasLayer } from "@/features/canvas/model/layers/fallback";
@@ -9,7 +9,6 @@ import type { CanvasQrStateByLayerId } from "@/features/canvas/model/document";
 import type { CanvasDownloadTarget } from "@/features/canvas/components/canvas-operations";
 import type { CanvasDownloadExtension } from "@/features/canvas/components/canvas.constants";
 import type { OutputDimensions } from "@/features/canvas/export/pipeline/bounds";
-import { previewSession } from "@/features/canvas/preview/preview-session";
 import { DASHBOARD_QR_NODE_ID } from "@/features/qr/rendering/compose-scene";
 import { useQrScanSafety } from "@/features/qr/hooks/use-qr-scan-safety";
 import type { QraftyState } from "@/features/qr/model/state";
@@ -46,12 +45,6 @@ export function useCanvasScanSafety({
   selectedDownloadExtension: CanvasDownloadExtension;
   selectedDownloadTarget: CanvasDownloadTarget;
 }) {
-  const isPreviewInteracting = useSyncExternalStore(
-    previewSession.subscribe,
-    previewSession.getIsInteracting,
-    () => false,
-  );
-
   const scanSafetyQrLayer = useMemo(() => {
     const targetLayerId = selectedDownloadTarget.startsWith("qr:")
       ? selectedDownloadTarget.slice("qr:".length)
@@ -123,7 +116,6 @@ export function useCanvasScanSafety({
 
   return useQrScanSafety(scanSafetyState, {
     contentIsValid: selectedContentIsValid,
-    enabled: !isPreviewInteracting,
     layer: scanSafetyQrLayer,
     scene: scanSafetyScene,
   });

@@ -13,212 +13,233 @@ import {
   isTumblrBlogPath,
   segments,
 } from "@/features/qr/content/platform-path-matching";
-import { profileIntent, urlIntent, type PlatformDef } from "@/features/qr/content/intents/shared";
+import type { PlatformDef } from "@/features/qr/content/intents/shared";
 
 export const SOCIAL_PLATFORM_DEFS: readonly PlatformDef[] = [
   {
     type: "instagram",
     label: "Instagram",
-    description: "Profile, post, reel, story, or highlight link.",
     category: "social",
     hosts: ["instagram.com"],
     brandIconId: "instagram",
     intents: [
-      profileIntent((pathname) => {
-        const segments = pathname.split("/").filter(Boolean);
-        return segments.length <= 1;
-      }),
-      urlIntent("post", "Post", (p) => p.includes("/p/")),
-      urlIntent("reel", "Reel", (p) => p.includes("/reel/")),
-      urlIntent("story", "Story", (p) => p.includes("/stories/") && !p.includes("/highlights/")),
-      urlIntent("highlight", "Highlight", (p) => p.includes("/stories/highlights/")),
+      {
+        id: "profile",
+        label: "Profile",
+        matchPath: (pathname) => {
+          const segments = pathname.split("/").filter(Boolean);
+          return segments.length <= 1;
+        },
+      },
+      { id: "post", label: "Post", matchPath: (p) => p.includes("/p/") },
+      { id: "reel", label: "Reel", matchPath: (p) => p.includes("/reel/") },
+      {
+        id: "story",
+        label: "Story",
+        matchPath: (p) => p.includes("/stories/") && !p.includes("/highlights/"),
+      },
+      {
+        id: "highlight",
+        label: "Highlight",
+        matchPath: (p) => p.includes("/stories/highlights/"),
+      },
     ],
   },
   {
     type: "x",
     label: "X",
-    description: "Profile, post, list, community, or space.",
     category: "social",
     hosts: ["x.com", "twitter.com"],
     brandIconId: "x",
     intents: [
-      profileIntent((pathname) => {
-        const segments = pathname.split("/").filter(Boolean);
-        return segments.length <= 1 && !pathname.includes("/status/");
-      }),
-      urlIntent("status", "Post", (p) => p.includes("/status/")),
-      urlIntent("list", "List", (p) => p.includes("/i/lists/")),
-      urlIntent("community", "Community", (p) => p.includes("/i/communities/")),
-      urlIntent("space", "Space", (p) => p.includes("/i/spaces/")),
+      {
+        id: "profile",
+        label: "Profile",
+        matchPath: (pathname) => {
+          const segments = pathname.split("/").filter(Boolean);
+          return segments.length <= 1 && !pathname.includes("/status/");
+        },
+      },
+      { id: "status", label: "Post", matchPath: (p) => p.includes("/status/") },
+      { id: "list", label: "List", matchPath: (p) => p.includes("/i/lists/") },
+      { id: "community", label: "Community", matchPath: (p) => p.includes("/i/communities/") },
+      { id: "space", label: "Space", matchPath: (p) => p.includes("/i/spaces/") },
     ],
   },
   {
     type: "tiktok",
     label: "TikTok",
-    description: "Profile, video, or live link.",
     category: "social",
     hosts: ["tiktok.com", "vm.tiktok.com", "vt.tiktok.com"],
     brandIconId: "tiktok",
     intents: [
-      urlIntent("video", "Video", (p) => isTikTokVideoPath(p)),
-      urlIntent("live", "Live", (p) => isTikTokLivePath(p)),
-      urlIntent("profile", "Profile", (p) => isTikTokProfilePath(p)),
+      { id: "video", label: "Video", matchPath: (p) => isTikTokVideoPath(p) },
+      { id: "live", label: "Live", matchPath: (p) => isTikTokLivePath(p) },
+      { id: "profile", label: "Profile", matchPath: (p) => isTikTokProfilePath(p) },
     ],
   },
   {
     type: "youtube",
     label: "YouTube",
-    description: "Channel, video, Shorts, playlist, or live.",
     category: "social",
     hosts: ["youtube.com", "youtu.be", "m.youtube.com"],
     brandIconId: "youtube",
     intents: [
-      urlIntent(
-        "channel",
-        "Channel",
-        (p) => p.startsWith("/@") || p.startsWith("/channel/") || p.startsWith("/c/"),
-      ),
-      urlIntent(
-        "video",
-        "Video",
-        (p) => p.includes("/watch") || (p.startsWith("/shorts/") === false && p.includes("/v/")),
-      ),
-      urlIntent("shorts", "Shorts", (p) => p.includes("/shorts/")),
-      urlIntent("playlist", "Playlist", (p) => p.includes("/playlist")),
-      urlIntent("live", "Live", (p) => p.includes("/live")),
+      {
+        id: "channel",
+        label: "Channel",
+        matchPath: (p) => p.startsWith("/@") || p.startsWith("/channel/") || p.startsWith("/c/"),
+      },
+      {
+        id: "video",
+        label: "Video",
+        matchPath: (p) =>
+          p.includes("/watch") || (p.startsWith("/shorts/") === false && p.includes("/v/")),
+      },
+      { id: "shorts", label: "Shorts", matchPath: (p) => p.includes("/shorts/") },
+      { id: "playlist", label: "Playlist", matchPath: (p) => p.includes("/playlist") },
+      { id: "live", label: "Live", matchPath: (p) => p.includes("/live") },
     ],
   },
   {
     type: "facebook",
     label: "Facebook",
-    description: "Profile, page, post, group, event, or reel.",
     category: "social",
     hosts: ["facebook.com", "fb.com", "m.facebook.com"],
     brandIconId: "facebook",
     intents: [
-      urlIntent("page", "Page", (p) => p.includes("/pages/") || p.includes("/profile.php")),
-      urlIntent(
-        "post",
-        "Post",
-        (p) => p.includes("/posts/") || p.includes("/permalink/") || p.includes("story.php"),
-      ),
-      urlIntent("group", "Group", (p) => p.includes("/groups/")),
-      urlIntent("event", "Event", (p) => p.includes("/events/")),
-      urlIntent("reel", "Reel", (p) => p.includes("/reel/")),
-      urlIntent("profile", "Profile", (p) => isFacebookProfilePath(p)),
+      {
+        id: "page",
+        label: "Page",
+        matchPath: (p) => p.includes("/pages/") || p.includes("/profile.php"),
+      },
+      {
+        id: "post",
+        label: "Post",
+        matchPath: (p) =>
+          p.includes("/posts/") || p.includes("/permalink/") || p.includes("story.php"),
+      },
+      { id: "group", label: "Group", matchPath: (p) => p.includes("/groups/") },
+      { id: "event", label: "Event", matchPath: (p) => p.includes("/events/") },
+      { id: "reel", label: "Reel", matchPath: (p) => p.includes("/reel/") },
+      { id: "profile", label: "Profile", matchPath: (p) => isFacebookProfilePath(p) },
     ],
   },
   {
     type: "linkedin",
     label: "LinkedIn",
-    description: "Profile, company, post, or job.",
     category: "social",
     hosts: ["linkedin.com"],
     intents: [
-      urlIntent("profile", "Profile", (p) => p.includes("/in/")),
-      urlIntent("company", "Company", (p) => p.includes("/company/")),
-      urlIntent("post", "Post", (p) => p.includes("/feed/update/") || p.includes("/posts/")),
-      urlIntent("job", "Job", (p) => p.includes("/jobs/")),
+      { id: "profile", label: "Profile", matchPath: (p) => p.includes("/in/") },
+      { id: "company", label: "Company", matchPath: (p) => p.includes("/company/") },
+      {
+        id: "post",
+        label: "Post",
+        matchPath: (p) => p.includes("/feed/update/") || p.includes("/posts/"),
+      },
+      { id: "job", label: "Job", matchPath: (p) => p.includes("/jobs/") },
     ],
   },
   {
     type: "threads",
     label: "Threads",
-    description: "Profile or post link.",
     category: "social",
     hosts: ["threads.net"],
     brandIconId: "threads",
     intents: [
-      urlIntent("post", "Post", (p) => p.includes("/post/")),
-      urlIntent("profile", "Profile", (p) => isThreadsProfilePath(p)),
+      { id: "post", label: "Post", matchPath: (p) => p.includes("/post/") },
+      { id: "profile", label: "Profile", matchPath: (p) => isThreadsProfilePath(p) },
     ],
   },
   {
     type: "snapchat",
     label: "Snapchat",
-    description: "Add friend, Spotlight, or Lens.",
     category: "social",
     hosts: ["snapchat.com"],
     brandIconId: "snapchat",
     intents: [
-      urlIntent("add", "Add", (p) => p.includes("/add/")),
-      urlIntent("spotlight", "Spotlight", (p) => p.includes("/spotlight/")),
-      urlIntent("lens", "Lens", (p) => p.includes("/lens/")),
+      { id: "add", label: "Add", matchPath: (p) => p.includes("/add/") },
+      { id: "spotlight", label: "Spotlight", matchPath: (p) => p.includes("/spotlight/") },
+      { id: "lens", label: "Lens", matchPath: (p) => p.includes("/lens/") },
     ],
   },
   {
     type: "pinterest",
     label: "Pinterest",
-    description: "Profile, pin, or board.",
     category: "social",
     hosts: ["pinterest.com"],
     brandIconId: "pinterest",
     intents: [
-      urlIntent("pin", "Pin", (p) => p.includes("/pin/")),
-      urlIntent(
-        "board",
-        "Board",
-        (p) => p.includes("/board/") || (segments(p).length >= 2 && !p.includes("/pin/")),
-      ),
-      urlIntent("profile", "Profile", (p) => isPinterestProfilePath(p)),
+      { id: "pin", label: "Pin", matchPath: (p) => p.includes("/pin/") },
+      {
+        id: "board",
+        label: "Board",
+        matchPath: (p) =>
+          p.includes("/board/") || (segments(p).length >= 2 && !p.includes("/pin/")),
+      },
+      { id: "profile", label: "Profile", matchPath: (p) => isPinterestProfilePath(p) },
     ],
   },
   {
     type: "reddit",
     label: "Reddit",
-    description: "User, subreddit, post, or comment.",
     category: "social",
     hosts: ["reddit.com", "old.reddit.com"],
     intents: [
-      urlIntent("user", "User", (p) => p.startsWith("/u/") || p.startsWith("/user/")),
-      urlIntent("subreddit", "Subreddit", (p) => p.startsWith("/r/") && !p.includes("/comments/")),
-      urlIntent("comment", "Comment", (p) => isRedditCommentPath(p)),
-      urlIntent("post", "Post", (p) => isRedditPostPath(p)),
+      {
+        id: "user",
+        label: "User",
+        matchPath: (p) => p.startsWith("/u/") || p.startsWith("/user/"),
+      },
+      {
+        id: "subreddit",
+        label: "Subreddit",
+        matchPath: (p) => p.startsWith("/r/") && !p.includes("/comments/"),
+      },
+      { id: "comment", label: "Comment", matchPath: (p) => isRedditCommentPath(p) },
+      { id: "post", label: "Post", matchPath: (p) => isRedditPostPath(p) },
     ],
   },
   {
     type: "twitch",
     label: "Twitch",
-    description: "Channel, video, or clip.",
     category: "social",
     hosts: ["twitch.tv", "clips.twitch.tv"],
     intents: [
-      urlIntent("video", "Video", (p) => p.includes("/videos/")),
-      urlIntent("clip", "Clip", (p) => p.includes("/clip/")),
-      urlIntent("channel", "Channel", (p) => segments(p).length === 1),
+      { id: "video", label: "Video", matchPath: (p) => p.includes("/videos/") },
+      { id: "clip", label: "Clip", matchPath: (p) => p.includes("/clip/") },
+      { id: "channel", label: "Channel", matchPath: (p) => segments(p).length === 1 },
     ],
   },
   {
     type: "bluesky",
     label: "Bluesky",
-    description: "Profile or post.",
     category: "social",
     hosts: ["bsky.app"],
     intents: [
-      urlIntent("post", "Post", (p) => p.includes("/post/")),
-      urlIntent("profile", "Profile", (p) => isBlueskyProfilePath(p)),
+      { id: "post", label: "Post", matchPath: (p) => p.includes("/post/") },
+      { id: "profile", label: "Profile", matchPath: (p) => isBlueskyProfilePath(p) },
     ],
   },
   {
     type: "mastodon",
     label: "Mastodon",
-    description: "Profile or post on any instance.",
     category: "social",
     hosts: [],
     intents: [
-      urlIntent("post", "Post", (p) => isMastodonPostPath(p)),
-      urlIntent("profile", "Profile", (p) => isMastodonProfilePath(p)),
+      { id: "post", label: "Post", matchPath: (p) => isMastodonPostPath(p) },
+      { id: "profile", label: "Profile", matchPath: (p) => isMastodonProfilePath(p) },
     ],
   },
   {
     type: "tumblr",
     label: "Tumblr",
-    description: "Blog or post.",
     category: "social",
     hosts: ["tumblr.com"],
     intents: [
-      urlIntent("post", "Post", (p) => p.includes("/post/")),
-      urlIntent("blog", "Blog", (p) => isTumblrBlogPath(p)),
+      { id: "post", label: "Post", matchPath: (p) => p.includes("/post/") },
+      { id: "blog", label: "Blog", matchPath: (p) => isTumblrBlogPath(p) },
     ],
   },
 ];

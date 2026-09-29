@@ -1,11 +1,3 @@
-export const coordinateSeed = (x: number, y: number, count: number) =>
-  Math.abs(Math.round((x + 1) * 37 + (y + 1) * 61 + count * 17));
-
-export const hashNoise = (x: number, y: number, seed: number) => {
-  const value = Math.sin((x + 1) * 12.9898 + (y + 1) * 78.233 + seed * 43.758) * 43758.5453;
-  return value - Math.floor(value);
-};
-
 export const clamp = (value: number, min: number, max: number) =>
   Math.max(min, Math.min(max, value));
 
@@ -47,44 +39,8 @@ export const sampleCellField = (
 export const easeInOut = (phase: number) =>
   phase < 0.5 ? 2 * phase * phase : 1 - Math.pow(-2 * phase + 2, 2) / 2;
 
-const rowMajorIndex = (row: number, col: number) => row * MATRIX_SIZE + col;
-
 export const trBlPathNormFromCoord = (row: number, col: number) =>
   (row + (MATRIX_LAST - col)) / (MATRIX_LAST * 2);
-
-export const PREMIUM_GRID_SIZE = 7;
-export const PREMIUM_GRID_LAST = PREMIUM_GRID_SIZE - 1;
-
-export const premiumGridBand = (value: number, count: number) =>
-  clamp(Math.floor((value / Math.max(1, count)) * PREMIUM_GRID_SIZE), 0, PREMIUM_GRID_LAST);
-
-export const premiumGridCoord = (x: number, y: number, count: number) => ({
-  row: premiumGridBand(y, count),
-  col: premiumGridBand(x, count),
-});
-
-export const premiumDiagonalSnakeOrder = (row: number, col: number) => {
-  let order = 0;
-  for (let diagonal = 0; diagonal <= PREMIUM_GRID_LAST * 2; diagonal++) {
-    const rowStart = Math.max(0, diagonal - PREMIUM_GRID_LAST);
-    const rowEnd = Math.min(PREMIUM_GRID_LAST, diagonal);
-    if (diagonal % 2 === 0) {
-      for (let r = rowEnd; r >= rowStart; r--) {
-        if (r === row && diagonal - r === col) return order;
-        order++;
-      }
-    } else {
-      for (let r = rowStart; r <= rowEnd; r++) {
-        if (r === row && diagonal - r === col) return order;
-        order++;
-      }
-    }
-  }
-  return order;
-};
-
-const frameMaskCell = (mask: string, row: number, col: number) =>
-  mask[rowMajorIndex(row, col)] || ".";
 
 const MATRIX_CENTER = 2;
 

@@ -1,11 +1,17 @@
 "use client";
 
-import { forwardRef, useContext, useRef, type ReactNode, type HTMLAttributes } from "react";
+import {
+  forwardRef,
+  useContext,
+  useEffect,
+  useRef,
+  type ReactNode,
+  type HTMLAttributes,
+} from "react";
 import { m, AnimatePresence } from "motion/react";
 import { Select as SelectPrimitive } from "@base-ui/react/select";
 import type { IconComponent } from "@/lib/icon-context";
 import { cn } from "@/lib/utils";
-import { useRegisterFluidHoverItem } from "@/components/ui/use-fluid-hover";
 import { useSize } from "@/lib/size-context";
 import { useSelectContext, SelectContentContext, popupShape } from "./context";
 
@@ -42,13 +48,16 @@ export const SelectItem = forwardRef<HTMLDivElement, SelectItemProps>(
     const sizeClasses = useSize();
     const compact = sizeClasses.variant === "compact";
 
-    // Register with fluid hover. Depends on the (stable) registerItem
-    // rather than the content context, which is rebuilt on every activeIndex
-    // change: keying the effect to the whole context re-ran it per mousemove,
-    // unregistering and re-registering every row and so keeping the hook's
-    // measurement permanently unsettled while the pointer moved.
+    // Register with the popup's hover tracking. Depends on the (stable)
+    // registerItem rather than the content context, which is rebuilt on every
+    // activeIndex change: keying the effect to the whole context re-ran it per
+    // mousemove, unregistering and re-registering every row.
     const registerItem = contentCtx?.registerItem;
-    useRegisterFluidHoverItem(registerItem, index, internalRef);
+    useEffect(() => {
+      if (!registerItem) return;
+      registerItem(index, internalRef.current);
+      return () => registerItem(index, null);
+    }, [index, registerItem]);
 
     const isActive = contentCtx?.activeIndex === index;
     const isChecked = selectCtx.value === value;
@@ -72,7 +81,7 @@ export const SelectItem = forwardRef<HTMLDivElement, SelectItemProps>(
               if (typeof ref === "function") ref(node);
               else if (ref) (ref as React.MutableRefObject<HTMLDivElement | null>).current = node;
             }}
-            data-fluid-hover-index={index}
+            data-select-index={index}
             data-value={value}
             className={cn(
               // Fixed height (was py-2 around a 19.5px line box ≈ 35.5px) so

@@ -249,7 +249,6 @@ function MobileLayerInsertTool({
       content={
         <LazyInsertMenuPanelStack
           canAddQrCode={controller?.canAddQrCode}
-          isPopover
           nodeId={insertNodeId}
           onAddQrCode={controller?.onAddQrCode}
           onBrowseWallpapers={
@@ -629,8 +628,7 @@ export function MobileLayerToolbar({
     onElementLayerPatch &&
     (selectedElementLayer.kind === "text" ||
       selectedElementLayer.kind === "shape" ||
-      selectedElementLayer.kind === "image" ||
-      selectedElementLayer.kind === "shader");
+      selectedElementLayer.kind === "image");
 
   return (
     <SettingsThemeContext.Provider value={theme}>

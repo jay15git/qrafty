@@ -22,7 +22,6 @@ type InsertMenuPopoverContentProps = {
   canAddQrCode?: boolean;
   onAddQrCode?: () => void;
   onBrowseWallpapers?: () => void;
-  isPopover?: boolean;
   popoverSide?: "top" | "bottom" | "left" | "right";
   theme?: ThemeMode;
 };
@@ -33,7 +32,6 @@ export function InsertMenuPopoverContent({
   canAddQrCode = true,
   onAddQrCode,
   onBrowseWallpapers,
-  isPopover = true,
   popoverSide = "bottom",
   theme = "dark",
 }: InsertMenuPopoverContentProps) {
@@ -46,32 +44,25 @@ export function InsertMenuPopoverContent({
 
   return (
     <PopoverContent
-      align={isPopover ? "center" : "start"}
-      className={
-        isPopover
-          ? insertMenuPortalClass(
-              theme,
-              cn(INSERT_MENU_POPOVER_SHELL, INSERT_MENU_POPOVER_WIDTH, "flex flex-col"),
-            )
-          : "w-[min(24rem,calc(100vw-2rem))] space-y-3 border-[var(--canvas-line)] bg-[var(--panel-bg)] p-3"
-      }
-      data-slot={isPopover ? "canvas-insert-menu-popover" : "canvas-insert-menu"}
-      data-mobile-settings={isPopover && mobileDensity ? "" : undefined}
-      data-theme={isPopover ? theme : undefined}
+      align="center"
+      className={insertMenuPortalClass(
+        theme,
+        cn(INSERT_MENU_POPOVER_SHELL, INSERT_MENU_POPOVER_WIDTH, "flex flex-col"),
+      )}
+      data-slot="canvas-insert-menu-popover"
+      data-mobile-settings={mobileDensity ? "" : undefined}
+      data-theme={theme}
       side={popoverSide}
-      sideOffset={isPopover ? 12 : undefined}
+      sideOffset={12}
     >
-      {isPopover ? (
-        <div className="ds-settings-popover-header">
-          <p className="ds-settings-popover-title">Add element</p>
-          <PopoverClose asChild>
-            <SettingsPopoverCloseButton title="Add element" />
-          </PopoverClose>
-        </div>
-      ) : null}
+      <div className="ds-settings-popover-header">
+        <p className="ds-settings-popover-title">Add element</p>
+        <PopoverClose asChild>
+          <SettingsPopoverCloseButton title="Add element" />
+        </PopoverClose>
+      </div>
       <InsertMenuPanelStack
         canAddQrCode={canAddQrCode}
-        isPopover={isPopover}
         nodeId={nodeId}
         onAddQrCode={onAddQrCode}
         onBrowseWallpapers={onBrowseWallpapers}

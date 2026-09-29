@@ -10,13 +10,12 @@ import type {
 
 import type { CanvasLayerInteractionProps } from "@/features/canvas/components/canvas-control-props";
 import { Artboard } from "@/features/canvas/components/Artboard";
-import type { CanvasBoardPane, CanvasBoardTool } from "@/features/canvas/components/CanvasBoard";
+import type { CanvasBoardPane } from "@/features/canvas/components/CanvasBoard";
 import type { ThemeMode } from "@/features/shell/components/WorkspaceChrome";
 import { cn } from "@/lib/utils";
 
 type CanvasViewportProps = {
   areaName?: string;
-  activeCanvasTool?: CanvasBoardTool | null;
   canSwap: boolean;
   draggingBoardId: string | null;
   effectivePan: { x: number; y: number };
@@ -28,7 +27,6 @@ type CanvasViewportProps = {
   isSelected: boolean;
   isSnapTarget: boolean;
   layerEditingEnabled?: boolean;
-  onAddTextLayerAt?: (point: { x: number; y: number }) => void;
   onBoardDragEnd: () => void;
   onBoardDragLeave: (boardId: string, event: DragEvent<HTMLDivElement>) => void;
   onBoardDragOver: (boardId: string, event: DragEvent<HTMLDivElement>) => void;
@@ -45,15 +43,12 @@ type CanvasViewportProps = {
   onCanvasKeyDown: (event: React.KeyboardEvent<HTMLDivElement>) => void;
   onCanvasPointerCancel: (event: ReactPointerEvent<HTMLDivElement>) => void;
   onCanvasPointerDown: (event: ReactPointerEvent<HTMLDivElement>) => void;
-  onCanvasPointerDownCapture: (event: ReactPointerEvent<HTMLDivElement>) => void;
   onCanvasPointerMove: (event: ReactPointerEvent<HTMLDivElement>) => void;
   onCanvasPointerUp: (event: ReactPointerEvent<HTMLDivElement>) => void;
   onCanvasTouchEnd: (event: TouchEvent<HTMLDivElement>) => void;
   onCanvasTouchMove: (event: TouchEvent<HTMLDivElement>) => void;
   onCanvasTouchStart: (event: TouchEvent<HTMLDivElement>) => void;
-  onBeginBoardPan: (event: ReactPointerEvent<HTMLDivElement>) => void;
   board: CanvasBoardPane;
-  panOverlayRef: RefObject<HTMLDivElement | null>;
   selectedLayerId?: string | null;
   selectedLayerIds?: string[];
   snapEnabled: boolean;
@@ -155,71 +150,8 @@ function CanvasBoardContent({
   );
 }
 
-type CanvasPanOverlayProps = Pick<
-  CanvasViewportProps,
-  | "activeCanvasTool"
-  | "isPanning"
-  | "onBeginBoardPan"
-  | "onCanvasPointerCancel"
-  | "onCanvasPointerMove"
-  | "onCanvasPointerUp"
-  | "panOverlayRef"
->;
-
-function CanvasPanOverlay({
-  activeCanvasTool,
-  isPanning,
-  onBeginBoardPan,
-  onCanvasPointerCancel,
-  onCanvasPointerMove,
-  onCanvasPointerUp,
-  panOverlayRef,
-}: CanvasPanOverlayProps) {
-  if (activeCanvasTool !== "pan") {
-    return null;
-  }
-
-  return (
-    <div
-      ref={panOverlayRef}
-      aria-hidden="true"
-      className="absolute inset-0 z-[1] cursor-grab touch-none data-[panning=true]:cursor-move"
-      data-panning={isPanning ? "true" : "false"}
-      data-slot="canvas-pan-overlay"
-      onPointerCancel={onCanvasPointerCancel}
-      onPointerDown={onBeginBoardPan}
-      onPointerMove={onCanvasPointerMove}
-      onPointerUp={onCanvasPointerUp}
-    />
-  );
-}
-
-type CanvasTextPlacementOverlayProps = Pick<
-  CanvasViewportProps,
-  "activeCanvasTool" | "layerEditingEnabled" | "onAddTextLayerAt"
->;
-
-function CanvasTextPlacementOverlay({
-  activeCanvasTool,
-  layerEditingEnabled = true,
-  onAddTextLayerAt,
-}: CanvasTextPlacementOverlayProps) {
-  if (activeCanvasTool !== "text" || !layerEditingEnabled || !onAddTextLayerAt) {
-    return null;
-  }
-
-  return (
-    <div
-      aria-hidden="true"
-      className="absolute inset-0 z-[var(--z-compose-toolbar)] cursor-text touch-none"
-      data-slot="canvas-text-placement-overlay"
-    />
-  );
-}
-
 export function CanvasViewport({
   areaName,
-  activeCanvasTool,
   canSwap,
   draggingBoardId,
   effectivePan,
@@ -231,8 +163,6 @@ export function CanvasViewport({
   isSelected,
   isSnapTarget,
   layerEditingEnabled = true,
-  onAddTextLayerAt,
-  onBeginBoardPan,
   onBoardDragEnd,
   onBoardDragLeave,
   onBoardDragOver,
@@ -249,14 +179,12 @@ export function CanvasViewport({
   onCanvasKeyDown,
   onCanvasPointerCancel,
   onCanvasPointerDown,
-  onCanvasPointerDownCapture,
   onCanvasPointerMove,
   onCanvasPointerUp,
   onCanvasTouchEnd,
   onCanvasTouchMove,
   onCanvasTouchStart,
   board,
-  panOverlayRef,
   selectedLayerId,
   selectedLayerIds,
   snapEnabled,
@@ -301,7 +229,6 @@ export function CanvasViewport({
       onDragStart={(event) => onBoardDragStart(board.id, event)}
       onDrop={(event) => onBoardDrop(board.id, event)}
       onPointerCancel={onCanvasPointerCancel}
-      onPointerDownCapture={onCanvasPointerDownCapture}
       onPointerDown={onCanvasPointerDown}
       onPointerMove={onCanvasPointerMove}
       onPointerUp={onCanvasPointerUp}
@@ -330,20 +257,6 @@ export function CanvasViewport({
         snapEnabled={snapEnabled}
         viewFitScale={viewFitScale}
         theme={theme}
-      />
-      <CanvasPanOverlay
-        activeCanvasTool={activeCanvasTool}
-        isPanning={isPanning}
-        onBeginBoardPan={onBeginBoardPan}
-        onCanvasPointerCancel={onCanvasPointerCancel}
-        onCanvasPointerMove={onCanvasPointerMove}
-        onCanvasPointerUp={onCanvasPointerUp}
-        panOverlayRef={panOverlayRef}
-      />
-      <CanvasTextPlacementOverlay
-        activeCanvasTool={activeCanvasTool}
-        layerEditingEnabled={layerEditingEnabled}
-        onAddTextLayerAt={onAddTextLayerAt}
       />
     </div>
   );

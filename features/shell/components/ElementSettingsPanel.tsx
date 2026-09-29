@@ -46,15 +46,12 @@ import {
   getNearestFontWeight,
 } from "@/features/shell/model/font-weight";
 import { ElementShapeOptionGrid } from "@/features/canvas/components/ElementShapeOptionGrid";
-import { PaperShaderOptionGrid } from "@/features/canvas/components/PaperShaderOptionGrid";
-import { SettingsPaperShaderControls } from "@/features/shell/settings/PaperShaderSettings";
 import {
   DEFAULT_IMAGE_LAYER,
   DEFAULT_SHAPE_LAYER,
   DEFAULT_TEXT_LAYER,
   type CanvasLayer,
 } from "@/features/canvas/model/layers/shared";
-import { createDefaultCanvasCardPaperShader } from "@/features/canvas/model/card-state";
 import { imagePaint, paintForKind, type PaintKind } from "@/features/canvas/model/paint";
 import {
   DRAFTING_FONT_CATEGORY_LABELS,
@@ -73,7 +70,7 @@ import { cn } from "@/lib/utils";
 /** Layer-style categories. Mobile renders one at a time behind a rail; desktop
  *  renders all of them (`category` undefined). */
 export type LayerStyleCategory =
-  "content" | "type" | "color" | "spacing" | "shape" | "fill" | "image" | "shader" | "options";
+  "content" | "type" | "color" | "spacing" | "shape" | "fill" | "image" | "options";
 
 function showsCategory(active: LayerStyleCategory | undefined, id: LayerStyleCategory) {
   return active === undefined || active === id;
@@ -99,9 +96,6 @@ export function LayerStyleSettings({
       {layer.kind === "image" ? (
         <LayerImageSettings category={category} layer={layer} onPatch={onPatch} />
       ) : null}
-      {layer.kind === "shader" ? (
-        <LayerShaderSettings category={category} layer={layer} onPatch={onPatch} />
-      ) : null}
     </div>
   );
 }
@@ -113,11 +107,7 @@ function TransformValueGrid({
   layer: CanvasLayer;
   onPatch: (patch: Partial<CanvasLayer>) => void;
 }) {
-  const lockAspect =
-    layer.kind === "image" ||
-    layer.kind === "shape" ||
-    layer.kind === "shader" ||
-    layer.kind === "qr";
+  const lockAspect = layer.kind === "image" || layer.kind === "shape" || layer.kind === "qr";
 
   return (
     <SettingsValueGrid>
@@ -643,42 +633,5 @@ function LayerImageSettings({
         />
       </div>
     </SettingsSection>
-  );
-}
-
-function LayerShaderSettings({
-  category,
-  layer,
-  onPatch,
-}: {
-  category?: LayerStyleCategory;
-  layer: CanvasLayer;
-  onPatch: (patch: Partial<CanvasLayer>) => void;
-}) {
-  const paperShader = layer.paperShader ?? createDefaultCanvasCardPaperShader();
-
-  return (
-    <>
-      {showsCategory(category, "shader") ? (
-        <SettingsSection className={SETTINGS_SECTION_GAP_CLASS}>
-          <p className={SETTINGS_SECTION_HEADING_CLASS}>Shader</p>
-          <PaperShaderOptionGrid
-            selectedShaderId={paperShader.shaderId}
-            variant="settings"
-            onSelect={(shaderId) =>
-              onPatch({ paperShader: createDefaultCanvasCardPaperShader(shaderId) })
-            }
-          />
-        </SettingsSection>
-      ) : null}
-      {showsCategory(category, "options") ? (
-        <div className="min-w-0 px-3 pb-3">
-          <SettingsPaperShaderControls
-            paperShader={paperShader}
-            onPaperShaderChange={(nextPaperShader) => onPatch({ paperShader: nextPaperShader })}
-          />
-        </div>
-      ) : null}
-    </>
   );
 }

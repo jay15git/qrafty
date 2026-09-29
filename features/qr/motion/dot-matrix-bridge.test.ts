@@ -20,10 +20,8 @@ import { createCanvasQrArtworkState } from "@/features/canvas/rendering/qr-artwo
 describe("dot matrix motion bridge", () => {
   it("maps desktop loaders to preset names", () => {
     expect(dotMatrixLoaderToPresetName("neon-drift")).toBe("NeonDrift");
-    expect(dotMatrixLoaderToPresetName("fan-rotate")).toBe("NeonDrift");
-    expect(dotMatrixLoaderToPresetName("tunnel")).toBe("NeonDrift");
-    expect(dotMatrixLoaderToPresetName("wave")).toBe("NeonDrift");
-    expect(dotMatrixLoaderToPresetName("scan")).toBe("NeonDrift");
+    expect(dotMatrixLoaderToPresetName("diamond-expand")).toBe("DiamondExpand");
+    expect(dotMatrixLoaderToPresetName("chevron-sweep")).toBe("ChevronSweep");
   });
 
   it("adapts rendered qr svg into animatable modules", () => {

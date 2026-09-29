@@ -43,11 +43,15 @@ describe("content-field-definitions", () => {
     ]);
   });
 
-  it("maps platform profile intents to a labeled url field", () => {
-    const values = getDefaultStaticQrValues("instagram");
-    const validation = validateStaticQrContent("instagram", values);
-    const fields = getContentFieldDefinitions("instagram", values, validation);
+  it("maps whatsapp chat intent to labeled fields", () => {
+    const values = getDefaultStaticQrValues("whatsapp");
+    const validation = validateStaticQrContent("whatsapp", values);
+    const fields = getContentFieldDefinitions("whatsapp", values, validation);
 
-    expect(fields.some((field) => field.id === "url" && field.label === "URL")).toBe(true);
+    expect(fields).toEqual([
+      expect.objectContaining({ id: "intent", type: "segmented" }),
+      expect.objectContaining({ id: "phone", label: "Phone number" }),
+      expect.objectContaining({ id: "message", type: "textarea" }),
+    ]);
   });
 });

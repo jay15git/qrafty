@@ -1,6 +1,5 @@
 import { useMemo } from "react";
 
-import type { CanvasBoardToolbarVariant } from "@/features/canvas/components/Canvas";
 import { mergeLiveQrStateByLayerId } from "@/features/canvas/components/canvas-document";
 import type { CanvasSurfaceState } from "@/features/canvas/components/canvas-reducer";
 import {
@@ -23,12 +22,10 @@ import type { StaticQrValidationResult } from "@/features/qr/content/static-payl
  * renders. Pure memos over reducer state — no effects.
  */
 export function useCanvasBoards({
-  boardToolbarVariant,
   canvasQraftyState,
   selectedContentValidation,
   state,
 }: {
-  boardToolbarVariant: CanvasBoardToolbarVariant;
   canvasQraftyState: QraftyState;
   selectedContentValidation: StaticQrValidationResult;
   state: CanvasSurfaceState;
@@ -42,11 +39,7 @@ export function useCanvasBoards({
     selectedLayerIds,
   } = state;
   const qrCanvasLayers = useMemo(() => getQrCanvasLayers(activeCanvasLayers), [activeCanvasLayers]);
-  const canExportVideo = sceneHasVideoExportContent(
-    selectedCardState,
-    activeCanvasLayers,
-    canvasQraftyState,
-  );
+  const canExportVideo = sceneHasVideoExportContent(selectedCardState, canvasQraftyState);
   const qrBoardNamesById = useMemo(() => {
     const next = new Map<string, string>();
 
@@ -106,11 +99,7 @@ export function useCanvasBoards({
     canvasQraftyState,
     qrBackgroundVisible,
   );
-  const canRemoveQrCode = resolveCanRemoveQrCode(
-    boardToolbarVariant,
-    qrCanvasLayers,
-    selectedLayerId,
-  );
+  const canRemoveQrCode = resolveCanRemoveQrCode(qrCanvasLayers, selectedLayerId);
 
   return {
     activeCanvasLayerRows,

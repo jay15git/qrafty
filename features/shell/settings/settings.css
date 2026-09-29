@@ -112,10 +112,25 @@
   --fg-label: var(--fg-secondary);
 }
 
+/* Shared shadcn component-role map — identical on the panel and its portalled
+   surfaces. --popover/--primary/--ring differ per surface and stay local. */
+:is(.ds-root, .ds-popover-content, .ds-fill-popover) {
+  --control-hover: var(--control);
+  --background: var(--bg);
+  --foreground: var(--fg);
+  --popover-foreground: var(--fg);
+  --secondary: var(--control);
+  --secondary-foreground: var(--fg);
+  --muted-foreground: var(--muted);
+  --accent: var(--control-hover);
+  --accent-foreground: var(--fg);
+  --border: var(--line);
+  --input: var(--control);
+}
+
 .ds-root {
   color-scheme: dark;
   --overlay: 255 255 255;
-  --control-hover: var(--control);
   --font: "Inter", system-ui, sans-serif;
   --panel-width: 100%;
   --tracking-tight: -0.015em;
@@ -124,38 +139,13 @@
   --type-label-color: color-mix(in srgb, var(--fg) 46%, transparent);
   --type-value-color: var(--fg);
 
-  /* Map Pencil tokens to shadcn component roles. */
-  --background: var(--bg);
-  --foreground: var(--fg);
-  --card: var(--bg);
-  --card-foreground: var(--fg);
+  /* Surface-specific shadcn roles; the shared map lives in the :is() above. */
   --popover: var(--surface);
-  --popover-foreground: var(--fg);
   --primary: var(--accent);
   --primary-foreground: var(--on-accent);
-  --secondary: var(--control);
-  --secondary-foreground: var(--fg);
-  --muted-foreground: var(--muted);
-  --accent: var(--control-hover);
-  --accent-foreground: var(--fg);
-  --border: var(--line);
-  --input: var(--control);
   --ring: var(--accent);
   --scroll-edge-fade-color: var(--bg);
   --scroll-edge-chevron-color: var(--muted);
-
-  min-height: 100dvh;
-  background: var(--bg);
-  color: var(--fg);
-  font-family: var(--font);
-  font-feature-settings: "cv11", "ss01";
-  -webkit-font-smoothing: antialiased;
-}
-
-.ds-root[data-theme="light"] {
-  color-scheme: light;
-  --overlay: 0 0 0;
-  --type-label-color: color-mix(in srgb, var(--fg) 44%, transparent);
 }
 
 /* Embedded in /desktop toolbar — same token host, no preview padding. */
@@ -176,20 +166,6 @@
   --scroll-edge-fade-color: #000000;
 }
 
-.ds-root.ds-embedded[data-theme="dark"] .ds-settings-panel {
-  width: 100%;
-  border: none;
-  border-radius: 0;
-  corner-shape: round;
-  background: transparent;
-}
-
-.ds-root.ds-embedded[data-theme="dark"] .ds-settings-scroll,
-.ds-root.ds-embedded[data-theme="dark"] .ds-settings-scroll [data-slot="scroll-area-viewport"],
-[data-slot="desktop-settings-panel"] > .ds-root.ds-embedded[data-theme="dark"] {
-  background: transparent;
-}
-
 .ds-settings-panel {
   width: var(--panel-width);
   flex-shrink: 0;
@@ -207,23 +183,6 @@
   }
 }
 
-.ds-root.ds-embedded[data-theme="light"] {
-  --scroll-edge-fade-color: #f0f1f2;
-}
-
-.ds-root.ds-embedded[data-theme="light"] .ds-settings-panel {
-  width: 100%;
-  border: none;
-  border-radius: 0;
-  corner-shape: round;
-  background: transparent;
-}
-
-.ds-root.ds-embedded[data-theme="light"] .ds-settings-scroll,
-.ds-root.ds-embedded[data-theme="light"] .ds-settings-scroll [data-slot="scroll-area-viewport"] {
-  background: transparent;
-}
-
 [data-slot="desktop-settings-panel"] {
   height: 100%;
   min-height: 0;
@@ -236,6 +195,26 @@
   width: 100%;
   background: transparent;
   color: var(--fg);
+}
+
+.ds-root.ds-embedded[data-theme="light"] {
+  --scroll-edge-fade-color: #f0f1f2;
+}
+
+/* Theme-invariant transparent resets — the embedded panel inherits whatever
+   surface sits behind it (canvas wallpaper), so panel and scroll chrome must
+   never paint their own fill. */
+.ds-root.ds-embedded[data-theme] .ds-settings-panel {
+  width: 100%;
+  border: none;
+  border-radius: 0;
+  corner-shape: round;
+  background: transparent;
+}
+
+.ds-root.ds-embedded[data-theme] .ds-settings-scroll,
+.ds-root.ds-embedded[data-theme] .ds-settings-scroll [data-slot="scroll-area-viewport"] {
+  background: transparent;
 }
 
 [data-slot="desktop-settings-shell"] [data-slot="desktop-settings-panel"] {
@@ -260,13 +239,15 @@
 }
 
 .ds-option-tile::after,
-.ds-preview-tile::after {
+.ds-preview-tile::after,
+.ds-logo-icon-picker-tile-inner::after {
   content: "";
   position: absolute;
   inset: 0;
   border-radius: inherit;
   corner-shape: inherit;
   pointer-events: none;
+  z-index: 20;
   border: 2px solid var(--fg);
   opacity: 0;
   transform: scale(0.9);
@@ -296,12 +277,12 @@
   transform: scale(1);
 }
 
-.ds-content-type-select {
+:is(.ds-content-type-select, .ds-fill-picker-select) {
   width: 100%;
   min-width: 0;
 }
 
-.ds-content-type-select > div {
+:is(.ds-content-type-select, .ds-fill-picker-select) > div {
   width: 100%;
 }
 
@@ -316,7 +297,8 @@
   margin-left: auto;
 }
 
-.ds-content-type-select .ds-content-type-select-trigger {
+:is(.ds-content-type-select, .ds-fill-picker-select)
+  :is(.ds-content-type-select-trigger, .ds-fill-picker-select-trigger) {
   width: 100%;
   min-width: 0;
   border: none !important;
@@ -331,9 +313,12 @@
   letter-spacing: var(--tracking-tight);
 }
 
-.ds-content-type-select .ds-content-type-select-trigger:hover,
-.ds-content-type-select .ds-content-type-select-trigger:focus,
-.ds-content-type-select .ds-content-type-select-trigger:focus-visible {
+:is(.ds-content-type-select, .ds-fill-picker-select)
+  :is(.ds-content-type-select-trigger, .ds-fill-picker-select-trigger):is(
+    :hover,
+    :focus,
+    :focus-visible
+  ) {
   border: none !important;
   background: var(--control) !important;
   box-shadow: none !important;
@@ -341,45 +326,9 @@
   --tw-ring-shadow: 0 0 #0000;
 }
 
-.ds-content-type-select .ds-content-type-select-trigger [data-placeholder] {
-  color: var(--muted);
-}
-
-.ds-fill-picker-select {
-  width: 100%;
-  min-width: 0;
-}
-
-.ds-fill-picker-select > div {
-  width: 100%;
-}
-
-.ds-fill-picker-select .ds-fill-picker-select-trigger {
-  width: 100%;
-  min-width: 0;
-  border: none !important;
-  background: var(--control) !important;
-  color: var(--type-value-color) !important;
-  box-shadow: none !important;
-  min-height: var(--control-height);
-  height: var(--control-height);
-  padding-inline: var(--row-px);
-  font-size: var(--type-value);
-  font-weight: var(--type-value-weight);
-  letter-spacing: var(--tracking-tight);
-}
-
-.ds-fill-picker-select .ds-fill-picker-select-trigger:hover,
-.ds-fill-picker-select .ds-fill-picker-select-trigger:focus,
-.ds-fill-picker-select .ds-fill-picker-select-trigger:focus-visible {
-  border: none !important;
-  background: var(--control) !important;
-  box-shadow: none !important;
-  outline: none;
-  --tw-ring-shadow: 0 0 #0000;
-}
-
-.ds-fill-picker-select .ds-fill-picker-select-trigger [data-placeholder] {
+:is(.ds-content-type-select, .ds-fill-picker-select)
+  :is(.ds-content-type-select-trigger, .ds-fill-picker-select-trigger)
+  [data-placeholder] {
   color: var(--muted);
 }
 
@@ -426,10 +375,6 @@
 
 .ds-preview-tile.ds-preview-tile--fluid {
   padding: 4px;
-}
-
-.ds-preview-tile::after {
-  z-index: 20;
 }
 
 .ds-preview-tile[aria-pressed="true"] {
@@ -1470,7 +1415,6 @@
   --scroll-edge-fade-color: var(--bg);
   --scroll-edge-chevron-color: var(--muted);
   --bg: var(--surface);
-  --control-hover: var(--control);
   --radius-md: 20px;
   --radius-lg: 20px;
   --tracking-tight: -0.015em;
@@ -1478,21 +1422,9 @@
   --type-value-weight: 500;
   --type-label-color: color-mix(in srgb, var(--fg) 44%, transparent);
   --type-value-color: var(--fg);
-  --background: var(--bg);
-  --foreground: var(--fg);
-  --card: var(--bg);
-  --card-foreground: var(--fg);
   --popover: var(--bg);
-  --popover-foreground: var(--fg);
   --primary: var(--fg);
   --primary-foreground: var(--bg);
-  --secondary: var(--control);
-  --secondary-foreground: var(--fg);
-  --muted-foreground: var(--muted);
-  --accent: var(--control-hover);
-  --accent-foreground: var(--fg);
-  --border: var(--line);
-  --input: var(--control);
   --ring: var(--fg);
 }
 
@@ -1644,21 +1576,6 @@
   min-width: 0;
   min-height: 0;
   place-items: center;
-}
-
-.ds-logo-icon-picker-tile-inner::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  corner-shape: inherit;
-  pointer-events: none;
-  border: 2px solid var(--fg);
-  opacity: 0;
-  transform: scale(0.9);
-  transition:
-    opacity var(--select-ring-dur) var(--ease-out),
-    transform var(--select-ring-dur) var(--ease-press);
 }
 
 /* No grey wash behind icons — hover only lifts the glyph color. */
@@ -1960,23 +1877,10 @@
   --tw-ring-shadow: 0 0 #0000;
   --tw-ring-offset-shadow: 0 0 #0000;
   box-shadow: none !important;
-  --control-hover: var(--control);
-  --background: var(--bg);
-  --foreground: var(--fg);
-  --card: var(--bg);
-  --card-foreground: var(--fg);
   --popover: var(--surface);
-  --popover-foreground: var(--fg);
   --primary: var(--fg);
   --primary-foreground: #ffffff;
-  --secondary: var(--control);
-  --secondary-foreground: var(--fg);
   --muted: var(--control);
-  --muted-foreground: var(--muted);
-  --accent: var(--control-hover);
-  --accent-foreground: var(--fg);
-  --border: var(--line);
-  --input: var(--control);
   --ring: var(--fg);
 }
 
@@ -2379,7 +2283,8 @@
   }
 
   .ds-option-tile::after,
-  .ds-preview-tile::after {
+  .ds-preview-tile::after,
+  .ds-logo-icon-picker-tile-inner::after {
     transition: none !important;
   }
 }

@@ -9,8 +9,7 @@ import { shapeClasses } from "@/lib/shape-classes";
 // Built on Base UI's Select primitive, which owns positioning (collision
 // flipping, anchor tracking), dismissal (outside press, focus-out, Escape
 // nesting inside dialogs), list keyboard navigation + typeahead, combobox
-// ARIA, and the hidden form input. This layer keeps the
-// fluid-hover overlays, the spring open/close animation (via actionsRef
+// hover/selection overlays, the spring open/close animation (via actionsRef
 // deferred unmount), and the animated checkmark.
 // ---------------------------------------------------------------------------
 
@@ -28,7 +27,7 @@ export function useSelectContext() {
   return ctx;
 }
 
-// Content context for fluid hover
+// Content context for the popup's hover pill and row registration
 interface SelectContentContextValue {
   registerItem: (index: number, element: HTMLElement | null) => void;
   activeIndex: number | null;

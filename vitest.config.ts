@@ -12,7 +12,6 @@ const qrAliases = [
   { find: "@qrafty/qr-internal/core", replacement: pkg("core/index.ts") },
   { find: "@qrafty/qr/dot-matrix", replacement: pkg("dot-matrix/index.ts") },
   { find: "@qrafty/qr/shaders", replacement: pkg("shaders/index.ts") },
-  { find: "@qrafty/qr/react", replacement: pkg("react/index.ts") },
   { find: "@qrafty/qr", replacement: pkg("index.ts") },
 ];
 

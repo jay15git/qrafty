@@ -29,6 +29,7 @@ describe("card border overlay", () => {
     const html = renderToStaticMarkup(
       <CanvasDocumentCardLayer
         cardState={cardState}
+        imageFilterShader={cardState.imageFilter}
         isImageFilterMode={false}
         isImageMode={false}
         isPaperShaderMode={false}

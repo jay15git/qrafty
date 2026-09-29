@@ -3,6 +3,7 @@ import {
   isValidEmail,
   isValidPhone,
   isValidUrl,
+  normalizeUrl,
   VALIDATION_MESSAGES,
 } from "@/features/qr/content/content-field-validation";
 import type { QrInputType } from "@/features/qr/content/input-options";
@@ -11,14 +12,9 @@ import {
   normalizeContentTypeForPicker,
 } from "@/features/qr/content/input-options";
 import {
-  buildPlatformPayload,
-  extractPlatformValuesFromUrl,
-  getPlatformDefaultValues,
-  getPlatformDefaultValuesForIntent,
+  detectPlatformIntentFromUrl,
+  getDefaultIntentId,
   isPlatformType,
-  PLATFORM_DEFS,
-  resolvePlatformType,
-  validatePlatformContent,
 } from "@/features/qr/content/platform-intents";
 
 export type StaticQrContentValue = string | boolean;
@@ -28,118 +24,6 @@ export type StaticQrValidationResult = {
   fieldErrors: Record<string, string>;
   isValid: boolean;
 };
-
-type LinkFieldKey = "url" | "username";
-
-type StaticQrContentMeta = {
-  description: string;
-  primaryField:
-    LinkFieldKey | "text" | "phone" | "email" | "ssid" | "firstName" | "code" | "vpa" | "address";
-  title: string;
-};
-
-const STRUCTURED_STATIC_QR_CONTENT_META = {
-  auto: {
-    description: "Paste any static value. URLs, text, and QR URI schemes are encoded as-is.",
-    primaryField: "text",
-    title: "Auto",
-  },
-  text: {
-    description: "Plain text that opens in the scanner result.",
-    primaryField: "text",
-    title: "Text",
-  },
-  link: {
-    description: "A static website or landing page URL.",
-    primaryField: "url",
-    title: "Link",
-  },
-  website: {
-    description: "A static website URL.",
-    primaryField: "url",
-    title: "Website",
-  },
-  phone: {
-    description: "Tap-to-call phone number.",
-    primaryField: "phone",
-    title: "Phone",
-  },
-  email: {
-    description: "A prefilled email draft.",
-    primaryField: "email",
-    title: "Email",
-  },
-  sms: {
-    description: "Tap-to-message phone number with optional body.",
-    primaryField: "phone",
-    title: "SMS",
-  },
-  wifi: {
-    description: "Network name, security type, password, and hidden network flag.",
-    primaryField: "ssid",
-    title: "Wi-Fi",
-  },
-  vcard: {
-    description: "A static contact card scanners can save.",
-    primaryField: "firstName",
-    title: "vCard",
-  },
-  "whatsapp-chat": {
-    description: "WhatsApp phone number with optional message.",
-    primaryField: "phone",
-    title: "WhatsApp Chat",
-  },
-  "telegram-username": {
-    description: "Telegram username or channel.",
-    primaryField: "username",
-    title: "Telegram Username",
-  },
-  "app-download": {
-    description: "App Store, Play Store, or universal app URL.",
-    primaryField: "url",
-    title: "App Download",
-  },
-  event: {
-    description: "Event URL by default, or a static calendar payload.",
-    primaryField: "url",
-    title: "Event",
-  },
-  coupon: {
-    description: "Coupon code, short description, and optional URL.",
-    primaryField: "code",
-    title: "Coupon",
-  },
-  upi: {
-    description: "UPI payment request for GPay, PhonePe, Paytm, and BHIM.",
-    primaryField: "vpa",
-    title: "UPI",
-  },
-  crypto: {
-    description: "Cryptocurrency payment URI with optional amount.",
-    primaryField: "address",
-    title: "Crypto",
-  },
-} satisfies Partial<Record<QrInputType, StaticQrContentMeta>>;
-
-function buildPlatformContentMeta(): Partial<Record<QrInputType, StaticQrContentMeta>> {
-  const meta: Partial<Record<QrInputType, StaticQrContentMeta>> = {};
-
-  for (const def of PLATFORM_DEFS) {
-    const primaryKey = def.intents[0]?.fields[0]?.key ?? "url";
-    meta[def.type] = {
-      description: def.description,
-      primaryField: primaryKey as StaticQrContentMeta["primaryField"],
-      title: def.label,
-    };
-  }
-
-  return meta;
-}
-
-const STATIC_QR_CONTENT_META: Record<QrInputType, StaticQrContentMeta> = {
-  ...STRUCTURED_STATIC_QR_CONTENT_META,
-  ...buildPlatformContentMeta(),
-} as Record<QrInputType, StaticQrContentMeta>;
 
 const LINK_CONTENT_TYPES = new Set<QrInputType>([
   "link",
@@ -157,8 +41,18 @@ export function getDefaultStaticQrValues(type: QrInputType): StaticQrContentValu
     return { text: "https://qrafty.local/launch" };
   }
 
-  if (isPlatformType(type)) {
-    return getPlatformDefaultValues(resolvePlatformType(type));
+  if (type === "whatsapp" || type === "whatsapp-chat") {
+    return { intent: "chat", message: "", phone: "", url: "" };
+  }
+
+  if (type === "map-location") {
+    return {
+      intent: "place",
+      latitude: "",
+      longitude: "",
+      query: "",
+      url: "",
+    };
   }
 
   if (type === "text") {
@@ -200,14 +94,6 @@ export function getDefaultStaticQrValues(type: QrInputType): StaticQrContentValu
       title: "",
       url: "",
     };
-  }
-
-  if (type === "whatsapp" || type === "whatsapp-chat") {
-    return getPlatformDefaultValues("whatsapp");
-  }
-
-  if (type === "map-location") {
-    return getPlatformDefaultValues("map-location");
   }
 
   if (type === "event") {
@@ -271,29 +157,18 @@ export function getContentValuesForTypeChange(
     }
   }
 
-  if (normalizedFrom === "link" && isPlatformType(toType) && !isPickerQrInputType(toType)) {
+  if (normalizedFrom === "link" && (toType === "whatsapp" || toType === "map-location")) {
     if (urlFromValues) {
-      const extracted = extractPlatformValuesFromUrl(toType, urlFromValues);
-      if (extracted) {
-        return { ...defaults, ...extracted };
-      }
+      const detection = detectPlatformIntentFromUrl(urlFromValues);
+      return {
+        ...defaults,
+        intent:
+          detection && detection.type === toType ? detection.intent : getDefaultIntentId(toType),
+        url: urlFromValues,
+      };
     }
 
     return defaults;
-  }
-
-  if (
-    normalizedFrom === "link" &&
-    isPickerQrInputType(toType) &&
-    toType !== "link" &&
-    toType !== "text"
-  ) {
-    if (urlFromValues && isPlatformType(toType)) {
-      const extracted = extractPlatformValuesFromUrl(toType, urlFromValues);
-      if (extracted) {
-        return { ...defaults, ...extracted };
-      }
-    }
   }
 
   if (normalizedTo === "link" && isPlatformType(fromType)) {
@@ -319,9 +194,7 @@ export function resolveContentValuesForType(
     return getDefaultStaticQrValues(type);
   }
 
-  const defaults = isPlatformType(type)
-    ? getPlatformDefaultValuesForIntent(type, stringValue(existing.intent) || undefined)
-    : getDefaultStaticQrValues(type);
+  const defaults = getDefaultStaticQrValues(type);
 
   const merged: StaticQrContentValues = { ...defaults };
 
@@ -347,10 +220,6 @@ export function resolveContentValuesForType(
 }
 
 export function buildStaticQrPayload(type: QrInputType, values: StaticQrContentValues): string {
-  if (isPlatformType(type)) {
-    return buildPlatformPayload(type, values);
-  }
-
   switch (type) {
     case "auto":
     case "text":
@@ -377,6 +246,8 @@ export function buildStaticQrPayload(type: QrInputType, values: StaticQrContentV
     case "whatsapp":
     case "whatsapp-chat":
       return buildWhatsAppPayload(values);
+    case "map-location":
+      return buildMapLocationPayload(values);
     case "event":
       return buildEventPayload(values);
     case "coupon":
@@ -385,11 +256,10 @@ export function buildStaticQrPayload(type: QrInputType, values: StaticQrContentV
       return buildUpiPayload(values);
     case "crypto":
       return buildCryptoPayload(values);
+    default:
+      // Non-picker platform types never reach the picker; fall back to a bare URL.
+      return normalizeUrl(stringValue(values.url));
   }
-
-  // Every remaining QrInputType is a platform intent; buildPlatformPayload
-  // already falls back to the url field when no intent definition matches.
-  return buildPlatformPayload(type, values);
 }
 
 type StaticFieldValidator = (
@@ -470,20 +340,73 @@ const STATIC_FIELD_VALIDATORS: Partial<Record<QrInputType, StaticFieldValidator[
     requirePositiveAmount,
   ],
   crypto: [requireField("address", "Enter a wallet address."), requirePositiveAmount],
+  whatsapp: [
+    (values, fieldErrors) => {
+      const intent = stringValue(values.intent) || "chat";
+      const url = stringValue(values.url);
+
+      if (intent === "group") {
+        if (!url) {
+          fieldErrors.url = "Enter a URL.";
+        }
+        return;
+      }
+
+      if (!url && !stringValue(values.phone)) {
+        fieldErrors.phone = "Enter a phone number.";
+      }
+    },
+  ],
+  "whatsapp-chat": [
+    (values, fieldErrors) => {
+      const intent = stringValue(values.intent) || "chat";
+      const url = stringValue(values.url);
+
+      if (intent === "group") {
+        if (!url) {
+          fieldErrors.url = "Enter a URL.";
+        }
+        return;
+      }
+
+      if (!url && !stringValue(values.phone)) {
+        fieldErrors.phone = "Enter a phone number.";
+      }
+    },
+  ],
+  "map-location": [
+    (values, fieldErrors) => {
+      const intent = stringValue(values.intent) || "place";
+      const url = stringValue(values.url);
+
+      if (intent === "directions" && !url) {
+        fieldErrors.url = "Enter a URL.";
+      }
+
+      const latitude = stringValue(values.latitude);
+      const longitude = stringValue(values.longitude);
+
+      if (!latitude && !longitude) {
+        return;
+      }
+
+      const lat = Number(latitude);
+      if (!Number.isFinite(lat) || lat < -90 || lat > 90) {
+        fieldErrors.latitude = "Latitude must be between -90 and 90.";
+      }
+
+      const lng = Number(longitude);
+      if (!Number.isFinite(lng) || lng < -180 || lng > 180) {
+        fieldErrors.longitude = "Longitude must be between -180 and 180.";
+      }
+    },
+  ],
 };
 
 export function validateStaticQrContent(
   type: QrInputType,
   values: StaticQrContentValues,
 ): StaticQrValidationResult {
-  if (isPlatformType(type)) {
-    const fieldErrors = validatePlatformContent(type, values);
-    return {
-      fieldErrors,
-      isValid: Object.keys(fieldErrors).length === 0,
-    };
-  }
-
   const fieldErrors: Record<string, string> = {};
 
   if (LINK_CONTENT_TYPES.has(type) && !stringValue(values.url)) {
@@ -499,6 +422,9 @@ export function validateStaticQrContent(
     const eventMode = stringValue(values.eventMode) || "url";
     const shouldValidateUrl =
       LINK_CONTENT_TYPES.has(type) ||
+      type === "whatsapp" ||
+      type === "whatsapp-chat" ||
+      type === "map-location" ||
       (type === "event" && eventMode === "url") ||
       type === "vcard" ||
       (type === "coupon" && !stringValue(values.code));
@@ -522,7 +448,11 @@ export function validateStaticQrContent(
   if (
     phone &&
     !fieldErrors.phone &&
-    (type === "phone" || type === "sms" || type === "vcard") &&
+    (type === "phone" ||
+      type === "sms" ||
+      type === "vcard" ||
+      type === "whatsapp" ||
+      type === "whatsapp-chat") &&
     !isValidPhone(phone)
   ) {
     fieldErrors.phone = VALIDATION_MESSAGES.phone;
@@ -605,12 +535,35 @@ function buildVCardPayload(values: StaticQrContentValues) {
 }
 
 function buildWhatsAppPayload(values: StaticQrContentValues) {
+  const url = stringValue(values.url);
+  if (url) {
+    return normalizeUrl(url);
+  }
+
   const phone = normalizePhone(stringValue(values.phone)).replace(/^\+/, "");
   const message = stringValue(values.message);
 
   return message
     ? `https://wa.me/${phone}?text=${encodeURIComponent(message)}`
     : `https://wa.me/${phone}`;
+}
+
+function buildMapLocationPayload(values: StaticQrContentValues) {
+  const url = stringValue(values.url);
+  if (url) {
+    return normalizeUrl(url);
+  }
+
+  const latitude = stringValue(values.latitude);
+  const longitude = stringValue(values.longitude);
+  const query = stringValue(values.query);
+
+  if (latitude || longitude) {
+    const suffix = query ? `?q=${encodeURIComponent(query)}` : "";
+    return `geo:${latitude},${longitude}${suffix}`;
+  }
+
+  return `https://maps.google.com/?q=${encodeURIComponent(query)}`;
 }
 
 function buildEventPayload(values: StaticQrContentValues) {
@@ -705,20 +658,6 @@ function appendCalendarLine(
   if (text) {
     lines.push(`${label}:${escapeCalendarValue(text)}`);
   }
-}
-
-function normalizeUrl(value: string) {
-  const trimmed = value.trim();
-
-  if (!trimmed) {
-    return "";
-  }
-
-  if (/^[a-z][a-z\d+\-.]*:/i.test(trimmed)) {
-    return trimmed;
-  }
-
-  return `https://${trimmed}`;
 }
 
 function normalizePhone(value: string) {

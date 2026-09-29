@@ -2,6 +2,8 @@
 
 import {
   forwardRef,
+  useCallback,
+  useLayoutEffect,
   useRef,
   useEffect,
   useState,
@@ -13,7 +15,6 @@ import { m } from "motion/react";
 import { Select as SelectPrimitive } from "@base-ui/react/select";
 import { cn } from "@/lib/utils";
 import { spring, exitFallbackMs } from "@/lib/springs";
-import { useFluidHover } from "@/components/ui/use-fluid-hover";
 import {
   popupMaxHeightClass,
   popupMotionClass,
@@ -25,7 +26,7 @@ import { useKeyboardNavGate } from "@/lib/hooks/use-keyboard-nav-gate";
 import { SurfaceProvider } from "@/lib/surface-context";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useSelectContext, SelectContentContext, popupShape } from "./context";
-import { SelectOverlays } from "./overlays";
+import { SelectOverlays, type ItemRect } from "./overlays";
 
 // The popup sits at the top of the surface ladder (level 3) and re-provides
 // it so nested scroll fades resolve `--surface-3`.
@@ -46,7 +47,7 @@ interface SelectContentProps extends HTMLAttributes<HTMLDivElement> {
   positionerClassName?: string;
   /** Overrides the inner item container layout (e.g. `grid grid-cols-4` for tile grids). */
   listClassName?: string;
-  /** Hit-test axis for the fluid hover overlay — pass "xy" when the list is a grid. */
+  /** Hit-test axis for the hover pill — pass "xy" when the list is a grid. */
   listAxis?: "x" | "y" | "xy";
 }
 
@@ -56,19 +57,123 @@ export const SelectContent = forwardRef<HTMLDivElement, SelectContentProps>(
     const shape = popupShape;
     const containerRef = useRef<HTMLDivElement>(null);
 
-    const hover = useFluidHover(containerRef, {
-      axis: listAxis,
-      isItemDisabled: isDisabledRow,
-    });
-    const {
-      activeIndex,
-      setActiveIndex,
-      itemRects,
-      isMeasured,
-      handlers,
-      registerItem,
-      remeasure,
-    } = hover;
+    // Item elements keyed by their `data-select-index`, so pointer handlers
+    // can hit-test them and the overlays can read live layout rects.
+    const itemsRef = useRef(new Map<number, HTMLElement>());
+    const rafIdRef = useRef<number | null>(null);
+    const sessionRef = useRef(0);
+    const [hoverSession, setHoverSession] = useState(0);
+    const [activeIndex, setActiveIndex] = useState<number | null>(null);
+    // Mirrored for handlers that read it outside a render (the gap click).
+    const activeIndexRef = useRef<number | null>(null);
+    useEffect(() => {
+      activeIndexRef.current = activeIndex;
+    }, [activeIndex]);
+
+    const registerItem = useCallback((index: number, element: HTMLElement | null) => {
+      if (element) {
+        itemsRef.current.set(index, element);
+      } else {
+        itemsRef.current.delete(index);
+        // The highlighted row is gone: nothing should stay lit or receive a
+        // routed click until the pointer picks again.
+        if (index === activeIndexRef.current) setActiveIndex(null);
+      }
+    }, []);
+
+    /** The pointer-lit row: the row the pointer is inside wins; between rows
+     *  the nearest keeps the highlight so the pill doesn't blink. */
+    const pickNearest = useCallback(
+      (point: { x: number; y: number }): number | null => {
+        let containing: number | null = null;
+        let closest: number | null = null;
+        let closestDistance = Infinity;
+        itemsRef.current.forEach((el, index) => {
+          if (isDisabledRow(el)) return;
+          const r = el.getBoundingClientRect();
+          const contains =
+            point.x >= r.left && point.x <= r.right && point.y >= r.top && point.y <= r.bottom;
+          if (contains) containing = index;
+          const mousePos = listAxis === "x" ? point.x : point.y;
+          const itemStart = listAxis === "x" ? r.left : r.top;
+          const itemSize = listAxis === "x" ? r.width : r.height;
+          const distance =
+            listAxis === "xy"
+              ? Math.hypot(point.x - (r.left + r.width / 2), point.y - (r.top + r.height / 2))
+              : Math.abs(mousePos - (itemStart + itemSize / 2));
+          if (distance < closestDistance) {
+            closestDistance = distance;
+            closest = index;
+          }
+        });
+        return containing ?? closest;
+      },
+      [listAxis],
+    );
+
+    const onMouseMove = useCallback(
+      (e: React.MouseEvent) => {
+        const point = { x: e.clientX, y: e.clientY };
+        if (rafIdRef.current !== null) cancelAnimationFrame(rafIdRef.current);
+        rafIdRef.current = requestAnimationFrame(() => {
+          rafIdRef.current = null;
+          setActiveIndex(pickNearest(point));
+        });
+      },
+      [pickNearest],
+    );
+
+    const onMouseLeave = useCallback(() => {
+      if (rafIdRef.current !== null) {
+        cancelAnimationFrame(rafIdRef.current);
+        rafIdRef.current = null;
+      }
+      setActiveIndex(null);
+    }, []);
+
+    // Routes a click that lands between items (a gap, the padding, past the
+    // last row) to the highlighted item, so the highlight and the click
+    // agree: what is lit is what a click hits.
+    const onClick = useCallback((e: React.MouseEvent) => {
+      const target = e.target as Node | null;
+      if (!target) return;
+      for (const element of itemsRef.current.values()) {
+        if (element.contains(target)) return;
+      }
+      if (!target.isConnected) return;
+      const control = (target as Element).closest?.(
+        "input, textarea, select, button, a, summary, [contenteditable], [role='textbox'], [role='searchbox'], [role='button']",
+      );
+      if (control) return;
+      const index = activeIndexRef.current;
+      if (index === null) return;
+      itemsRef.current.get(index)?.click();
+    }, []);
+
+    useEffect(
+      () => () => {
+        if (rafIdRef.current !== null) cancelAnimationFrame(rafIdRef.current);
+      },
+      [],
+    );
+
+    /** A row's layout-space rect inside the scroll container — offset* values
+     *  walk offset ancestors, so transforms on the popup don't skew it and the
+     *  pill scrolls with the rows. */
+    const itemRect = useCallback((index: number): ItemRect | null => {
+      const element = itemsRef.current.get(index);
+      const container = containerRef.current;
+      if (!element || !container) return null;
+      let top = element.offsetTop;
+      let left = element.offsetLeft;
+      let ancestor = element.offsetParent as HTMLElement | null;
+      while (ancestor && ancestor !== container && container.contains(ancestor)) {
+        top += ancestor.offsetTop + ancestor.clientTop;
+        left += ancestor.offsetLeft + ancestor.clientLeft;
+        ancestor = ancestor.offsetParent as HTMLElement | null;
+      }
+      return { top, left, width: element.offsetWidth, height: element.offsetHeight };
+    }, []);
 
     const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
 
@@ -88,17 +193,6 @@ export const SelectContent = forwardRef<HTMLDivElement, SelectContentProps>(
       return () => clearTimeout(id);
     }, [open, actionsRef]);
 
-    // Fresh rects once per open. Measuring is the hook's job — it owns the
-    // one coalesced pass that item registration and container resizes both
-    // feed into, and a second pass from elsewhere is what used to land a
-    // corrected rect on an already-mounted overlay. The popup keeps its items
-    // registered while it sits hidden between opens, so registration alone
-    // would never trigger a fresh pass on reopen.
-    useEffect(() => {
-      if (!open) return;
-      remeasure();
-    }, [open, remeasure]);
-
     // Detect the checked row. Deliberately does NOT remeasure on a value
     // change while open: the rows haven't moved, so the published rects stay
     // trustworthy and only checkedIndex switches — which lets the selected
@@ -113,7 +207,7 @@ export const SelectContent = forwardRef<HTMLDivElement, SelectContentProps>(
           const container = containerRef.current;
           if (container) {
             const items = Array.from(
-              container.querySelectorAll("[data-fluid-hover-index]"),
+              container.querySelectorAll("[data-select-index]"),
             ) as HTMLElement[];
             const idx = items.findIndex((el) => el.getAttribute("data-value") === value);
             setCheckedIndex(idx !== -1 ? idx : undefined);
@@ -149,19 +243,29 @@ export const SelectContent = forwardRef<HTMLDivElement, SelectContentProps>(
       }
     }
 
-    // activeIndex lives inside useFluidHover, so it can't join the render
-    // adjustment above; clearing it in a microtask still lands before the
-    // close paints, keeping a stale pill off the next open.
+    // Clearing it in a microtask still lands before the close paints, keeping a
+    // stale pill off the next open.
     useEffect(() => {
       if (open) return;
       queueMicrotask(() => setActiveIndex(null));
-    }, [open, setActiveIndex]);
+    }, [open]);
 
-    // Overlays read rects only once the hook reports the item set fully
-    // measured. Positioning one from an incomplete pass mounts it at the wrong
-    // row, and the correcting pass then springs it across the list.
-    const checkedRect = isMeasured && checkedIndex != null ? itemRects[checkedIndex] : null;
-    const focusRect = isMeasured && focusedIndex !== null ? itemRects[focusedIndex] : null;
+    // DOM measurement can't run during render — recompute after commit whenever
+    // a rect-driving index changes. A one-frame settle is invisible because the
+    // pill animates with a CSS transition.
+    const [rects, setRects] = useState<{
+      checked: ItemRect | null;
+      focus: ItemRect | null;
+      hover: ItemRect | null;
+    }>({ checked: null, focus: null, hover: null });
+    useLayoutEffect(() => {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- DOM geometry exists only post-commit; measuring then storing is the one-shot layout-read pattern this rule carves out.
+      setRects({
+        checked: checkedIndex != null ? itemRect(checkedIndex) : null,
+        focus: focusedIndex !== null ? itemRect(focusedIndex) : null,
+        hover: open && activeIndex !== null ? itemRect(activeIndex) : null,
+      });
+    }, [checkedIndex, focusedIndex, activeIndex, open, openEpoch, itemRect]);
 
     const contentCtx = useMemo(
       () => ({ registerItem, activeIndex, checkedIndex }),
@@ -199,16 +303,17 @@ export const SelectContent = forwardRef<HTMLDivElement, SelectContentProps>(
                 // handling, so the nav flag must be set before then.
                 onKeyDownCapture={trackKeyboardNav}
                 onMouseEnter={() => {
-                  handlers.onMouseEnter();
+                  sessionRef.current += 1;
+                  setHoverSession(sessionRef.current);
                   setFocusedIndex(null);
                 }}
-                onMouseMove={handlers.onMouseMove}
-                onMouseLeave={handlers.onMouseLeave}
-                onClick={handlers.onClick}
+                onMouseMove={onMouseMove}
+                onMouseLeave={onMouseLeave}
+                onClick={onClick}
                 onFocus={(e) => {
                   const indexAttr = (e.target as HTMLElement)
-                    .closest("[data-fluid-hover-index]")
-                    ?.getAttribute("data-fluid-hover-index");
+                    .closest("[data-select-index]")
+                    ?.getAttribute("data-select-index");
                   if (indexAttr != null) {
                     const idx = Number(indexAttr);
                     setActiveIndex(idx);
@@ -251,10 +356,11 @@ export const SelectContent = forwardRef<HTMLDivElement, SelectContentProps>(
                     <SelectOverlays
                       open={open}
                       openEpoch={openEpoch}
-                      checkedRect={checkedRect}
-                      focusRect={focusRect}
+                      checkedRect={rects.checked}
+                      focusRect={rects.focus}
+                      hoverRect={rects.hover}
+                      hoverSession={hoverSession}
                       shape={shape}
-                      hover={hover}
                     />
 
                     {children}

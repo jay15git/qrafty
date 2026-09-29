@@ -1,6 +1,5 @@
 import { createFallbackLayer } from "@/features/canvas/model/layers/fallback";
 import { normalizeImageCanvasLayer } from "@/features/canvas/model/layers/image";
-import { normalizeShaderCanvasLayer } from "@/features/canvas/model/layers/shader";
 import { normalizeShapeCanvasLayer } from "@/features/canvas/model/layers/shape";
 import { normalizeTextCanvasLayer } from "@/features/canvas/model/layers/text";
 import {
@@ -61,10 +60,6 @@ export function normalizeCanvasLayer(
     return normalizeGroupCanvasLayer({ ...context, kind });
   }
 
-  if (kind === "shader") {
-    return normalizeShaderCanvasLayer({ ...context, kind });
-  }
-
   return normalizeNonTextCanvasLayer({ ...context, kind });
 }
 
@@ -74,7 +69,6 @@ function getCanvasLayerKind(value: unknown): CanvasLayerKind | null {
     value === "image" ||
     value === "qr" ||
     value === "shape" ||
-    value === "shader" ||
     value === "text"
     ? value
     : null;

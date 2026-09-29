@@ -234,9 +234,7 @@ body:has([data-slot="workspace"]) button:disabled {
   box-shadow: none !important;
 }
 
-[data-slot="workspace"] [data-slot="dynamic-island"],
-[data-slot="workspace"][data-shell-theme="light"] [data-slot="dynamic-island"],
-[data-slot="workspace"][data-shell-theme="dark"] [data-slot="dynamic-island"] {
+[data-slot="workspace"] [data-slot="dynamic-island"] {
   box-shadow: none !important;
 }
 

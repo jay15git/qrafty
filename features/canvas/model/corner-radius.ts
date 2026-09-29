@@ -215,7 +215,7 @@ export function layerSupportsCornerRadius(layer: {
   kind: string;
   shapeId?: string;
 }) {
-  if (layer.kind === "card" || layer.kind === "image" || layer.kind === "shader") {
+  if (layer.kind === "card" || layer.kind === "image") {
     return true;
   }
 

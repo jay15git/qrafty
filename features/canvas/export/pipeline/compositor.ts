@@ -187,13 +187,7 @@ function clipCardRoundedRect(
 }
 
 function resolveShaderBitmap(layer: CanvasLayer, shaderBitmaps: Record<string, ImageBitmap>) {
-  return (
-    shaderBitmaps[layer.id] ??
-    (layer.kind === "card" ? shaderBitmaps.card : undefined) ??
-    (layer.kind === "shader" && layer.paperShader
-      ? shaderBitmaps[layer.paperShader.shaderId]
-      : undefined)
-  );
+  return shaderBitmaps[layer.id] ?? (layer.kind === "card" ? shaderBitmaps.card : undefined);
 }
 
 function drawCanvasFace(
@@ -283,7 +277,6 @@ export async function renderWorkspaceCompositorCanvas({
       await session.mount({
         cardLayer,
         cardState,
-        layers,
         mode,
         videoTimeMs,
       });

@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 
 import type { ThemeMode } from "@/features/shell/components/WorkspaceChrome";
-import { previewDrawerResize } from "@/features/canvas/preview/preview-drawer-resize";
 
 import "./workspace-entrance.css";
 
@@ -37,10 +36,7 @@ function isMobileChromeInsetsReady() {
   const workspace = document.querySelector<HTMLElement>('[data-slot="workspace"]');
   const measuredDrawerHeight = workspace?.style.getPropertyValue("--mobile-drawer-height");
 
-  return (
-    Boolean(measuredDrawerHeight && measuredDrawerHeight !== "0px") &&
-    !previewDrawerResize.getIsResizing()
-  );
+  return Boolean(measuredDrawerHeight && measuredDrawerHeight !== "0px");
 }
 
 function getWorkspaceReadiness(root: HTMLElement) {

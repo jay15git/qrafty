@@ -11,14 +11,7 @@ import {
   getQrSvgNumCells,
 } from "./svg-extension";
 import { getQraftyQrQuietZoneFraction } from "@/features/qr/model/qr-module-metrics";
-import {
-  createDefaultQraftyState,
-  setDotMatrixAnimationOptions,
-  type QrDotMatrixAnimationPatch,
-  type QraftyState,
-  QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS,
-  clampQrSize,
-} from "@/features/qr/model/state";
+import { createDefaultQraftyState, type QraftyState, clampQrSize } from "@/features/qr/model/state";
 import {
   getQrBackgroundShapeContentFrame,
   getQrBackgroundShapeDefinition,
@@ -278,31 +271,6 @@ function getPaletteLayerAnchors(_svg: StubElement, colorLayers: StubElement[]) {
   }
 
   return anchorsByColor;
-}
-
-function renderDotMatrixTracks(
-  loader: NonNullable<ReturnType<typeof createDefaultQraftyState>["dotMatrixAnimation"]["loader"]>,
-  pattern: ReturnType<typeof createDefaultQraftyState>["dotMatrixAnimation"]["pattern"] = "full",
-  patch: QrDotMatrixAnimationPatch = {},
-) {
-  const state = setDotMatrixAnimationOptions(createDefaultQraftyState(), {
-    ...patch,
-    enabled: true,
-    loader,
-    pattern,
-    speed: patch.speed ?? 3,
-  });
-  return { animationLayer: null, tracks: [] as StubElement[] };
-}
-
-function getTrackDuration(track: StubElement) {
-  return Number(track.getAttribute("data-qr-dot-duration-ms") ?? Number.NaN);
-}
-
-function getTrackForRegion(tracks: StubElement[], region: string) {
-  return tracks.find((track) =>
-    track.getAttribute("data-qr-dot-region")?.split(" ").includes(region),
-  );
 }
 
 function appendGradientRectPair({

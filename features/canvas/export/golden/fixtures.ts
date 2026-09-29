@@ -7,7 +7,6 @@ import { createDefaultCanvasWorkspaceQrState } from "@/features/canvas/model/doc
 import { createDefaultCanvasLayers } from "@/features/canvas/model/layers/card-qr";
 import {
   createCanvasImageLayer,
-  createCanvasShaderLayer,
   createCanvasShapeLayer,
   createCanvasTextLayer,
 } from "@/features/canvas/model/layers/factories";
@@ -240,9 +239,9 @@ export const GOLDEN_FIXTURES: GoldenFixture[] = [
           ...state.dotMatrixAnimation,
           enabled: true,
           animated: true,
-          // "wave" is a deprecated loader id; resolution must fall back to the
-          // loader field.
-          preset: "wave",
+          // Diverging preset + loader: preset wins when it resolves to a
+          // known loader id.
+          preset: "diamond-expand",
           loader: "diamond-expand",
           presetCategory: "dotMatrix",
         };
@@ -276,44 +275,27 @@ export const GOLDEN_FIXTURES: GoldenFixture[] = [
     return input;
   }),
 
-  fixture(
-    "layers-image-shader",
-    () => {
-      const nodeId = "golden-layers-image-shader";
-      const input = base(nodeId, ({ cardState }) => {
-        cardState.styleMode = "solid";
-      });
-      input.layers = [
-        ...input.layers,
-        createCanvasImageLayer(nodeId, {
-          id: `${nodeId}:image:golden-image`,
-          imageSource: "url",
-          imageValue: GOLDEN_PIXEL_PNG,
-          imageFit: "cover",
-          width: 160,
-          height: 160,
-          x: 640,
-          y: 120,
-          zIndex: 2,
-        }),
-        createCanvasShaderLayer(nodeId, "voronoi", {
-          id: `${nodeId}:shader:golden-shader`,
-          width: 320,
-          height: 200,
-          x: 400,
-          y: 500,
-          opacity: 0.6,
-          zIndex: 1,
-        }),
-      ];
-      return input;
-    },
-    {
-      shaderSnapshots: {
-        "golden-layers-image-shader:shader:golden-shader": GOLDEN_SHADER_FRAME,
-      },
-    },
-  ),
+  fixture("layers-image", () => {
+    const nodeId = "golden-layers-image";
+    const input = base(nodeId, ({ cardState }) => {
+      cardState.styleMode = "solid";
+    });
+    input.layers = [
+      ...input.layers,
+      createCanvasImageLayer(nodeId, {
+        id: `${nodeId}:image:golden-image`,
+        imageSource: "url",
+        imageValue: GOLDEN_PIXEL_PNG,
+        imageFit: "cover",
+        width: 160,
+        height: 160,
+        x: 640,
+        y: 120,
+        zIndex: 2,
+      }),
+    ];
+    return input;
+  }),
 
   fixture(
     "composite",

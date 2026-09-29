@@ -1,7 +1,6 @@
-import type { CanvasCardShadowState } from "@/features/canvas/model/card-state";
 import {
   normalizeCanvasCardShadow,
-  type CanvasCardPaperShaderState,
+  type CanvasCardShadowState,
 } from "@/features/canvas/model/card-state";
 import {
   createDefaultCanvasShadowLayer,
@@ -42,7 +41,7 @@ import {
 import type { CanvasIllustrationColorStop } from "@/features/canvas/assets/illustration-recolor";
 
 /** The workspace has exactly one board; every canvas layer hangs off it. */
-export type CanvasLayerKind = "card" | "group" | "image" | "qr" | "shader" | "shape" | "text";
+export type CanvasLayerKind = "card" | "group" | "image" | "qr" | "shape" | "text";
 export type CanvasImageSourceMode = "none" | "upload" | "url";
 export type CanvasImageFit = "contain" | "cover";
 export type CanvasShapePrimitiveId = "arrow" | "ellipse" | "line" | "rect";
@@ -87,7 +86,6 @@ export type CanvasLayer = {
   nodeId: string;
   opacity: number;
   outline: CanvasOutlineState;
-  paperShader?: CanvasCardPaperShaderState;
   rotation: number;
   scaleX?: number;
   scaleY?: number;
@@ -160,10 +158,6 @@ export const DEFAULT_SHAPE_LAYER = {
   strokeOpacity: 100,
   strokeStyle: "solid",
   strokeWidth: 0,
-} as const satisfies Partial<CanvasLayer>;
-
-export const DEFAULT_SHADER_LAYER = {
-  cornerRadius: 0,
 } as const satisfies Partial<CanvasLayer>;
 
 export function getCanvasCardLayerId(nodeId: string) {

@@ -17,7 +17,6 @@ type CardBackgroundImageLayerProps = {
   fit: "contain" | "cover";
   imageUrl: string;
   opacity: number;
-  reduceMotion?: boolean;
 };
 
 function buildImageBackgroundStyle(url: string, fit: "contain" | "cover"): CSSProperties {
@@ -34,12 +33,11 @@ export function CardBackgroundImageLayer({
   fit,
   imageUrl,
   opacity,
-  reduceMotion = false,
 }: CardBackgroundImageLayerProps) {
   const [current, setCurrent] = useState<ImageSlot>({ opacity: 1, url: imageUrl });
   const [incoming, setIncoming] = useState<ImageSlot | null>(null);
   const pendingUrlRef = useRef(imageUrl);
-  const transition = reduceMotion ? undefined : `opacity ${CROSSFADE_MS}ms ease-out`;
+  const transition = `opacity ${CROSSFADE_MS}ms ease-out`;
 
   useEffect(() => {
     pendingUrlRef.current = imageUrl;
@@ -56,13 +54,6 @@ export function CardBackgroundImageLayer({
         if (cancelled || pendingUrlRef.current !== imageUrl) {
           return;
         }
-
-        if (reduceMotion) {
-          setIncoming(null);
-          setCurrent({ opacity: 1, url: imageUrl });
-          return;
-        }
-
         setIncoming({ opacity: 0, url: imageUrl });
         requestAnimationFrame(() => {
           if (cancelled || pendingUrlRef.current !== imageUrl) {
@@ -96,7 +87,7 @@ export function CardBackgroundImageLayer({
         window.clearTimeout(settleTimer);
       }
     };
-  }, [current.url, imageUrl, reduceMotion]);
+  }, [current.url, imageUrl]);
 
   return (
     <>

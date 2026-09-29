@@ -223,7 +223,6 @@ function buildInsertItem(props: IslandItemInput, flags: IslandFlags): IslandItem
     popover: (
       <InsertMenuPopoverContent
         canAddQrCode={canAddQrCode}
-        isPopover
         nodeId={insertNodeId!}
         onAddQrCode={onAddQrCode}
         onBrowseWallpapers={onBrowseWallpapers}

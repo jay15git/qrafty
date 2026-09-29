@@ -92,7 +92,6 @@ export function Workspace({
                 theme={theme}
                 initialActiveTool={initialActiveTool}
                 onThemeChange={onThemeChange}
-                boardToolbarVariant="zoom"
                 renderOverlay={(controller) => (
                   <WorkspaceChrome
                     controller={controller}

@@ -14,7 +14,7 @@ function formatTransformNumber(value: number) {
   return Number(value.toFixed(4)).toString();
 }
 
-export function getBackgroundShapeCssTiltTransform(
+function getBackgroundShapeCssTiltTransform(
   shapeOptions: Pick<BackgroundShapeOptions, "tiltX" | "tiltY">,
 ) {
   const tiltX = clampBackgroundShapeTilt(shapeOptions.tiltX ?? 0);

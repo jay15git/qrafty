@@ -6,9 +6,6 @@ import {
   clampBackgroundShapeOpacity,
   clampBackgroundShapePaddingPx,
   clampBackgroundShapeTilt,
-  clampDotMatrixAnimationOpacity,
-  clampDotMatrixAnimationOverlayScale,
-  clampDotMatrixAnimationSpeed,
   clampRasterExportQualityPercent,
   clampQrBackgroundRound,
   clampQrSize,
@@ -150,14 +147,8 @@ describe("QRafty state helpers", () => {
     ]);
     expect(state.dotMatrixAnimation).toEqual(DEFAULT_DOT_MATRIX_ANIMATION);
     expect(state.dotMatrixAnimation.enabled).toBe(false);
-    expect(state.dotMatrixAnimation.exportAnimatedSvg).toBe(false);
     expect(state.dotMatrixAnimation.loader).toBe("neon-drift");
-    expect(state.dotMatrixAnimation.matrixSize).toBe(5);
-    expect(state.dotMatrixAnimation.pattern).toBe("full");
-    expect(state.dotMatrixAnimation.dotShape).toBe("circle");
-    expect(state.dotMatrixAnimation.customColorBase).toBe(state.dotMatrixAnimation.customColor);
-    expect(state.dotMatrixAnimation.customColorMid).toBe(state.dotMatrixAnimation.customColor);
-    expect(state.dotMatrixAnimation.customColorPeak).toBe(state.dotMatrixAnimation.customColor);
+    expect(state.dotMatrixAnimation.customColorMid).toBe(state.dotMatrixAnimation.customColorPeak);
   });
 
   it("normalizes unknown dot matrix loader values", () => {
@@ -172,27 +163,15 @@ describe("QRafty state helpers", () => {
     expect(
       setDotMatrixAnimationOptions(state, { loader: "honey-gate" }).dotMatrixAnimation.loader,
     ).toBe("neon-drift");
-    expect(
-      setDotMatrixAnimationOptions(state, { loader: "echo-ring" }).dotMatrixAnimation.loader,
-    ).toBe("radial-expand");
-    expect(
-      setDotMatrixAnimationOptions(state, { loader: "origin-wave" }).dotMatrixAnimation.loader,
-    ).toBe("radial-expand");
-    expect(
-      setDotMatrixAnimationOptions(state, { loader: "cross-bloom" }).dotMatrixAnimation.loader,
-    ).toBe("radial-expand");
-    expect(
-      setDotMatrixAnimationOptions(state, { loader: "fan-rotate" }).dotMatrixAnimation.loader,
-    ).toBe("neon-drift");
-    expect(
-      setDotMatrixAnimationOptions(state, { loader: "tunnel" }).dotMatrixAnimation.loader,
-    ).toBe("neon-drift");
     expect(setDotMatrixAnimationOptions(state, { loader: "wave" }).dotMatrixAnimation.loader).toBe(
       "neon-drift",
     );
     expect(setDotMatrixAnimationOptions(state, { loader: "scan" }).dotMatrixAnimation.loader).toBe(
       "neon-drift",
     );
+    expect(
+      setDotMatrixAnimationOptions(state, { loader: "diamond-expand" }).dotMatrixAnimation.loader,
+    ).toBe("diamond-expand");
   });
 
   it("clamps dot matrix animation updates to supported ranges", () => {
@@ -201,69 +180,34 @@ describe("QRafty state helpers", () => {
       opacityBase: -1,
       opacityMid: -2,
       opacityPeak: -3,
-      matrixSize: -5,
-      overlayScale: -20,
       speed: -1,
     });
     const highAnimation = setDotMatrixAnimationOptions(state, {
-      customColor: "#f4f4f5",
       enabled: true,
-      exportAnimatedSvg: true,
       loader: "honey-gate",
       opacityBase: 2,
       opacityMid: 3,
       opacityPeak: 4,
-      matrixSize: 50,
-      overlayScale: 240,
-      pattern: "rings",
-      dotShape: "diamond",
       speed: 12,
     });
 
     expect(lowAnimation.dotMatrixAnimation.opacityBase).toBe(0);
     expect(lowAnimation.dotMatrixAnimation.opacityMid).toBe(0);
     expect(lowAnimation.dotMatrixAnimation.opacityPeak).toBe(0);
-    expect(lowAnimation.dotMatrixAnimation.matrixSize).toBe(5);
-    expect(lowAnimation.dotMatrixAnimation.overlayScale).toBe(100);
     expect(lowAnimation.dotMatrixAnimation.speed).toBe(1);
     expect(highAnimation.dotMatrixAnimation).toMatchObject({
       animated: true,
-      autoAnimate: "",
-      autoAnimateInterval: 5000,
       colorPreset: "theme",
-      customColor: "#f4f4f5",
-      customColorBase: "#22d3ee",
-      customColorMid: "#22d3ee",
-      customColorPeak: "#22d3ee",
-      dotShape: "diamond",
       enabled: true,
-      exportAnimatedSvg: true,
-      durationSeconds: 5,
-      frameRate: 30,
-      videoFormat: "webm",
-      hoverColorMode: "both",
-      hoverEffect: "",
       loader: "neon-drift",
-      matrixSize: 25,
-      motionIntensity: "premium",
       opacityBase: 1,
       opacityMid: 1,
       opacityPeak: 1,
-      overlayScale: 140,
-      pattern: "rings",
       preset: "neon-drift",
       presetCategory: "dotMatrix",
       respectReducedMotion: true,
       speed: 10,
     });
-    expect(highAnimation.dotMatrixAnimation.paperShader.shaderId).toBe("mesh-gradient");
-    expect(
-      clampDotMatrixAnimationOpacity(Number.NaN, DEFAULT_DOT_MATRIX_ANIMATION.opacityMid),
-    ).toBe(DEFAULT_DOT_MATRIX_ANIMATION.opacityMid);
-    expect(clampDotMatrixAnimationOverlayScale(Number.NaN)).toBe(
-      DEFAULT_DOT_MATRIX_ANIMATION.overlayScale,
-    );
-    expect(clampDotMatrixAnimationSpeed(Number.NaN)).toBe(DEFAULT_DOT_MATRIX_ANIMATION.speed);
   });
 
   it("maps dot matrix speed to a perceptual 0-100 slider and back", () => {
@@ -284,50 +228,11 @@ describe("QRafty state helpers", () => {
     }
   });
 
-  it("drops removed dot matrix animation options from legacy state", () => {
-    const state = createDefaultQraftyState();
-    const legacyState = {
-      ...state,
-      dotMatrixAnimation: {
-        ...state.dotMatrixAnimation,
-        bloom: true,
-        halo: 1,
-        hoverAnimated: true,
-        muted: true,
-      },
-    } as unknown as typeof state;
-
-    const cleaned = setDotMatrixAnimationOptions(legacyState, {});
-    const animationRecord = cleaned.dotMatrixAnimation as Record<string, unknown>;
-
-    expect(animationRecord.bloom).toBeUndefined();
-    expect(animationRecord.halo).toBeUndefined();
-    expect(animationRecord.hoverAnimated).toBeUndefined();
-    expect(animationRecord.muted).toBeUndefined();
-  });
-
-  it("restores missing dot matrix density from legacy state", () => {
-    const state = createDefaultQraftyState();
-    const legacyState = {
-      ...state,
-      dotMatrixAnimation: {
-        ...state.dotMatrixAnimation,
-      },
-    } as unknown as typeof state;
-    delete (legacyState.dotMatrixAnimation as Partial<typeof state.dotMatrixAnimation>).matrixSize;
-
-    const cleaned = setDotMatrixAnimationOptions(legacyState, {});
-
-    expect(cleaned.dotMatrixAnimation.matrixSize).toBe(5);
-  });
-
   it("keeps loader color controls independent and persists opacity anchors", () => {
     const state = createDefaultQraftyState();
 
     const custom = setDotMatrixAnimationOptions(state, {
       colorPreset: "mint",
-      customColor: "#abcdef",
-      customColorBase: "#111111",
       customColorMid: "#555555",
       customColorPeak: "#eeeeee",
       opacityBase: 0.14,
@@ -336,8 +241,6 @@ describe("QRafty state helpers", () => {
     });
 
     expect(custom.dotMatrixAnimation.colorPreset).toBe("mint");
-    expect(custom.dotMatrixAnimation.customColor).toBe("#abcdef");
-    expect(custom.dotMatrixAnimation.customColorBase).toBe("#111111");
     expect(custom.dotMatrixAnimation.customColorMid).toBe("#555555");
     expect(custom.dotMatrixAnimation.customColorPeak).toBe("#eeeeee");
     expect(custom.dotMatrixAnimation.opacityBase).toBe(0.14);
@@ -353,29 +256,15 @@ describe("QRafty state helpers", () => {
     };
 
     expect(styleColorChanged.dotMatrixAnimation.colorPreset).toBe("mint");
-    expect(styleColorChanged.dotMatrixAnimation.customColor).toBe("#abcdef");
-    expect(styleColorChanged.dotMatrixAnimation.customColorBase).toBe("#111111");
     expect(styleColorChanged.dotMatrixAnimation.customColorMid).toBe("#555555");
     expect(styleColorChanged.dotMatrixAnimation.customColorPeak).toBe("#eeeeee");
   });
 
-  it("seeds missing loader anchor colors from the legacy custom color", () => {
+  it("derives the mid anchor color from the peak color patch", () => {
     const state = createDefaultQraftyState();
-    const legacyState = {
-      ...state,
-      dotMatrixAnimation: {
-        ...state.dotMatrixAnimation,
-        customColor: "#123abc",
-        customColorBase: undefined,
-        customColorMid: undefined,
-        customColorPeak: undefined,
-      },
-    } as unknown as typeof state;
 
-    const migrated = setDotMatrixAnimationOptions(legacyState, {});
+    const migrated = setDotMatrixAnimationOptions(state, { customColorPeak: "#123abc" });
 
-    expect(migrated.dotMatrixAnimation.customColor).toBe("#123abc");
-    expect(migrated.dotMatrixAnimation.customColorBase).toBe("#123abc");
     expect(migrated.dotMatrixAnimation.customColorMid).toBe("#123abc");
     expect(migrated.dotMatrixAnimation.customColorPeak).toBe("#123abc");
   });

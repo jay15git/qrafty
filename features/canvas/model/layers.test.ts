@@ -20,7 +20,6 @@ import {
 } from "@/features/canvas/model/layers/card-qr";
 import {
   createCanvasImageLayer,
-  createCanvasShaderLayer,
   createCanvasShapeLayer,
   createCanvasTextLayer,
 } from "@/features/canvas/model/layers/factories";
@@ -594,72 +593,6 @@ describe("canvas layer state actions", () => {
       name: "Shape",
       shapeId: "hexagon",
     });
-  });
-
-  it("creates shader layers with defaults", () => {
-    const shaderLayer = createCanvasShaderLayer("preview", "warp");
-
-    expect(shaderLayer).toMatchObject({
-      height: 180,
-      kind: "shader",
-      name: "Shader",
-      paperShader: {
-        presetName: "Default",
-        shaderId: "warp",
-      },
-      width: 180,
-    });
-  });
-
-  it("normalizes shader layers from persisted payloads", () => {
-    const normalized = normalizeCanvasLayers(
-      "preview",
-      [
-        {
-          height: 200,
-          id: "preview:shader:1",
-          kind: "shader",
-          name: "Gradient",
-          paperShader: {
-            frame: 12,
-            image: { source: "none" },
-            params: { colors: ["#ff0000", "#0000ff"] },
-            paused: true,
-            presetName: "Default",
-            shaderId: "mesh-gradient",
-            speed: 0.5,
-          },
-          width: 200,
-          x: 0,
-          y: 0,
-          zIndex: 5,
-        },
-      ],
-      createDefaultQraftyState(),
-      createDefaultCanvasCardState(),
-    );
-
-    const shader = normalized.find((layer) => layer.kind === "shader");
-
-    expect(shader).toMatchObject({
-      kind: "shader",
-      name: "Gradient",
-      paperShader: {
-        frame: 12,
-        paused: true,
-        presetName: "Default",
-        shaderId: "mesh-gradient",
-        speed: 0.5,
-      },
-    });
-  });
-
-  it("clones shader layer paperShader state deeply", () => {
-    const shaderLayer = createCanvasShaderLayer("preview", "mesh-gradient");
-    const clone = cloneCanvasLayer(shaderLayer);
-
-    expect(clone.paperShader).not.toBe(shaderLayer.paperShader);
-    expect(clone.paperShader?.params).not.toBe(shaderLayer.paperShader?.params);
   });
 
   it("normalizes image and shape layers from persisted payloads", () => {

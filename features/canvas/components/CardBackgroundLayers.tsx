@@ -17,7 +17,6 @@ const CROSSFADE_MS = 180;
 type BackgroundMode = "solid" | "paper-shader" | "image" | "image-filter";
 
 type CardBackgroundLayersProps = {
-  animateTransitions: boolean;
   cardState: CanvasCardState;
   imageFilterShader: CanvasCardPaperShaderState;
   isImageFilterMode: boolean;
@@ -53,43 +52,27 @@ type CrossfadeState = {
   mounted: boolean;
   opacity: number;
   prevActive: boolean;
-  prevAnimate: boolean;
 };
 
-function resolveCrossfadeTransition(
-  state: CrossfadeState,
-  active: boolean,
-  animate: boolean,
-): CrossfadeState {
-  let mounted = state.mounted;
+function resolveCrossfadeTransition(state: CrossfadeState, active: boolean): CrossfadeState {
   let opacity = state.opacity;
 
-  if (active) {
-    mounted = true;
-    if (!animate) {
-      opacity = 1;
-    } else if (active !== state.prevActive) {
-      // Start the fade-in from transparent so the CSS transition runs.
-      opacity = 0;
-    }
-  } else {
+  if (active && active !== state.prevActive) {
+    // Start the fade-in from transparent so the CSS transition runs.
     opacity = 0;
-    if (!animate) {
-      mounted = false;
-    }
+  } else if (!active) {
+    opacity = 0;
   }
 
-  return { mounted, opacity, prevActive: active, prevAnimate: animate };
+  return { mounted: state.mounted || active, opacity, prevActive: active };
 }
 
 function CrossfadeShell({
   active,
-  animate,
   className,
   children,
 }: {
   active: boolean;
-  animate: boolean;
   className?: string;
   children: ReactNode;
 }) {
@@ -97,32 +80,31 @@ function CrossfadeShell({
     mounted: active,
     opacity: active ? 1 : 0,
     prevActive: active,
-    prevAnimate: animate,
   }));
 
   // Adjust during render so prop changes settle in one commit; the effect below
   // only owns the async fade-in frame and the delayed unmount timer.
-  if (active !== state.prevActive || animate !== state.prevAnimate) {
-    setState(resolveCrossfadeTransition(state, active, animate));
+  if (active !== state.prevActive) {
+    setState(resolveCrossfadeTransition(state, active));
   }
 
   const { mounted, opacity } = state;
 
   useEffect(() => {
-    if (active && animate && opacity === 0) {
+    if (active && opacity === 0) {
       const frame = window.requestAnimationFrame(() => {
         setState((current) => ({ ...current, opacity: 1 }));
       });
       return () => window.cancelAnimationFrame(frame);
     }
 
-    if (!active && animate && mounted) {
+    if (!active && mounted) {
       const timer = window.setTimeout(() => {
         setState((current) => ({ ...current, mounted: false }));
       }, CROSSFADE_MS);
       return () => window.clearTimeout(timer);
     }
-  }, [active, animate, mounted, opacity]);
+  }, [active, mounted, opacity]);
 
   if (!mounted) {
     return null;
@@ -133,7 +115,7 @@ function CrossfadeShell({
       className={cn("pointer-events-none absolute inset-0", className)}
       style={{
         opacity,
-        transition: animate ? `opacity ${CROSSFADE_MS}ms ease-out` : undefined,
+        transition: `opacity ${CROSSFADE_MS}ms ease-out`,
       }}
     >
       {children}
@@ -141,7 +123,7 @@ function CrossfadeShell({
   );
 }
 
-function useMountedBackgroundModes(activeMode: BackgroundMode, animate: boolean) {
+function useMountedBackgroundModes(activeMode: BackgroundMode) {
   const [mountedModes, setMountedModes] = useState<Set<BackgroundMode>>(
     () => new Set([activeMode]),
   );
@@ -156,23 +138,17 @@ function useMountedBackgroundModes(activeMode: BackgroundMode, animate: boolean)
     previousModeRef.current = activeMode;
     setMountedModes((current) => new Set([...current, activeMode, previousMode]));
 
-    if (!animate) {
-      setMountedModes(new Set([activeMode]));
-      return;
-    }
-
     const timer = window.setTimeout(() => {
       setMountedModes(new Set([activeMode]));
     }, CROSSFADE_MS);
 
     return () => window.clearTimeout(timer);
-  }, [activeMode, animate]);
+  }, [activeMode]);
 
   return mountedModes;
 }
 
 export function CardBackgroundLayers({
-  animateTransitions,
   cardState,
   imageFilterShader,
   isImageFilterMode,
@@ -184,18 +160,14 @@ export function CardBackgroundLayers({
   shaderDisplayWidth,
 }: CardBackgroundLayersProps) {
   const activeMode = resolveBackgroundMode(isPaperShaderMode, isImageMode, isImageFilterMode);
-  const mountedModes = useMountedBackgroundModes(activeMode, animateTransitions);
+  const mountedModes = useMountedBackgroundModes(activeMode);
   const fillStyle = cssFillToBackgroundStyle(paintToCss(cardState.fill));
   const zIndexFor = (mode: BackgroundMode) => (activeMode === mode ? "z-[2]" : "z-[1]");
 
   return (
     <>
       {mountedModes.has("solid") ? (
-        <CrossfadeShell
-          active={activeMode === "solid"}
-          animate={animateTransitions}
-          className={zIndexFor("solid")}
-        >
+        <CrossfadeShell active={activeMode === "solid"} className={zIndexFor("solid")}>
           <div
             aria-hidden="true"
             data-slot="canvas-card-fill"
@@ -207,18 +179,12 @@ export function CardBackgroundLayers({
           />
         </CrossfadeShell>
       ) : null}
-
       {mountedModes.has("image") && cardState.cardImage.value ? (
-        <CrossfadeShell
-          active={activeMode === "image"}
-          animate={animateTransitions}
-          className={zIndexFor("image")}
-        >
+        <CrossfadeShell active={activeMode === "image"} className={zIndexFor("image")}>
           <CardBackgroundImageLayer
             fit={cardState.cardImage.fit}
             imageUrl={cardState.cardImage.value}
             opacity={cardState.cardImage.opacity / 100}
-            reduceMotion={!animateTransitions}
           />
         </CrossfadeShell>
       ) : null}
@@ -226,7 +192,6 @@ export function CardBackgroundLayers({
       {mountedModes.has("paper-shader") ? (
         <CrossfadeShell
           active={activeMode === "paper-shader"}
-          animate={animateTransitions}
           className={zIndexFor("paper-shader")}
         >
           <CanvasCardPaperShaderLayer
@@ -242,7 +207,6 @@ export function CardBackgroundLayers({
       {mountedModes.has("image-filter") ? (
         <CrossfadeShell
           active={activeMode === "image-filter"}
-          animate={animateTransitions}
           className={zIndexFor("image-filter")}
         >
           <CanvasCardPaperShaderLayer

@@ -1,4 +1,3 @@
-import type { FieldKind } from "@/features/qr/content/intents/shared";
 import type { QrInputType } from "@/features/qr/content/input-options";
 import {
   getDefaultIntentId,
@@ -32,7 +31,36 @@ function isUrlContentType(type: QrInputType) {
   return type === "link" || type === "website" || type === "app-download";
 }
 
-function mapPlatformInputKind(kind: FieldKind): ContentFieldInputKind {
+type IntentFieldDef = {
+  key: string;
+  kind: "text" | "url" | "phone";
+  label: string;
+};
+
+const INTENT_FIELD_DEFS: Partial<Record<QrInputType, Record<string, readonly IntentFieldDef[]>>> = {
+  whatsapp: {
+    chat: [
+      { key: "phone", kind: "phone", label: "Phone number" },
+      { key: "message", kind: "text", label: "Message" },
+    ],
+    group: [{ key: "url", kind: "url", label: "URL" }],
+  },
+  "map-location": {
+    place: [
+      { key: "query", kind: "text", label: "Place" },
+      { key: "latitude", kind: "text", label: "Latitude" },
+      { key: "longitude", kind: "text", label: "Longitude" },
+    ],
+    directions: [{ key: "url", kind: "url", label: "URL" }],
+    coords: [
+      { key: "latitude", kind: "text", label: "Latitude" },
+      { key: "longitude", kind: "text", label: "Longitude" },
+      { key: "query", kind: "text", label: "Label" },
+    ],
+  },
+};
+
+function mapPlatformInputKind(kind: IntentFieldDef["kind"]): ContentFieldInputKind {
   if (kind === "url") {
     return "url";
   }
@@ -41,7 +69,6 @@ function mapPlatformInputKind(kind: FieldKind): ContentFieldInputKind {
   }
   return "text";
 }
-
 function inferInputKind(id: string): ContentFieldInputKind | undefined {
   if (id === "password") {
     return "password";
@@ -88,10 +115,13 @@ export function getContentFieldDefinitions(
 
   const resolvedType = resolvePlatformType(contentType);
   const platform = getPlatformDef(resolvedType);
+  const intentFieldDefs =
+    resolvedType === "whatsapp" || resolvedType === "map-location"
+      ? INTENT_FIELD_DEFS[resolvedType]
+      : undefined;
 
-  if (platform) {
+  if (platform && intentFieldDefs) {
     const intentId = stringContentValue(contentValues.intent) || getDefaultIntentId(resolvedType);
-    const intent = platform.intents.find((entry) => entry.id === intentId) ?? platform.intents[0];
     const fields: ContentFieldDefinition[] = [];
 
     if (platform.intents.length > 1) {
@@ -107,7 +137,7 @@ export function getContentFieldDefinitions(
       });
     }
 
-    for (const field of intent?.fields ?? []) {
+    for (const field of intentFieldDefs[intentId] ?? Object.values(intentFieldDefs)[0] ?? []) {
       const isTextarea = field.key === "message" || field.key === "body";
       fields.push({
         error: validation.fieldErrors[field.key],

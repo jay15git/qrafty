@@ -313,8 +313,7 @@ export function buildCanvasWorkspaceController({
     selectedVideoFrameRate,
     selectedVideoLongEdge,
   } = state;
-  const { setComposeSidebarPanel, setDesktopCanvasTool, setDesktopRailTool, setSelectedCardState } =
-    setters;
+  const { setComposeSidebarPanel, setDesktopRailTool, setSelectedCardState } = setters;
   const { canvasQraftyState, selectedContentValidation, selectedContentValues } = activeQr;
   const {
     activeCanvasLayerRows,
@@ -450,7 +449,6 @@ export function buildCanvasWorkspaceController({
       insertNodeId: DASHBOARD_QR_NODE_ID,
       onActiveToolChange: (toolId) => {
         setComposeSidebarPanel(null);
-        setDesktopCanvasTool("select");
         setDesktopRailTool(toolId);
       },
       onContentPasteApply: handleCanvasContentPasteApply,

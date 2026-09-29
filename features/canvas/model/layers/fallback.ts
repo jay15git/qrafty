@@ -1,13 +1,8 @@
-import {
-  cloneCanvasCardPaperShaderState,
-  createDefaultCanvasCardPaperShader,
-} from "@/features/canvas/model/card-state";
 import { DEFAULT_OUTLINE, legacyShadowToShadowLayer } from "@/features/canvas/model/effects";
 import { createUniformCornerRadii } from "@/features/canvas/model/corner-radius";
 import {
   DEFAULT_IMAGE_LAYER,
   DEFAULT_LAYER_SHADOW,
-  DEFAULT_SHADER_LAYER,
   DEFAULT_SHAPE_LAYER,
   DEFAULT_TEXT_LAYER,
   getCanvasCardLayerId,
@@ -36,7 +31,6 @@ export function cloneCanvasLayer(layer: CanvasLayer): CanvasLayer {
     ).map((shadow) => ({ ...shadow })),
     textRuns: layer.textRuns?.map((run) => ({ ...run })),
     illustrationColorStops: layer.illustrationColorStops?.map((stop) => ({ ...stop })),
-    paperShader: layer.paperShader ? cloneCanvasCardPaperShaderState(layer.paperShader) : undefined,
   };
 }
 
@@ -46,7 +40,6 @@ const FALLBACK_LAYER_NAMES: Record<CanvasLayerKind, string> = {
   text: "Text",
   image: "Image",
   shape: "Shape",
-  shader: "Shader",
   group: "Group",
 };
 
@@ -59,7 +52,7 @@ function fallbackLayerId(nodeId: string, kind: CanvasLayerKind) {
     return getCanvasQrLayerId(nodeId);
   }
 
-  if (kind === "text" || kind === "image" || kind === "shape" || kind === "shader") {
+  if (kind === "text" || kind === "image" || kind === "shape") {
     return createCanvasLayerInstanceId(nodeId, kind);
   }
 
@@ -113,16 +106,6 @@ function fallbackLayerKindDefaults(kind: CanvasLayerKind): Partial<CanvasLayer> 
         strokeStyle: DEFAULT_SHAPE_LAYER.strokeStyle,
         strokeWidth: DEFAULT_SHAPE_LAYER.strokeWidth,
       };
-    case "shader":
-      return {
-        cornerRadius: DEFAULT_SHADER_LAYER.cornerRadius,
-        cornerRadii: createUniformCornerRadii(DEFAULT_SHADER_LAYER.cornerRadius),
-        height: 180,
-        width: 180,
-        x: -90,
-        y: -90,
-        paperShader: createDefaultCanvasCardPaperShader(),
-      };
     default:
       return {};
   }
@@ -162,7 +145,6 @@ export function createFallbackLayer(nodeId: string, kind: CanvasLayerKind): Canv
     imageSource: undefined,
     imageValue: undefined,
     illustrationColorStops: undefined,
-    paperShader: undefined,
     shapeId: undefined,
     stroke: undefined,
     strokeOpacity: undefined,

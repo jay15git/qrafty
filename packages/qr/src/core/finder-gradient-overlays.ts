@@ -4,9 +4,9 @@ import type { QraftyQrGradientConfig } from "../types";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 
-type FinderCornerKind = "inner" | "outer";
+export type FinderCornerKind = "inner" | "outer";
 
-type FinderCornerRegion = {
+export type FinderCornerRegion = {
   height: number;
   width: number;
   x: number;
@@ -63,7 +63,7 @@ export function getQrSvgNumCells(svg: QrSvgElementLike) {
   return null;
 }
 
-function getFinderCornerRegions(
+export function getFinderCornerRegions(
   margin: number,
   numCells: number,
   kind: FinderCornerKind,

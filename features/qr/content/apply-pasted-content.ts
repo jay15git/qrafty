@@ -4,13 +4,7 @@ import {
   type PastedContentDetection,
   type UrlDetection,
 } from "@/features/qr/content/detect-url-kind";
-import {
-  extractPlatformValuesFromUrl,
-  getDefaultIntentId,
-  getPlatformDef,
-  isPlatformType,
-  resolvePlatformType,
-} from "@/features/qr/content/platform-intents";
+import { getDefaultIntentId, getPlatformDef } from "@/features/qr/content/platform-intents";
 import {
   getDefaultStaticQrValues,
   type StaticQrContentValues,
@@ -45,30 +39,15 @@ export function getLinkPasteFieldUpdate(
     return null;
   }
 
-  const resolvedType = resolvePlatformType(contentType);
-
-  if (isPlatformType(resolvedType)) {
-    const extracted = extractPlatformValuesFromUrl(resolvedType, detection.value);
-    if (extracted) {
-      return {
-        urlDetection: detection.urlDetection,
-        values: extracted,
-      };
-    }
-
-    if (detection.urlDetection?.inputTypeHint === resolvedType) {
-      return {
-        urlDetection: detection.urlDetection,
-        values: {
-          intent: detection.urlDetection.intent ?? getDefaultIntentId(resolvedType),
-          url: detection.value,
-        },
-      };
-    }
+  if (contentType === "whatsapp" || contentType === "map-location") {
+    const hinted =
+      detection.urlDetection?.inputTypeHint === contentType
+        ? (detection.urlDetection.intent ?? getDefaultIntentId(contentType))
+        : getDefaultIntentId(contentType);
 
     return {
       urlDetection: detection.urlDetection,
-      values: { url: detection.value },
+      values: { intent: hinted, url: detection.value },
     };
   }
 
@@ -112,24 +91,14 @@ export function resolveDetectedLinkTypeApply(
     return null;
   }
 
-  const resolvedType = resolvePlatformType(targetType);
-  const values = getDefaultStaticQrValues(resolvedType);
+  const values = getDefaultStaticQrValues(targetType);
 
-  if (isPlatformType(resolvedType)) {
-    const extracted = extractPlatformValuesFromUrl(resolvedType, source);
-    if (extracted) {
-      return {
-        type: resolvedType,
-        values: { ...values, ...extracted },
-        urlDetection: detection,
-      };
-    }
-
-    values.intent = detection.intent ?? getDefaultIntentId(resolvedType);
+  if (targetType === "whatsapp" || targetType === "map-location") {
+    values.intent = detection.intent ?? getDefaultIntentId(targetType);
     values.url = source;
 
     return {
-      type: resolvedType,
+      type: targetType,
       values,
       urlDetection: detection,
     };

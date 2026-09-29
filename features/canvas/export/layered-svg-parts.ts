@@ -95,7 +95,7 @@ export async function buildLayeredSvgParts({
   return { bounds: resolvedBounds, defs, body };
 }
 
-export function getCanvasLayerBounds(layers: CanvasLayer[]) {
+function getCanvasLayerBounds(layers: CanvasLayer[]) {
   if (layers.length === 0) {
     return {
       height: 1,
@@ -156,14 +156,6 @@ function getCanvasLayerSvg(
 
   if (layer.kind === "shape") {
     return getCanvasShapeLayerSvg(layer);
-  }
-
-  if (layer.kind === "shader") {
-    if (options?.omitShaderLayers) {
-      return "";
-    }
-
-    return getCanvasShaderLayerSvg(layer, shaderSnapshots);
   }
 
   return getCanvasQrLayerSvg(layer, qrMarkup, state);
@@ -301,19 +293,6 @@ function getCanvasGroupLayerSvg(
     .join("");
 
   return `<g opacity="${layer.opacity}" transform="${getCanvasLayerSvgTransform(layer)}"${filter}>${body}</g>`;
-}
-
-function getCanvasShaderLayerSvg(layer: CanvasLayer, shaderSnapshots?: Record<string, string>) {
-  const filter = getCanvasLayerFilterAttr(layer);
-  const paperShader = layer.paperShader;
-  const snapshot =
-    paperShader && (shaderSnapshots?.[layer.id] ?? shaderSnapshots?.[paperShader.shaderId]);
-
-  if (!snapshot) {
-    return `<g opacity="${layer.opacity}" transform="${getCanvasLayerSvgTransform(layer)}"${filter}><rect x="0" y="0" width="${layer.width}" height="${layer.height}" fill="#111827" /></g>`;
-  }
-
-  return `<g opacity="${layer.opacity}" transform="${getCanvasLayerSvgTransform(layer)}"${filter}><image href="${escapeXml(snapshot)}" x="0" y="0" width="${layer.width}" height="${layer.height}" preserveAspectRatio="xMidYMid slice" /></g>`;
 }
 
 function getCanvasImageLayerSvg(layer: CanvasLayer) {

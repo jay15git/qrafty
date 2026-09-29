@@ -7,9 +7,9 @@ vi.mock("next/headers", () => ({
   }),
 }));
 
-vi.mock("@/features/shell/components/WorkspacePageClient", () => ({
-  WorkspacePageClient: ({ fontClassName }: { fontClassName?: string }) => (
-    <div data-font-class-name={fontClassName} data-testid="design-page-client" />
+vi.mock("@/features/shell/components/Workspace", () => ({
+  Workspace: (props: { fontClassName?: string }) => (
+    <div data-testid="workspace" data-font-class-name={props.fontClassName} />
   ),
 }));
 
@@ -19,8 +19,11 @@ vi.mock("next/font/local", () => ({
   }),
 }));
 
-import { WorkspacePageClient } from "@/features/shell/components/WorkspacePageClient";
+import { Workspace } from "@/features/shell/components/Workspace";
 import DesktopPage, { metadata } from "./page";
+
+const page = (source?: string) =>
+  DesktopPage({ searchParams: Promise.resolve(source === undefined ? {} : { source }) });
 
 describe("desktop page", () => {
   it("exposes metadata for the design workspace", () => {
@@ -28,25 +31,29 @@ describe("desktop page", () => {
     expect(metadata.description).toContain("floating toolbar");
   });
 
-  it("renders the desktop page client inside the route shell", async () => {
-    const page = await DesktopPage();
+  it("renders the workspace inside the route shell", async () => {
+    const main = await page();
 
-    expect(isValidElement(page)).toBe(true);
-    expect(page.type).toBe("main");
-    expect(page.props.className).toContain("mock-satoshi-font");
-    expect(page.props.className).toContain("h-dvh");
-    expect(page.props["data-slot"]).toBe("design-page");
+    expect(isValidElement(main)).toBe(true);
+    expect(main.type).toBe("main");
+    expect(main.props.className).toContain("mock-satoshi-font");
+    expect(main.props.className).toContain("h-dvh");
+    expect(main.props["data-slot"]).toBe("design-page");
 
-    const suspense = page.props.children;
+    const workspace = main.props.children;
+    expect(isValidElement(workspace)).toBe(true);
+    expect(workspace.type).toBe(Workspace);
+    expect(workspace.props.fontClassName).toBe("mock-satoshi-font");
+    expect(workspace.props.initialTheme).toBe("dark");
+  });
 
-    expect(isValidElement(suspense)).toBe(true);
-    expect(suspense.type).toBe(Symbol.for("react.suspense"));
-
-    const client = suspense.props.children;
-
-    expect(isValidElement(client)).toBe(true);
-    expect(client.type).toBe(WorkspacePageClient);
-    expect(client.props.fontClassName).toBe("mock-satoshi-font");
-    expect(client.props.initialTheme).toBe("dark");
+  it.each([
+    ["prompt", "content"],
+    ["blank", "content"],
+    [undefined, undefined],
+    ["gallery", undefined],
+  ] as const)("maps source=%s to initialActiveTool=%s", async (source, expected) => {
+    const main = await page(source);
+    expect(main.props.children.props.initialActiveTool).toBe(expected);
   });
 });

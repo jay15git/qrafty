@@ -21,7 +21,6 @@ import { clampQrBackgroundRound, getAssetValue, type QraftyState } from "@/featu
  */
 
 export type QrDraftDocumentFields = {
-  selectedAriaLabel: string;
   selectedBackgroundColor: string;
   selectedBackgroundColorMode: "solid" | "gradient";
   selectedBackgroundGradient: QraftyState["backgroundGradient"];
@@ -66,16 +65,12 @@ export type QrDraftDocumentFields = {
   selectedQrFinderPatternInnerStyle: QraftyState["finderPatternInnerSettings"]["type"];
   selectedQrFinderPatternOuterStyle: QraftyState["finderPatternOuterSettings"]["type"];
   selectedQrMargin: number;
-  selectedQrMode: QraftyState["qrOptions"]["mode"];
   selectedQrRadius: number;
   selectedQrSize: number;
   selectedQrTypeNumber: QraftyState["qrOptions"]["typeNumber"];
-  selectedRasterExportQualityPercent: number;
 };
 
 export type QrDraftBufferFields = {
-  selectedBackgroundAssetSourceMode: "upload" | "url";
-  selectedBackgroundRemoteUrl: string;
   selectedDotsPalettePreset: string | "custom";
   selectedLogoAssetSourceMode: "upload" | "url";
   selectedLogoPresetValue: string | undefined;
@@ -92,8 +87,6 @@ export type QrDraftFields = QrDraftDocumentFields & QrDraftBufferFields;
 export type QrDraftField = keyof QrDraftFields;
 
 const QR_DRAFT_BUFFER_FIELD_SET = new Set<keyof QrDraftBufferFields>([
-  "selectedBackgroundAssetSourceMode",
-  "selectedBackgroundRemoteUrl",
   "selectedDotsPalettePreset",
   "selectedLogoAssetSourceMode",
   "selectedLogoPresetValue",
@@ -114,7 +107,6 @@ export function qrStateToDraftFields(qr: QraftyState): QrDraftDocumentFields {
   const imageOptions = qr.imageOptions;
 
   return {
-    selectedAriaLabel: qr.ariaLabel ?? "",
     selectedBackgroundColor: qr.backgroundOptions.color,
     selectedBackgroundColorMode: qr.backgroundGradient.enabled ? "gradient" : "solid",
     selectedBackgroundGradient: qr.backgroundGradient,
@@ -159,11 +151,9 @@ export function qrStateToDraftFields(qr: QraftyState): QrDraftDocumentFields {
     selectedQrFinderPatternInnerStyle: qr.finderPatternInnerSettings.type,
     selectedQrFinderPatternOuterStyle: qr.finderPatternOuterSettings.type,
     selectedQrMargin: qr.margin,
-    selectedQrMode: qr.qrOptions.mode,
     selectedQrRadius: clampQrBackgroundRound(qr.backgroundOptions.round),
     selectedQrSize: qr.width,
     selectedQrTypeNumber: qr.qrOptions.typeNumber,
-    selectedRasterExportQualityPercent: qr.rasterExportQualityPercent,
   };
 }
 
@@ -173,9 +163,6 @@ export function qrStateToDraftFields(qr: QraftyState): QrDraftDocumentFields {
  * user picked, independent of the active layer. */
 export function qrStateToDraftBuffers(qr: QraftyState): Partial<QrDraftBufferFields> {
   const buffers: Partial<QrDraftBufferFields> = {
-    selectedBackgroundAssetSourceMode: qr.backgroundImage.source === "url" ? "url" : "upload",
-    selectedBackgroundRemoteUrl:
-      qr.backgroundImage.source === "url" ? (qr.backgroundImage.value ?? "") : "",
     selectedValueSegmentsText: formatValueSegmentsText(qr.valueSegments),
   };
 
@@ -237,14 +224,8 @@ function setLogoValueFromBuffers(qr: QraftyState, buffers: QrDraftBuffers): Qraf
   const logo = qr.logo;
   return {
     ...logo,
-    value:
-      logo.source === "preset"
-        ? buffers.selectedLogoPresetValue
-        : logo.source === "url"
-          ? buffers.selectedLogoRemoteUrl || undefined
-          : logo.source === "upload"
-            ? buffers.selectedLogoUploadValue || undefined
-            : undefined,
+    // Sole caller passes "preset"; other source modes never reach here.
+    value: logo.source === "preset" ? buffers.selectedLogoPresetValue : undefined,
   };
 }
 
@@ -264,8 +245,6 @@ export function applyQrDraftFieldPatch<K extends QrDraftField>(
       return { ...qr, margin: value as number };
     case "selectedQrRadius":
       return { ...qr, backgroundOptions: { ...qr.backgroundOptions, round: value as number } };
-    case "selectedRasterExportQualityPercent":
-      return { ...qr, rasterExportQualityPercent: value as number };
     case "selectedQrSize":
       return { ...qr, width: value as number, height: value as number };
     case "selectedDotType":
@@ -391,25 +370,6 @@ export function applyQrDraftFieldPatch<K extends QrDraftField>(
           ...(value as QraftyState["backgroundShapeOptions"]),
         },
       };
-    case "selectedBackgroundAssetSourceMode": {
-      const source = (value as "upload" | "url") === "url" ? "url" : "none";
-      return {
-        ...qr,
-        backgroundImage: {
-          presetColor: undefined,
-          presetId: undefined,
-          source,
-          value: source === "url" ? buffers.selectedBackgroundRemoteUrl || undefined : undefined,
-        },
-      };
-    }
-    case "selectedBackgroundRemoteUrl":
-      return qr.backgroundImage.source === "url"
-        ? {
-            ...qr,
-            backgroundImage: { ...qr.backgroundImage, value: (value as string) || undefined },
-          }
-        : qr;
     case "selectedLogoColorMode":
       return {
         ...qr,
@@ -510,12 +470,8 @@ export function applyQrDraftFieldPatch<K extends QrDraftField>(
       };
     case "selectedBoostLevel":
       return { ...qr, qrOptions: { ...qr.qrOptions, boostLevel: value as boolean } };
-    case "selectedQrMode":
-      return { ...qr, qrOptions: { ...qr.qrOptions, mode: value as never } };
     case "selectedValueSegmentsText":
       return { ...qr, valueSegments: parseValueSegmentsText(value as string) };
-    case "selectedAriaLabel":
-      return { ...qr, ariaLabel: (value as string) || undefined };
     case "selectedGradientLinkMode":
       return { ...qr, gradientLinkMode: value as QraftyState["gradientLinkMode"] };
     case "selectedDotsPalettePreset":

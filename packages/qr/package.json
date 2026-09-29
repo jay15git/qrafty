@@ -14,10 +14,6 @@
       "types": "./src/index.ts",
       "import": "./src/index.ts"
     },
-    "./react": {
-      "types": "./src/react/index.ts",
-      "import": "./src/react/index.ts"
-    },
     "./dot-matrix": {
       "types": "./src/dot-matrix/index.ts",
       "import": "./src/dot-matrix/index.ts"

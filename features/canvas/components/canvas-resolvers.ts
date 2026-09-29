@@ -1,7 +1,6 @@
 import type { CanvasCardState } from "@/features/canvas/model/card-state";
 import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
 import type { CanvasContentValuesByType } from "@/features/canvas/model/document";
-import type { CanvasBoardToolbarVariant } from "@/features/canvas/components/Canvas";
 import { findCanvasLayerById } from "@/features/canvas/components/canvas-operations";
 import { getAppearanceSnapshot } from "@/features/shell/model/appearance";
 import { getDefaultStaticQrValues } from "@/features/qr/content/static-payload";
@@ -40,8 +39,7 @@ export function resolveSelectedElementLayer(
     selectedTextLayer &&
     (selectedTextLayer.kind === "text" ||
       selectedTextLayer.kind === "shape" ||
-      selectedTextLayer.kind === "image" ||
-      selectedTextLayer.kind === "shader")
+      selectedTextLayer.kind === "image")
     ? selectedTextLayer
     : null;
 }
@@ -100,13 +98,8 @@ export function resolveAppearanceSnapshot(
 }
 
 export function resolveCanRemoveQrCode(
-  boardToolbarVariant: CanvasBoardToolbarVariant,
   qrCanvasLayers: CanvasLayer[],
   selectedLayerId: string | null,
 ) {
-  return (
-    boardToolbarVariant === "zoom" &&
-    qrCanvasLayers.length > 1 &&
-    Boolean(selectedLayerId?.includes(":qr"))
-  );
+  return qrCanvasLayers.length > 1 && Boolean(selectedLayerId?.includes(":qr"));
 }

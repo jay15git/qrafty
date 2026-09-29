@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Caveat, Geist_Mono, Kodchasan, Manrope } from "next/font/google";
+import { Caveat, Geist_Mono } from "next/font/google";
 
 import { AgentationDev } from "@/components/agentation-dev";
 import { GlimmRootProvider } from "@/components/glimm-root-provider";
@@ -8,21 +8,10 @@ import { MotionProvider } from "@/components/motion-provider";
 
 import "./globals.css";
 
-const heroSupportFont = Kodchasan({
-  variable: "--font-kodchasan",
-  subsets: ["latin"],
-  weight: ["400", "600", "700"],
-});
-
 const brandFont = Caveat({
   variable: "--font-caveat-family",
   subsets: ["latin"],
   weight: ["600", "700"],
-});
-
-const bodyFont = Manrope({
-  variable: "--font-manrope",
-  subsets: ["latin"],
 });
 
 const monoFont = Geist_Mono({
@@ -71,7 +60,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${heroSupportFont.variable} ${brandFont.variable} ${bodyFont.variable} ${monoFont.variable} h-full antialiased`}
+      className={`${brandFont.variable} ${monoFont.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <body className="flex min-h-full cursor-default flex-col">

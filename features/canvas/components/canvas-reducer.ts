@@ -27,7 +27,6 @@ import {
   DEFAULT_STUDIO_STATE,
   type CanvasDownloadExtension,
 } from "@/features/canvas/components/canvas.constants";
-import type { CanvasBoardTool } from "@/features/canvas/components/Canvas";
 import type {
   SettingsToolId,
   ComposeSidebarPanel,
@@ -63,7 +62,6 @@ export type CanvasSurfaceState = QrDraftFields & {
   qrStateByLayerId: CanvasQrStateByLayerId;
   selectedLayerId: string | null;
   selectedLayerIds: string[];
-  desktopCanvasTool: CanvasBoardTool | null;
   selectedDownloadExtension: CanvasDownloadExtension;
   selectedDownloadTarget: CanvasDownloadTarget;
   exportDownloadError: string | null;
@@ -123,8 +121,33 @@ export type CanvasSurfaceSetter<K extends keyof CanvasSurfaceState> = (
   value: FieldUpdater<K>,
 ) => void;
 
+/** Surface fields that stay read-only for consumers — the QR/canvas write
+ * paths that used to expose setters for these were removed with the desktop
+ * settings panels that called them. */
+type CanvasSurfaceSetterField = Exclude<
+  keyof CanvasSurfaceState,
+  | "selectedHideBackgroundDots"
+  | "selectedLogoCrossOrigin"
+  | "selectedLogoHeightPx"
+  | "selectedLogoLockAspect"
+  | "selectedLogoMargin"
+  | "selectedLogoOffsetX"
+  | "selectedLogoOffsetY"
+  | "selectedLogoOpacity"
+  | "selectedLogoPositionMode"
+  | "selectedLogoPresetId"
+  | "selectedLogoPresetValue"
+  | "selectedLogoRemoteUrl"
+  | "selectedLogoSize"
+  | "selectedLogoSizeMode"
+  | "selectedLogoUploadValue"
+  | "selectedLogoWidthPx"
+  | "selectedQrMargin"
+  | "selectedQrRadius"
+>;
+
 export type CanvasSurfaceSetters = {
-  [K in keyof CanvasSurfaceState as `set${Capitalize<string & K>}`]: CanvasSurfaceSetter<K>;
+  [K in CanvasSurfaceSetterField as `set${Capitalize<string & K>}`]: CanvasSurfaceSetter<K>;
 };
 
 export function createInitialCanvasSurfaceState(
@@ -151,12 +174,6 @@ export function createInitialCanvasSurfaceState(
     selectedModuleFillImageUrl: "",
     selectedModuleFillImageSourceMode: "upload",
     selectedModuleFillRemoteUrl: "",
-    selectedBackgroundAssetSourceMode:
-      DEFAULT_STUDIO_STATE.backgroundImage.source === "url" ? "url" : "upload",
-    selectedBackgroundRemoteUrl:
-      DEFAULT_STUDIO_STATE.backgroundImage.source === "url"
-        ? (DEFAULT_STUDIO_STATE.backgroundImage.value ?? "")
-        : "",
     selectedLogoPresetValue: DEFAULT_STUDIO_STATE.logo.value,
     selectedLogoAssetSourceMode: DEFAULT_STUDIO_STATE.logo.source === "url" ? "url" : "upload",
     selectedLogoRemoteUrl:
@@ -173,7 +190,6 @@ export function createInitialCanvasSurfaceState(
     },
     selectedLayerId: primaryQrLayerId,
     selectedLayerIds: [primaryQrLayerId],
-    desktopCanvasTool: "select",
     selectedDownloadExtension: "png",
     selectedDownloadTarget: "surface",
     exportDownloadError: null,
@@ -294,12 +310,8 @@ export function canvasReducer(
 }
 
 const QR_DRAFT_FIELD_SET = new Set<QrDraftWriteField>([
-  "selectedAriaLabel",
-  "selectedBackgroundAssetSourceMode",
   "selectedBackgroundColor",
   "selectedBackgroundColorMode",
-  "selectedBackgroundGradient",
-  "selectedBackgroundRemoteUrl",
   "selectedBackgroundShapeId",
   "selectedBackgroundShapeOptions",
   "selectedBackgroundTransparent",
@@ -347,13 +359,9 @@ const QR_DRAFT_FIELD_SET = new Set<QrDraftWriteField>([
   "selectedModuleSize",
   "selectedQrErrorCorrectionLevel",
   "selectedQrFinderPatternInnerStyle",
-  "selectedQrFinderPatternOuterStyle",
   "selectedQrMargin",
-  "selectedQrMode",
   "selectedQrRadius",
-  "selectedQrSize",
   "selectedQrTypeNumber",
-  "selectedRasterExportQualityPercent",
   "selectedValueSegmentsText",
   "selectedCardState",
 ]);
@@ -381,10 +389,6 @@ function createCanvasSurfaceSetters(dispatch: Dispatch<CanvasSurfaceAction>): Ca
     setSelectedContentType: (value) => setField("selectedContentType", value),
     setContentValuesByType: (value) => setField("contentValuesByType", value),
     setContentTypeByLayerId: (value) => setField("contentTypeByLayerId", value),
-    setSelectedQrMargin: (value) => setField("selectedQrMargin", value),
-    setSelectedQrRadius: (value) => setField("selectedQrRadius", value),
-    setSelectedRasterExportQualityPercent: (value) =>
-      setField("selectedRasterExportQualityPercent", value),
     setSelectedQrSize: (value) => setField("selectedQrSize", value),
     setSelectedDotType: (value) => setField("selectedDotType", value),
     setSelectedDotsColorMode: (value) => setField("selectedDotsColorMode", value),
@@ -413,40 +417,19 @@ function createCanvasSurfaceSetters(dispatch: Dispatch<CanvasSurfaceAction>): Ca
     setSelectedBackgroundGradient: (value) => setField("selectedBackgroundGradient", value),
     setSelectedBackgroundShapeId: (value) => setField("selectedBackgroundShapeId", value),
     setSelectedBackgroundShapeOptions: (value) => setField("selectedBackgroundShapeOptions", value),
-    setSelectedBackgroundAssetSourceMode: (value) =>
-      setField("selectedBackgroundAssetSourceMode", value),
-    setSelectedBackgroundRemoteUrl: (value) => setField("selectedBackgroundRemoteUrl", value),
     setSelectedLogoColorMode: (value) => setField("selectedLogoColorMode", value),
     setSelectedLogoSourceMode: (value) => setField("selectedLogoSourceMode", value),
     setSelectedLogoColor: (value) => setField("selectedLogoColor", value),
     setSelectedLogoGradient: (value) => setField("selectedLogoGradient", value),
-    setSelectedLogoPresetId: (value) => setField("selectedLogoPresetId", value),
-    setSelectedLogoPresetValue: (value) => setField("selectedLogoPresetValue", value),
     setSelectedLogoAssetSourceMode: (value) => setField("selectedLogoAssetSourceMode", value),
-    setSelectedLogoRemoteUrl: (value) => setField("selectedLogoRemoteUrl", value),
-    setSelectedLogoUploadValue: (value) => setField("selectedLogoUploadValue", value),
-    setSelectedLogoSize: (value) => setField("selectedLogoSize", value),
-    setSelectedLogoMargin: (value) => setField("selectedLogoMargin", value),
-    setSelectedHideBackgroundDots: (value) => setField("selectedHideBackgroundDots", value),
     setSelectedQrTypeNumber: (value) => setField("selectedQrTypeNumber", value),
     setSelectedQrErrorCorrectionLevel: (value) => setField("selectedQrErrorCorrectionLevel", value),
     setSelectedBoostLevel: (value) => setField("selectedBoostLevel", value),
-    setSelectedQrMode: (value) => setField("selectedQrMode", value),
     setSelectedValueSegmentsText: (value) => setField("selectedValueSegmentsText", value),
-    setSelectedAriaLabel: (value) => setField("selectedAriaLabel", value),
     setSelectedModuleRoundSize: (value) => setField("selectedModuleRoundSize", value),
     setSelectedModuleSize: (value) => setField("selectedModuleSize", value),
     setSelectedModuleLineWidth: (value) => setField("selectedModuleLineWidth", value),
     setSelectedGradientLinkMode: (value) => setField("selectedGradientLinkMode", value),
-    setSelectedLogoOpacity: (value) => setField("selectedLogoOpacity", value),
-    setSelectedLogoSizeMode: (value) => setField("selectedLogoSizeMode", value),
-    setSelectedLogoWidthPx: (value) => setField("selectedLogoWidthPx", value),
-    setSelectedLogoHeightPx: (value) => setField("selectedLogoHeightPx", value),
-    setSelectedLogoLockAspect: (value) => setField("selectedLogoLockAspect", value),
-    setSelectedLogoPositionMode: (value) => setField("selectedLogoPositionMode", value),
-    setSelectedLogoOffsetX: (value) => setField("selectedLogoOffsetX", value),
-    setSelectedLogoOffsetY: (value) => setField("selectedLogoOffsetY", value),
-    setSelectedLogoCrossOrigin: (value) => setField("selectedLogoCrossOrigin", value),
     setActiveQrLayerId: (value) => setField("activeQrLayerId", value),
     setCardState: (value) => setField("cardState", value),
     setCanvasLayers: (value) => setField("canvasLayers", value),
@@ -454,7 +437,6 @@ function createCanvasSurfaceSetters(dispatch: Dispatch<CanvasSurfaceAction>): Ca
     setSelectedCardState: (value) => setField("selectedCardState", value),
     setSelectedLayerId: (value) => setField("selectedLayerId", value),
     setSelectedLayerIds: (value) => setField("selectedLayerIds", value),
-    setDesktopCanvasTool: (value) => setField("desktopCanvasTool", value),
     setSelectedDownloadExtension: (value) => setField("selectedDownloadExtension", value),
     setSelectedDownloadTarget: (value) => setField("selectedDownloadTarget", value),
     setExportDownloadError: (value) => setField("exportDownloadError", value),

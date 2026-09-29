@@ -1,5 +1,3 @@
-import { createDefaultCanvasCardPaperShader } from "@/features/canvas/model/card-state";
-import type { PaperShaderId } from "@/features/canvas/rendering/paper-shader-definitions";
 import { createFallbackLayer } from "@/features/canvas/model/layers/fallback";
 import { patchCanvasLayer } from "@/features/canvas/model/layers/patch";
 import { normalizeElementShapeId } from "@/features/canvas/model/layers/shape";
@@ -38,22 +36,6 @@ export function createCanvasImageLayer(
       ...createFallbackLayer(nodeId, "image"),
       ...options,
       kind: "image",
-    },
-    {},
-  );
-}
-
-export function createCanvasShaderLayer(
-  nodeId: string,
-  shaderId: PaperShaderId = "mesh-gradient",
-  options: Partial<CanvasLayer> = {},
-): CanvasLayer {
-  return patchCanvasLayer(
-    {
-      ...createFallbackLayer(nodeId, "shader"),
-      ...options,
-      kind: "shader",
-      paperShader: createDefaultCanvasCardPaperShader(shaderId),
     },
     {},
   );

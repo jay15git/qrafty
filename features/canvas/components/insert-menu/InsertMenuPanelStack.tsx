@@ -32,168 +32,11 @@ type InsertMenuPanelStackProps = {
   canAddQrCode?: boolean;
   onAddQrCode?: () => void;
   onBrowseWallpapers?: () => void;
-  isPopover?: boolean;
   onClose?: () => void;
   theme?: ThemeMode;
 };
 
 type InsertMenuPanelId = "root" | "shape" | "image" | "emoji" | "illustration-set";
-
-type InsertMenuPanelsProps = {
-  activeIllustrationSet: IllustrationSet | undefined;
-  canAddQrCode: boolean;
-  imageUrl: string;
-  isPopover: boolean;
-  onAddQrCode?: () => void;
-  onBack: () => void;
-  onBrowseWallpapers?: () => void;
-  onInsertEmoji: (emoji: string) => void;
-  onInsertImage: (value: string, source: "upload" | "url") => void;
-  onInsertIllustration: (asset: IllustrationAsset) => void;
-  onInsertShape: (shapeId: CanvasElementShapeId) => void;
-  onInsertText: () => void;
-  onOpenEmojiPanel: () => void;
-  onOpenIllustrationSet: (setId: IllustrationSetId) => void;
-  onOpenImagePanel: () => void;
-  onOpenShapePanel: () => void;
-  onImageUrlChange: (value: string) => void;
-  panel: InsertMenuPanelId;
-  theme: ThemeMode;
-};
-
-function InsertMenuPopoverPanels({
-  activeIllustrationSet,
-  canAddQrCode,
-  imageUrl,
-  isPopover,
-  onAddQrCode,
-  onBack,
-  onBrowseWallpapers,
-  onInsertEmoji,
-  onInsertImage,
-  onInsertIllustration,
-  onInsertShape,
-  onInsertText,
-  onOpenEmojiPanel,
-  onOpenIllustrationSet,
-  onOpenImagePanel,
-  onOpenShapePanel,
-  onImageUrlChange,
-  panel,
-  theme,
-}: InsertMenuPanelsProps) {
-  if (panel === "emoji") {
-    return (
-      <InsertMenuEmojiPanel isPopover={isPopover} onBack={onBack} onSelectEmoji={onInsertEmoji} />
-    );
-  }
-
-  if (panel === "root") {
-    return (
-      <InsertMenuRootPanel
-        canAddQrCode={canAddQrCode}
-        isPopover={isPopover}
-        onAddQrCode={onAddQrCode}
-        onInsertText={onInsertText}
-        onOpenEmojiPanel={onOpenEmojiPanel}
-        onOpenIllustrationSet={onOpenIllustrationSet}
-        onOpenImagePanel={onOpenImagePanel}
-        onOpenShapePanel={onOpenShapePanel}
-      />
-    );
-  }
-
-  return (
-    <InsertMenuScroll contentClassName={INSERT_MENU_PANEL_CONTENT_CLASS}>
-      {panel === "shape" ? (
-        <InsertMenuShapePanel isPopover={isPopover} onBack={onBack} onSelectShape={onInsertShape} />
-      ) : null}
-      {panel === "illustration-set" && activeIllustrationSet ? (
-        <InsertMenuIllustrationSetPanel
-          isPopover={isPopover}
-          set={activeIllustrationSet}
-          onBack={onBack}
-          onSelectAsset={onInsertIllustration}
-        />
-      ) : null}
-      {panel === "image" ? (
-        <InsertMenuImagePanel
-          imageUrl={imageUrl}
-          isPopover={isPopover}
-          onBack={onBack}
-          onBrowseWallpapers={onBrowseWallpapers}
-          onImageUrlChange={onImageUrlChange}
-          onInsertImage={onInsertImage}
-          theme={theme}
-        />
-      ) : null}
-    </InsertMenuScroll>
-  );
-}
-
-function InsertMenuInlinePanels({
-  activeIllustrationSet,
-  canAddQrCode,
-  imageUrl,
-  isPopover,
-  onAddQrCode,
-  onBack,
-  onBrowseWallpapers,
-  onInsertEmoji,
-  onInsertImage,
-  onInsertIllustration,
-  onInsertShape,
-  onInsertText,
-  onOpenEmojiPanel,
-  onOpenIllustrationSet,
-  onOpenImagePanel,
-  onOpenShapePanel,
-  onImageUrlChange,
-  panel,
-  theme,
-}: InsertMenuPanelsProps) {
-  return (
-    <>
-      {panel === "root" ? (
-        <InsertMenuRootPanel
-          canAddQrCode={canAddQrCode}
-          isPopover={isPopover}
-          onAddQrCode={onAddQrCode}
-          onInsertText={onInsertText}
-          onOpenEmojiPanel={onOpenEmojiPanel}
-          onOpenIllustrationSet={onOpenIllustrationSet}
-          onOpenImagePanel={onOpenImagePanel}
-          onOpenShapePanel={onOpenShapePanel}
-        />
-      ) : null}
-      {panel === "shape" ? (
-        <InsertMenuShapePanel isPopover={isPopover} onBack={onBack} onSelectShape={onInsertShape} />
-      ) : null}
-      {panel === "emoji" ? (
-        <InsertMenuEmojiPanel isPopover={isPopover} onBack={onBack} onSelectEmoji={onInsertEmoji} />
-      ) : null}
-      {panel === "illustration-set" && activeIllustrationSet ? (
-        <InsertMenuIllustrationSetPanel
-          isPopover={isPopover}
-          set={activeIllustrationSet}
-          onBack={onBack}
-          onSelectAsset={onInsertIllustration}
-        />
-      ) : null}
-      {panel === "image" ? (
-        <InsertMenuImagePanel
-          imageUrl={imageUrl}
-          isPopover={isPopover}
-          onBack={onBack}
-          onBrowseWallpapers={onBrowseWallpapers}
-          onImageUrlChange={onImageUrlChange}
-          onInsertImage={onInsertImage}
-          theme={theme}
-        />
-      ) : null}
-    </>
-  );
-}
 
 export function InsertMenuPanelStack({
   nodeId,
@@ -201,14 +44,13 @@ export function InsertMenuPanelStack({
   canAddQrCode = true,
   onAddQrCode,
   onBrowseWallpapers,
-  isPopover = true,
   onClose,
   theme = "dark",
 }: InsertMenuPanelStackProps) {
   const [panel, setPanel] = useState<InsertMenuPanelId>("root");
   const [imageUrl, setImageUrl] = useState("");
   const [illustrationSetId, setIllustrationSetId] = useState<IllustrationSetId | null>(null);
-  const activeIllustrationSet = illustrationSetId
+  const activeIllustrationSet: IllustrationSet | undefined = illustrationSetId
     ? getIllustrationSet(illustrationSetId)
     : undefined;
 
@@ -265,34 +107,49 @@ export function InsertMenuPanelStack({
     closeMenu();
   }
 
-  const panelsProps: InsertMenuPanelsProps = {
-    activeIllustrationSet,
-    canAddQrCode,
-    imageUrl,
-    isPopover,
-    onAddQrCode: onAddQrCode ? addQrCode : undefined,
-    onBack: () => setPanel("root"),
-    onBrowseWallpapers: onBrowseWallpapers ? browseWallpapers : undefined,
-    onInsertEmoji: insertEmoji,
-    onInsertImage: insertImage,
-    onInsertIllustration: insertIllustration,
-    onInsertShape: insertShape,
-    onInsertText: insertText,
-    onOpenEmojiPanel: () => setPanel("emoji"),
-    onOpenIllustrationSet: (setId) => {
-      setIllustrationSetId(setId);
-      setPanel("illustration-set");
-    },
-    onOpenImagePanel: () => setPanel("image"),
-    onOpenShapePanel: () => setPanel("shape"),
-    onImageUrlChange: setImageUrl,
-    panel,
-    theme,
-  };
-
-  if (isPopover) {
-    return <InsertMenuPopoverPanels {...panelsProps} />;
+  if (panel === "emoji") {
+    return <InsertMenuEmojiPanel onBack={() => setPanel("root")} onSelectEmoji={insertEmoji} />;
   }
 
-  return <InsertMenuInlinePanels {...panelsProps} />;
+  if (panel === "root") {
+    return (
+      <InsertMenuRootPanel
+        canAddQrCode={canAddQrCode}
+        onAddQrCode={onAddQrCode ? addQrCode : undefined}
+        onInsertText={insertText}
+        onOpenEmojiPanel={() => setPanel("emoji")}
+        onOpenIllustrationSet={(setId) => {
+          setIllustrationSetId(setId);
+          setPanel("illustration-set");
+        }}
+        onOpenImagePanel={() => setPanel("image")}
+        onOpenShapePanel={() => setPanel("shape")}
+      />
+    );
+  }
+
+  return (
+    <InsertMenuScroll contentClassName={INSERT_MENU_PANEL_CONTENT_CLASS}>
+      {panel === "shape" ? (
+        <InsertMenuShapePanel onBack={() => setPanel("root")} onSelectShape={insertShape} />
+      ) : null}
+      {panel === "illustration-set" && activeIllustrationSet ? (
+        <InsertMenuIllustrationSetPanel
+          set={activeIllustrationSet}
+          onBack={() => setPanel("root")}
+          onSelectAsset={insertIllustration}
+        />
+      ) : null}
+      {panel === "image" ? (
+        <InsertMenuImagePanel
+          imageUrl={imageUrl}
+          onBack={() => setPanel("root")}
+          onBrowseWallpapers={onBrowseWallpapers ? browseWallpapers : undefined}
+          onImageUrlChange={setImageUrl}
+          onInsertImage={insertImage}
+          theme={theme}
+        />
+      ) : null}
+    </InsertMenuScroll>
+  );
 }

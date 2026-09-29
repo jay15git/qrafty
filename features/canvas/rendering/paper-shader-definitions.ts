@@ -285,10 +285,6 @@ export function formatPaperShaderParamLabel(value: string) {
     .replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
-export function getCardImageFilterDefinitions() {
-  return CARD_IMAGE_FILTER_SHADER_IDS.map((shaderId) => getPaperShaderDefinition(shaderId));
-}
-
 export function getCardGeneratedShaderDefinitions() {
   return PAPER_SHADER_DEFINITIONS.filter(
     (definition) =>

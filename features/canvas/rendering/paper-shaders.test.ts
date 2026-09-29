@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 
 import {
   getCardGeneratedShaderDefinitions,
-  getCardImageFilterDefinitions,
   getPaperShaderDefinition,
 } from "@/features/canvas/rendering/paper-shader-definitions";
 
@@ -94,23 +93,19 @@ describe("canvas paper shader metadata", () => {
     }
   });
 
-  it("uses a fixed card image filter allowlist in reference order", () => {
-    expect(getCardImageFilterDefinitions().map((definition) => definition.id)).toEqual([
+  it("keeps card image filters out of generated shader choices", () => {
+    const generatedShaderIds = getCardGeneratedShaderDefinitions().map(
+      (definition) => definition.id,
+    );
+
+    for (const filterId of [
       "paper-texture",
       "fluted-glass",
       "water",
       "image-dithering",
       "halftone-dots",
       "halftone-cmyk",
-    ]);
-  });
-
-  it("keeps card image filters out of generated shader choices", () => {
-    const generatedShaderIds = getCardGeneratedShaderDefinitions().map(
-      (definition) => definition.id,
-    );
-
-    for (const filterId of getCardImageFilterDefinitions().map((definition) => definition.id)) {
+    ]) {
       expect(generatedShaderIds).not.toContain(filterId);
     }
   });

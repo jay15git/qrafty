@@ -8,9 +8,7 @@ const sampleIr: SceneIr = {
   bounds: { minX: 0, minY: 0, width: 100, height: 100 },
   defs: "",
   body: '<rect x="10" y="10" width="20" height="20" fill="#111" />',
-  domLayers: [],
   fonts: [],
-  componentName: "QrCard",
 };
 
 describe("scene svg emit", () => {

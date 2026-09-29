@@ -15,61 +15,14 @@ import {
   getElementRegion,
   getLinearGradientEndpoints,
 } from "./svg-dom-utils";
-import { getQrSvgNumCells } from "./background-shape-layout";
+import {
+  getFinderCornerRegions,
+  getQrSvgNumCells,
+  type FinderCornerKind,
+  type FinderCornerRegion,
+} from "@qrafty/qr-internal/core";
 
-export type FinderCornerKind = "inner" | "outer";
-
-export type FinderCornerRegion = {
-  height: number;
-  width: number;
-  x: number;
-  y: number;
-};
-
-export function getFinderCornerRegions(
-  margin: number,
-  numCells: number,
-  kind: FinderCornerKind,
-): FinderCornerRegion[] {
-  const moduleCount = numCells - margin * 2;
-  const outerSize = 7;
-  const innerSize = 3;
-  const innerInset = 2;
-  const innerPadding = kind === "inner" ? 0.75 : 0;
-
-  if (moduleCount <= outerSize || margin < 0) {
-    return [];
-  }
-
-  if (kind === "outer") {
-    return [
-      { height: outerSize, width: outerSize, x: margin, y: margin },
-      {
-        height: outerSize,
-        width: outerSize,
-        x: moduleCount + margin - outerSize,
-        y: margin,
-      },
-      {
-        height: outerSize,
-        width: outerSize,
-        x: margin,
-        y: moduleCount + margin - outerSize,
-      },
-    ];
-  }
-
-  const size = innerSize + innerPadding * 2;
-  const inset = innerInset - innerPadding;
-  const innerX = moduleCount + margin - outerSize + inset;
-  const innerY = moduleCount + margin - outerSize + inset;
-
-  return [
-    { height: size, width: size, x: margin + inset, y: margin + inset },
-    { height: size, width: size, x: innerX, y: margin + inset },
-    { height: size, width: size, x: margin + inset, y: innerY },
-  ];
-}
+export { getFinderCornerRegions };
 
 export function createFinderPatternGradientExtension(
   testId: "finder-patterns-inner" | "finder-patterns-outer",

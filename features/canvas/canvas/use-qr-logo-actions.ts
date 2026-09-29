@@ -268,7 +268,6 @@ export function useQrLogoActions({
     changeLogoGradient,
     clearLogoPreset,
     patchLogoImageOptions,
-    resolveIconstackSvgMarkup,
     selectBrandIcon,
     selectIconstackIcon,
   };

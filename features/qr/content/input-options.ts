@@ -39,13 +39,19 @@ import {
   Wifi,
 } from "lucide-react";
 
-import {
-  PLATFORM_PICKER_TYPES,
-  URL_ONLY_ALIAS_TYPES,
-  getPlatformDef,
-  isPlatformType,
-  resolvePlatformType,
-} from "@/features/qr/content/platform-intents";
+import { getPlatformDef, resolvePlatformType } from "@/features/qr/content/platform-intents";
+
+/** Legacy/url-only input types that map onto the generic link flow. */
+const URL_ONLY_ALIAS_TYPES = new Set<QrInputType>([
+  "auto",
+  "website",
+  "app-download",
+  "pdf",
+  "image",
+  "video",
+  "document",
+  "menu",
+]);
 
 export type QrInputType =
   | "auto"
@@ -151,13 +157,8 @@ const STRUCTURED_PICKER_TYPES = [
   "crypto",
 ] as const satisfies readonly QrInputType[];
 
-/** Types shown in content pickers. Legacy aliases still exist for saved docs. */
-export const PICKER_QR_INPUT_TYPES = [
-  ...STRUCTURED_PICKER_TYPES,
-  ...PLATFORM_PICKER_TYPES.filter(
-    (type) => !(STRUCTURED_PICKER_TYPES as readonly QrInputType[]).includes(type),
-  ),
-] as const satisfies readonly QrInputType[];
+/** Types shown in content pickers. */
+export const PICKER_QR_INPUT_TYPES = STRUCTURED_PICKER_TYPES;
 
 export type PickerQrInputType = (typeof PICKER_QR_INPUT_TYPES)[number];
 
@@ -385,8 +386,4 @@ function toggleQuickInputType(
   next: QuickQrInputType,
 ): QrInputType | null {
   return current === next ? null : next;
-}
-
-function isPlatformContentType(type: QrInputType): boolean {
-  return isPlatformType(type);
 }

@@ -7,7 +7,6 @@ import {
   serializeCanvasWorkspaceDocument,
   type CanvasWorkspaceDocument,
 } from "@/features/canvas/model/document";
-import { previewSession } from "@/features/canvas/preview/preview-session";
 
 const HISTORY_LIMIT = 80;
 const HISTORY_DEBOUNCE_MS = 160;
@@ -66,10 +65,6 @@ export function useCanvasHistory({
     }
 
     historyTimerRef.current = window.setTimeout(() => {
-      if (previewSession.getIsInteracting()) {
-        return;
-      }
-
       const snapshot = cloneCanvasWorkspaceDocument(document);
       const serializedSnapshot = serializeCanvasWorkspaceDocument(snapshot);
       const currentIndex = historyIndexRef.current;

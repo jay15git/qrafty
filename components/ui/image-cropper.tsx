@@ -1,16 +1,9 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { Crop, Upload, UploadCloud, X } from "lucide-react";
+import { Dialog as DialogPrimitive } from "radix-ui";
 import type React from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -58,53 +51,16 @@ function formatMimeSubtype(format: string): string {
   return (subtype ?? format).toUpperCase();
 }
 
-function initialCropArea(
-  imgRect: { width: number; height: number },
-  fixedSize: { width: number; height: number } | undefined,
-  aspectRatio: number | undefined,
-): CropArea {
-  const targetRatio = fixedSize ? fixedSize.width / fixedSize.height : aspectRatio;
-  let cropWidth = imgRect.width;
-  let cropHeight = imgRect.height;
-
-  if (targetRatio) {
-    cropHeight = cropWidth / targetRatio;
-    if (cropHeight > imgRect.height) {
-      cropHeight = imgRect.height;
-      cropWidth = cropHeight * targetRatio;
-    }
-  }
-
-  return {
-    x: 0,
-    y: (imgRect.height - cropHeight) / 2,
-    width: cropWidth,
-    height: cropHeight,
-  };
-}
-
 function resizedCropArea(
   prev: CropArea,
   deltaX: number,
   deltaY: number,
   imgRect: { width: number; height: number },
-  aspectRatio: number | undefined,
 ): CropArea {
-  let newWidth = Math.max(50, prev.width + deltaX);
-  let newHeight = Math.max(50, prev.height + deltaY);
-
-  if (aspectRatio) {
-    if (Math.abs(deltaX) > Math.abs(deltaY)) {
-      newHeight = newWidth / aspectRatio;
-    } else {
-      newWidth = newHeight * aspectRatio;
-    }
-  }
-
   return {
     ...prev,
-    width: Math.min(newWidth, imgRect.width - prev.x),
-    height: Math.min(newHeight, imgRect.height - prev.y),
+    width: Math.min(Math.max(50, prev.width + deltaX), imgRect.width - prev.x),
+    height: Math.min(Math.max(50, prev.height + deltaY), imgRect.height - prev.y),
   };
 }
 
@@ -121,20 +77,15 @@ function movedCropArea(
   };
 }
 
-function drawCropToCanvas(
-  img: HTMLImageElement,
-  canvas: HTMLCanvasElement,
-  cropArea: CropArea,
-  fixedSize: { width: number; height: number } | undefined,
-) {
+function drawCropToCanvas(img: HTMLImageElement, canvas: HTMLCanvasElement, cropArea: CropArea) {
   const ctx = canvas.getContext("2d");
   if (!ctx) throw new Error("Could not get canvas context");
 
   const imgRect = img.getBoundingClientRect();
   const scaleX = img.naturalWidth / imgRect.width;
   const scaleY = img.naturalHeight / imgRect.height;
-  const outputWidth = fixedSize?.width || Math.round(cropArea.width * scaleX);
-  const outputHeight = fixedSize?.height || Math.round(cropArea.height * scaleY);
+  const outputWidth = Math.round(cropArea.width * scaleX);
+  const outputHeight = Math.round(cropArea.height * scaleY);
 
   canvas.width = outputWidth;
   canvas.height = outputHeight;
@@ -190,22 +141,13 @@ function UploadTileIcon({ className }: { className?: string }) {
 }
 
 interface ImageUploaderProps {
-  imgClassName?: string;
   onImageCropped?: (data: CroppedImageData) => void;
-  fixedSize?: { width: number; height: number };
-  aspectRatio?: number;
   className?: string;
-  dialogContentClassName?: string;
   /** Applies /design settings portal tokens to the crop dialog. */
   dialogTheme?: "light" | "dark";
   maxFileSize?: number;
-  supportedFormats?: string[];
-  name?: string;
   value?: string | File | null;
   onChange?: (value: string | File | null) => void;
-  onBlur?: () => void;
-  error?: string;
-  disabled?: boolean;
   placeholder?: string;
   showFormatHint?: boolean;
   compact?: boolean;
@@ -215,14 +157,9 @@ interface ImageUploaderProps {
 
 function useImageCropper({
   onImageCropped,
-  fixedSize,
-  aspectRatio,
   maxFileSize = MAX_FILE_SIZE,
-  supportedFormats = SUPPORTED_FORMATS,
   value,
   onChange,
-  onBlur,
-  disabled = false,
 }: ImageUploaderProps) {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const originalFileRef = useRef<File | null>(null);
@@ -269,10 +206,10 @@ function useImageCropper({
 
   const validateFile = useCallback(
     (file: File): string | null => {
-      if (!supportedFormats.includes(file.type)) {
-        return `Unsupported file format. Please use: ${supportedFormats
-          .map(formatMimeSubtype)
-          .join(", ")}`;
+      if (!SUPPORTED_FORMATS.includes(file.type)) {
+        return `Unsupported file format. Please use: ${SUPPORTED_FORMATS.map(
+          formatMimeSubtype,
+        ).join(", ")}`;
       }
 
       if (file.size > maxFileSize) {
@@ -281,15 +218,7 @@ function useImageCropper({
 
       return null;
     },
-    [supportedFormats, maxFileSize, maxFileSizeMb],
-  );
-
-  const checkImageDimensions = useCallback(
-    (img: HTMLImageElement): boolean => {
-      if (!fixedSize) return false;
-      return img.naturalWidth === fixedSize.width && img.naturalHeight === fixedSize.height;
-    },
-    [fixedSize],
+    [maxFileSize, maxFileSizeMb],
   );
 
   const resetFileInput = useCallback(() => {
@@ -300,8 +229,6 @@ function useImageCropper({
 
   const handleFileSelect = useCallback(
     async (file: File) => {
-      if (disabled) return;
-
       setValidationError(null);
       setIsProcessing(true);
 
@@ -318,22 +245,8 @@ function useImageCropper({
         originalFileRef.current = file;
 
         try {
-          const tempImg = await loadImageElement(imageUrl);
-          if (checkImageDimensions(tempImg)) {
-            setCroppedImageUrl(imageUrl);
-            onChange?.(file);
-            onImageCropped?.({
-              url: imageUrl,
-              file,
-              metadata: {
-                width: tempImg.naturalWidth,
-                height: tempImg.naturalHeight,
-              },
-            });
-            onBlur?.();
-          } else {
-            setShowCropDialog(true);
-          }
+          await loadImageElement(imageUrl);
+          setShowCropDialog(true);
         } catch {
           setValidationError("Invalid or corrupted image file");
           resetFileInput();
@@ -350,15 +263,7 @@ function useImageCropper({
         setIsProcessing(false);
       }
     },
-    [
-      disabled,
-      validateFile,
-      checkImageDimensions,
-      onChange,
-      onImageCropped,
-      onBlur,
-      resetFileInput,
-    ],
+    [validateFile, resetFileInput],
   );
 
   const handleDrop = useCallback(
@@ -366,25 +271,18 @@ function useImageCropper({
       event.preventDefault();
       setIsDragging(false);
 
-      if (disabled) return;
-
       const files = Array.from(event.dataTransfer.files);
       if (files.length > 0) {
         handleFileSelect(files[0]);
       }
     },
-    [handleFileSelect, disabled],
+    [handleFileSelect],
   );
 
-  const handleDragOver = useCallback(
-    (event: React.DragEvent) => {
-      event.preventDefault();
-      if (!disabled) {
-        setIsDragging(true);
-      }
-    },
-    [disabled],
-  );
+  const handleDragOver = useCallback((event: React.DragEvent) => {
+    event.preventDefault();
+    setIsDragging(true);
+  }, []);
 
   const handleDragLeave = useCallback((event: React.DragEvent) => {
     event.preventDefault();
@@ -392,29 +290,23 @@ function useImageCropper({
   }, []);
 
   const handleImageLoad = useCallback(() => {
-    if (imageRef.current && cropContainerRef.current) {
-      setCropArea(
-        initialCropArea(imageRef.current.getBoundingClientRect(), fixedSize, aspectRatio),
-      );
+    if (imageRef.current) {
+      const rect = imageRef.current.getBoundingClientRect();
+      setCropArea({ x: 0, y: 0, width: rect.width, height: rect.height });
     }
-  }, [fixedSize, aspectRatio]);
+  }, []);
 
-  const handleMouseDown = useCallback(
-    (event: React.MouseEvent, type: "move" | "resize") => {
-      event.preventDefault();
-      event.stopPropagation();
+  const handleMouseDown = useCallback((event: React.MouseEvent, type: "move" | "resize") => {
+    event.preventDefault();
+    event.stopPropagation();
 
-      if (fixedSize && type === "resize") return;
-
-      dragStartRef.current = { x: event.clientX, y: event.clientY };
-      if (type === "move") {
-        setIsDragging(true);
-      } else {
-        isResizingRef.current = true;
-      }
-    },
-    [fixedSize],
-  );
+    dragStartRef.current = { x: event.clientX, y: event.clientY };
+    if (type === "move") {
+      setIsDragging(true);
+    } else {
+      isResizingRef.current = true;
+    }
+  }, []);
 
   const handleMouseMove = useCallback(
     (event: React.MouseEvent) => {
@@ -429,13 +321,13 @@ function useImageCropper({
         if (isDragging) {
           setCropArea((prev) => movedCropArea(prev, deltaX, deltaY, imgRect));
         } else if (isResizingRef.current) {
-          setCropArea((prev) => resizedCropArea(prev, deltaX, deltaY, imgRect, aspectRatio));
+          setCropArea((prev) => resizedCropArea(prev, deltaX, deltaY, imgRect));
         }
 
         dragStartRef.current = { x: event.clientX, y: event.clientY };
       });
     },
-    [isDragging, aspectRatio],
+    [isDragging],
   );
 
   const handleMouseUp = useCallback(() => {
@@ -443,39 +335,32 @@ function useImageCropper({
     isResizingRef.current = false;
   }, []);
 
-  const handleCropKeyDown = useCallback(
-    (event: React.KeyboardEvent, type: "move" | "resize") => {
-      const deltas: Record<string, [number, number]> = {
-        ArrowDown: [0, 1],
-        ArrowLeft: [-1, 0],
-        ArrowRight: [1, 0],
-        ArrowUp: [0, -1],
-      };
-      const delta = deltas[event.key];
+  const handleCropKeyDown = useCallback((event: React.KeyboardEvent, type: "move" | "resize") => {
+    const deltas: Record<string, [number, number]> = {
+      ArrowDown: [0, 1],
+      ArrowLeft: [-1, 0],
+      ArrowRight: [1, 0],
+      ArrowUp: [0, -1],
+    };
+    const delta = deltas[event.key];
 
-      if (!delta || !imageRef.current) {
-        return;
-      }
+    if (!delta || !imageRef.current) {
+      return;
+    }
 
-      event.preventDefault();
-      const magnitude = event.shiftKey ? 10 : 1;
-      const imgRect = imageRef.current.getBoundingClientRect();
+    event.preventDefault();
+    const magnitude = event.shiftKey ? 10 : 1;
+    const imgRect = imageRef.current.getBoundingClientRect();
 
-      if (type === "move") {
-        setCropArea((prev) =>
-          movedCropArea(prev, delta[0] * magnitude, delta[1] * magnitude, imgRect),
-        );
-      } else if (!fixedSize) {
-        setCropArea((prev) =>
-          resizedCropArea(prev, delta[0] * magnitude, delta[1] * magnitude, imgRect, aspectRatio),
-        );
-      }
-    },
-    [aspectRatio, fixedSize],
-  );
-
-  const blobToFile = useCallback((blob: Blob, filename: string): File => {
-    return new File([blob], filename, { type: blob.type });
+    if (type === "move") {
+      setCropArea((prev) =>
+        movedCropArea(prev, delta[0] * magnitude, delta[1] * magnitude, imgRect),
+      );
+    } else {
+      setCropArea((prev) =>
+        resizedCropArea(prev, delta[0] * magnitude, delta[1] * magnitude, imgRect),
+      );
+    }
   }, []);
 
   const cropImage = useCallback(async () => {
@@ -486,12 +371,7 @@ function useImageCropper({
 
     try {
       const canvas = canvasRef.current;
-      const { outputWidth, outputHeight } = drawCropToCanvas(
-        imageRef.current,
-        canvas,
-        cropArea,
-        fixedSize,
-      );
+      const { outputWidth, outputHeight } = drawCropToCanvas(imageRef.current, canvas, cropArea);
 
       setTimeout(() => {
         const nextCroppedImageUrl = canvas.toDataURL("image/jpeg", 0.9);
@@ -499,7 +379,9 @@ function useImageCropper({
         canvas.toBlob(
           (blob) => {
             if (blob) {
-              const croppedFile = blobToFile(blob, `cropped-${originalFile.name}`);
+              const croppedFile = new File([blob], `cropped-${originalFile.name}`, {
+                type: blob.type,
+              });
 
               setCroppedImageUrl(nextCroppedImageUrl);
               onChange?.(croppedFile);
@@ -509,7 +391,6 @@ function useImageCropper({
                 metadata: { width: outputWidth, height: outputHeight },
               });
               setShowCropDialog(false);
-              onBlur?.();
             }
             setIsProcessing(false);
           },
@@ -522,7 +403,7 @@ function useImageCropper({
       setValidationError("Failed to crop image. Please try again.");
       setIsProcessing(false);
     }
-  }, [cropArea, fixedSize, onImageCropped, onChange, onBlur, blobToFile]);
+  }, [cropArea, onImageCropped, onChange]);
 
   const handleRemoveImage = useCallback(() => {
     if (croppedImageUrl && croppedImageUrl.startsWith("blob:")) {
@@ -532,9 +413,8 @@ function useImageCropper({
     setCroppedImageUrl(null);
     setValidationError(null);
     onChange?.(null);
-    onBlur?.();
     resetFileInput();
-  }, [croppedImageUrl, onChange, onBlur, resetFileInput]);
+  }, [croppedImageUrl, onChange, resetFileInput]);
 
   const handleDialogClose = useCallback(
     (open: boolean) => {
@@ -605,19 +485,11 @@ function useImageCropper({
 
 export function ImageCropper({
   onImageCropped,
-  fixedSize,
-  aspectRatio,
   className,
-  dialogContentClassName,
   dialogTheme,
   maxFileSize = MAX_FILE_SIZE,
-  supportedFormats = SUPPORTED_FORMATS,
   value,
   onChange,
-  onBlur,
-  error,
-  disabled = false,
-  imgClassName,
   placeholder = "Drag and drop an image here, or click to select",
   showFormatHint = true,
   compact = false,
@@ -650,21 +522,11 @@ export function ImageCropper({
     handleFileInputChange,
   } = useImageCropper({
     onImageCropped,
-    fixedSize,
-    aspectRatio,
     maxFileSize,
-    supportedFormats,
     value,
     onChange,
-    onBlur,
-    disabled,
   });
 
-  const displayError = error || validationError;
-  const currentAspectRatio =
-    cropArea.width > 0 && cropArea.height > 0
-      ? (cropArea.width / cropArea.height).toFixed(2)
-      : "1.00";
   const usesDesktopTheme = Boolean(dialogTheme);
   const previewSurfaceClass =
     compact && dialogTheme === "dark"
@@ -680,10 +542,7 @@ export function ImageCropper({
         compact={compact}
         croppedImageUrl={croppedImageUrl}
         dialogTheme={dialogTheme}
-        disabled={disabled}
-        displayError={displayError}
         fileInputRef={fileInputRef}
-        imgClassName={imgClassName}
         isDragging={isDragging}
         isProcessing={isProcessing}
         maxFileSizeMb={maxFileSizeMb}
@@ -695,20 +554,15 @@ export function ImageCropper({
         placeholder={placeholder}
         previewSurfaceClass={previewSurfaceClass}
         showFormatHint={showFormatHint}
-        supportedFormats={supportedFormats}
         tile={tile}
         validationError={validationError}
       />
 
       <CropperDialog
-        aspectRatio={aspectRatio}
         canvasRef={canvasRef}
         cropArea={cropArea}
         cropContainerRef={cropContainerRef}
-        currentAspectRatio={currentAspectRatio}
-        dialogContentClassName={dialogContentClassName}
         dialogTheme={dialogTheme}
-        fixedSize={fixedSize}
         imageRef={imageRef}
         isProcessing={isProcessing}
         onCrop={cropImage}
@@ -727,18 +581,12 @@ export function ImageCropper({
 }
 
 function CropOverlay({
-  aspectRatio,
   cropArea,
-  currentAspectRatio,
-  fixedSize,
   onKeyDown,
   onMouseDown,
   usesDesktopTheme,
 }: {
-  aspectRatio?: number;
   cropArea: CropArea;
-  currentAspectRatio: string;
-  fixedSize?: { width: number; height: number };
   onKeyDown: (event: React.KeyboardEvent, type: "move" | "resize") => void;
   onMouseDown: (event: React.MouseEvent, type: "move" | "resize") => void;
   usesDesktopTheme: boolean;
@@ -749,9 +597,8 @@ function CropOverlay({
       role="group"
       tabIndex={0}
       className={cn(
-        "absolute border-2 border-primary bg-primary/10",
+        "absolute cursor-move border-2 border-primary bg-primary/10",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
-        fixedSize ? "cursor-default" : "cursor-move",
       )}
       style={{
         left: cropArea.x,
@@ -762,22 +609,20 @@ function CropOverlay({
       onKeyDown={(event) => onKeyDown(event, "move")}
       onMouseDown={(event) => onMouseDown(event, "move")}
     >
-      {!fixedSize ? (
-        <div
-          aria-label="Resize crop area. Arrow keys resize; hold Shift for larger steps."
-          role="button"
-          tabIndex={0}
-          className="absolute right-0 bottom-0 size-4 cursor-se-resize border border-primary-foreground bg-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-          onKeyDown={(event) => {
-            event.stopPropagation();
-            onKeyDown(event, "resize");
-          }}
-          onMouseDown={(event) => {
-            event.stopPropagation();
-            onMouseDown(event, "resize");
-          }}
-        />
-      ) : null}
+      <div
+        aria-label="Resize crop area. Arrow keys resize; hold Shift for larger steps."
+        role="button"
+        tabIndex={0}
+        className="absolute right-0 bottom-0 size-4 cursor-se-resize border border-primary-foreground bg-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        onKeyDown={(event) => {
+          event.stopPropagation();
+          onKeyDown(event, "resize");
+        }}
+        onMouseDown={(event) => {
+          event.stopPropagation();
+          onMouseDown(event, "resize");
+        }}
+      />
 
       <div
         className={cn(
@@ -788,10 +633,6 @@ function CropOverlay({
         )}
       >
         {Math.round(cropArea.width)}×{Math.round(cropArea.height)}
-        <span className="ml-2 opacity-75">{currentAspectRatio}:1</span>
-        {aspectRatio ? (
-          <span className="ml-1 opacity-75">(target: {aspectRatio.toFixed(2)}:1)</span>
-        ) : null}
       </div>
     </div>
   );
@@ -809,11 +650,11 @@ function CropperDialogFooter({
   usesDesktopTheme: boolean;
 }) {
   return (
-    <DialogFooter
+    <div
       className={cn(
-        usesDesktopTheme
-          ? "ds-crop-dialog__footer gap-2 border-t border-[var(--line)] p-[length:var(--row-px)] sm:flex-row sm:justify-stretch sm:space-x-0"
-          : undefined,
+        "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2",
+        usesDesktopTheme &&
+          "ds-crop-dialog__footer gap-2 border-t border-[var(--line)] p-[length:var(--row-px)] sm:flex-row sm:justify-stretch sm:space-x-0",
       )}
     >
       {usesDesktopTheme ? (
@@ -849,19 +690,15 @@ function CropperDialogFooter({
           </Button>
         </>
       )}
-    </DialogFooter>
+    </div>
   );
 }
 
 function CropperDialog({
-  aspectRatio,
   canvasRef,
   cropArea,
   cropContainerRef,
-  currentAspectRatio,
-  dialogContentClassName,
   dialogTheme,
-  fixedSize,
   imageRef,
   isProcessing,
   onCrop,
@@ -875,14 +712,10 @@ function CropperDialog({
   selectedImage,
   usesDesktopTheme,
 }: {
-  aspectRatio?: number;
   canvasRef: React.RefObject<HTMLCanvasElement | null>;
   cropArea: CropArea;
   cropContainerRef: React.RefObject<HTMLDivElement | null>;
-  currentAspectRatio: string;
-  dialogContentClassName?: string;
   dialogTheme?: "light" | "dark";
-  fixedSize?: { width: number; height: number };
   imageRef: React.RefObject<HTMLImageElement | null>;
   isProcessing: boolean;
   onCrop: () => void;
@@ -899,174 +732,104 @@ function CropperDialog({
   const handleDialogClose = onDialogOpenChange;
   return (
     <>
-      <Dialog open={open} onOpenChange={handleDialogClose}>
-        <DialogContent
-          className={cn(
-            usesDesktopTheme
-              ? cn(
+      <DialogPrimitive.Root open={open} onOpenChange={handleDialogClose}>
+        <DialogPrimitive.Portal>
+          <DialogPrimitive.Overlay
+            className={cn(
+              "fixed inset-0 z-[var(--z-modal)] bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+            )}
+          />
+          <DialogPrimitive.Content
+            className={cn(
+              "fixed top-[50%] left-[50%] z-[var(--z-modal)] grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-[var(--motion-ui)] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 sm:rounded-lg",
+              usesDesktopTheme &&
+                cn(
                   "ds-crop-dialog ds-portal-surface ds-popover-content",
                   "w-[min(calc(100vw-2rem),26rem)] max-w-none gap-0 overflow-hidden border-0 p-0 shadow-none outline-none ds-squircle-md",
                   dialogTheme === "dark" && "dark",
-                )
-              : "max-h-[90vh] w-fit max-w-7xl! overflow-hidden",
-            dialogContentClassName,
-          )}
-          data-theme={dialogTheme}
-        >
-          <DialogHeader
-            className={cn(
-              usesDesktopTheme
-                ? "ds-crop-dialog__header gap-2 space-y-0 border-b border-[var(--line)] px-[length:var(--row-px)] py-3 text-left"
-                : undefined,
+                ),
             )}
-          >
-            <DialogTitle
-              className={cn(
-                "flex items-center gap-2",
-                usesDesktopTheme &&
-                  "text-[length:var(--type-value)] font-semibold tracking-[var(--tracking-tight)] text-[var(--fg)]",
-              )}
-            >
-              <Crop className={cn("size-5", usesDesktopTheme && "text-[var(--muted)]")} />
-              Crop Image
-              {fixedSize ? (
-                <Badge variant="secondary" className="ml-2">
-                  {fixedSize.width}×{fixedSize.height}
-                </Badge>
-              ) : null}
-              {aspectRatio && !fixedSize ? (
-                <Badge variant="secondary" className="ml-2">
-                  Ratio {aspectRatio.toFixed(2)}:1
-                </Badge>
-              ) : null}
-            </DialogTitle>
-          </DialogHeader>
-
-          <div
-            className={cn(
-              usesDesktopTheme ? "ds-crop-dialog__body p-[length:var(--row-px)]" : "space-y-4",
-            )}
+            data-theme={dialogTheme}
           >
             <div
-              role="group"
-              ref={cropContainerRef}
               className={cn(
-                "relative overflow-hidden select-none",
-                usesDesktopTheme
-                  ? "ds-crop-dialog__stage max-h-[min(60vh,28rem)] rounded-[var(--radius-sm)] border border-[var(--line)] bg-[var(--control)]"
-                  : "max-h-[80vh] rounded-lg border bg-muted/10",
+                "flex flex-col space-y-1.5 text-center sm:text-left",
+                usesDesktopTheme &&
+                  "ds-crop-dialog__header gap-2 space-y-0 border-b border-[var(--line)] px-[length:var(--row-px)] py-3 text-left",
               )}
-              onMouseMove={onMouseMove}
-              onMouseUp={onMouseUp}
-              onMouseLeave={onMouseUp}
             >
-              {selectedImage ? (
-                <>
-                  <img
-                    ref={imageRef}
-                    src={selectedImage}
-                    alt="Crop preview"
-                    className={cn(
-                      "w-full max-w-full object-contain",
-                      usesDesktopTheme ? "max-h-[min(60vh,28rem)]" : "max-h-[70vh]",
-                    )}
-                    onLoad={onImageLoad}
-                    draggable={false}
-                  />
-
-                  <CropOverlay
-                    aspectRatio={aspectRatio}
-                    cropArea={cropArea}
-                    currentAspectRatio={currentAspectRatio}
-                    onKeyDown={onKeyDown}
-                    onMouseDown={onMouseDown}
-                    usesDesktopTheme={usesDesktopTheme}
-                  />
-                </>
-              ) : null}
+              <DialogPrimitive.Title
+                className={cn(
+                  "flex items-center gap-2 text-lg leading-none font-semibold tracking-tight",
+                  usesDesktopTheme &&
+                    "text-[length:var(--type-value)] font-semibold tracking-[var(--tracking-tight)] text-[var(--fg)]",
+                )}
+              >
+                <Crop className={cn("size-5", usesDesktopTheme && "text-[var(--muted)]")} />
+                Crop Image
+              </DialogPrimitive.Title>
             </div>
-          </div>
 
-          <CropperDialogFooter
-            isProcessing={isProcessing}
-            onCancel={() => handleDialogClose(false)}
-            onCrop={onCrop}
-            usesDesktopTheme={usesDesktopTheme}
-          />
-        </DialogContent>
-      </Dialog>
+            <div
+              className={cn(
+                usesDesktopTheme ? "ds-crop-dialog__body p-[length:var(--row-px)]" : "space-y-4",
+              )}
+            >
+              <div
+                role="group"
+                ref={cropContainerRef}
+                className={cn(
+                  "relative overflow-hidden select-none",
+                  usesDesktopTheme
+                    ? "ds-crop-dialog__stage max-h-[min(60vh,28rem)] rounded-[var(--radius-sm)] border border-[var(--line)] bg-[var(--control)]"
+                    : "max-h-[80vh] rounded-lg border bg-muted/10",
+                )}
+                onMouseMove={onMouseMove}
+                onMouseUp={onMouseUp}
+                onMouseLeave={onMouseUp}
+              >
+                {selectedImage ? (
+                  <>
+                    <img
+                      ref={imageRef}
+                      src={selectedImage}
+                      alt="Crop preview"
+                      className={cn(
+                        "w-full max-w-full object-contain",
+                        usesDesktopTheme ? "max-h-[min(60vh,28rem)]" : "max-h-[70vh]",
+                      )}
+                      onLoad={onImageLoad}
+                      draggable={false}
+                    />
+
+                    <CropOverlay
+                      cropArea={cropArea}
+                      onKeyDown={onKeyDown}
+                      onMouseDown={onMouseDown}
+                      usesDesktopTheme={usesDesktopTheme}
+                    />
+                  </>
+                ) : null}
+              </div>
+            </div>
+
+            <CropperDialogFooter
+              isProcessing={isProcessing}
+              onCancel={() => handleDialogClose(false)}
+              onCrop={onCrop}
+              usesDesktopTheme={usesDesktopTheme}
+            />
+
+            <DialogPrimitive.Close className="absolute top-4 right-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
+              <X className="size-4" />
+              <span className="sr-only">Close</span>
+            </DialogPrimitive.Close>
+          </DialogPrimitive.Content>
+        </DialogPrimitive.Portal>
+      </DialogPrimitive.Root>
 
       <canvas ref={canvasRef} className="hidden" />
     </>
-  );
-}
-
-function dropzoneRootClass({
-  tile,
-  compact,
-  previewSurfaceClass,
-  disabled,
-  isDragging,
-  displayError,
-  className,
-}: {
-  tile: boolean;
-  compact: boolean;
-  previewSurfaceClass: string;
-  disabled: boolean;
-  isDragging: boolean;
-  displayError: string | null;
-  className?: string;
-}) {
-  return cn(
-    "group overflow-hidden text-center transition-colors",
-    tile ? "size-full border-0 bg-transparent" : "rounded-lg border-2 border-dashed",
-    !tile && (compact ? "aspect-square w-full" : "h-52"),
-    !tile && previewSurfaceClass,
-    disabled ? "cursor-not-allowed border-muted-foreground/10" : "cursor-pointer",
-    !disabled && isDragging
-      ? "border-primary"
-      : "border-muted-foreground/25 hover:border-primary/50",
-    displayError && "border-destructive",
-    className,
-  );
-}
-
-function previewImageClass({
-  tile,
-  compact,
-  previewSurfaceClass,
-  imgClassName,
-}: {
-  tile: boolean;
-  compact: boolean;
-  previewSurfaceClass: string;
-  imgClassName?: string;
-}) {
-  return cn(
-    tile || compact ? "size-full object-cover" : "h-[204px] w-full rounded-lg object-cover",
-    !tile && previewSurfaceClass,
-    imgClassName,
-  );
-}
-
-function removeButtonClass({
-  tile,
-  compact,
-  dialogTheme,
-}: {
-  tile: boolean;
-  compact: boolean;
-  dialogTheme?: "light" | "dark";
-}) {
-  return cn(
-    "rounded-full",
-    tile ? "pointer-events-auto size-6" : "size-8",
-    compact && dialogTheme === "dark"
-      ? "bg-black/70 text-white hover:bg-black/85"
-      : compact && dialogTheme === "light"
-        ? "bg-white/85 text-black hover:bg-white"
-        : "bg-background/80 hover:bg-background",
   );
 }
 
@@ -1074,8 +837,6 @@ function DropzonePreview({
   compact,
   croppedImageUrl,
   dialogTheme,
-  disabled,
-  imgClassName,
   onRemoveImage,
   previewSurfaceClass,
   tile,
@@ -1083,8 +844,6 @@ function DropzonePreview({
   compact: boolean;
   croppedImageUrl: string;
   dialogTheme?: "light" | "dark";
-  disabled: boolean;
-  imgClassName?: string;
   onRemoveImage: () => void;
   previewSurfaceClass: string;
   tile: boolean;
@@ -1094,134 +853,94 @@ function DropzonePreview({
       <img
         src={croppedImageUrl}
         alt="Cropped upload preview"
-        className={previewImageClass({
-          tile,
-          compact,
-          previewSurfaceClass,
-          imgClassName,
-        })}
+        className={cn(
+          tile || compact ? "size-full object-cover" : "h-[204px] w-full rounded-lg object-cover",
+          !tile && previewSurfaceClass,
+        )}
       />
-      {!disabled && !tile ? (
+      {!tile ? (
         <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
           <UploadCloud className="size-8 text-white/80" />
         </div>
       ) : null}
-      {!disabled ? (
-        <div
+      <div
+        className={cn(
+          "absolute",
+          tile ? "inset-0 flex items-center justify-center pointer-events-none" : "top-2 right-2",
+        )}
+      >
+        <Button
+          variant="ghost"
+          size="icon-md"
+          type="button"
+          aria-label="Remove cropped upload"
           className={cn(
-            "absolute",
-            tile ? "inset-0 flex items-center justify-center pointer-events-none" : "top-2 right-2",
+            "rounded-full",
+            tile ? "pointer-events-auto size-6" : "size-8",
+            compact && dialogTheme === "dark"
+              ? "bg-black/70 text-white hover:bg-black/85"
+              : compact && dialogTheme === "light"
+                ? "bg-white/85 text-black hover:bg-white"
+                : "bg-background/80 hover:bg-background",
           )}
+          onClick={(event) => {
+            event.stopPropagation();
+            onRemoveImage();
+          }}
         >
-          <Button
-            variant="ghost"
-            size="icon-md"
-            type="button"
-            aria-label="Remove cropped upload"
-            className={removeButtonClass({ tile, compact, dialogTheme })}
-            onClick={(event) => {
-              event.stopPropagation();
-              onRemoveImage();
-            }}
-          >
-            <X className={cn(tile ? "size-3" : "size-4")} />
-          </Button>
-        </div>
-      ) : null}
+          <X className={cn(tile ? "size-3" : "size-4")} />
+        </Button>
+      </div>
     </div>
   );
 }
 
-function emptyStateClass({ tile, compact }: { tile: boolean; compact: boolean }) {
-  return cn(
-    "relative w-full",
-    tile ? "grid size-full place-items-center" : "flex flex-col items-center justify-center",
-    !tile && (compact ? "size-full px-1.5 py-1.5" : "px-4 py-8"),
-  );
-}
-
-function tileIconClass(disabled: boolean) {
-  return cn(
-    "grid size-full place-items-center ds-squircle-xs",
-    disabled
-      ? "bg-[color-mix(in_srgb,var(--muted)_20%,transparent)] text-[var(--muted)]"
-      : "bg-[color-mix(in_srgb,var(--muted)_38%,transparent)] text-[var(--fg)] transition-colors group-hover:bg-[color-mix(in_srgb,var(--muted)_55%,transparent)]",
-  );
-}
-
-function uploadIconClass({ compact, disabled }: { compact: boolean; disabled: boolean }) {
-  return cn(
-    compact ? "mb-1 size-7" : "mx-auto mb-4 size-12",
-    disabled ? "text-muted-foreground/50" : "text-muted-foreground",
-  );
-}
-
-function mutedTextClass({
-  compact,
-  disabled,
-  base,
-}: {
-  compact: boolean;
-  disabled: boolean;
-  base: string;
-}) {
-  return cn(
-    base,
-    compact ? "text-xs" : undefined,
-    disabled ? "text-muted-foreground/50" : "text-muted-foreground",
-  );
-}
-
-function formatHintText({
-  compact,
-  supportedFormats,
-  maxFileSizeMb,
-}: {
-  compact: boolean;
-  supportedFormats: string[];
-  maxFileSizeMb: number;
-}) {
-  const formats = supportedFormats.map(formatMimeSubtype).join(", ");
-  return compact
-    ? `${formats} · ${maxFileSizeMb} MB max`
-    : `Supports ${formats} up to ${maxFileSizeMb} MB`;
+function mutedTextClass({ compact, base }: { compact: boolean; base: string }) {
+  return cn(base, compact ? "text-xs" : undefined, "text-muted-foreground");
 }
 
 function DropzoneEmptyState({
   compact,
-  disabled,
   isProcessing,
   maxFileSizeMb,
   placeholder,
   showFormatHint,
-  supportedFormats,
   tile,
   validationError,
 }: {
   compact: boolean;
-  disabled: boolean;
   isProcessing: boolean;
   maxFileSizeMb: number;
   placeholder?: string;
   showFormatHint: boolean;
-  supportedFormats: string[];
   tile: boolean;
   validationError: string | null;
 }) {
+  const formats = SUPPORTED_FORMATS.map(formatMimeSubtype).join(", ");
   return (
-    <div className={emptyStateClass({ tile, compact })}>
+    <div
+      className={cn(
+        "relative w-full",
+        tile ? "grid size-full place-items-center" : "flex flex-col items-center justify-center",
+        !tile && (compact ? "size-full px-1.5 py-1.5" : "px-4 py-8"),
+      )}
+    >
       {tile ? (
-        <span aria-hidden className={tileIconClass(disabled)}>
+        <span
+          aria-hidden
+          className="grid size-full place-items-center ds-squircle-xs bg-[color-mix(in_srgb,var(--muted)_38%,transparent)] text-[var(--fg)] transition-colors group-hover:bg-[color-mix(in_srgb,var(--muted)_55%,transparent)]"
+        >
           <UploadTileIcon className="size-4" />
         </span>
       ) : (
-        <Upload className={uploadIconClass({ compact, disabled })} />
+        <Upload
+          className={cn(compact ? "mb-1 size-7" : "mx-auto mb-4 size-12", "text-muted-foreground")}
+        />
       )}
       {!tile && placeholder ? (
         <p
           className={mutedTextClass({
             compact,
-            disabled,
             base: compact ? "" : "mb-2 line-clamp-2 text-sm",
           })}
         >
@@ -1229,8 +948,10 @@ function DropzoneEmptyState({
         </p>
       ) : null}
       {!tile && showFormatHint ? (
-        <p className={mutedTextClass({ compact, disabled, base: "line-clamp-1 text-xs" })}>
-          {formatHintText({ compact, supportedFormats, maxFileSizeMb })}
+        <p className={mutedTextClass({ compact, base: "line-clamp-1 text-xs" })}>
+          {compact
+            ? `${formats} · ${maxFileSizeMb} MB max`
+            : `Supports ${formats} up to ${maxFileSizeMb} MB`}
         </p>
       ) : null}
       {validationError ? <p className="mt-2 text-xs text-destructive">{validationError}</p> : null}
@@ -1243,10 +964,7 @@ function ImageDropzone({
   compact,
   croppedImageUrl,
   dialogTheme,
-  disabled,
-  displayError,
   fileInputRef,
-  imgClassName,
   isDragging,
   isProcessing,
   maxFileSizeMb,
@@ -1258,7 +976,6 @@ function ImageDropzone({
   placeholder,
   previewSurfaceClass,
   showFormatHint,
-  supportedFormats,
   tile,
   validationError,
 }: {
@@ -1266,10 +983,7 @@ function ImageDropzone({
   compact: boolean;
   croppedImageUrl: string | null;
   dialogTheme?: "light" | "dark";
-  disabled: boolean;
-  displayError: string | null;
   fileInputRef: React.RefObject<HTMLInputElement | null>;
-  imgClassName?: string;
   isDragging: boolean;
   isProcessing: boolean;
   maxFileSizeMb: number;
@@ -1281,30 +995,30 @@ function ImageDropzone({
   placeholder?: string;
   previewSurfaceClass: string;
   showFormatHint: boolean;
-  supportedFormats: string[];
   tile: boolean;
   validationError: string | null;
 }) {
-  const isInteractive = !disabled && !isProcessing;
+  const isInteractive = !isProcessing;
   return (
     <div
-      className={dropzoneRootClass({
-        tile,
-        compact,
-        previewSurfaceClass,
-        disabled,
-        isDragging,
-        displayError,
+      className={cn(
+        "group overflow-hidden text-center transition-colors",
+        tile ? "size-full border-0 bg-transparent" : "rounded-lg border-2 border-dashed",
+        !tile && (compact ? "aspect-square w-full" : "h-52"),
+        !tile && previewSurfaceClass,
+        "cursor-pointer",
+        isDragging ? "border-primary" : "border-muted-foreground/25 hover:border-primary/50",
+        validationError && "border-destructive",
         className,
-      })}
+      )}
     >
       <div
         role="group"
         className={cn(tile || compact ? "size-full min-h-0" : undefined)}
         tabIndex={isInteractive ? 0 : undefined}
-        onDrop={!disabled ? onDrop : undefined}
-        onDragOver={!disabled ? onDragOver : undefined}
-        onDragLeave={!disabled ? onDragLeave : undefined}
+        onDrop={onDrop}
+        onDragOver={onDragOver}
+        onDragLeave={onDragLeave}
         onClick={isInteractive ? () => fileInputRef.current?.click() : undefined}
         onKeyDown={
           isInteractive
@@ -1325,8 +1039,6 @@ function ImageDropzone({
             compact={compact}
             croppedImageUrl={croppedImageUrl}
             dialogTheme={dialogTheme}
-            disabled={disabled}
-            imgClassName={imgClassName}
             onRemoveImage={onRemoveImage}
             previewSurfaceClass={previewSurfaceClass}
             tile={tile}
@@ -1334,12 +1046,10 @@ function ImageDropzone({
         ) : (
           <DropzoneEmptyState
             compact={compact}
-            disabled={disabled}
             isProcessing={isProcessing}
             maxFileSizeMb={maxFileSizeMb}
             placeholder={placeholder}
             showFormatHint={showFormatHint}
-            supportedFormats={supportedFormats}
             tile={tile}
             validationError={validationError}
           />
@@ -1349,9 +1059,9 @@ function ImageDropzone({
       <input
         ref={fileInputRef}
         type="file"
-        accept={supportedFormats.join(",")}
+        accept={SUPPORTED_FORMATS.join(",")}
         className="hidden"
-        disabled={disabled || isProcessing}
+        disabled={isProcessing}
         onChange={onFileInputChange}
       />
     </div>

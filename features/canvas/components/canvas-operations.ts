@@ -64,9 +64,7 @@ export function toLayerRow(layer: CanvasLayer): LayerRow {
             ? "image"
             : layer.kind === "shape"
               ? "shape"
-              : layer.kind === "shader"
-                ? "shader"
-                : "qr",
+              : "qr",
     name: layer.name,
     opacity: Math.round(layer.opacity * 100),
     shadowBlur: layer.shadow.blur,

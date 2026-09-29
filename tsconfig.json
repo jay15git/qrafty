@@ -21,7 +21,6 @@
     "paths": {
       "@/*": ["./*"],
       "@qrafty/qr": ["./packages/qr/src/index.ts"],
-      "@qrafty/qr/react": ["./packages/qr/src/react/index.ts"],
       "@qrafty/qr/shaders": ["./packages/qr/src/shaders/index.ts"],
       "@qrafty/qr/dot-matrix": ["./packages/qr/src/dot-matrix/index.ts"],
       "@qrafty/qr-internal/codegen": ["./packages/qr/src/scene/codegen/index.ts"],

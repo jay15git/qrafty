@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { cookies } from "next/headers";
-import { Suspense } from "react";
 
-import { WorkspacePageClient } from "@/features/shell/components/WorkspacePageClient";
+import { Workspace } from "@/features/shell/components/Workspace";
 import { THEME_COOKIE, parseTheme } from "@/features/shell/model/theme";
 import { cn } from "@/lib/utils";
 
@@ -19,8 +18,12 @@ export const metadata: Metadata = {
   description: "A desktop QR workspace with the full canvas and floating toolbar.",
 };
 
-export default async function DesktopPage() {
-  const cookieStore = await cookies();
+export default async function DesktopPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const [cookieStore, params] = await Promise.all([cookies(), searchParams]);
   const initialTheme = parseTheme(cookieStore.get(THEME_COOKIE)?.value);
 
   return (
@@ -32,9 +35,13 @@ export default async function DesktopPage() {
         initialTheme === "light" ? "bg-[#f0f1f2] text-neutral-950" : "bg-black text-white",
       )}
     >
-      <Suspense fallback={null}>
-        <WorkspacePageClient fontClassName={satoshi.className} initialTheme={initialTheme} />
-      </Suspense>
+      <Workspace
+        fontClassName={satoshi.className}
+        initialTheme={initialTheme}
+        initialActiveTool={
+          params.source === "prompt" || params.source === "blank" ? "content" : undefined
+        }
+      />
     </main>
   );
 }

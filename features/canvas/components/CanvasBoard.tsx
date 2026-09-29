@@ -15,13 +15,6 @@ import type { StaticQrValidationResult } from "@/features/qr/content/static-payl
 import type { CanvasQrStateByLayerId } from "@/features/canvas/model/document";
 import type { ThemeMode } from "@/features/shell/components/WorkspaceChrome";
 
-export type CanvasBoardToolbarVariant = "default" | "zoom";
-export type CanvasBoardTool = "select" | "pan" | "text";
-
-function resolveCanvasSurfaceTool(tool?: CanvasBoardTool | null): CanvasBoardTool {
-  return tool === "select" || tool === "text" ? tool : "pan";
-}
-
 export type CanvasBoardPane = {
   activeQrLayerId?: string;
   cardState: CanvasCardState;
@@ -51,9 +44,6 @@ type CanvasBoardProps = {
   onLayerPaste?: CanvasLayerInteractionProps["onLayerPaste"];
   onLayerSelect?: CanvasLayerInteractionProps["onLayerSelect"];
   onLayerSelectionChange?: CanvasLayerInteractionProps["onLayerSelectionChange"];
-  activeCanvasTool?: CanvasBoardTool | null;
-  onAddTextLayerAt?: (point: { x: number; y: number }) => void;
-  onCanvasToolChange?: (tool: CanvasBoardTool | null) => void;
   layerEditingEnabled?: boolean;
   board: CanvasBoardPane;
   boardPan: { x: number; y: number };
@@ -62,7 +52,6 @@ type CanvasBoardProps = {
   selectedLayerId?: string | null;
   selectedLayerIds?: string[];
   snapEnabled: boolean;
-  toolbarVariant?: CanvasBoardToolbarVariant;
   theme?: ThemeMode;
 };
 
@@ -84,9 +73,6 @@ export function CanvasBoard({
   onLayerPaste,
   onLayerSelect,
   onLayerSelectionChange,
-  activeCanvasTool,
-  onAddTextLayerAt,
-  onCanvasToolChange,
   layerEditingEnabled = true,
   board,
   boardPan,
@@ -95,20 +81,12 @@ export function CanvasBoard({
   selectedLayerId,
   selectedLayerIds,
   snapEnabled,
-  toolbarVariant = "default",
   theme,
 }: CanvasBoardProps) {
   const { canSwap, isSelected, isSnapTarget } = interaction;
-  // Desktop compose workspace has one interaction mode: select.
-  const canvasTool =
-    toolbarVariant === "zoom" ? "select" : resolveCanvasSurfaceTool(activeCanvasTool);
-
   const interactions = useCanvasInteractions({
-    activeCanvasTool: canvasTool,
     fitCanvasToViewport,
     layerEditingEnabled,
-    onAddTextLayerAt,
-    onCanvasToolChange,
     onLayerSelect,
     onBoardPan,
     onBoardSelect,
@@ -116,13 +94,11 @@ export function CanvasBoard({
     board,
     boardPan,
     boardZoom,
-    toolbarVariant,
   });
 
   return (
     <CanvasViewport
       areaName={areaName}
-      activeCanvasTool={canvasTool}
       canSwap={canSwap}
       draggingBoardId={draggingBoardId}
       effectivePan={interactions.effectivePan}
@@ -134,8 +110,6 @@ export function CanvasBoard({
       isSelected={isSelected}
       isSnapTarget={isSnapTarget}
       layerEditingEnabled={layerEditingEnabled}
-      onAddTextLayerAt={onAddTextLayerAt}
-      onBeginBoardPan={interactions.beginBoardPan}
       onBoardDragEnd={onBoardDragEnd}
       onBoardDragLeave={onBoardDragLeave}
       onBoardDragOver={onBoardDragOver}
@@ -152,14 +126,12 @@ export function CanvasBoard({
       onCanvasKeyDown={interactions.handleCanvasKeyDown}
       onCanvasPointerCancel={interactions.handleBoardPointerEnd}
       onCanvasPointerDown={interactions.handleBoardPointerDown}
-      onCanvasPointerDownCapture={interactions.handleBoardPointerDownCapture}
       onCanvasPointerMove={interactions.handleBoardPointerMove}
       onCanvasPointerUp={interactions.handleBoardPointerEnd}
       onCanvasTouchEnd={interactions.handleTouchEnd}
       onCanvasTouchMove={interactions.handleTouchMove}
       onCanvasTouchStart={interactions.handleTouchStart}
       board={board}
-      panOverlayRef={interactions.panOverlayRef}
       selectedLayerId={selectedLayerId}
       selectedLayerIds={selectedLayerIds}
       snapEnabled={snapEnabled}

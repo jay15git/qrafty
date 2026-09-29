@@ -1,8 +1,6 @@
 "use client";
 
-import { createContext, useContext, useMemo, useSyncExternalStore, type ReactNode } from "react";
-
-import { previewSession } from "@/features/canvas/preview/preview-session";
+import { createContext, useContext, useMemo, type ReactNode } from "react";
 
 type PreviewRuntimeValue = {
   artboardScale: number;
@@ -36,12 +34,4 @@ export function PreviewRuntimeProvider({
 
 export function usePreviewRuntime() {
   return useContext(PreviewRuntimeContext);
-}
-
-export function usePreviewInteraction() {
-  return useSyncExternalStore(
-    previewSession.subscribe,
-    previewSession.getIsInteracting,
-    () => false,
-  );
 }

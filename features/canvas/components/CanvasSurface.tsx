@@ -2,13 +2,12 @@
 
 import { type ReactNode } from "react";
 
-import { Canvas, type CanvasBoardToolbarVariant } from "@/features/canvas/components/Canvas";
+import { Canvas } from "@/features/canvas/components/Canvas";
 import type {
   ThemeMode,
   SettingsController,
   SettingsToolId,
 } from "@/features/shell/components/WorkspaceChrome";
-import { MobileWorkspaceInsetTransitionBridge } from "@/features/canvas/components/MobileWorkspaceInsetTransitionBridge";
 import { useCanvasViewModel } from "@/features/canvas/components/use-canvas-view-model";
 import { DASHBOARD_QR_NODE_ID } from "@/features/qr/rendering/compose-scene";
 import { cn } from "@/lib/utils";
@@ -20,7 +19,6 @@ type CanvasSurfaceProps = {
 
   initialActiveTool?: SettingsToolId;
   onThemeChange?: (theme: ThemeMode) => void;
-  boardToolbarVariant?: CanvasBoardToolbarVariant;
   renderOverlay?: (controller: CanvasWorkspaceController) => ReactNode;
 };
 
@@ -28,58 +26,31 @@ export function CanvasSurface({
   theme = "light",
   initialActiveTool,
   onThemeChange,
-  boardToolbarVariant = "default",
   renderOverlay,
 }: CanvasSurfaceProps = {}) {
   const {
-    desktopCanvasTool,
     desktopController,
     canvasRef,
     boards,
-    selectedBackgroundShapeId,
-    selectedContentType,
     selectedContentValue,
     selectedLayerId,
     selectedLayerIds,
-    selectedLogoColorMode,
-    selectedLogoPresetId,
-    selectedLogoPresetValue,
-    selectedLogoSourceMode,
-    selectedQrErrorCorrectionLevel,
-    selectedQrMargin,
-    selectedQrRadius,
-    selectedQrSize,
-    selectedQrTypeNumber,
     copySelectedCanvasLayers,
-    handleAddTextLayerAt,
     handleLayerAction,
     handleLayerChange,
     handleLayerSelect,
     handleLayerSelectionChange,
     handleBoardSelection,
     pasteCanvasLayers,
-    setDesktopCanvasTool,
   } = useCanvasViewModel({
     initialActiveTool,
-    boardToolbarVariant,
   });
 
   return (
     <section
       ref={canvasRef}
       aria-label="Canvas workspace"
-      data-logo-color-mode={selectedLogoColorMode}
-      data-background-shape-id={selectedBackgroundShapeId}
-      data-logo-preset-id={selectedLogoPresetId ?? ""}
-      data-logo-preset-value={selectedLogoPresetValue ?? ""}
-      data-logo-source-mode={selectedLogoSourceMode}
-      data-qr-content-type={selectedContentType}
       data-qr-content-value={selectedContentValue}
-      data-qr-error-correction-level={selectedQrErrorCorrectionLevel}
-      data-qr-margin={selectedQrMargin}
-      data-qr-radius={selectedQrRadius}
-      data-qr-size={selectedQrSize}
-      data-qr-type-number={selectedQrTypeNumber}
       data-slot="canvas-root"
       tabIndex={-1}
       className={cn(
@@ -89,8 +60,6 @@ export function CanvasSurface({
       data-compose-edit-mode="false"
       data-compose-selected-node-id={DASHBOARD_QR_NODE_ID}
     >
-      <MobileWorkspaceInsetTransitionBridge />
-
       <div data-slot="canvas-content-grid" className="min-h-0 min-w-0 block h-full">
         <section
           aria-label="Workspace frame"
@@ -108,9 +77,6 @@ export function CanvasSurface({
                 onLayerCopy={(layerIds) => {
                   void copySelectedCanvasLayers(layerIds);
                 }}
-                activeCanvasTool={desktopCanvasTool}
-                onAddTextLayerAt={handleAddTextLayerAt}
-                onCanvasToolChange={setDesktopCanvasTool}
                 onLayerPaste={(point) => {
                   void pasteCanvasLayers(point);
                 }}
@@ -119,7 +85,6 @@ export function CanvasSurface({
                 onBoardSelect={handleBoardSelection}
                 boards={boards}
                 fitCanvasToViewport
-                toolbarVariant={boardToolbarVariant}
                 selectedLayerId={selectedLayerId}
                 selectedLayerIds={selectedLayerIds}
                 theme={theme}

@@ -12,15 +12,7 @@
   --canvas-inset-left: calc(var(--toolbar-chrome-gap) + var(--toolbar-width));
 }
 
-/* transitions.dev — card resize: tween the island pills' width as items appear. */
-.t-resize {
-  transition:
-    width var(--resize-dur) var(--resize-ease),
-    height var(--resize-dur) var(--resize-ease);
-  will-change: width, height;
-}
-
-/* Same resize tween under the project's ds-* namespace, plus
+/* transitions.dev — card resize tween for the island pills, plus
    interpolate-size so `auto` sizing animates where supported. */
 .ds-resize {
   interpolate-size: allow-keywords;
@@ -31,7 +23,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .t-resize,
   .ds-resize {
     transition: none !important;
   }
@@ -88,6 +79,52 @@
 
 [data-slot="dynamic-island-content"] {
   overflow: visible;
+}
+
+[data-slot="workspace"]
+  [data-slot="canvas-workspace"][data-canvas-frame="true"]
+  [data-slot="canvas-workspace-inset"] {
+  box-sizing: border-box;
+  height: 100%;
+  min-height: 0;
+  background: var(--canvas-surface-bg, #000000);
+  /* Left padding = expanding white column. Grey squircle shrinks as this grows. */
+  padding: var(--canvas-inset-top) var(--canvas-inset-right) var(--canvas-inset-bottom)
+    var(--canvas-inset-left);
+}
+
+[data-slot="workspace"]
+  [data-slot="canvas-workspace"][data-canvas-frame="true"]
+  [data-slot="canvas-viewport"] {
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: 0;
+  background: var(--canvas-surface-bg, #e7e9ec);
+  box-shadow: none;
+}
+
+[data-slot="workspace"][data-shell-theme="dark"] [data-slot="canvas-viewport"] {
+  background: var(--canvas-surface-bg, #000000);
+  box-shadow: none;
+}
+
+[data-slot="workspace"]
+  [data-slot="canvas-workspace"][data-canvas-frame="true"]
+  [data-slot="canvas-surface"][data-canvas-appearance="workspace"] {
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+[data-slot="utility-toolbar-anchor"] {
+  position: fixed;
+  top: var(--toolbar-top-offset);
+  right: var(--toolbar-top-offset);
+  z-index: var(--z-chrome);
+}
+
+[data-slot="desktop-settings-shell"] {
+  border-radius: 0;
 }
 
 @media (max-width: 767px) {
@@ -156,21 +193,7 @@
   [data-slot="canvas-layer-floating-toolbar"] {
     display: none !important;
   }
-}
 
-[data-slot="workspace"]
-  [data-slot="canvas-workspace"][data-canvas-frame="true"]
-  [data-slot="canvas-workspace-inset"] {
-  box-sizing: border-box;
-  height: 100%;
-  min-height: 0;
-  background: var(--canvas-surface-bg, #000000);
-  /* Left padding = expanding white column. Grey squircle shrinks as this grows. */
-  padding: var(--canvas-inset-top) var(--canvas-inset-right) var(--canvas-inset-bottom)
-    var(--canvas-inset-left);
-}
-
-@media (max-width: 767px) {
   [data-slot="workspace"]
     [data-slot="canvas-workspace"][data-canvas-frame="true"]
     [data-slot="canvas-workspace-inset"] {
@@ -179,6 +202,11 @@
 
   [data-slot="mobile-layer-toolbar"] {
     transition: bottom var(--resize-dur) var(--resize-ease);
+  }
+
+  [data-slot="utility-toolbar-anchor"] {
+    top: 0.625rem;
+    right: 0.625rem;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -191,71 +219,8 @@
   }
 }
 
-[data-slot="workspace"]
-  [data-slot="canvas-workspace"][data-canvas-frame="true"]
-  [data-slot="canvas-viewport"] {
-  height: 100%;
-  min-height: 0;
-  overflow: hidden;
-  border-radius: 0;
-  background: var(--canvas-surface-bg, #e7e9ec);
-  box-shadow: none;
-}
-
-[data-slot="workspace"][data-shell-theme="dark"] [data-slot="canvas-viewport"] {
-  background: var(--canvas-surface-bg, #000000);
-  box-shadow: none;
-}
-
-[data-slot="workspace"]
-  [data-slot="canvas-workspace"][data-canvas-frame="true"]
-  [data-slot="canvas-surface"][data-canvas-appearance="workspace"] {
-  background-color: transparent !important;
-  background-image: none !important;
-}
-
-[data-slot="utility-toolbar-anchor"] {
-  position: fixed;
-  top: var(--toolbar-top-offset);
-  right: var(--toolbar-top-offset);
-  z-index: var(--z-chrome);
-}
-
-@media (max-width: 767px) {
-  [data-slot="utility-toolbar-anchor"] {
-    top: 0.625rem;
-    right: 0.625rem;
-  }
-}
-
-[data-slot="desktop-settings-shell"] {
-  border-radius: 0;
-  --toolbar-rail-width: 4.5rem;
-  --toolbar-rail-padding-x: 0.375rem;
-  --toolbar-rail-hitbox-size: 3.125rem;
-  --toolbar-rail-icon-size: 2.75rem;
-  --toolbar-rail-pill-inset: calc(
-    var(--toolbar-rail-padding-x) +
-      (
-        var(--toolbar-rail-width) - 2 * var(--toolbar-rail-padding-x) -
-          var(--toolbar-rail-hitbox-size)
-      ) /
-      2 + (var(--toolbar-rail-hitbox-size) - var(--toolbar-rail-icon-size)) / 2
-  );
-}
-
-@media (max-width: 767px) {
-  [data-slot="desktop-settings-shell"] {
-    --toolbar-rail-width: 3.5rem;
-    --toolbar-rail-padding-x: 0.25rem;
-    --toolbar-rail-hitbox-size: 2.875rem;
-    --toolbar-rail-icon-size: 2.5rem;
-  }
-}
-
 [data-slot="desktop-settings-shell"] [data-slot="desktop-settings-panel-host"] {
   padding-top: 0;
-  padding-inline-end: var(--toolbar-rail-pill-inset);
   box-sizing: border-box;
 }
 

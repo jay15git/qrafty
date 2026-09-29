@@ -4,7 +4,7 @@ import { gradientPaint } from "@/features/canvas/model/paint";
 import { createDefaultQraftyState } from "@/features/qr/model/state";
 import { createDefaultCanvasCardState } from "@/features/canvas/model/card-state";
 import { createDefaultCanvasLayers } from "@/features/canvas/model/layers/card-qr";
-import { createCanvasShaderLayer } from "@/features/canvas/model/layers/factories";
+
 import {
   cardLayerNeedsCanvasFace,
   computeObjectFitRect,
@@ -59,16 +59,6 @@ describe("export compositor faces", () => {
     };
 
     expect(cardLayerNeedsCanvasFace(cardLayer, conicCard)).toBe(true);
-
-    const overlayShader = createCanvasShaderLayer("node", "mesh-gradient", {
-      height: 120,
-      id: "node:shader-overlay",
-      width: 120,
-      x: 40,
-      y: 40,
-    });
-
-    expect(cardLayerNeedsCanvasFace(overlayShader, solidCard)).toBe(true);
   });
 
   it("covers and contains images inside the card box", () => {

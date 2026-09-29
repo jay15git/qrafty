@@ -8,6 +8,7 @@ import {
   PICKER_QR_INPUT_TYPES,
   QR_INPUT_OPTIONS,
   type QrInputType,
+  type PickerQrInputType,
 } from "@/features/qr/content/input-options";
 import { useMobileSettingsDensity } from "@/features/shell/settings/MobileSettingsDensityContext";
 import { SegmentTabs } from "@/features/shell/settings/SettingsSegmentTabs";
@@ -158,7 +159,7 @@ export function ContentTypeBrowser({
             {types.map((option, index) => (
               <SelectItem
                 key={option.value}
-                icon={CONTENT_TYPE_SELECT_ICONS[option.value]}
+                icon={CONTENT_TYPE_SELECT_ICONS[option.value as PickerQrInputType]}
                 index={index}
                 value={option.value}
               >

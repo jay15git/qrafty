@@ -221,47 +221,23 @@ describe("static QR content payloads", () => {
     });
   });
 
-  it("restores default stubs when revisiting a type with empty fields", () => {
+  it("applies detected intent when switching from link to a picker platform", () => {
     expect(
-      resolveContentValuesForType("tiktok", {
-        intent: "profile",
-        url: "",
-      }),
-    ).toEqual({
-      intent: "profile",
-      url: "https://www.tiktok.com/@qrafty",
-    });
-
-    expect(
-      resolveContentValuesForType("tiktok", {
-        intent: "profile",
-        url: "https://www.tiktok.com/@custom",
-      }),
-    ).toEqual({
-      intent: "profile",
-      url: "https://www.tiktok.com/@custom",
-    });
-  });
-
-  it("uses platform stubs when switching from link without a matching platform URL", () => {
-    expect(
-      getContentValuesForTypeChange("link", "youtube", {
-        url: "https://example.com",
-      }),
-    ).toEqual({
-      intent: "channel",
-      url: "https://youtube.com/@",
-    });
-  });
-
-  it("extracts platform values when switching from link with a matching platform URL", () => {
-    expect(
-      getContentValuesForTypeChange("link", "youtube", {
-        url: "https://youtube.com/watch?v=abc123",
+      getContentValuesForTypeChange("link", "map-location", {
+        url: "https://maps.google.com/dir/?api=1&destination=Mumbai",
       }),
     ).toMatchObject({
-      intent: "video",
-      url: "https://youtube.com/watch?v=abc123",
+      intent: "directions",
+      url: "https://maps.google.com/dir/?api=1&destination=Mumbai",
+    });
+
+    expect(
+      getContentValuesForTypeChange("link", "whatsapp", {
+        url: "https://example.com",
+      }),
+    ).toMatchObject({
+      intent: "chat",
+      url: "https://example.com",
     });
   });
 

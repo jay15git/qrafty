@@ -8,7 +8,6 @@ import {
   type LayeredSvgParts,
 } from "@/features/canvas/export/layered-svg-parts";
 import { getArtboardExportBounds } from "@/features/canvas/export/pipeline/bounds";
-import { buildLayeredDomParts } from "@/features/canvas/export/layered-dom-parts";
 import {
   DRAFTING_FONT_REGISTRY,
   ensureCanvasFontsForLayers,
@@ -20,7 +19,6 @@ export type BuildSceneIrOptions = {
   layers: CanvasLayer[];
   state: QraftyState;
   qrMarkup: string;
-  componentName?: string;
   shaderSnapshots?: Record<string, string>;
 };
 
@@ -56,39 +54,28 @@ function collectFontRefs(layers: CanvasLayer[]): SceneIrFontRef[] {
 export async function buildSceneIr({
   cardState,
   layers,
-  state,
   qrMarkup,
-  componentName,
   shaderSnapshots,
+  state,
 }: BuildSceneIrOptions): Promise<SceneIr> {
   await ensureCanvasFontsForLayers(layers);
 
   const cardLayer = findCardLayer(layers);
   const artboardBounds = cardLayer ? getArtboardExportBounds(cardLayer) : undefined;
 
-  const [parts, domParts] = await Promise.all([
-    buildLayeredSvgParts({
-      bounds: artboardBounds,
-      cardState,
-      layers,
-      qrMarkup,
-      shaderSnapshots,
-      state,
-    }),
-    buildLayeredDomParts({
-      cardState,
-      layers,
-      state,
-      qrMarkup,
-    }),
-  ]);
+  const parts = await buildLayeredSvgParts({
+    bounds: artboardBounds,
+    cardState,
+    layers,
+    qrMarkup,
+    shaderSnapshots,
+    state,
+  });
 
   return {
     bounds: artboardBounds ?? parts.bounds,
     defs: parts.defs,
     body: parts.body,
-    domLayers: domParts.domLayers,
     fonts: collectFontRefs(layers),
-    componentName,
   };
 }

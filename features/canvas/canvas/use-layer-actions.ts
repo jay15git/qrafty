@@ -18,7 +18,6 @@ import type { ActiveQrApi } from "@/features/canvas/components/use-active-qr";
 import type { CanvasShortcutKeyboardState } from "@/features/canvas/canvas/use-canvas-shortcuts";
 import { DASHBOARD_QR_NODE_ID } from "@/features/qr/rendering/compose-scene";
 import {
-  getCanvasCardLayerId,
   getCanvasQrLayerId,
   getQrCanvasLayers,
   isCanvasCardLayerId,
@@ -32,8 +31,6 @@ import {
 } from "@/features/canvas/model/layers/shared";
 import { cloneCanvasLayer } from "@/features/canvas/model/layers/fallback";
 import { patchCanvasLayer } from "@/features/canvas/model/layers/patch";
-import { clampLayerGeometryToCanvas } from "@/features/canvas/model/layers/card-qr";
-import { createCanvasTextLayer } from "@/features/canvas/model/layers/factories";
 import {
   alignCanvasLayers,
   cloneCanvasLayersForPaste,
@@ -193,43 +190,6 @@ export function useLayerActions({
     canvasRef.current?.focus({ preventScroll: true });
   }
 
-  function handleRemoveQrCode(layerId: string) {
-    const layers = canvasLayers;
-
-    if (!isLayerDeletable(layerId, layers)) {
-      return;
-    }
-
-    const fallbackLayerId =
-      getQrCanvasLayers(layers).find((layer) => layer.id !== layerId)?.id ??
-      getCanvasQrLayerId(DASHBOARD_QR_NODE_ID);
-
-    setCanvasLayers((current) => current.filter((layer) => layer.id !== layerId));
-    setQrStateByLayerId((current) => {
-      const next = { ...current };
-      delete next[layerId];
-      return next;
-    });
-    setContentTypeByLayerId((current) => {
-      const next = { ...current };
-      delete next[layerId];
-      return next;
-    });
-
-    if (layerId === activeQrLayerId) {
-      const fallbackState =
-        qrStateByLayerId[fallbackLayerId] ?? createDefaultCanvasWorkspaceQrState();
-      setActiveQrState(fallbackState, {
-        layerId: fallbackLayerId,
-        contentType: contentTypeByLayerId[fallbackLayerId] ?? DEFAULT_QR_INPUT_TYPE,
-      });
-      selectSingleLayer(fallbackLayerId);
-      return;
-    }
-
-    selectSingleLayer(fallbackLayerId);
-  }
-
   function handleInsertLayer(layer: CanvasLayer) {
     const layers = canvasLayers;
     const maxZIndex = layers.reduce((max, currentLayer) => Math.max(max, currentLayer.zIndex), -1);
@@ -245,56 +205,6 @@ export function useLayerActions({
 
     setCanvasLayers((current) => [...current.map(cloneCanvasLayer), nextLayer]);
     selectSingleLayer(nextLayer.id);
-    canvasRef.current?.focus({ preventScroll: true });
-  }
-
-  function handleAddTextLayer() {
-    handleInsertLayer(createCanvasTextLayer(DASHBOARD_QR_NODE_ID));
-  }
-
-  function handleAddTextLayerAt(point: { x: number; y: number }) {
-    const layers = canvasLayers;
-    const maxZIndex = layers.reduce((max, layer) => Math.max(max, layer.zIndex), -1);
-    const draftPosition = clampLayerGeometryToCanvas(
-      {
-        height: 48,
-        width: 240,
-        x: Math.round(point.x - 120),
-        y: Math.round(point.y - 24),
-      },
-      selectedCardState,
-    );
-    const textLayer = createCanvasTextLayer(DASHBOARD_QR_NODE_ID, {
-      id: `${DASHBOARD_QR_NODE_ID}:text:${Date.now()}`,
-      x: draftPosition.x,
-      y: draftPosition.y,
-      zIndex: maxZIndex + 1,
-    });
-
-    setCanvasLayers((current) => [...current.map(cloneCanvasLayer), textLayer]);
-    selectSingleLayer(textLayer.id);
-    canvasRef.current?.focus({ preventScroll: true });
-  }
-
-  function handleAddFrameCardLayer() {
-    const cardLayerId = getCanvasCardLayerId(DASHBOARD_QR_NODE_ID);
-
-    setSelectedCardState((current) => ({
-      ...current,
-      enabled: true,
-    }));
-    setCanvasLayers((current) =>
-      current.map((layer) =>
-        layer.id === cardLayerId
-          ? patchCanvasLayer(layer, {
-              isVisible: true,
-              shadow: selectedCardState.shadow,
-            })
-          : cloneCanvasLayer(layer),
-      ),
-    );
-    selectSingleLayer(cardLayerId);
-    setDesktopRailTool("shape");
     canvasRef.current?.focus({ preventScroll: true });
   }
 
@@ -330,12 +240,7 @@ export function useLayerActions({
     const selectedLayer = findCanvasLayerById(canvasLayers, layerId);
     const selectedKind = selectedLayer?.kind;
 
-    if (
-      selectedKind === "text" ||
-      selectedKind === "image" ||
-      selectedKind === "shape" ||
-      selectedKind === "shader"
-    ) {
+    if (selectedKind === "text" || selectedKind === "image" || selectedKind === "shape") {
       setDesktopRailTool(null);
       return;
     }
@@ -624,16 +529,10 @@ export function useLayerActions({
     });
   }
   return {
-    applyLayerSelection,
     clearCanvasLayerSelection,
     copySelectedCanvasLayers,
     deleteSelectedLayersOrBoard,
     duplicateSelectedLayers,
-    getActiveSelectableLayers,
-    getSelectedActiveLayers,
-    handleAddFrameCardLayer,
-    handleAddTextLayer,
-    handleAddTextLayerAt,
     handleInsertLayer,
     handleLayerAction,
     handleLayerChange,
@@ -641,7 +540,6 @@ export function useLayerActions({
     handleLayerSelect,
     handleLayerSelectionChange,
     handleBoardSelection,
-    handleRemoveQrCode,
     pasteCanvasLayers,
     selectAllActiveCanvasLayers,
     selectSingleLayer,

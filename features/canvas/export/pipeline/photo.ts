@@ -54,7 +54,6 @@ async function renderWorkspaceSvgMarkup({
   const shaderSnapshots = await captureWorkspaceShaderSnapshots({
     cardLayer,
     cardState,
-    layers,
     mode,
     session: shaderSession,
     videoTimeMs,
@@ -67,7 +66,6 @@ async function renderWorkspaceSvgMarkup({
 
   const ir = await buildSceneIr({
     cardState,
-    componentName: name.replace(/[^a-zA-Z0-9]/g, "") || "QrCard",
     layers,
     qrMarkup: resolvedQrMarkup,
     state,

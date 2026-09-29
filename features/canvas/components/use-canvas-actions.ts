@@ -40,10 +40,7 @@ import {
   type StaticQrContentValue,
   type StaticQrContentValues,
 } from "@/features/qr/content/static-payload";
-import {
-  getPlatformDefaultValuesForIntent,
-  isPlatformType,
-} from "@/features/qr/content/platform-intents";
+import { isPlatformType } from "@/features/qr/content/platform-intents";
 import { DEFAULT_QR_INPUT_TYPE, type QrInputType } from "@/features/qr/content/input-options";
 
 /**
@@ -224,11 +221,10 @@ export function useCanvasActions({
     if (field === "intent" && typeof value === "string" && isPlatformType(selectedContentType)) {
       setContentValuesByType((current) => ({
         ...current,
-        [selectedContentType]: getPlatformDefaultValuesForIntent(selectedContentType, value),
+        [selectedContentType]: resolveContentValuesForType(selectedContentType, { intent: value }),
       }));
       return;
     }
-
     setContentValuesByType((current) => ({
       ...current,
       [selectedContentType]: {

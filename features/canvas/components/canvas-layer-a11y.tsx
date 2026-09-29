@@ -28,8 +28,6 @@ function getCanvasLayerA11yLabel(layer: CanvasLayer) {
       return "Image layer";
     case "shape":
       return "Shape layer";
-    case "shader":
-      return "Shader layer";
     default:
       return "Card layer";
   }

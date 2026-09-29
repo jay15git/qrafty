@@ -29,7 +29,6 @@ import {
   getPreviewStageSize,
   scalePreviewCornerRadiiState,
 } from "@/features/canvas/preview/preview-camera";
-import { previewDrawerResize } from "@/features/canvas/preview/preview-drawer-resize";
 
 /* Bencho-style crop morph: frame and document move on
    width/height with the same curve, never a scale. */
@@ -223,22 +222,13 @@ export function useCardChrome({
 
     if (typeof ResizeObserver === "undefined") {
       window.addEventListener("resize", updateCanvasHeight);
-      const unsubscribeDrawerResizeEnded = previewDrawerResize.subscribeOnEnded(updateCanvasHeight);
-
-      return () => {
-        window.removeEventListener("resize", updateCanvasHeight);
-        unsubscribeDrawerResizeEnded();
-      };
+      return () => window.removeEventListener("resize", updateCanvasHeight);
     }
 
     const observer = new ResizeObserver(updateCanvasHeight);
     observer.observe(canvas);
-    const unsubscribeDrawerResizeEnded = previewDrawerResize.subscribeOnEnded(updateCanvasHeight);
 
-    return () => {
-      observer.disconnect();
-      unsubscribeDrawerResizeEnded();
-    };
+    return () => observer.disconnect();
   }, [canvasRef]);
 
   const { cardLayers, contentLayers } = resolveVisibleLayerGroups(visibleLayers, contentOnlyZoom);

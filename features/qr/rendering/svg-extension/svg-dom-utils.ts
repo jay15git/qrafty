@@ -54,7 +54,7 @@ export function getOrCreateSvgDefs(svg: QrSvgElementLike) {
   return defs;
 }
 
-export function getNumericAttribute(element: QrSvgElementLike, name: string) {
+function getNumericAttribute(element: QrSvgElementLike, name: string) {
   const value = element.getAttribute(name);
 
   if (value === null) {

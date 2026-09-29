@@ -7,70 +7,69 @@ import {
   isMediumStoryPath,
   isSubstackPublicationPath,
 } from "@/features/qr/content/platform-path-matching";
-import { urlIntent, type PlatformDef } from "@/features/qr/content/intents/shared";
+import type { PlatformDef } from "@/features/qr/content/intents/shared";
 
 export const DEVELOPER_PLATFORM_DEFS: readonly PlatformDef[] = [
   {
     type: "github",
     label: "GitHub",
-    description: "User, repo, issue, or gist.",
     category: "developer",
     hosts: ["github.com", "gist.github.com"],
     intents: [
-      urlIntent("gist", "Gist", (_pathname, _params, hostname) => hostname === "gist.github.com"),
-      urlIntent("issue", "Issue", (p) => p.includes("/issues/")),
-      urlIntent(
-        "repo",
-        "Repository",
-        (p, _params, hostname) => hostname !== "gist.github.com" && isGitHubRepoPath(p),
-      ),
-      urlIntent(
-        "user",
-        "User",
-        (p, _params, hostname) => hostname !== "gist.github.com" && isGitHubUserPath(p),
-      ),
+      {
+        id: "gist",
+        label: "Gist",
+        matchPath: (_pathname, _params, hostname) => hostname === "gist.github.com",
+      },
+      { id: "issue", label: "Issue", matchPath: (p) => p.includes("/issues/") },
+      {
+        id: "repo",
+        label: "Repository",
+        matchPath: (p, _params, hostname) => hostname !== "gist.github.com" && isGitHubRepoPath(p),
+      },
+      {
+        id: "user",
+        label: "User",
+        matchPath: (p, _params, hostname) => hostname !== "gist.github.com" && isGitHubUserPath(p),
+      },
     ],
   },
   {
     type: "gitlab",
     label: "GitLab",
-    description: "User, project, or issue.",
     category: "developer",
     hosts: ["gitlab.com"],
     intents: [
-      urlIntent("issue", "Issue", (p) => p.includes("/-/issues/")),
-      urlIntent("project", "Project", (p) => isGitLabProjectPath(p)),
-      urlIntent("user", "User", (p) => isGitLabUserPath(p)),
+      { id: "issue", label: "Issue", matchPath: (p) => p.includes("/-/issues/") },
+      { id: "project", label: "Project", matchPath: (p) => isGitLabProjectPath(p) },
+      { id: "user", label: "User", matchPath: (p) => isGitLabUserPath(p) },
     ],
   },
   {
     type: "notion",
     label: "Notion",
-    description: "Notion page link.",
     category: "developer",
     hosts: ["notion.so", "notion.site"],
-    intents: [urlIntent("page", "Page")],
+    intents: [{ id: "page", label: "Page" }],
   },
   {
     type: "medium",
     label: "Medium",
-    description: "Profile or story.",
     category: "developer",
     hosts: ["medium.com"],
     intents: [
-      urlIntent("story", "Story", (p) => isMediumStoryPath(p)),
-      urlIntent("profile", "Profile", (p) => isMediumProfilePath(p)),
+      { id: "story", label: "Story", matchPath: (p) => isMediumStoryPath(p) },
+      { id: "profile", label: "Profile", matchPath: (p) => isMediumProfilePath(p) },
     ],
   },
   {
     type: "substack",
     label: "Substack",
-    description: "Publication or post.",
     category: "developer",
     hosts: ["substack.com"],
     intents: [
-      urlIntent("post", "Post", (p) => p.includes("/p/")),
-      urlIntent("publication", "Publication", (p) => isSubstackPublicationPath(p)),
+      { id: "post", label: "Post", matchPath: (p) => p.includes("/p/") },
+      { id: "publication", label: "Publication", matchPath: (p) => isSubstackPublicationPath(p) },
     ],
   },
 ];

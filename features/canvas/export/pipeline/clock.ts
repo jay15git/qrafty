@@ -1,4 +1,7 @@
-import type { CanvasCardPaperShaderState } from "@/features/canvas/model/card-state";
+import type {
+  CanvasCardState,
+  CanvasCardPaperShaderState,
+} from "@/features/canvas/model/card-state";
 import type { QraftyState } from "@/features/qr/model/state";
 
 export type ExportClockMode = "photo" | "video";
@@ -49,11 +52,7 @@ export function isQrTimeVarying(state: QraftyState) {
   return state.dotMatrixAnimation.enabled && state.dotMatrixAnimation.animated;
 }
 
-export function sceneHasVideoExportContent(
-  cardState: import("@/features/canvas/model/card-state").CanvasCardState,
-  layers: import("@/features/canvas/model/layers/shared").CanvasLayer[],
-  state: QraftyState,
-) {
+export function sceneHasVideoExportContent(cardState: CanvasCardState, state: QraftyState) {
   if (isQrTimeVarying(state)) {
     return true;
   }
@@ -62,15 +61,5 @@ export function sceneHasVideoExportContent(
     return true;
   }
 
-  if (cardState.styleMode === "image-filter" && isShaderTimeVarying(cardState.imageFilter)) {
-    return true;
-  }
-
-  return layers.some(
-    (layer) =>
-      layer.kind === "shader" &&
-      layer.isVisible &&
-      layer.paperShader &&
-      isShaderTimeVarying(layer.paperShader),
-  );
+  return cardState.styleMode === "image-filter" && isShaderTimeVarying(cardState.imageFilter);
 }

@@ -31,11 +31,9 @@ function resolveCardShaderState(cardState: CanvasCardState) {
 function collectShaderCaptureTargets({
   cardLayer,
   cardState,
-  layers,
 }: {
   cardLayer: CanvasLayer | null;
   cardState: CanvasCardState;
-  layers: CanvasLayer[];
 }) {
   const targets: ShaderCaptureTarget[] = [];
   const cardShader = resolveCardShaderState(cardState);
@@ -50,23 +48,6 @@ function collectShaderCaptureTargets({
       layoutHeight: cardLayer.height,
       layoutWidth: cardLayer.width,
       shader: cardShader,
-    });
-  }
-
-  for (const layer of layers) {
-    if (layer.kind !== "shader" || !layer.isVisible || !layer.paperShader) {
-      continue;
-    }
-
-    targets.push({
-      imageValue:
-        shaderRequiresImage(layer.paperShader.shaderId) && layer.paperShader.image.value
-          ? layer.paperShader.image.value
-          : undefined,
-      key: layer.id,
-      layoutHeight: layer.height,
-      layoutWidth: layer.width,
-      shader: layer.paperShader,
     });
   }
 
@@ -112,19 +93,17 @@ export class WorkspaceShaderCaptureSession {
   async mount({
     cardLayer,
     cardState,
-    layers,
     mode,
     videoTimeMs = 0,
   }: {
     cardLayer: CanvasLayer | null;
     cardState: CanvasCardState;
-    layers: CanvasLayer[];
     mode: ExportClockMode;
     videoTimeMs?: number;
   }) {
     this.dispose();
     this.cardLayerId = cardLayer?.id ?? null;
-    this.targets = collectShaderCaptureTargets({ cardLayer, cardState, layers });
+    this.targets = collectShaderCaptureTargets({ cardLayer, cardState });
 
     await Promise.all(
       this.targets.map(async (target) => {
@@ -234,14 +213,12 @@ export class WorkspaceShaderCaptureSession {
 export async function captureWorkspaceShaderSnapshots({
   cardLayer,
   cardState,
-  layers,
   mode,
   session,
   videoTimeMs = 0,
 }: {
   cardLayer: CanvasLayer | null;
   cardState: CanvasCardState;
-  layers: CanvasLayer[];
   mode: ExportClockMode;
   session?: WorkspaceShaderCaptureSession;
   videoTimeMs?: number;
@@ -251,7 +228,7 @@ export async function captureWorkspaceShaderSnapshots({
   }
 
   const snapshots: Record<string, string> = {};
-  const targets = collectShaderCaptureTargets({ cardLayer, cardState, layers });
+  const targets = collectShaderCaptureTargets({ cardLayer, cardState });
   const captured = await Promise.all(
     targets.map((target) => captureShaderTarget(target, mode, videoTimeMs)),
   );

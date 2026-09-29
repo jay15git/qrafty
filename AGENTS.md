@@ -22,7 +22,7 @@ This version has breaking changes. Read the relevant guide in `node_modules/next
 
 ## App Structure
 
-- `app/layout.tsx` defines the root shell, Geist/Bricolage Grotesque/Manrope fonts, and global CSS.
+- `app/layout.tsx` defines the root shell, Caveat/Geist Mono fonts, and global CSS; the landing-only Kodchasan/Manrope fonts load in `app/page.tsx`.
 - `app/page.tsx` is the home route; renders the marketing landing (`LandingHeroText` + `LandingCardWheel`).
 - `/design` is the active workspace (`Workspace` → `CanvasSurface` canvas + `WorkspaceChrome` overlay). `/desktop` redirects to `/design`.
 - `/new`, `/dashboard`, and `/settings` have been removed. Do not re-add features or fixes there unless explicitly asked.

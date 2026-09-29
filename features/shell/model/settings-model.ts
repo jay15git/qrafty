@@ -172,13 +172,12 @@ export type BackgroundSettings = {
   styleMode: CanvasCardStyleMode;
 };
 
-export type LayerKind = "card" | "image" | "qr" | "shader" | "shape" | "text";
+export type LayerKind = "card" | "image" | "qr" | "shape" | "text";
 
 export const LAYER_KIND_LABELS: Record<LayerKind, string> = {
   card: "Card",
   image: "Image",
   qr: "QR code",
-  shader: "Shader",
   shape: "Shape",
   text: "Text",
 };

@@ -30,7 +30,10 @@ import {
 } from "@/features/canvas/components/canvas-layer-chrome-overlay";
 import { CanvasDocumentCardLayer } from "@/features/canvas/components/CanvasLayerViews";
 import { cornerRadiiToCss } from "@/features/canvas/model/corner-radius";
-import type { CanvasCardState } from "@/features/canvas/model/card-state";
+import type {
+  CanvasCardPaperShaderState,
+  CanvasCardState,
+} from "@/features/canvas/model/card-state";
 import type { PreviewStageSize } from "@/features/canvas/preview/preview-camera";
 import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
 import type { ThemeMode } from "@/features/shell/components/WorkspaceChrome";
@@ -520,6 +523,7 @@ export type CanvasWorkspaceContentProps = CanvasChromeOverlayProps & {
   contentTransformStyle: CSSProperties | undefined;
   contextMenu: CanvasContextMenuState | null;
   contextMenuLayers: CanvasLayer[];
+  imageFilterShader: CanvasCardPaperShaderState;
   isImageFilterMode: boolean;
   isImageMode: boolean;
   isPaperShaderMode: boolean;
@@ -542,6 +546,7 @@ export function CanvasWorkspaceContent(props: CanvasWorkspaceContentProps) {
     contextMenuLayers,
     isImageFilterMode,
     isImageMode,
+    imageFilterShader,
     isPaperShaderMode,
     onCloseContextMenu,
     onRunLayerAction,
@@ -578,6 +583,7 @@ export function CanvasWorkspaceContent(props: CanvasWorkspaceContentProps) {
                 <CanvasDocumentCardLayer
                   key={layer.id}
                   cardState={cardState}
+                  imageFilterShader={imageFilterShader}
                   isImageFilterMode={isImageFilterMode}
                   isImageMode={isImageMode}
                   isPaperShaderMode={isPaperShaderMode}

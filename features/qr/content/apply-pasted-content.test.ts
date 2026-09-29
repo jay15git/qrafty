@@ -76,16 +76,18 @@ describe("getLinkPasteFieldUpdate", () => {
       }),
     });
 
-    expect(getLinkPasteFieldUpdate("instagram", "https://instagram.com/qrafty")).toEqual({
+    expect(getLinkPasteFieldUpdate("whatsapp", "https://wa.me/15550102000")).toEqual({
       values: {
-        intent: "profile",
-        url: "https://instagram.com/qrafty",
+        intent: "chat",
+        url: "https://wa.me/15550102000",
       },
       urlDetection: expect.objectContaining({
-        platform: "instagram",
-        intent: "profile",
+        platform: "whatsapp",
+        intent: "chat",
       }),
     });
+
+    expect(getLinkPasteFieldUpdate("instagram", "https://instagram.com/qrafty")).toBeNull();
   });
 });
 
@@ -96,21 +98,35 @@ describe("resolveDetectedLinkTypeApply", () => {
         {
           category: "social",
           confidence: "high",
+          inputTypeHint: "whatsapp",
+          platform: "whatsapp",
+        },
+        "https://wa.me/15550102000",
+      ),
+    ).toEqual({
+      type: "whatsapp",
+      values: {
+        intent: "chat",
+        message: "",
+        phone: "",
+        url: "https://wa.me/15550102000",
+      },
+      urlDetection: expect.objectContaining({
+        platform: "whatsapp",
+      }),
+    });
+
+    expect(
+      resolveDetectedLinkTypeApply(
+        {
+          category: "social",
+          confidence: "high",
           inputTypeHint: "instagram",
           platform: "instagram",
         },
         "https://instagram.com/qrafty",
       ),
-    ).toEqual({
-      type: "instagram",
-      values: {
-        intent: "profile",
-        url: "https://instagram.com/qrafty",
-      },
-      urlDetection: expect.objectContaining({
-        platform: "instagram",
-      }),
-    });
+    ).toBeNull();
   });
 });
 

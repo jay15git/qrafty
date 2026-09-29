@@ -1,5 +1,3 @@
-import { normalizeUrl } from "@/features/qr/content/platform-builders";
-
 export const VALIDATION_MESSAGES = {
   url: "Enter a valid URL.",
   email: "Enter a valid email address.",
@@ -7,8 +5,15 @@ export const VALIDATION_MESSAGES = {
   amount: "Enter a valid amount.",
 } as const;
 
-export function platformUrlErrorMessage(intentLabel: string): string {
-  return `Enter a correct ${intentLabel.toLowerCase()} URL.`;
+export function normalizeUrl(value: string): string {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return "";
+  }
+  if (/^[a-z][a-z\d+\-.]*:/i.test(trimmed)) {
+    return trimmed;
+  }
+  return `https://${trimmed}`;
 }
 
 export function isValidUrl(value: string): boolean {
@@ -30,40 +35,11 @@ export function isValidUrl(value: string): boolean {
 
   try {
     const parsed = new URL(candidate);
-
-    if (parsed.protocol === "http:" || parsed.protocol === "https:") {
-      return hasRealHostname(parsed.hostname);
+    if (!/^https?:$/i.test(parsed.protocol)) {
+      return true;
     }
 
-    // Custom schemes (skype:, bitcoin:, etc.)
-    return parsed.protocol.length > 1;
-  } catch {
-    return false;
-  }
-}
-
-export function isValidPlatformUrl(value: string, hosts: readonly string[]): boolean {
-  const trimmed = value.trim();
-  if (!trimmed) {
-    return false;
-  }
-
-  if (/^https?:\/\/?$/i.test(trimmed)) {
-    return hosts.length === 0;
-  }
-
-  if (!isValidUrl(trimmed)) {
-    return false;
-  }
-
-  if (hosts.length === 0) {
-    return true;
-  }
-
-  try {
-    const parsed = new URL(normalizeUrl(trimmed));
-    const hostname = parsed.hostname.toLowerCase().replace(/^www\./, "");
-    return hosts.some((host) => hostname === host || hostname.endsWith(`.${host}`));
+    return hasRealHostname(parsed.hostname);
   } catch {
     return false;
   }

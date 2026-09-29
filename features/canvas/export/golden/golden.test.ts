@@ -41,7 +41,6 @@ describe("golden export snapshots", () => {
 
       const ir = await buildSceneIr({
         cardState,
-        componentName: fixture.name.replace(/[^a-zA-Z0-9]/g, "") || "QrCard",
         layers,
         qrMarkup,
         shaderSnapshots: fixture.shaderSnapshots,

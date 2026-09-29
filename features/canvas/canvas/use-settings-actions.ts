@@ -666,16 +666,10 @@ export function useSettingsActions({
 
   return {
     handleDesktopAppearancePatch,
-    applyDesktopPatternPatchToControls,
-    applyDesktopCornersPatchToControls,
-    applyDesktopUnifiedLogoPatchToControls,
     updateDesktopPatternSettings,
     updateDesktopUnifiedQrFillSettings,
     updateDesktopLogoSettings,
     updateDesktopCornersSettings,
-    mergeCardStateFromShapePatch,
-    cardShadowFromPatch,
-    relayoutCardInset,
     updateDesktopShapeSettings,
     updateDesktopImageSettings,
     updateDesktopMotionSettings,

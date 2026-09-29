@@ -330,7 +330,7 @@ export function createDefaultCanvasCardState() {
   return cloneCanvasCardState(DEFAULT_CARD_STATE);
 }
 
-export function cloneCanvasCardPaperShaderState(
+function cloneCanvasCardPaperShaderState(
   paperShader: CanvasCardPaperShaderState,
 ): CanvasCardPaperShaderState {
   return {

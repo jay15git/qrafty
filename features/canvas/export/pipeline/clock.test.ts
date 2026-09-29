@@ -41,7 +41,7 @@ describe("export clock", () => {
 
     expect(isQrTimeVarying(state)).toBe(true);
     expect(isShaderTimeVarying(cardState.paperShader)).toBe(true);
-    expect(sceneHasVideoExportContent(cardState, [], state)).toBe(true);
+    expect(sceneHasVideoExportContent(cardState, state)).toBe(true);
   });
 
   it("uses the raw video clock because the animation sampler applies speed", () => {

@@ -3,23 +3,22 @@
 import { Check, X } from "lucide-react";
 import {
   createContext,
+  useCallback,
   useContext,
+  useEffect,
   useLayoutEffect,
   useMemo,
   useRef,
   useState,
+  type ComponentType,
   type ReactNode,
 } from "react";
+import useMeasure, { type RectReadOnly } from "react-use-measure";
+import { m } from "motion/react";
+import { Drawer } from "vaul";
 
-import {
-  FamilyDrawerAnimatedContent,
-  FamilyDrawerAnimatedWrapper,
-  FamilyDrawerContent,
-  FamilyDrawerPortal,
-  FamilyDrawerRoot,
-  useFamilyDrawer,
-  type ViewsRegistry,
-} from "@/components/ui/family-drawer";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { cn } from "@/lib/utils";
 import { getMobileDrawerMaxHeightPx } from "@/features/shell/components/mobile-family-drawer-viewport";
 import type { SettingsModel } from "@/features/shell/hooks/use-toolbar-settings-model";
 import {
@@ -219,6 +218,310 @@ function MobileSettingsSectionView({
   );
 }
 
+// ---------------------------------------------------------------------------
+// Drawer internals — the old shared `components/ui/family-drawer` module,
+// inlined. This file is the only consumer and always drives it the same way:
+// controlled open, non-modal, non-dismissible, repositionInputs off (vaul's
+// keyboard lift conflicts with the card's own height animation).
+// ---------------------------------------------------------------------------
+
+type ViewComponent = ComponentType<Record<string, unknown>>;
+type ViewsRegistry = Record<string, ViewComponent>;
+
+interface FamilyDrawerContextValue {
+  isOpen: boolean;
+  view: string;
+  setView: (view: string) => void;
+  opacityDuration: number;
+  elementRef: (element: HTMLElement | SVGElement | null) => void;
+  bounds: RectReadOnly;
+  /** True while no fresh measurement exists for this open — frame must size to `auto`. */
+  measuringOpen: boolean;
+  /** True on the render carrying the first post-open measurement — height snaps, never animates. */
+  snapHeight: boolean;
+  views: ViewsRegistry;
+}
+
+const FamilyDrawerContext = createContext<FamilyDrawerContextValue | undefined>(undefined);
+
+function useFamilyDrawer() {
+  const context = useContext(FamilyDrawerContext);
+  if (!context) {
+    throw new Error("FamilyDrawer components must be used within FamilyDrawerRoot");
+  }
+  return context;
+}
+
+const MIN_OPACITY_DURATION = 0.15;
+const MAX_OPACITY_DURATION = 0.27;
+
+function FamilyDrawerRoot({
+  children,
+  open,
+  onOpenChange,
+  views,
+}: {
+  children: ReactNode;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  views: ViewsRegistry;
+}) {
+  const [view, setView] = useState(MOBILE_DRAWER_SECTION_VIEW);
+  const [elementRef, bounds, refreshBounds] = useMeasure();
+
+  // Previous measured height and the opacity duration derived from it. Both
+  // live in state so the duration is computed during render without reading a
+  // ref (unsafe under concurrent React). Adjusting state during render — the
+  // documented prev-prop pattern — keeps the duration identical to the old
+  // ref-based computation: the render that observes a new height derives the
+  // delta against the height it replaced, and the follow-up render (now
+  // equal) leaves the duration alone.
+  const [previousHeight, setPreviousHeight] = useState(0);
+  const [opacityDuration, setOpacityDuration] = useState(MIN_OPACITY_DURATION);
+
+  if (bounds.height !== previousHeight) {
+    setPreviousHeight(bounds.height);
+    setOpacityDuration(
+      !previousHeight
+        ? MIN_OPACITY_DURATION
+        : Math.min(
+            Math.max(Math.abs(bounds.height - previousHeight) / 500, MIN_OPACITY_DURATION),
+            MAX_OPACITY_DURATION,
+          ),
+    );
+  }
+
+  // useMeasure keeps the last bounds across close/unmount, so on reopen the
+  // frame first renders at a stale height and animates to the real one — the
+  // "expands then settles" wobble. Until the first post-open measurement the
+  // frame renders `auto` (no stale height), and that measurement snaps in
+  // instantly instead of animating.
+  const [boundsAtOpen, setBoundsAtOpen] = useState<RectReadOnly | null>(null);
+  const measuringOpen = boundsAtOpen !== null && bounds === boundsAtOpen;
+  const justMeasuredOpen = boundsAtOpen !== null && bounds !== boundsAtOpen;
+
+  if (open && boundsAtOpen === null) {
+    setBoundsAtOpen(bounds);
+  }
+  if (open && justMeasuredOpen) {
+    setBoundsAtOpen(null);
+  }
+  if (!open && boundsAtOpen !== null) {
+    setBoundsAtOpen(null);
+  }
+
+  // The portal mounts the measured wrapper in the same commit the drawer
+  // opens; the observer can miss that first layout when the drawer opens
+  // straight onto a detail view, leaving the frame stuck at a stale height.
+  useLayoutEffect(() => {
+    if (open) {
+      refreshBounds();
+    }
+  }, [open, view, refreshBounds]);
+
+  // An identical re-measurement dedupes inside useMeasure — no bounds update
+  // arrives, so nothing else would end the measuring window. Re-arm on a
+  // short timer (rAF never fires while the tab is hidden); stale and real
+  // heights are equal in that case anyway.
+  useEffect(() => {
+    if (boundsAtOpen === null || bounds !== boundsAtOpen) {
+      return;
+    }
+    const timer = window.setTimeout(() => setBoundsAtOpen(null), 50);
+    return () => window.clearTimeout(timer);
+  }, [boundsAtOpen, bounds]);
+
+  const handleViewChange = useCallback(
+    (newView: string) => {
+      if (!(newView in views)) {
+        return;
+      }
+      setView(newView);
+    },
+    [views],
+  );
+
+  const contextValue: FamilyDrawerContextValue = useMemo(
+    () => ({
+      isOpen: open,
+      view,
+      setView: handleViewChange,
+      opacityDuration,
+      elementRef,
+      bounds,
+      measuringOpen,
+      snapHeight: justMeasuredOpen,
+      views,
+    }),
+    [
+      open,
+      view,
+      handleViewChange,
+      opacityDuration,
+      elementRef,
+      bounds,
+      measuringOpen,
+      justMeasuredOpen,
+      views,
+    ],
+  );
+
+  return (
+    <FamilyDrawerContext.Provider value={contextValue}>
+      <Drawer.Root
+        dismissible={false}
+        modal={false}
+        open={open}
+        onOpenChange={onOpenChange}
+        repositionInputs={false}
+      >
+        {children}
+      </Drawer.Root>
+    </FamilyDrawerContext.Provider>
+  );
+}
+
+type FamilyDrawerContentProps = {
+  children: ReactNode;
+  className?: string;
+  /** Screen-reader label for the drawer dialog. */
+  accessibilityTitle?: string;
+  /** Pixel cap for the animated frame; overflowing content uses this frame's native scroller. */
+  maxHeight?: number;
+} & Record<string, unknown>;
+
+function FamilyDrawerContent({
+  children,
+  className,
+  accessibilityTitle,
+  maxHeight,
+  ...rest
+}: FamilyDrawerContentProps) {
+  const { bounds, isOpen, measuringOpen, snapHeight, view } = useFamilyDrawer();
+  const [lastPositiveHeight, setLastPositiveHeight] = useState(0);
+  const isCapped = maxHeight !== undefined;
+
+  // Remember the last non-zero measured height so a transient 0 (the frame
+  // collapsing mid-transition) doesn't snap the card to nothing. Only tracked
+  // while open — once the drawer starts its exit slide the height freezes, so
+  // callers unmounting content on close can't shrink the card mid-slide.
+  if (isOpen && bounds.height > 0 && bounds.height !== lastPositiveHeight) {
+    setLastPositiveHeight(bounds.height);
+  }
+
+  const measuredHeight = isOpen
+    ? bounds.height > 0
+      ? bounds.height
+      : lastPositiveHeight
+    : lastPositiveHeight;
+  const displayedHeight = isCapped ? Math.min(measuredHeight, maxHeight) : measuredHeight;
+
+  return (
+    <Drawer.Content
+      className={cn(
+        "fixed bottom-[max(1rem,env(safe-area-inset-bottom,0px))] z-[var(--z-chrome)] overflow-hidden rounded-[36px] bg-background outline-none",
+        className,
+      )}
+      {...rest}
+    >
+      <m.div
+        // While measuringOpen the stored bounds belong to the previous open —
+        // render `auto` instead of animating toward a stale height. snapHeight
+        // lands the first real measurement instantly (duration 0). max-height
+        // still applies during `auto` so tall content can't blow past the cap
+        // while the measurement is pending.
+        animate={{ height: measuringOpen || displayedHeight <= 0 ? "auto" : displayedHeight }}
+        initial={false}
+        style={{ maxHeight: isCapped ? maxHeight : undefined }}
+        transition={{
+          duration: snapHeight ? 0 : 0.27,
+          ease: [0.25, 1, 0.5, 1],
+        }}
+        className="min-w-0 overflow-hidden"
+      >
+        <Drawer.Title className="sr-only">
+          {accessibilityTitle ?? (view === MOBILE_DRAWER_DETAIL_VIEW ? "Setting" : "Settings")}
+        </Drawer.Title>
+        {isCapped ? (
+          <ScrollArea
+            chevron={false}
+            // Own the cap too: while the frame is height:auto (measuringOpen),
+            // h-full alone lets the area render at natural height and the frame
+            // clips it with overflow-hidden — bottom rows unreachable.
+            className="h-full min-w-0 overscroll-contain"
+            cueSize="tight"
+            persistKey={`family-drawer-frame:${view}`}
+            style={{ maxHeight }}
+            viewportClassName="[scrollbar-width:none] [&::-webkit-scrollbar]:hidden max-h-[inherit]"
+            data-vaul-no-drag=""
+          >
+            {children}
+          </ScrollArea>
+        ) : (
+          children
+        )}
+      </m.div>
+    </Drawer.Content>
+  );
+}
+
+function FamilyDrawerAnimatedWrapper({
+  children,
+  className,
+  ...rest
+}: {
+  children: ReactNode;
+  className?: string;
+} & Record<string, unknown>) {
+  const { elementRef } = useFamilyDrawer();
+
+  return (
+    <div ref={elementRef} className={cn("px-6 pb-6 pt-2.5 antialiased", className)} {...rest}>
+      {children}
+    </div>
+  );
+}
+
+function FamilyDrawerAnimatedContent() {
+  const { view, opacityDuration, views } = useFamilyDrawer();
+  // Visited views stay mounted so a pushed detail page keeps the section's
+  // scroll and input state; only the active one is visible and interactive.
+  const [visitedViews, setVisitedViews] = useState<string[]>(() => [view]);
+
+  if (!visitedViews.includes(view)) {
+    setVisitedViews((current) => (current.includes(view) ? current : [...current, view]));
+  }
+
+  return (
+    <>
+      {visitedViews.map((viewName) => {
+        const isActive = viewName === view;
+        const ViewComponent = views[viewName];
+
+        return (
+          <div
+            key={viewName}
+            aria-hidden={!isActive}
+            className={cn(!isActive && "pointer-events-none hidden")}
+            inert={isActive ? undefined : true}
+          >
+            <m.div
+              animate={isActive ? { opacity: 1, scale: 1, y: 0 } : false}
+              initial={false}
+              transition={{
+                duration: opacityDuration,
+                ease: [0.26, 0.08, 0.25, 1],
+              }}
+            >
+              {ViewComponent ? <ViewComponent /> : null}
+            </m.div>
+          </div>
+        );
+      })}
+    </>
+  );
+}
+
 export function MobileSettingsDrawer({
   model,
   onClose,
@@ -300,11 +603,7 @@ export function MobileSettingsDrawer({
 
   return (
     <FamilyDrawerRoot
-      defaultView={MOBILE_DRAWER_SECTION_VIEW}
-      dismissible={false}
-      modal={false}
       open={open}
-      repositionInputs={false}
       views={views}
       onOpenChange={(next) => {
         if (!next) {
@@ -312,7 +611,7 @@ export function MobileSettingsDrawer({
         }
       }}
     >
-      <FamilyDrawerPortal>
+      <Drawer.Portal>
         {/* Non-modal + non-dismissible: vaul won't close on outside taps, but
             nothing stops the hit itself — canvas taps would still select
             layers and rail buttons would fire under the open card. A
@@ -331,7 +630,6 @@ export function MobileSettingsDrawer({
           data-slot="mobile-settings-drawer-root"
           data-theme={theme}
           maxHeight={maxHeight}
-          variant="card"
         >
           <FamilyDrawerAnimatedWrapper className="ds-mobile-drawer-body px-[var(--row-px)] pt-3">
             <MobileDrawerViewPropsContext.Provider value={viewProps}>
@@ -341,7 +639,7 @@ export function MobileSettingsDrawer({
             </MobileDrawerViewPropsContext.Provider>
           </FamilyDrawerAnimatedWrapper>
         </FamilyDrawerContent>
-      </FamilyDrawerPortal>
+      </Drawer.Portal>
     </FamilyDrawerRoot>
   );
 }

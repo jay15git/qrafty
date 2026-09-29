@@ -7,10 +7,6 @@ export function resolveCardShaderMode(cardState: CanvasCardState) {
 }
 
 export function cardLayerNeedsCanvasFace(layer: CanvasLayer, cardState: CanvasCardState) {
-  if (layer.kind === "shader") {
-    return Boolean(layer.paperShader);
-  }
-
   if (layer.kind !== "card") {
     return false;
   }

@@ -11,11 +11,9 @@ import {
 
 import { CardBackgroundLayers } from "@/features/canvas/components/CardBackgroundLayers";
 import { cardBackgroundStyle } from "@/features/canvas/components/card-background-style";
-import { CanvasCardPaperShaderLayer } from "@/features/canvas/components/CardPaperShaderLayer";
 import { CanvasLayerTiltShell } from "@/features/canvas/components/CanvasLayerTiltShell";
 import { CanvasQrLayerContent } from "@/features/canvas/components/CanvasQrLayerContent";
 import {
-  createDefaultCanvasCardPaperShader,
   type CanvasCardPaperShaderState,
   type CanvasCardState,
 } from "@/features/canvas/model/card-state";
@@ -47,7 +45,6 @@ import type { StaticQrValidationResult } from "@/features/qr/content/static-payl
 import { getCanvasQrLayerLayout } from "@/features/qr/rendering/svg-extension";
 import { useCanvasQrMarkup } from "@/features/canvas/hooks/use-canvas-qr-markup";
 import type { CanvasQrStateByLayerId } from "@/features/canvas/model/document";
-import { usePreviewInteraction } from "@/features/canvas/preview/preview-context";
 import {
   useCanvasLayerEffectStyle,
   usePreviewShaderDisplaySize,
@@ -95,6 +92,7 @@ function buildCanvasDocumentCardBorderOverlayStyle(
 
 type CanvasDocumentCardLayerProps = {
   cardState: CanvasCardState;
+  imageFilterShader: CanvasCardPaperShaderState;
   isImageFilterMode: boolean;
   isImageMode: boolean;
   isPaperShaderMode: boolean;
@@ -105,6 +103,7 @@ type CanvasDocumentCardLayerProps = {
 
 export const CanvasDocumentCardLayer = memo(function CanvasDocumentCardLayer({
   cardState,
+  imageFilterShader,
   isImageFilterMode,
   isImageMode,
   isPaperShaderMode,
@@ -114,21 +113,6 @@ export const CanvasDocumentCardLayer = memo(function CanvasDocumentCardLayer({
 }: CanvasDocumentCardLayerProps) {
   const layerEffectStyle = useCanvasLayerEffectStyle(layer);
   const shaderDisplaySize = usePreviewShaderDisplaySize(layer.width, layer.height);
-  const isInteracting = usePreviewInteraction();
-  const imageFilterShader = useMemo(
-    () => ({
-      ...cardState.imageFilter,
-      image: {
-        ...cardState.imageFilter.image,
-        source:
-          cardState.cardImage.source === "none"
-            ? cardState.imageFilter.image.source
-            : cardState.cardImage.source,
-        value: cardState.cardImage.value ?? cardState.imageFilter.image.value,
-      },
-    }),
-    [cardState.cardImage.source, cardState.cardImage.value, cardState.imageFilter],
-  );
   const cardStyle = useMemo(
     () =>
       buildCanvasDocumentCardStyle(cardState, isImageFilterMode, isImageMode, isPaperShaderMode),
@@ -155,7 +139,6 @@ export const CanvasDocumentCardLayer = memo(function CanvasDocumentCardLayer({
         }}
       >
         <CardBackgroundLayers
-          animateTransitions={!isInteracting}
           cardState={cardState}
           imageFilterShader={imageFilterShader}
           isImageFilterMode={isImageFilterMode}
@@ -200,8 +183,7 @@ export const CanvasDocumentCardLayer = memo(function CanvasDocumentCardLayer({
       {...layerExportAttrs("card")}
       className={cn(
         "pointer-events-none absolute max-h-none max-w-none overflow-hidden",
-        !isInteracting &&
-          "transition-[filter,background-color,border-radius] duration-[var(--motion-fast)]",
+        "transition-[filter,background-color,border-radius] duration-[var(--motion-fast)]",
       )}
       style={{
         ...cardStyle,
@@ -211,7 +193,6 @@ export const CanvasDocumentCardLayer = memo(function CanvasDocumentCardLayer({
     >
       <CanvasLayerTiltShell layer={layer}>
         <CardBackgroundLayers
-          animateTransitions={!isInteracting}
           cardState={cardState}
           imageFilterShader={imageFilterShader}
           isImageFilterMode={isImageFilterMode}
@@ -324,7 +305,7 @@ function CanvasQrLayerCanvas({
     () => getCanvasQrLayerLayout(layer.width, qrState, layer.height),
     [layer.height, layer.width, qrState],
   );
-  const { markup } = useCanvasQrMarkup(qrState);
+  const markup = useCanvasQrMarkup(qrState);
   const displayMarkup = useMemo(() => {
     if (!markup) {
       return "";
@@ -358,9 +339,7 @@ function CanvasQrLayerCanvas({
 export type CanvasLayerViewSharedProps = {
   activeQrLayerId?: string;
   activeSelectedLayerIdSet: Set<string>;
-  cardImageStyle: CSSProperties | undefined;
   cardState: CanvasCardState;
-  cardStyle: CSSProperties;
   contentValidation?: StaticQrValidationResult;
   imageFilterShader: CanvasCardPaperShaderState;
   isImageFilterMode: boolean;
@@ -375,18 +354,25 @@ type CanvasNestedLayerViewProps = CanvasLayerViewSharedProps & {
   layer: CanvasLayer;
 };
 
-type CanvasNestedLayerKindProps = CanvasNestedLayerViewProps & {
+type CanvasLayerSelectionProps = {
   isLayerSelected: boolean;
+  layer: CanvasLayer;
   layerEffectStyle: CSSProperties;
-  shaderDisplaySize: { displayHeight: number; displayWidth: number };
 };
+
+type CanvasQrLayerRenderProps = Pick<
+  CanvasLayerViewSharedProps,
+  "activeQrLayerId" | "contentValidation" | "qrOverlayScale" | "qrStateByLayerId" | "state"
+>;
+
+type CanvasNestedQrLayerViewProps = CanvasLayerSelectionProps & CanvasQrLayerRenderProps;
+
+type CanvasNestedGroupLayerViewProps = CanvasLayerSelectionProps & CanvasNestedLayerViewProps;
 
 function CanvasNestedGroupLayerView({
   activeQrLayerId,
   activeSelectedLayerIdSet,
-  cardImageStyle,
   cardState,
-  cardStyle,
   contentValidation,
   imageFilterShader,
   isImageFilterMode,
@@ -398,7 +384,7 @@ function CanvasNestedGroupLayerView({
   qrOverlayScale,
   qrStateByLayerId,
   state,
-}: CanvasNestedLayerKindProps) {
+}: CanvasNestedGroupLayerViewProps) {
   return (
     <div
       key={layer.id}
@@ -420,9 +406,7 @@ function CanvasNestedGroupLayerView({
             key={child.id}
             activeQrLayerId={activeQrLayerId}
             activeSelectedLayerIdSet={activeSelectedLayerIdSet}
-            cardImageStyle={cardImageStyle}
             cardState={cardState}
-            cardStyle={cardStyle}
             contentValidation={contentValidation}
             imageFilterShader={imageFilterShader}
             isImageFilterMode={isImageFilterMode}
@@ -447,7 +431,7 @@ function CanvasNestedQrLayerView({
   qrOverlayScale,
   qrStateByLayerId,
   state,
-}: CanvasNestedLayerKindProps) {
+}: CanvasNestedQrLayerViewProps) {
   const qrState = resolveQrLayerState(layer.id, qrStateByLayerId, state);
 
   return (
@@ -478,7 +462,7 @@ function CanvasNestedTextLayerView({
   isLayerSelected,
   layer,
   layerEffectStyle,
-}: CanvasNestedLayerKindProps) {
+}: CanvasLayerSelectionProps) {
   const isEmojiLayer = isCanvasEmojiLayer(layer);
 
   return (
@@ -509,7 +493,7 @@ function CanvasNestedImageLayerView({
   isLayerSelected,
   layer,
   layerEffectStyle,
-}: CanvasNestedLayerKindProps) {
+}: CanvasLayerSelectionProps) {
   return (
     <div
       key={layer.id}
@@ -532,7 +516,7 @@ function CanvasNestedShapeLayerView({
   isLayerSelected,
   layer,
   layerEffectStyle,
-}: CanvasNestedLayerKindProps) {
+}: CanvasLayerSelectionProps) {
   return (
     <div
       key={layer.id}
@@ -552,46 +536,10 @@ function CanvasNestedShapeLayerView({
   );
 }
 
-function CanvasNestedShaderLayerView({
-  isLayerSelected,
-  layer,
-  layerEffectStyle,
-  shaderDisplaySize,
-}: CanvasNestedLayerKindProps) {
-  const paperShader = layer.paperShader ?? createDefaultCanvasCardPaperShader();
-
-  return (
-    <div
-      key={layer.id}
-      data-slot="canvas-shader-layer"
-      data-layer-id={layer.id}
-      data-paper-shader-id={paperShader.shaderId}
-      data-selected={isLayerSelected ? "true" : "false"}
-      {...layerExportAttrs("shader")}
-      className="absolute max-h-none max-w-none overflow-hidden"
-      style={{
-        ...getLayerPlacementStyle(layer, true),
-        borderRadius: cornerRadiiToCss(resolveLayerCornerRadii(layer, 0)),
-        ...layerEffectStyle,
-      }}
-    >
-      <CanvasCardPaperShaderLayer
-        displayHeight={shaderDisplaySize.displayHeight}
-        displayWidth={shaderDisplaySize.displayWidth}
-        layoutHeight={layer.height}
-        layoutWidth={layer.width}
-        paperShader={paperShader}
-      />
-    </div>
-  );
-}
-
 function CanvasNestedLayerView({
   activeQrLayerId,
   activeSelectedLayerIdSet,
-  cardImageStyle,
   cardState,
-  cardStyle,
   contentValidation,
   imageFilterShader,
   isImageFilterMode,
@@ -604,54 +552,59 @@ function CanvasNestedLayerView({
 }: CanvasNestedLayerViewProps) {
   const isLayerSelected = activeSelectedLayerIdSet.has(layer.id);
   const layerEffectStyle = useCanvasLayerEffectStyle(layer);
-  const shaderDisplaySize = usePreviewShaderDisplaySize(layer.width, layer.height);
-  const kindProps: CanvasNestedLayerKindProps = {
-    activeQrLayerId,
-    activeSelectedLayerIdSet,
-    cardImageStyle,
-    cardState,
-    cardStyle,
-    contentValidation,
-    imageFilterShader,
-    isImageFilterMode,
-    isImageMode,
-    isPaperShaderMode,
+  const selectionProps: CanvasLayerSelectionProps = {
     isLayerSelected,
     layer,
     layerEffectStyle,
-    qrOverlayScale,
-    qrStateByLayerId,
-    shaderDisplaySize,
-    state,
   };
-
   if (layer.kind === "group") {
-    return <CanvasNestedGroupLayerView {...kindProps} />;
+    return (
+      <CanvasNestedGroupLayerView
+        {...selectionProps}
+        activeQrLayerId={activeQrLayerId}
+        activeSelectedLayerIdSet={activeSelectedLayerIdSet}
+        cardState={cardState}
+        contentValidation={contentValidation}
+        imageFilterShader={imageFilterShader}
+        isImageFilterMode={isImageFilterMode}
+        isImageMode={isImageMode}
+        isPaperShaderMode={isPaperShaderMode}
+        qrOverlayScale={qrOverlayScale}
+        qrStateByLayerId={qrStateByLayerId}
+        state={state}
+      />
+    );
   }
 
   if (layer.kind === "qr") {
-    return <CanvasNestedQrLayerView {...kindProps} />;
+    return (
+      <CanvasNestedQrLayerView
+        {...selectionProps}
+        activeQrLayerId={activeQrLayerId}
+        contentValidation={contentValidation}
+        qrOverlayScale={qrOverlayScale}
+        qrStateByLayerId={qrStateByLayerId}
+        state={state}
+      />
+    );
   }
 
   if (layer.kind === "text") {
-    return <CanvasNestedTextLayerView {...kindProps} />;
+    return <CanvasNestedTextLayerView {...selectionProps} />;
   }
 
   if (layer.kind === "image") {
-    return <CanvasNestedImageLayerView {...kindProps} />;
+    return <CanvasNestedImageLayerView {...selectionProps} />;
   }
 
   if (layer.kind === "shape") {
-    return <CanvasNestedShapeLayerView {...kindProps} />;
-  }
-
-  if (layer.kind === "shader") {
-    return <CanvasNestedShaderLayerView {...kindProps} />;
+    return <CanvasNestedShapeLayerView {...selectionProps} />;
   }
 
   return (
     <CanvasDocumentCardLayer
       cardState={cardState}
+      imageFilterShader={imageFilterShader}
       isImageFilterMode={isImageFilterMode}
       isImageMode={isImageMode}
       isPaperShaderMode={isPaperShaderMode}
@@ -694,8 +647,6 @@ function areCanvasLayerViewPropsEqual(previous: CanvasLayerViewProps, next: Canv
   const alwaysComparedKeys = [
     "layer",
     "cardState",
-    "cardStyle",
-    "cardImageStyle",
     "imageFilterShader",
     "isImageFilterMode",
     "isImageMode",
@@ -735,18 +686,39 @@ function areCanvasLayerViewPropsEqual(previous: CanvasLayerViewProps, next: Canv
   return true;
 }
 
-type CanvasLayerKindViewProps = CanvasLayerViewProps & {
-  isLayerSelected: boolean;
-  layerEffectStyle: CSSProperties;
-  shaderDisplaySize: { displayHeight: number; displayWidth: number };
-};
+type CanvasLayerInteractionHandlerProps = Pick<
+  CanvasLayerViewProps,
+  | "onActivateLayerSelection"
+  | "onEndLayerInteraction"
+  | "onOpenLayerContextMenu"
+  | "onSelectLayerFromClick"
+  | "onStartLayerInteraction"
+  | "onUpdateLayerInteraction"
+>;
+
+type CanvasLeafLayerViewProps = CanvasLayerSelectionProps & CanvasLayerInteractionHandlerProps;
+
+/** Group children re-read every shared prop, so the group view keeps the
+ * whole bag. */
+type CanvasGroupLayerViewProps = CanvasLayerSelectionProps & CanvasLayerViewProps;
+
+type CanvasQrLayerViewProps = CanvasLeafLayerViewProps & CanvasQrLayerRenderProps;
+
+type CanvasTextLayerViewProps = CanvasLeafLayerViewProps &
+  Pick<
+    CanvasLayerViewProps,
+    | "editingTextDraft"
+    | "editingTextLayerId"
+    | "onCommitEditingTextDraft"
+    | "onHandleTextEditorInput"
+    | "onRegisterTextEditor"
+    | "onStartTextEditing"
+  >;
 
 function CanvasGroupLayerView({
   activeQrLayerId,
   activeSelectedLayerIdSet,
-  cardImageStyle,
   cardState,
-  cardStyle,
   contentValidation,
   imageFilterShader,
   isImageFilterMode,
@@ -764,7 +736,7 @@ function CanvasGroupLayerView({
   qrOverlayScale,
   qrStateByLayerId,
   state,
-}: CanvasLayerKindViewProps) {
+}: CanvasGroupLayerViewProps) {
   return (
     <CanvasLayerInteractive
       key={layer.id}
@@ -796,9 +768,7 @@ function CanvasGroupLayerView({
               key={child.id}
               activeQrLayerId={activeQrLayerId}
               activeSelectedLayerIdSet={activeSelectedLayerIdSet}
-              cardImageStyle={cardImageStyle}
               cardState={cardState}
-              cardStyle={cardStyle}
               contentValidation={contentValidation}
               imageFilterShader={imageFilterShader}
               isImageFilterMode={isImageFilterMode}
@@ -830,7 +800,7 @@ function CanvasQrLayerView({
   qrOverlayScale,
   qrStateByLayerId,
   state,
-}: CanvasLayerKindViewProps) {
+}: CanvasQrLayerViewProps) {
   const qrState = resolveQrLayerState(layer.id, qrStateByLayerId, state);
 
   return (
@@ -885,7 +855,7 @@ function CanvasTextLayerView({
   onStartTextEditing,
   onUpdateLayerInteraction,
   onRegisterTextEditor,
-}: CanvasLayerKindViewProps) {
+}: CanvasTextLayerViewProps) {
   const isEditing = editingTextLayerId === layer.id;
 
   return (
@@ -963,7 +933,7 @@ function CanvasImageLayerView({
   onSelectLayerFromClick,
   onStartLayerInteraction,
   onUpdateLayerInteraction,
-}: CanvasLayerKindViewProps) {
+}: CanvasLeafLayerViewProps) {
   return (
     <CanvasLayerInteractive
       key={layer.id}
@@ -1007,7 +977,7 @@ function CanvasShapeLayerView({
   onSelectLayerFromClick,
   onStartLayerInteraction,
   onUpdateLayerInteraction,
-}: CanvasLayerKindViewProps) {
+}: CanvasLeafLayerViewProps) {
   return (
     <CanvasLayerInteractive
       key={layer.id}
@@ -1041,66 +1011,10 @@ function CanvasShapeLayerView({
   );
 }
 
-function CanvasShaderLayerView({
-  isLayerSelected,
-  layer,
-  layerEffectStyle,
-  onActivateLayerSelection,
-  onEndLayerInteraction,
-  onOpenLayerContextMenu,
-  onSelectLayerFromClick,
-  onStartLayerInteraction,
-  onUpdateLayerInteraction,
-  shaderDisplaySize,
-}: CanvasLayerKindViewProps) {
-  const paperShader = layer.paperShader ?? createDefaultCanvasCardPaperShader();
-
-  return (
-    <CanvasLayerInteractive
-      key={layer.id}
-      layer={layer}
-      isSelected={isLayerSelected}
-      onActivate={(additive) => onActivateLayerSelection(layer, { additive })}
-      data-slot="canvas-shader-layer"
-      data-layer-id={layer.id}
-      data-paper-shader-id={paperShader.shaderId}
-      data-selected={isLayerSelected ? "true" : "false"}
-      {...layerExportAttrs("shader")}
-      className={cn(
-        "absolute max-h-none max-w-none touch-none overflow-hidden",
-        LAYER_MOVE_CURSOR_CLASS,
-      )}
-      style={{
-        ...getLayerPlacementStyle(layer),
-        borderRadius: cornerRadiiToCss(resolveLayerCornerRadii(layer, 0)),
-        ...layerEffectStyle,
-      }}
-      onClick={(event) => onSelectLayerFromClick(event, layer)}
-      onPointerDown={(event) => onStartLayerInteraction(event, layer, "move")}
-      onPointerMove={onUpdateLayerInteraction}
-      onPointerUp={onEndLayerInteraction}
-      onPointerCancel={onEndLayerInteraction}
-      onContextMenu={(event) => onOpenLayerContextMenu(event, [layer.id])}
-    >
-      <CanvasLayerTiltShell layer={layer}>
-        <CanvasCardPaperShaderLayer
-          displayHeight={shaderDisplaySize.displayHeight}
-          displayWidth={shaderDisplaySize.displayWidth}
-          layoutHeight={layer.height}
-          layoutWidth={layer.width}
-          paperShader={paperShader}
-        />
-      </CanvasLayerTiltShell>
-    </CanvasLayerInteractive>
-  );
-}
-
 export const CanvasLayerView = memo(function CanvasLayerView({
   activeQrLayerId,
   activeSelectedLayerIdSet,
-  cardImageStyle,
   cardState,
-  cardStyle,
   contentValidation,
   editingTextDraft,
   editingTextLayerId,
@@ -1125,66 +1039,87 @@ export const CanvasLayerView = memo(function CanvasLayerView({
 }: CanvasLayerViewProps) {
   const isLayerSelected = activeSelectedLayerIdSet.has(layer.id);
   const layerEffectStyle = useCanvasLayerEffectStyle(layer);
-  const shaderDisplaySize = usePreviewShaderDisplaySize(layer.width, layer.height);
-  const kindProps: CanvasLayerKindViewProps = {
-    activeQrLayerId,
-    activeSelectedLayerIdSet,
-    cardImageStyle,
-    cardState,
-    cardStyle,
-    contentValidation,
-    editingTextDraft,
-    editingTextLayerId,
-    imageFilterShader,
-    isImageFilterMode,
-    isImageMode,
-    isPaperShaderMode,
+  const selectionProps: CanvasLayerSelectionProps = {
     isLayerSelected,
     layer,
     layerEffectStyle,
+  };
+  const interactionProps: CanvasLayerInteractionHandlerProps = {
     onActivateLayerSelection,
-    onCommitEditingTextDraft,
     onEndLayerInteraction,
-    onHandleTextEditorInput,
     onOpenLayerContextMenu,
     onSelectLayerFromClick,
     onStartLayerInteraction,
-    onStartTextEditing,
     onUpdateLayerInteraction,
-    qrOverlayScale,
-    qrStateByLayerId,
-    shaderDisplaySize,
-    state,
-    onRegisterTextEditor,
   };
 
   if (layer.kind === "group") {
-    return <CanvasGroupLayerView {...kindProps} />;
+    return (
+      <CanvasGroupLayerView
+        {...selectionProps}
+        {...interactionProps}
+        activeQrLayerId={activeQrLayerId}
+        activeSelectedLayerIdSet={activeSelectedLayerIdSet}
+        cardState={cardState}
+        contentValidation={contentValidation}
+        editingTextDraft={editingTextDraft}
+        editingTextLayerId={editingTextLayerId}
+        imageFilterShader={imageFilterShader}
+        isImageFilterMode={isImageFilterMode}
+        isImageMode={isImageMode}
+        isPaperShaderMode={isPaperShaderMode}
+        onCommitEditingTextDraft={onCommitEditingTextDraft}
+        onHandleTextEditorInput={onHandleTextEditorInput}
+        onRegisterTextEditor={onRegisterTextEditor}
+        onStartTextEditing={onStartTextEditing}
+        qrOverlayScale={qrOverlayScale}
+        qrStateByLayerId={qrStateByLayerId}
+        state={state}
+      />
+    );
   }
 
   if (layer.kind === "qr") {
-    return <CanvasQrLayerView {...kindProps} />;
+    return (
+      <CanvasQrLayerView
+        {...selectionProps}
+        {...interactionProps}
+        activeQrLayerId={activeQrLayerId}
+        contentValidation={contentValidation}
+        qrOverlayScale={qrOverlayScale}
+        qrStateByLayerId={qrStateByLayerId}
+        state={state}
+      />
+    );
   }
 
   if (layer.kind === "text") {
-    return <CanvasTextLayerView {...kindProps} />;
+    return (
+      <CanvasTextLayerView
+        {...selectionProps}
+        {...interactionProps}
+        editingTextDraft={editingTextDraft}
+        editingTextLayerId={editingTextLayerId}
+        onCommitEditingTextDraft={onCommitEditingTextDraft}
+        onHandleTextEditorInput={onHandleTextEditorInput}
+        onRegisterTextEditor={onRegisterTextEditor}
+        onStartTextEditing={onStartTextEditing}
+      />
+    );
   }
 
   if (layer.kind === "image") {
-    return <CanvasImageLayerView {...kindProps} />;
+    return <CanvasImageLayerView {...selectionProps} {...interactionProps} />;
   }
 
   if (layer.kind === "shape") {
-    return <CanvasShapeLayerView {...kindProps} />;
-  }
-
-  if (layer.kind === "shader") {
-    return <CanvasShaderLayerView {...kindProps} />;
+    return <CanvasShapeLayerView {...selectionProps} {...interactionProps} />;
   }
 
   return (
     <CanvasDocumentCardLayer
       cardState={cardState}
+      imageFilterShader={imageFilterShader}
       isImageFilterMode={isImageFilterMode}
       isImageMode={isImageMode}
       isPaperShaderMode={isPaperShaderMode}

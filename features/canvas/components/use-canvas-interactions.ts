@@ -12,7 +12,7 @@ import {
   type WheelEvent,
 } from "react";
 
-import type { CanvasBoardPane, CanvasBoardTool } from "@/features/canvas/components/CanvasBoard";
+import type { CanvasBoardPane } from "@/features/canvas/components/CanvasBoard";
 import { isTouchLikePointer } from "@/features/canvas/components/canvas-interaction-utils";
 import { WORKSPACE_MOBILE_QUERY } from "@/lib/hooks/use-media-query";
 import {
@@ -21,7 +21,6 @@ import {
   DESKTOP_CANVAS_FIT_PADDING,
   MOBILE_ARTBOARD_VIEW_INSETS,
 } from "@/features/canvas/model/canvas-fit";
-import { previewDrawerResize } from "@/features/canvas/preview/preview-drawer-resize";
 import {
   ENTRANCE_COMPLETE_EVENT,
   ENTRANCE_PRE_REVEAL_EVENT,
@@ -60,11 +59,8 @@ function getTouchDistance(touches: React.TouchList) {
 }
 
 type UseCanvasInteractionsArgs = {
-  activeCanvasTool?: CanvasBoardTool | null;
   fitCanvasToViewport?: boolean;
   layerEditingEnabled?: boolean;
-  onAddTextLayerAt?: (point: { x: number; y: number }) => void;
-  onCanvasToolChange?: (tool: CanvasBoardTool | null) => void;
   onLayerSelect?: (layerId: string | null, options?: { additive?: boolean }) => void;
   onBoardPan: (boardId: string, nextPan: { x: number; y: number }) => void;
   onBoardSelect: (boardId: string) => void;
@@ -72,15 +68,11 @@ type UseCanvasInteractionsArgs = {
   board: CanvasBoardPane;
   boardPan: { x: number; y: number };
   boardZoom: number;
-  toolbarVariant?: "default" | "zoom";
 };
 
 export function useCanvasInteractions({
-  activeCanvasTool,
   fitCanvasToViewport = false,
   layerEditingEnabled = true,
-  onAddTextLayerAt,
-  onCanvasToolChange,
   onLayerSelect,
   onBoardPan,
   onBoardSelect,
@@ -88,13 +80,11 @@ export function useCanvasInteractions({
   board,
   boardPan,
   boardZoom,
-  toolbarVariant = "default",
 }: UseCanvasInteractionsArgs) {
-  const hideLayerSelectionChrome = activeCanvasTool === "pan" || !layerEditingEnabled;
+  const hideLayerSelectionChrome = !layerEditingEnabled;
   const canvasRef = useRef<HTMLDivElement | null>(null);
   const [isPanning, setIsPanning] = useState(false);
   const onBoardSelectRef = useRef(onBoardSelect);
-  const panOverlayRef = useRef<HTMLDivElement>(null);
   const panInteractionRef = useRef<{
     pointerId: number;
     startClientX: number;
@@ -115,7 +105,7 @@ export function useCanvasInteractions({
   const [viewFitScale, setViewFitScale] = useState(1);
   const effectiveZoom = boardZoom;
   const effectivePan = boardPan;
-  const isFreeEditWorkspace = toolbarVariant === "zoom" && layerEditingEnabled;
+  const isFreeEditWorkspace = layerEditingEnabled;
   const shouldAutoFitViewport = fitCanvasToViewport;
   const canvasAppearance: "workspace" | "neutral" = isFreeEditWorkspace ? "workspace" : "neutral";
   const hasSeededFitZoomRef = useRef(false);
@@ -183,11 +173,6 @@ export function useCanvasInteractions({
 
     const observer = new ResizeObserver(updateFitScale);
     observer.observe(canvas);
-
-    const unsubscribeDrawerResizeEnded = previewDrawerResize.subscribeOnEnded(() => {
-      updateFitScaleRef.current?.();
-    });
-
     const handleEntrancePreReveal = () => {
       updateFitScaleRef.current?.();
     };
@@ -200,8 +185,6 @@ export function useCanvasInteractions({
     window.addEventListener(ENTRANCE_COMPLETE_EVENT, handleEntranceComplete);
 
     return () => {
-      observer.disconnect();
-      unsubscribeDrawerResizeEnded();
       window.removeEventListener(ENTRANCE_PRE_REVEAL_EVENT, handleEntrancePreReveal);
       window.removeEventListener(ENTRANCE_COMPLETE_EVENT, handleEntranceComplete);
       updateFitScaleRef.current = null;
@@ -240,19 +223,6 @@ export function useCanvasInteractions({
     onBoardSelectRef.current(board.id);
   }, [board.id]);
 
-  const getPlacementPoint = useCallback(
-    (event: ReactMouseEvent<HTMLDivElement> | ReactPointerEvent<HTMLDivElement>) => {
-      const rect = event.currentTarget.getBoundingClientRect();
-      const sceneScale = effectiveZoom * viewFitScale;
-
-      return {
-        x: (event.clientX - rect.left - rect.width / 2 - effectivePan.x) / sceneScale,
-        y: (event.clientY - rect.top - rect.height / 2 - effectivePan.y) / sceneScale,
-      };
-    },
-    [effectivePan.x, effectivePan.y, effectiveZoom, viewFitScale],
-  );
-
   const isPlacementTarget = useCallback(
     (event: ReactMouseEvent<HTMLDivElement> | ReactPointerEvent<HTMLDivElement>) =>
       !(
@@ -271,28 +241,10 @@ export function useCanvasInteractions({
         return;
       }
 
-      if (activeCanvasTool === "text" && onAddTextLayerAt && isPlacementTarget(event)) {
-        event.preventDefault();
-        event.stopPropagation();
-        onBoardSelectRef.current(board.id);
-        onAddTextLayerAt(getPlacementPoint(event));
-        onCanvasToolChange?.(null);
-        return;
-      }
-
       handleSelect();
     },
-    [
-      activeCanvasTool,
-      getPlacementPoint,
-      handleSelect,
-      isPlacementTarget,
-      onAddTextLayerAt,
-      onCanvasToolChange,
-      board.id,
-    ],
+    [handleSelect],
   );
-
   const handleCanvasKeyDown = useCallback(
     (event: KeyboardEvent<HTMLDivElement>) => {
       if (event.key !== "Enter" && event.key !== " ") {
@@ -304,59 +256,6 @@ export function useCanvasInteractions({
     [handleCanvasClick],
   );
 
-  const shouldIgnorePanToolTarget = useCallback(
-    (event: ReactPointerEvent<HTMLDivElement>) =>
-      event.target instanceof Element &&
-      Boolean(
-        event.target.closest(
-          "button, input, textarea, select, [data-slot='canvas-layer-floating-toolbar'], [data-slot='canvas-layer-context-menu']",
-        ),
-      ),
-    [],
-  );
-
-  const beginBoardPan = useCallback(
-    (event: ReactPointerEvent<HTMLDivElement>) => {
-      event.preventDefault();
-      event.stopPropagation();
-      const captureTarget = panOverlayRef.current ?? event.currentTarget;
-      captureTarget.setPointerCapture(event.pointerId);
-      onBoardSelectRef.current(board.id);
-      panInteractionRef.current = {
-        pointerId: event.pointerId,
-        startClientX: event.clientX,
-        startClientY: event.clientY,
-        startPanX: boardPan.x,
-        startPanY: boardPan.y,
-      };
-      lockCanvasPanCursor();
-      setIsPanning(true);
-    },
-    [board.id, boardPan.x, boardPan.y],
-  );
-
-  const handleBoardPointerDownCapture = useCallback(
-    (event: ReactPointerEvent<HTMLDivElement>) => {
-      if (activeCanvasTool !== "pan" || event.button !== 0 || isTouchLikePointer(event)) {
-        return;
-      }
-
-      if (shouldIgnorePanToolTarget(event)) {
-        return;
-      }
-
-      if (
-        event.target instanceof Element &&
-        event.target.closest("[data-slot='canvas-pan-overlay']")
-      ) {
-        return;
-      }
-
-      beginBoardPan(event);
-    },
-    [activeCanvasTool, beginBoardPan, shouldIgnorePanToolTarget],
-  );
-
   const handleBoardPointerDown = useCallback(
     (event: ReactPointerEvent<HTMLDivElement>) => {
       if (event.pointerType === "mouse" && event.button !== 0) {
@@ -364,12 +263,6 @@ export function useCanvasInteractions({
       }
 
       if (!isPlacementTarget(event)) {
-        return;
-      }
-
-      if (activeCanvasTool === "text" && onAddTextLayerAt) {
-        event.preventDefault();
-        event.stopPropagation();
         return;
       }
 
@@ -385,20 +278,10 @@ export function useCanvasInteractions({
         return;
       }
 
-      if (activeCanvasTool !== "pan") {
-        onBoardSelectRef.current(board.id);
-        onLayerSelect?.(null);
-      }
+      onBoardSelectRef.current(board.id);
+      onLayerSelect?.(null);
     },
-    [
-      activeCanvasTool,
-      isPlacementTarget,
-      onAddTextLayerAt,
-      onLayerSelect,
-      board.id,
-      boardPan.x,
-      boardPan.y,
-    ],
+    [isPlacementTarget, onLayerSelect, board.id, boardPan.x, boardPan.y],
   );
 
   const handleBoardPointerMove = useCallback(
@@ -418,8 +301,7 @@ export function useCanvasInteractions({
         pendingTouchPanRef.current = null;
         event.preventDefault();
         event.stopPropagation();
-        const captureTarget = panOverlayRef.current ?? event.currentTarget;
-        captureTarget.setPointerCapture(event.pointerId);
+        event.currentTarget.setPointerCapture(event.pointerId);
         onBoardSelectRef.current(board.id);
         panInteractionRef.current = pending;
         didTouchPanRef.current = true;
@@ -541,19 +423,16 @@ export function useCanvasInteractions({
   }, []);
 
   return {
-    beginBoardPan,
     effectivePan,
     effectiveZoom,
     hideLayerSelectionChrome,
     isFreeEditWorkspace,
     isPanning,
-    panOverlayRef,
     canvasAppearance,
     canvasRef,
     viewFitScale,
     handleSelect,
     handleBoardPointerDown,
-    handleBoardPointerDownCapture,
     handleBoardPointerEnd,
     handleBoardPointerMove,
     handleCanvasClick,

@@ -8,7 +8,6 @@
   --color-hover: var(--hover);
   --color-active: var(--active);
   --color-selected: var(--selected);
-  --color-focus-ring: var(--focus-ring);
   /* shadcn token layer. `components/ui/**` is shadcn-derived and styles itself
      with these utilities; Tailwind only emits a utility for a theme key that
      exists in `@theme`, so dropping these mappings silently unstyled every
@@ -31,15 +30,8 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
   --overlay: var(--overlay);
-  --color-surface-1: var(--surface-1);
-  --color-surface-2: var(--surface-2);
   --color-surface-3: var(--surface-3);
-  --shadow-surface-1: var(--shadow-1);
-  --shadow-surface-2: var(--shadow-2);
   --shadow-surface-3: var(--shadow-3);
-  --shadow-3: var(--shadow-3);
-  --shadow-2: var(--shadow-2);
-  --shadow-1: var(--shadow-1);
   @keyframes sf-reveal-start {
     from {
       --sf-start: 1;
@@ -83,11 +75,8 @@
   --input: oklch(0.96 0 0);
   --ring: oklch(0.65 0 0);
   --surface-1: #fafafa;
-  --surface-2: #fcfcfc;
   --surface-3: #ffffff;
   --shadow-color: rgb(0 0 0 / 0.06);
-  --shadow-1: 0 0 0 1px var(--shadow-color);
-  --shadow-2: 0 0 0 1px var(--shadow-color), 0 1px 1px -0.5px var(--shadow-color);
   --shadow-3:
     0 0 0 1px var(--shadow-color), 0 1px 1px -0.5px var(--shadow-color),
     0 3px 3px -1.5px var(--shadow-color);
@@ -144,16 +133,11 @@
   --input: oklch(0.28 0 0 / 0.95);
   --ring: oklch(0.72 0 0);
   --surface-1: #171717;
-  --surface-2: #1e1e1e;
   --surface-3: #252525;
   --qr-hi-base: rgba(255, 255, 255, 0.01);
   --qr-hi-mid: rgba(255, 255, 255, 0.02);
   --qr-ring-base: rgba(255, 255, 255, 0.02);
   --qr-drop: rgba(0, 0, 0, 0.18);
-  --shadow-1: inset 0 0 0 1px var(--qr-ring-base);
-  --shadow-2:
-    inset 0 1px 0 0 var(--qr-hi-base), inset 0 0 0 1px var(--qr-ring-base),
-    0 1px 1px -0.5px var(--qr-drop);
   --shadow-3:
     inset 0 1px 0 0 var(--qr-hi-mid), inset 0 0 0 1px var(--qr-ring-base),
     0 0 0 1px rgba(0, 0, 0, 0.12), 0 1px 1px -0.5px var(--qr-drop), 0 3px 3px -1.5px var(--qr-drop);

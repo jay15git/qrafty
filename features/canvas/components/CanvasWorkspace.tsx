@@ -156,9 +156,7 @@ export function CanvasWorkspace({
   const layerViewSharedProps: CanvasLayerViewSharedProps = {
     activeQrLayerId,
     activeSelectedLayerIdSet,
-    cardImageStyle,
     cardState,
-    cardStyle,
     contentValidation,
     imageFilterShader,
     isImageFilterMode,
@@ -209,6 +207,7 @@ export function CanvasWorkspace({
     editingTextLayerId,
     isImageFilterMode,
     isImageMode,
+    imageFilterShader,
     isLayerInteracting,
     isPaperShaderMode,
     marquee,

@@ -1,4 +1,5 @@
 import type { QrSvgElementLike } from "../svg-element";
+import { getQrSvgNumCells } from "@qrafty/qr-internal/core";
 
 import type { CSSProperties } from "react";
 import {
@@ -20,12 +21,9 @@ import {
 } from "@/features/qr/model/state";
 import { getBackgroundShapeSkewTransform } from "@/features/canvas/rendering/layer-transform";
 import { type QrSvgExtensionOptions } from "./types";
-import {
-  coerceNonNegativeSvgNumber,
-  coerceSvgNumber,
-  formatSvgNumber,
-  getNumericAttribute,
-} from "./svg-dom-utils";
+import { coerceNonNegativeSvgNumber, coerceSvgNumber, formatSvgNumber } from "./svg-dom-utils";
+
+export { getQrSvgNumCells };
 
 export function coerceQrMarginCells(margin: number) {
   return Math.min(80, Math.max(0, Math.floor(Number.isFinite(margin) ? margin : 12)));
@@ -346,38 +344,4 @@ export function getBackgroundShapeTransform(
   const centerY = viewBoxY + shape.viewBox.height / 2;
 
   return getBackgroundShapeSkewTransform(baseTransform, shapeOptions, centerX, centerY);
-}
-
-export function getQrSvgNumCells(svg: QrSvgElementLike) {
-  const viewBox = svg.getAttribute("viewBox");
-
-  if (viewBox) {
-    const parts = viewBox
-      .trim()
-      .split(/[\s,]+/)
-      .map((value) => Number.parseFloat(value));
-
-    const width = parts[2];
-    const height = parts[3];
-
-    if (
-      width !== undefined &&
-      height !== undefined &&
-      Number.isFinite(width) &&
-      Number.isFinite(height) &&
-      width > 0 &&
-      height > 0
-    ) {
-      return Math.min(width, height);
-    }
-  }
-
-  const width = getNumericAttribute(svg, "width");
-  const height = getNumericAttribute(svg, "height");
-
-  if (width !== null && height !== null && width > 0 && height > 0) {
-    return Math.min(width, height);
-  }
-
-  return null;
 }
