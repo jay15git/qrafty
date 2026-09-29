@@ -146,7 +146,7 @@ export function cloneEmitNode(node: EmitNode, deep = false): EmitNode {
   return clone;
 }
 
-export function getEmitAttrNormalized(node: EmitNode, name: string) {
+function getEmitAttrNormalized(node: EmitNode, name: string) {
   const value = getEmitAttr(node, name);
 
   if (value === null) {
@@ -190,7 +190,7 @@ export function serializeEmitNode(node: EmitNode, mode: "jsx" | "xml"): string {
   return `<${node.tagName}${attrs}>${node.textContent ?? ""}${children}</${node.tagName}>`;
 }
 
-export function serializeEmitNodes(nodes: EmitNode[], mode: "jsx" | "xml"): string {
+function serializeEmitNodes(nodes: EmitNode[], mode: "jsx" | "xml"): string {
   return nodes.map((node) => serializeEmitNode(node, mode)).join("");
 }
 

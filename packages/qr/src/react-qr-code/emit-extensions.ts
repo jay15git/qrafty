@@ -32,7 +32,6 @@ import {
   createEmitNode,
   getEmitAttr,
   getEmitAttrNS,
-  getEmitAttrNormalized,
   insertEmitBefore,
   removeEmitAttr,
   removeEmitNode,

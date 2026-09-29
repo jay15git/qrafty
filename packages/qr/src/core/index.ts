@@ -1,11 +1,6 @@
 export { getQrModuleGrid, getQrModuleMetrics, type QrModuleGrid } from "./qr-matrix";
 export type { QrSvgDocumentLike, QrSvgElementLike } from "./svg-element-like";
-export {
-  getFinderCornerRegions,
-  getQrSvgNumCells,
-  type FinderCornerKind,
-  type FinderCornerRegion,
-} from "./finder-gradient-overlays";
+export { getFinderCornerRegions, getQrSvgNumCells } from "./finder-gradient-overlays";
 export {
   getActiveDotsPalette,
   getDotMatrixAnchor,
@@ -17,11 +12,8 @@ export {
   hashDotPaletteString,
   balanceDotPaletteAssignments,
   resolveDotMatrixAnchorCoordinates,
-  type DotMatrixAnchor,
-  type DotMatrixCoordinates,
   type DotMatrixMetrics,
   type DotMatrixShapeLike,
-  type DotPaletteGroupAssignment,
   type DotPaletteShapeGroup,
 } from "./dot-palette";
 export {

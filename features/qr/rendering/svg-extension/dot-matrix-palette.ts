@@ -1,7 +1,6 @@
 import type {
   DotMatrixMetrics,
   DotPaletteShapeGroup,
-  DotPaletteGroupAssignment,
   QrSvgDocumentLike,
   QrSvgElementLike,
 } from "@qrafty/qr-internal/core";

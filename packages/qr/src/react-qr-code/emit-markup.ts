@@ -1,11 +1,6 @@
 import type { CSSProperties } from "react";
 
-import {
-  createEmitNode,
-  serializeEmitNode,
-  serializeEmitNodes,
-  type EmitNode,
-} from "../core/emit-node";
+import { createEmitNode, serializeEmitNode, type EmitNode } from "../core/emit-node";
 import {
   CIRCUIT_BOARD_PAD_RADIUS,
   DEFAULT_LEVEL,
@@ -199,7 +194,7 @@ const emitBackground = (
   ];
 };
 
-export type FinderPatternCoordinate = { x: number; y: number };
+type FinderPatternCoordinate = { x: number; y: number };
 
 const OUTER_SHAPE_STYLES: FinderPatternOuterStyle[] = [
   "rounded-sm",
@@ -793,5 +788,4 @@ export const emitReactQrCodeMarkup = (
   return serializeEmitNode(svg, "jsx");
 };
 
-export type { EmitNode };
 export type { QrSvgEmitExtensions } from "./emit-extensions";
