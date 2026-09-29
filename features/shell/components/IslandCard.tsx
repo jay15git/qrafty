@@ -93,7 +93,7 @@ export function IslandCard({ items, trailing }: IslandCardProps) {
             layout
             transition={{ duration: 0.27, ease: [0.25, 1, 0.5, 1] }}
             data-slot="island-pill"
-            className="ds-resize t-resize inline-flex items-center justify-center gap-1 rounded-full bg-[var(--chrome-bg,rgb(22,22,22))] p-1"
+            className="ds-resize inline-flex items-center justify-center gap-1 rounded-full bg-[var(--chrome-bg,rgb(22,22,22))] p-1"
           >
             {run.map(({ item, index }) => {
               const button = renderItemButton(item, index);
@@ -122,7 +122,7 @@ export function IslandCard({ items, trailing }: IslandCardProps) {
             layout
             transition={{ duration: 0.27, ease: [0.25, 1, 0.5, 1] }}
             data-slot="island-pill"
-            className="ds-resize t-resize inline-flex items-center justify-center gap-1 rounded-full bg-[var(--chrome-bg,rgb(22,22,22))] p-1"
+            className="ds-resize inline-flex items-center justify-center gap-1 rounded-full bg-[var(--chrome-bg,rgb(22,22,22))] p-1"
           >
             {trailing}
           </m.div>

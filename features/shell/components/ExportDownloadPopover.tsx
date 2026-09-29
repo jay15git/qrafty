@@ -87,7 +87,7 @@ export function ExportDownloadPopover({
     <Popover modal={false} open={open} onOpenChange={setOpen}>
       <div
         data-slot="island-pill"
-        className="ds-resize t-resize inline-flex items-center rounded-full bg-[var(--chrome-bg)] p-1"
+        className="ds-resize inline-flex items-center rounded-full bg-[var(--chrome-bg)] p-1"
       >
         <PopoverTrigger asChild>
           <DownloadButton data-state={open ? "open" : "closed"} />
