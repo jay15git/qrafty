@@ -18,17 +18,6 @@ export function clampQraftyGradientCenter(center: QraftyGradientCenter): QraftyG
   };
 }
 
-export function qraftyRadialCenterInUserSpace(
-  center: QraftyGradientCenter,
-  bounds: { x: number; y: number; width: number; height: number },
-) {
-  return {
-    cx: bounds.x + center.x * bounds.width,
-    cy: bounds.y + center.y * bounds.height,
-    r: Math.max(bounds.width, bounds.height) / 2,
-  };
-}
-
 export function qraftyRadialCenterAsPercent(center: QraftyGradientCenter) {
   return {
     cx: `${center.x * 100}%`,

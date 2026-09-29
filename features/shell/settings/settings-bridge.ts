@@ -245,7 +245,7 @@ export function applyPatternModuleFill(
   };
 }
 
-export function applyPatternModuleImageUrl(
+function applyPatternModuleImageUrl(
   imageUrl: string,
   sourceMode: PatternSettings["moduleFillImageSourceMode"],
 ): Partial<PatternSettings> {

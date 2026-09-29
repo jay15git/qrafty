@@ -210,7 +210,7 @@ const OUTER_SHAPE_STYLES: FinderPatternOuterStyle[] = [
   "pinched-square",
 ];
 
-export const buildOuterShapePathOps = (
+const buildOuterShapePathOps = (
   style: FinderPatternOuterStyle,
   coordinates: FinderPatternCoordinate[],
 ) => {
@@ -793,6 +793,5 @@ export const emitReactQrCodeMarkup = (
   return serializeEmitNode(svg, "jsx");
 };
 
-export { serializeEmitNodes };
 export type { EmitNode };
 export type { QrSvgEmitExtensions } from "./emit-extensions";
