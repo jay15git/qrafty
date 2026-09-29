@@ -7,16 +7,15 @@ import {
   readCachedQrEncodeMarkup,
   writeCachedQrEncodeMarkup,
 } from "@/features/qr/rendering/qr-encode-cache";
+import { stripXmlDeclaration } from "@/features/qr/rendering/qr-svg-markup";
+import { buildQrEmitExtensions } from "@/features/qr/rendering/emit-extensions";
 import {
-  applyQraftyQrSvgMarkupExtensions,
-  stripXmlDeclaration,
-} from "@/features/qr/rendering/qr-svg-markup";
-import {
+  alignReactQrSvgToModuleGrid,
   createCanvasQrArtworkState,
   sanitizeCanvasQrArtworkMarkup,
 } from "@/features/canvas/rendering/qr-artwork";
 
-function renderReactQrBaseMarkupCached(state: QraftyState) {
+function renderReactQrMarkupCached(state: QraftyState) {
   const cacheKey = getQrEncodeCacheKey(state);
   const cached = readCachedQrEncodeMarkup(cacheKey);
 
@@ -24,7 +23,12 @@ function renderReactQrBaseMarkupCached(state: QraftyState) {
     return cached;
   }
 
-  const markup = stripXmlDeclaration(emitReactQrCodeMarkup(toReactQrCodeProps(state)));
+  const extensions = buildQrEmitExtensions(state);
+  const markup = alignReactQrSvgToModuleGrid(
+    stripXmlDeclaration(emitReactQrCodeMarkup(toReactQrCodeProps(state), extensions)),
+    extensions?.width,
+    extensions?.height,
+  );
   writeCachedQrEncodeMarkup(cacheKey, markup);
 
   return markup;
@@ -32,7 +36,7 @@ function renderReactQrBaseMarkupCached(state: QraftyState) {
 
 export function buildCanvasQraftyMarkup(state: QraftyState) {
   const artworkState = createCanvasQrArtworkState(state);
-  const baseMarkup = renderReactQrBaseMarkupCached(artworkState);
+  const markup = renderReactQrMarkupCached(artworkState);
 
-  return sanitizeCanvasQrArtworkMarkup(applyQraftyQrSvgMarkupExtensions(baseMarkup, artworkState));
+  return sanitizeCanvasQrArtworkMarkup(markup);
 }

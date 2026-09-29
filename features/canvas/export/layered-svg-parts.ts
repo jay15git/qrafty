@@ -30,7 +30,7 @@ import {
   getCanvasQrBackgroundBounds,
   getCanvasQrBackgroundSvgMarkup,
 } from "@/features/canvas/components/canvas-qr-background";
-import { getCanvasQrLayerLayout } from "@/features/qr/rendering/svg-extension";
+import { getCanvasQrLayerLayout } from "@/features/qr/rendering/background-shape-layout";
 
 import {
   collectIllustrationAssetPaths,

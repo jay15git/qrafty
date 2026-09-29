@@ -8,7 +8,7 @@ import {
   legacyShadowToShadowLayer,
   shadowFromBackgroundShapeOptions,
 } from "@/features/canvas/model/effects";
-import { getQrRenderedDimensions } from "@/features/qr/rendering/svg-extension";
+import { getQrRenderedDimensions } from "@/features/qr/rendering/background-shape-layout";
 import { clampQrSize, type QraftyState } from "@/features/qr/model/state";
 import { normalizeCanvasLayer } from "@/features/canvas/model/layers/normalize";
 import { patchCanvasLayer } from "@/features/canvas/model/layers/patch";

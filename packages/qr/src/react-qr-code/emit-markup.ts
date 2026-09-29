@@ -1,6 +1,12 @@
 import type { CSSProperties } from "react";
 
 import {
+  createEmitNode,
+  serializeEmitNode,
+  serializeEmitNodes,
+  type EmitNode,
+} from "../core/emit-node";
+import {
   CIRCUIT_BOARD_PAD_RADIUS,
   DEFAULT_LEVEL,
   DEFAULT_MINVERSION,
@@ -72,6 +78,7 @@ import {
   pinchedSquare,
   star,
 } from "../../vendor/react-qr-code/src/utils/svg";
+import { applyQrEmitExtensions, type QrSvgEmitExtensions } from "./emit-extensions";
 
 // Matches the useId() output React produces for the standalone SSR tree this
 // emitter replaces (`renderToStaticMarkup(<ReactQRCode/>)` → `_R_0_`).
@@ -83,13 +90,7 @@ const SVG_ATTR_NAMES: Record<string, string> = {
   stopColor: "stop-color",
 };
 
-const escapeAttr = (value: string) =>
-  value
-    .replace(/&/g, "&amp;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#x27;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
+type EmitAttrValue = string | number | boolean | CSSProperties | undefined;
 
 const camelToKebab = (name: string) => name.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`);
 
@@ -98,73 +99,74 @@ const styleToAttr = (style: CSSProperties) =>
     .map(([key, value]) => `${camelToKebab(key)}:${value}`)
     .join(";");
 
-type Attr = [string, string | number | boolean | CSSProperties | undefined];
+type Attr = [string, EmitAttrValue];
 
-const renderAttrs = (attrs: Attr[]) =>
-  attrs
-    .flatMap(([name, value]) => {
-      if (value === undefined || value === null || value === false) {
-        return [];
-      }
-      if (name === "style" && typeof value === "object") {
-        return [`style="${escapeAttr(styleToAttr(value))}"`];
-      }
-      const attrName = SVG_ATTR_NAMES[name] ?? name;
-      return [`${attrName}="${escapeAttr(String(value))}"`];
-    })
-    .join(" ");
-
-const el = (tag: string, attrs: Attr[], children = "") => {
-  const rendered = renderAttrs(attrs);
-  return `<${tag}${rendered ? ` ${rendered}` : ""}>${children}</${tag}>`;
-};
+function el(tag: string, attrs: Attr[], children: EmitNode[] = []): EmitNode {
+  return createEmitNode(
+    tag,
+    attrs
+      .map(([name, value]): [string, string | number | boolean | undefined] => {
+        if (value === undefined || value === null || value === false) {
+          return [name, undefined];
+        }
+        if (name === "style" && typeof value === "object") {
+          return ["style", styleToAttr(value)];
+        }
+        return [SVG_ATTR_NAMES[name] ?? name, value as string | number | boolean];
+      })
+      .filter((entry): entry is [string, string | number | boolean] => entry[1] !== undefined),
+    children,
+  );
+}
 
 const testid = (value: string): Attr => ["data-testid", value];
 
 const emitGradientDef = (gradient: GradientSettings, gradientId: string) => {
   const vectors = calculateGradientVectors(gradient.rotation || 0);
-  const stops = (gradient.stops ?? [])
-    .map((stop) =>
-      el("stop", [
-        ["offset", stop.offset],
-        ["stopColor", stop.color],
-      ]),
-    )
-    .join("");
+  const stops = (gradient.stops ?? []).map((stop) =>
+    el("stop", [
+      ["offset", stop.offset],
+      ["stopColor", stop.color],
+    ]),
+  );
 
   if (gradient.type === "linear") {
     return el(
       "defs",
       [],
-      el(
-        "linearGradient",
-        [
-          ["id", gradientId],
-          ["gradientUnits", "userSpaceOnUse"],
-          ["x1", vectors.x1],
-          ["y1", vectors.y1],
-          ["x2", vectors.x2],
-          ["y2", vectors.y2],
-        ],
-        stops,
-      ),
+      [
+        el(
+          "linearGradient",
+          [
+            ["id", gradientId],
+            ["gradientUnits", "userSpaceOnUse"],
+            ["x1", vectors.x1],
+            ["y1", vectors.y1],
+            ["x2", vectors.x2],
+            ["y2", vectors.y2],
+          ],
+          stops,
+        ),
+      ],
     );
   }
 
   return el(
     "defs",
     [],
-    el(
-      "radialGradient",
-      [
-        ["id", gradientId],
-        ["gradientUnits", "userSpaceOnUse"],
-        ["cx", "50%"],
-        ["cy", "50%"],
-        ["r", "50%"],
-      ],
-      stops,
-    ),
+    [
+      el(
+        "radialGradient",
+        [
+          ["id", gradientId],
+          ["gradientUnits", "userSpaceOnUse"],
+          ["cx", "50%"],
+          ["cy", "50%"],
+          ["r", "50%"],
+        ],
+        stops,
+      ),
+    ],
   );
 };
 
@@ -174,29 +176,30 @@ const emitBackground = (
   numCells: number,
 ) => {
   if (!background) {
-    return "";
+    return [];
   }
 
   if (typeof background === "string") {
-    return el("path", [
-      ["fill", background],
-      ["d", `M0,0 h${numCells}v${numCells}H0z`],
-      testid("background"),
-    ]);
+    return [
+      el("path", [
+        ["fill", background],
+        ["d", `M0,0 h${numCells}v${numCells}H0z`],
+        testid("background"),
+      ]),
+    ];
   }
 
-  const defs = emitGradientDef(background, bgGradientId);
-  return (
-    defs +
+  return [
+    emitGradientDef(background, bgGradientId),
     el("path", [
       ["fill", `url(#${bgGradientId})`],
       ["d", `M0,0 h${numCells}v${numCells}H0z`],
       testid("background"),
-    ])
-  );
+    ]),
+  ];
 };
 
-type FinderPatternCoordinate = { x: number; y: number };
+export type FinderPatternCoordinate = { x: number; y: number };
 
 const OUTER_SHAPE_STYLES: FinderPatternOuterStyle[] = [
   "rounded-sm",
@@ -207,7 +210,7 @@ const OUTER_SHAPE_STYLES: FinderPatternOuterStyle[] = [
   "pinched-square",
 ];
 
-const buildOuterShapePathOps = (
+export const buildOuterShapePathOps = (
   style: FinderPatternOuterStyle,
   coordinates: FinderPatternCoordinate[],
 ) => {
@@ -267,17 +270,17 @@ const buildOuterShapePathOps = (
   return ops;
 };
 
-const POINT_OUTER_STYLES = new Set([
-  "inpoint-sm",
-  "inpoint",
-  "inpoint-lg",
-  "outpoint-sm",
-  "outpoint",
-  "outpoint-lg",
-  "leaf-sm",
-  "leaf",
-  "leaf-lg",
-]);
+const POINT_OUTER_STYLES: Record<string, true> = {
+  "inpoint-sm": true,
+  inpoint: true,
+  "inpoint-lg": true,
+  "outpoint-sm": true,
+  outpoint: true,
+  "outpoint-lg": true,
+  "leaf-sm": true,
+  leaf: true,
+  "leaf-lg": true,
+};
 
 const rotateStyle = (rotation: number): CSSProperties => ({
   transform: `rotate(${rotation}deg)`,
@@ -292,22 +295,20 @@ const emitOuterPointPatterns = (
 ) => {
   const pathFn = style.startsWith("leaf") ? finderPatternsOuterLeaf : finderPatternsOuterInOutPoint;
 
-  return coordinates
-    .map((coordinate, index) => {
-      const rotation = FINDER_PATTERN_OUTER_ROTATIONS[style][index];
-      const path = pathFn({
-        x: coordinate.x,
-        y: coordinate.y,
-        radius: FINDER_PATTERN_OUTER_RADIUSES[style],
-      });
-      return el("path", [
-        ["fill", fill],
-        ["d", path],
-        ["style", rotateStyle(rotation)],
-        testid("finder-patterns-outer"),
-      ]);
-    })
-    .join("");
+  return coordinates.map((coordinate, index) => {
+    const rotation = FINDER_PATTERN_OUTER_ROTATIONS[style][index];
+    const path = pathFn({
+      x: coordinate.x,
+      y: coordinate.y,
+      radius: FINDER_PATTERN_OUTER_RADIUSES[style],
+    });
+    return el("path", [
+      ["fill", fill],
+      ["d", path],
+      ["style", rotateStyle(rotation)],
+      testid("finder-patterns-outer"),
+    ]);
+  });
 };
 
 const emitFinderPatternsOuter = ({
@@ -322,7 +323,7 @@ const emitFinderPatternsOuter = ({
   settings?: ReactQRCodeProps["finderPatternOuterSettings"];
   gradient?: GradientSettings;
   gradientId: string;
-}) => {
+}): EmitNode[] => {
   const { style, color } = sanitizeFinderPatternOuterSettings(settings);
   const fill = gradient ? `url(#${gradientId})` : color;
 
@@ -333,14 +334,16 @@ const emitFinderPatternsOuter = ({
   ];
 
   if (OUTER_SHAPE_STYLES.includes(style)) {
-    return el("path", [
-      ["fill", fill],
-      ["d", buildOuterShapePathOps(style, coordinates).join("")],
-      testid("finder-patterns-outer"),
-    ]);
+    return [
+      el("path", [
+        ["fill", fill],
+        ["d", buildOuterShapePathOps(style, coordinates).join("")],
+        testid("finder-patterns-outer"),
+      ]),
+    ];
   }
 
-  if (POINT_OUTER_STYLES.has(style)) {
+  if (POINT_OUTER_STYLES[style]) {
     return emitOuterPointPatterns(
       style as keyof typeof FINDER_PATTERN_OUTER_ROTATIONS,
       coordinates,
@@ -348,7 +351,7 @@ const emitFinderPatternsOuter = ({
     );
   }
 
-  return "";
+  return [];
 };
 
 const emitFinderPatternsInner = ({
@@ -363,7 +366,7 @@ const emitFinderPatternsInner = ({
   settings?: ReactQRCodeProps["finderPatternInnerSettings"];
   gradient?: GradientSettings;
   gradientId: string;
-}) => {
+}): EmitNode[] => {
   const { color, style } = sanitizeFinderPatternInnerSettings(settings);
   const fill = gradient ? `url(#${gradientId})` : color;
 
@@ -380,123 +383,107 @@ const emitFinderPatternsInner = ({
     style === "circle" ||
     style === "square"
   ) {
-    return coordinates
-      .map(({ x, y }) =>
-        el("rect", [
-          ["x", x],
-          ["y", y],
-          ["width", FINDER_PATTERN_INNER_SIZE],
-          ["height", FINDER_PATTERN_INNER_SIZE],
-          ["fill", fill],
-          ["rx", FINDER_PATTERN_INNER_RADIUSES[style]],
-          testid("finder-patterns-inner"),
-        ]),
-      )
-      .join("");
+    return coordinates.map(({ x, y }) =>
+      el("rect", [
+        ["x", x],
+        ["y", y],
+        ["width", FINDER_PATTERN_INNER_SIZE],
+        ["height", FINDER_PATTERN_INNER_SIZE],
+        ["fill", fill],
+        ["rx", FINDER_PATTERN_INNER_RADIUSES[style]],
+        testid("finder-patterns-inner"),
+      ]),
+    );
   }
 
   if (style === "pinched-square") {
-    return coordinates
-      .map(({ x, y }) =>
-        el("path", [
-          ["fill", fill],
-          ["d", pinchedSquare(x, y, FINDER_PATTERN_INNER_SIZE, 0.25)],
-          testid("finder-patterns-inner"),
-        ]),
-      )
-      .join("");
+    return coordinates.map(({ x, y }) =>
+      el("path", [
+        ["fill", fill],
+        ["d", pinchedSquare(x, y, FINDER_PATTERN_INNER_SIZE, 0.25)],
+        testid("finder-patterns-inner"),
+      ]),
+    );
   }
 
   if (style === "diamond") {
     const sizeDiff = Math.sqrt(1.5);
     const size = FINDER_PATTERN_INNER_SIZE / sizeDiff;
     const posDiff = size - size / sizeDiff;
-    return coordinates
-      .map(({ x, y }) =>
-        el("rect", [
-          ["x", x + posDiff / 2],
-          ["y", y + posDiff / 2],
-          ["width", size],
-          ["height", size],
-          ["fill", fill],
-          ["style", rotateStyle(45)],
-          testid("finder-patterns-inner"),
-        ]),
-      )
-      .join("");
+    return coordinates.map(({ x, y }) =>
+      el("rect", [
+        ["x", x + posDiff / 2],
+        ["y", y + posDiff / 2],
+        ["width", size],
+        ["height", size],
+        ["fill", fill],
+        ["style", rotateStyle(45)],
+        testid("finder-patterns-inner"),
+      ]),
+    );
   }
 
-  if (POINT_OUTER_STYLES.has(style)) {
+  if (POINT_OUTER_STYLES[style]) {
     const pointStyle = style as keyof typeof FINDER_PATTERN_OUTER_ROTATIONS;
     const pathFn = style.startsWith("leaf")
       ? finderPatternsInnerLeaf
       : finderPatternsInnerInOutPoint;
-    return coordinates
-      .map((coordinate, index) => {
-        const rotation = FINDER_PATTERN_OUTER_ROTATIONS[pointStyle][index];
-        const path = pathFn({
-          x: coordinate.x,
-          y: coordinate.y,
-          radius: FINDER_PATTERN_INNER_RADIUSES[pointStyle],
-        });
-        return el("path", [
-          ["fill", fill],
-          ["d", path],
-          ["style", rotateStyle(rotation)],
-          testid("finder-patterns-inner"),
-        ]);
-      })
-      .join("");
+    return coordinates.map((coordinate, index) => {
+      const rotation = FINDER_PATTERN_OUTER_ROTATIONS[pointStyle][index];
+      const path = pathFn({
+        x: coordinate.x,
+        y: coordinate.y,
+        radius: FINDER_PATTERN_INNER_RADIUSES[pointStyle],
+      });
+      return el("path", [
+        ["fill", fill],
+        ["d", path],
+        ["style", rotateStyle(rotation)],
+        testid("finder-patterns-inner"),
+      ]);
+    });
   }
 
   if (style === "heart") {
-    return coordinates
-      .map(({ x, y }) =>
-        el("path", [
-          ["fill", fill],
-          ["d", heart(x, y, FINDER_PATTERN_INNER_SIZE)],
-          testid("finder-patterns-inner"),
-        ]),
-      )
-      .join("");
+    return coordinates.map(({ x, y }) =>
+      el("path", [
+        ["fill", fill],
+        ["d", heart(x, y, FINDER_PATTERN_INNER_SIZE)],
+        testid("finder-patterns-inner"),
+      ]),
+    );
   }
 
   if (style === "star") {
-    return coordinates
-      .map(({ x, y }) => {
-        const cx = x + FINDER_PATTERN_INNER_SIZE / 2;
-        const cy = y + FINDER_PATTERN_INNER_SIZE / 2;
-        const path = star(cx, cy, FINDER_PATTERN_INNER_SIZE * 1.2, DEFAULT_NUM_STAR_POINTS);
-        return el("path", [["fill", fill], ["d", path], testid("finder-patterns-inner")]);
-      })
-      .join("");
+    return coordinates.map(({ x, y }) => {
+      const cx = x + FINDER_PATTERN_INNER_SIZE / 2;
+      const cy = y + FINDER_PATTERN_INNER_SIZE / 2;
+      const path = star(cx, cy, FINDER_PATTERN_INNER_SIZE * 1.2, DEFAULT_NUM_STAR_POINTS);
+      return el("path", [["fill", fill], ["d", path], testid("finder-patterns-inner")]);
+    });
   }
 
   if (style === "microchip") {
-    return coordinates
-      .map(({ x, y }) =>
-        el("path", [
-          ["fill", fill],
-          ["d", microchip(x, y, FINDER_PATTERN_INNER_SIZE)],
-          testid("finder-patterns-inner"),
-        ]),
-      )
-      .join("");
+    return coordinates.map(({ x, y }) =>
+      el("path", [
+        ["fill", fill],
+        ["d", microchip(x, y, FINDER_PATTERN_INNER_SIZE)],
+        testid("finder-patterns-inner"),
+      ]),
+    );
   }
 
   if (style === "hashtag") {
-    return coordinates
-      .map(({ x, y }) =>
-        el("path", [
-          ["fill", fill],
-          ["d", hashtag(x - 0.25, y - 0.25, 3.5)],
-          testid("finder-patterns-inner"),
-        ]),
-      )
-      .join("");
+    return coordinates.map(({ x, y }) =>
+      el("path", [
+        ["fill", fill],
+        ["d", hashtag(x - 0.25, y - 0.25, 3.5)],
+        testid("finder-patterns-inner"),
+      ]),
+    );
   }
 
-  return "";
+  return [];
 };
 
 export const emitDataModules = ({
@@ -511,7 +498,26 @@ export const emitDataModules = ({
   settings?: ReactQRCodeProps["dataModulesSettings"];
   gradient?: GradientSettings;
   gradientId: string;
-}) => {
+}): string => {
+  return serializeEmitNode(
+    emitDataModulesNode({ modules, margin, settings, gradient, gradientId }),
+    "jsx",
+  );
+};
+
+const emitDataModulesNode = ({
+  modules,
+  margin,
+  settings,
+  gradient,
+  gradientId,
+}: {
+  modules: boolean[][];
+  margin: number;
+  settings?: ReactQRCodeProps["dataModulesSettings"];
+  gradient?: GradientSettings;
+  gradientId: string;
+}): EmitNode => {
   const { color, style, randomSize, size, lineWidth } = sanitizeDataModulesSettings(settings);
 
   const ops: string[] = [];
@@ -680,7 +686,10 @@ const emitImage = (
     ["crossOrigin", calculated.crossOrigin],
   ]);
 
-export const emitReactQrCodeMarkup = (props: ReactQRCodeProps): string => {
+export const emitReactQrCodeMarkup = (
+  props: ReactQRCodeProps,
+  extensions?: QrSvgEmitExtensions,
+): string => {
   const {
     value,
     size = DEFAULT_SIZE,
@@ -720,7 +729,7 @@ export const emitReactQrCodeMarkup = (props: ReactQRCodeProps): string => {
   const bgGradientId = `react-qr-code-bg-gradient-${BASE_SVG_ID_SUFFIX}`;
 
   let modules = cells;
-  let image = "";
+  let image: EmitNode | null = null;
   if (imageSettings != null && calculatedImageSettings != null) {
     if (calculatedImageSettings.excavation != null) {
       modules = excavateModules(cells, calculatedImageSettings.excavation);
@@ -741,16 +750,49 @@ export const emitReactQrCodeMarkup = (props: ReactQRCodeProps): string => {
     if (key === "aria-label") {
       continue;
     }
-    svgAttrs.push([key, attrValue as Attr[1]]);
+    svgAttrs.push([key, attrValue]);
   }
 
-  const children =
-    (gradient ? emitGradientDef(gradient, gradientId) : "") +
-    emitBackground(background, bgGradientId, numCells) +
-    emitFinderPatternsOuter({ ...elementProps, settings: finderPatternOuterSettings }) +
-    emitFinderPatternsInner({ ...elementProps, settings: finderPatternInnerSettings }) +
-    emitDataModules({ ...elementProps, settings: dataModulesSettings }) +
-    image;
+  const dataModules = emitDataModulesNode({ ...elementProps, settings: dataModulesSettings });
+  const finderOuter = emitFinderPatternsOuter({
+    ...elementProps,
+    settings: finderPatternOuterSettings,
+  });
+  const finderInner = emitFinderPatternsInner({
+    ...elementProps,
+    settings: finderPatternInnerSettings,
+  });
 
-  return el("svg", svgAttrs, children);
+  const children: EmitNode[] = [
+    ...(gradient ? [emitGradientDef(gradient, gradientId)] : []),
+    ...emitBackground(background, bgGradientId, numCells),
+    ...finderOuter,
+    ...finderInner,
+    dataModules,
+    ...(image ? [image] : []),
+  ];
+
+  const svg = el("svg", svgAttrs, children);
+
+  if (extensions) {
+    applyQrEmitExtensions(
+      {
+        dataModules,
+        finderInner,
+        finderOuter,
+        image,
+        numCells,
+        svg,
+      },
+      extensions,
+    );
+
+    return serializeEmitNode(svg, "xml");
+  }
+
+  return serializeEmitNode(svg, "jsx");
 };
+
+export { serializeEmitNodes };
+export type { EmitNode };
+export type { QrSvgEmitExtensions } from "./emit-extensions";

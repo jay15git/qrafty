@@ -1,5 +1,8 @@
-import type { QrSvgElementLike } from "../svg-element";
-import { getQrSvgNumCells } from "@qrafty/qr-internal/core";
+import {
+  coerceNonNegativeSvgNumber,
+  coerceSvgNumber,
+  formatSvgNumber,
+} from "@qrafty/qr-internal/core";
 
 import type { CSSProperties } from "react";
 import {
@@ -20,10 +23,6 @@ import {
   type QraftyState,
 } from "@/features/qr/model/state";
 import { getBackgroundShapeSkewTransform } from "@/features/canvas/rendering/layer-transform";
-import { type QrSvgExtensionOptions } from "./types";
-import { coerceNonNegativeSvgNumber, coerceSvgNumber, formatSvgNumber } from "./svg-dom-utils";
-
-export { getQrSvgNumCells };
 
 export function coerceQrMarginCells(margin: number) {
   return Math.min(80, Math.max(0, Math.floor(Number.isFinite(margin) ? margin : 12)));
@@ -35,8 +34,8 @@ export function coerceQrMarginCells(margin: number) {
  * background shape, quiet zone, and stroke align with the encoded modules.
  */
 export function getCellSpaceBackgroundMetrics(
-  svg: QrSvgElementLike,
-  options: QrSvgExtensionOptions,
+  numCells: number,
+  options: { height?: number; width?: number },
   shapeOptions: ReturnType<typeof normalizeBackgroundShapeOptions>,
   layout: {
     contentFrame?: QrBackgroundShapeContentFrame;
@@ -46,9 +45,8 @@ export function getCellSpaceBackgroundMetrics(
 ) {
   const innerWidth = options.width ?? 300;
   const innerHeight = options.height ?? 300;
-  const numCells = getQrSvgNumCells(svg);
 
-  if (numCells === null || numCells <= 0 || innerWidth <= 0) {
+  if (numCells <= 0 || innerWidth <= 0) {
     return {
       metrics: getBackgroundRenderMetrics(innerWidth, innerHeight, shapeOptions),
       shapeOptions,

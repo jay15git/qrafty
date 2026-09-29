@@ -8,7 +8,7 @@ import type { QraftyState } from "@/features/qr/model/state";
 import {
   getCanvasQrDomPlacementStyle,
   getCanvasQrLayerLayout,
-} from "@/features/qr/rendering/svg-extension";
+} from "@/features/qr/rendering/background-shape-layout";
 import { CanvasQrBackground } from "@/features/canvas/components/QrBackground";
 import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
 import { getCanvasPerSideBorderStyle } from "@/features/canvas/rendering/layer-appearance";

@@ -1,4 +1,4 @@
-import type { QrSvgElementLike } from "../svg-element";
+import type { QrSvgElementLike } from "@qrafty/qr-internal/core";
 
 import type { QraftyState } from "@/features/qr/model/state";
 import {

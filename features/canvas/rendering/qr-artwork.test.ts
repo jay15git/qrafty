@@ -12,7 +12,7 @@ import {
 import {
   getCanvasQrLayerLayout,
   getQrRenderedDimensions,
-} from "@/features/qr/rendering/svg-extension";
+} from "@/features/qr/rendering/background-shape-layout";
 import {
   createCanvasQrArtworkState,
   sanitizeCanvasQrArtworkMarkup,

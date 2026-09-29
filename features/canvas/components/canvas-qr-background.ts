@@ -12,7 +12,7 @@ import {
 import {
   getCanvasQrBackgroundPathTransform,
   getCanvasQrLayerLayout,
-} from "@/features/qr/rendering/svg-extension";
+} from "@/features/qr/rendering/background-shape-layout";
 
 export type CanvasQrBackgroundSvgPayload = {
   height: number;

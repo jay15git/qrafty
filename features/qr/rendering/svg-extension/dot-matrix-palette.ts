@@ -1,20 +1,57 @@
-import type { QrSvgDocumentLike, QrSvgElementLike } from "../svg-element";
+import type {
+  DotMatrixMetrics,
+  DotPaletteShapeGroup,
+  DotPaletteGroupAssignment,
+  QrSvgDocumentLike,
+  QrSvgElementLike,
+} from "@qrafty/qr-internal/core";
+import {
+  balanceDotPaletteAssignments,
+  createDotPaletteShapeGroups,
+  getActiveDotsPalette as getActiveDotsPaletteColors,
+  getDotPaletteIndex,
+  hashDotPaletteString,
+} from "@qrafty/qr-internal/core";
 
 import type { QraftyState } from "@/features/qr/model/state";
-import { getMergeableClipPathData } from "@qrafty/qr-internal/core";
 import { SVG_NS, findDotMatrixLayerAnchor } from "./svg-dom-utils";
 import {
   removeDotMatrixBaseLayers,
   removeOrphanedModuleClipPaths,
   type DotClipLayer,
   type DotPathLayer,
-  type DotMatrixMetrics,
-  type DotPaletteShapeGroup,
-  type DotPaletteGroupAssignment,
   collectDotMatrixMetrics,
   getFallbackDotMatrixMetrics,
   resolveDotMatrixCoordinates,
 } from "./dot-matrix-model";
+
+function getMergeableClipPathData(shape: QrSvgElementLike) {
+  if (shape.getAttribute("transform")) {
+    return null;
+  }
+
+  const tagName = shape.tagName.toLowerCase();
+
+  if (tagName === "path") {
+    return shape.getAttribute("d");
+  }
+
+  if (tagName === "rect") {
+    const x = Number.parseFloat(shape.getAttribute("x") ?? "0") || 0;
+    const y = Number.parseFloat(shape.getAttribute("y") ?? "0") || 0;
+    const width = Number.parseFloat(shape.getAttribute("width") ?? "0") || 0;
+    const height = Number.parseFloat(shape.getAttribute("height") ?? "0") || 0;
+    const hasRadius = Boolean(shape.getAttribute("rx") ?? shape.getAttribute("ry"));
+
+    if (width <= 0 || height <= 0 || hasRadius) {
+      return null;
+    }
+
+    return `M${x} ${y}h${width}v${height}h${-width}Z`;
+  }
+
+  return null;
+}
 
 type PaletteColorAssignment = {
   color: string;
@@ -25,168 +62,16 @@ type PaletteColorAssignment = {
 export type PalettePaintGroupLayer = "dot-matrix-motion-modules" | "dot-palette";
 
 export function getActiveDotsPalette(state: Pick<QraftyState, "dotsPalette">) {
-  const seen = new Set<string>();
-
-  return state.dotsPalette.flatMap((color) => {
-    const trimmed = color.trim();
-    if (!trimmed.length || seen.has(trimmed)) {
-      return [];
-    }
-
-    seen.add(trimmed);
-    return [trimmed];
-  });
+  return getActiveDotsPaletteColors(state.dotsPalette);
 }
 
-function createDotPaletteShapeGroups(
+function groupDotPaletteShapes(
   shapes: QrSvgElementLike[],
   metrics: DotMatrixMetrics | null,
-): DotPaletteShapeGroup[] {
-  const groups = new Map<string, DotPaletteShapeGroup>();
-
-  for (const [fallbackIndex, shape] of shapes.entries()) {
-    const coordinates = metrics ? resolveDotMatrixCoordinates(shape, metrics) : null;
-    const key = coordinates ? `${coordinates.row}:${coordinates.col}` : `fallback:${fallbackIndex}`;
-    const group = groups.get(key);
-
-    if (group) {
-      group.shapes.push(shape);
-      continue;
-    }
-
-    groups.set(key, {
-      coordinates,
-      fallbackIndex,
-      shapes: [shape],
-    });
-  }
-
-  return Array.from(groups.values()).sort(compareDotPaletteShapeGroups);
-}
-
-function compareDotPaletteShapeGroups(left: DotPaletteShapeGroup, right: DotPaletteShapeGroup) {
-  if (left.coordinates && right.coordinates) {
-    return (
-      left.coordinates.row - right.coordinates.row ||
-      left.coordinates.col - right.coordinates.col ||
-      left.fallbackIndex - right.fallbackIndex
-    );
-  }
-
-  if (left.coordinates) {
-    return -1;
-  }
-
-  if (right.coordinates) {
-    return 1;
-  }
-
-  return left.fallbackIndex - right.fallbackIndex;
-}
-
-function getDotPaletteIndex(group: DotPaletteShapeGroup, paletteLength: number, seed: number) {
-  if (paletteLength <= 0) {
-    return 0;
-  }
-
-  return hashDotPaletteGroup(group, seed) % paletteLength;
-}
-
-function balanceDotPaletteAssignments(
-  assignments: DotPaletteGroupAssignment[],
-  paletteLength: number,
-  seed: number,
-) {
-  if (assignments.length < paletteLength || paletteLength <= 1) {
-    return;
-  }
-
-  const counts = countDotPaletteAssignments(assignments, paletteLength);
-  const missingPaletteIndexes = counts
-    .map((count, paletteIndex) => (count === 0 ? paletteIndex : null))
-    .filter((paletteIndex): paletteIndex is number => paletteIndex !== null);
-
-  for (const missingPaletteIndex of missingPaletteIndexes) {
-    let candidateIndex = -1;
-    let candidateScore = -1;
-
-    for (const [assignmentIndex, assignment] of assignments.entries()) {
-      if (counts[assignment.paletteIndex] <= 1) {
-        continue;
-      }
-
-      const score = hashDotPaletteNumbers([
-        seed,
-        missingPaletteIndex,
-        assignmentIndex,
-        assignment.group.coordinates?.row ?? -1,
-        assignment.group.coordinates?.col ?? assignment.group.fallbackIndex,
-      ]);
-
-      if (score > candidateScore) {
-        candidateIndex = assignmentIndex;
-        candidateScore = score;
-      }
-    }
-
-    if (candidateIndex === -1) {
-      return;
-    }
-
-    const assignment = assignments[candidateIndex];
-    counts[assignment.paletteIndex] -= 1;
-    assignment.paletteIndex = missingPaletteIndex;
-    counts[missingPaletteIndex] += 1;
-  }
-}
-
-function countDotPaletteAssignments(
-  assignments: DotPaletteGroupAssignment[],
-  paletteLength: number,
-) {
-  const counts = Array.from({ length: paletteLength }, () => 0);
-
-  for (const assignment of assignments) {
-    counts[assignment.paletteIndex] += 1;
-  }
-
-  return counts;
-}
-
-function hashDotPaletteGroup(group: DotPaletteShapeGroup, seed: number) {
-  return hashDotPaletteNumbers([
-    seed,
-    group.coordinates?.row ?? -1,
-    group.coordinates?.col ?? -1,
-    group.fallbackIndex,
-  ]);
-}
-
-function hashDotPaletteString(value: string) {
-  const input = value.length > 0 ? value : "qr-dot-palette";
-  let hash = 2166136261;
-
-  for (let index = 0; index < input.length; index += 1) {
-    hash ^= input.charCodeAt(index);
-    hash = Math.imul(hash, 16777619);
-  }
-
-  return hash >>> 0;
-}
-
-function hashDotPaletteNumbers(values: number[]) {
-  let hash = 0x811c9dc5;
-
-  for (const value of values) {
-    hash ^= value | 0;
-    hash = Math.imul(hash, 0x45d9f3b);
-    hash ^= hash >>> 16;
-  }
-
-  hash = Math.imul(hash ^ (hash >>> 15), 0x2c1b3c6d);
-  hash = Math.imul(hash ^ (hash >>> 12), 0x297a2d39);
-
-  return (hash ^ (hash >>> 15)) >>> 0;
+): DotPaletteShapeGroup<QrSvgElementLike>[] {
+  return createDotPaletteShapeGroups(shapes, metrics, (shape, nextMetrics) =>
+    resolveDotMatrixCoordinates(shape, nextMetrics),
+  );
 }
 
 function buildPaletteColorAssignments(
@@ -201,7 +86,7 @@ function buildPaletteColorAssignments(
   }
 
   const paletteSeed = hashDotPaletteString(state.data.trim());
-  const shapeGroups = createDotPaletteShapeGroups(allDotShapes, metrics);
+  const shapeGroups = groupDotPaletteShapes(allDotShapes, metrics);
   const assignments: PaletteColorAssignment[] = palette.map((color) => ({
     color,
     paletteIndex: palette.indexOf(color),

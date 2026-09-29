@@ -1,6 +1,6 @@
 // Structural subset of the DOM `Element` API used by the QR SVG pipeline.
-// Implemented by the pure IR element in `features/qr/rendering/svg-element.ts`;
-// real DOM elements satisfy it at runtime (cast at call boundaries).
+// Implemented by real DOM elements at runtime (cast at call boundaries) and by
+// emit-side adapters wrapping ordered EmitNode attribute lists.
 
 export interface QrSvgDocumentLike {
   createElementNS(namespace: string, tagName: string): QrSvgElementLike;

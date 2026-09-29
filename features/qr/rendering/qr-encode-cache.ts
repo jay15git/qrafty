@@ -4,13 +4,18 @@ import { getAssetValue } from "@/features/qr/model/state";
 export function getQrEncodeCacheKey(state: QraftyState) {
   return JSON.stringify({
     ariaLabel: state.ariaLabel,
+    backgroundGradient: state.backgroundGradient.enabled ? state.backgroundGradient : null,
+    backgroundImage: getAssetValue(state.backgroundImage),
+    backgroundOptions: state.backgroundOptions,
+    backgroundShapeId: state.backgroundShapeId,
+    backgroundShapeOptions: state.backgroundShapeOptions,
     boostLevel: state.qrOptions.boostLevel,
     data: state.data,
+    dataModulesGradient: state.dataModulesGradient,
     dotColor: state.dataModulesSettings.color,
     dotType: state.dataModulesSettings.type,
     dotsColorMode: state.dotsColorMode,
     dotsPalette: state.dotsPalette,
-    dataModulesGradient: state.dotsColorMode === "gradient" ? state.dataModulesGradient : null,
     finderInnerColor: state.finderPatternInnerSettings.color,
     finderInnerGradient: state.finderPatternInnerGradient.enabled
       ? state.finderPatternInnerGradient

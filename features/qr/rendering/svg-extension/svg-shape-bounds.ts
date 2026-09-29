@@ -1,4 +1,4 @@
-import type { QrSvgElementLike } from "../svg-element";
+import type { QrSvgElementLike } from "@qrafty/qr-internal/core";
 
 import { isSvgElementLike, getDotNumericAttribute } from "./svg-dom-utils";
 

@@ -1,9 +1,13 @@
-import { DEFAULT_BACKGROUND_SHAPE_OPTIONS, type QraftyState } from "@/features/qr/model/state";
 import {
-  parseSvgIrMarkup,
-  serializeSvgElement,
-  type QrSvgElementLike,
-} from "@/features/qr/rendering/svg-element";
+  emitDescendants,
+  getEmitAttr,
+  parseEmitSvgMarkup,
+  removeEmitNode,
+  serializeEmitNode,
+  type EmitNode,
+} from "@qrafty/qr-internal/core";
+
+import { DEFAULT_BACKGROUND_SHAPE_OPTIONS, type QraftyState } from "@/features/qr/model/state";
 
 export function createCanvasQrArtworkState(state: QraftyState): QraftyState {
   return {
@@ -28,37 +32,35 @@ export function createCanvasQrArtworkState(state: QraftyState): QraftyState {
 }
 
 export function sanitizeCanvasQrArtworkMarkup(markup: string) {
-  const svg = parseSvgIrMarkup(markup);
+  const svg = parseEmitSvgMarkup(markup);
 
   if (svg.tagName.toLowerCase() !== "svg") {
     return markup;
   }
 
-  for (const child of Array.from(svg.children)) {
+  for (const child of [...svg.children]) {
     if (isLegacyQrBackingNode(child)) {
-      child.remove();
+      removeEmitNode(child);
     }
   }
 
-  for (const filter of Array.from(svg.querySelectorAll("filter"))) {
-    if (isLegacyQrBackingNode(filter)) {
-      filter.remove();
+  for (const node of [...emitDescendants(svg)]) {
+    const tagName = node.tagName.toLowerCase();
+
+    if ((tagName === "filter" || tagName === "clippath") && isLegacyQrBackingNode(node)) {
+      removeEmitNode(node);
     }
   }
 
-  for (const clipPath of Array.from(svg.querySelectorAll("clipPath"))) {
-    if (isLegacyQrBackingNode(clipPath)) {
-      clipPath.remove();
-    }
-  }
-
-  for (const defs of Array.from(svg.querySelectorAll("defs"))) {
+  for (const defs of [...emitDescendants(svg)].filter(
+    (node) => node.tagName.toLowerCase() === "defs",
+  )) {
     if (defs.children.length === 0) {
-      defs.remove();
+      removeEmitNode(defs);
     }
   }
 
-  return serializeSvgElement(svg);
+  return serializeEmitNode(svg, "xml");
 }
 
 export function parseSvgViewBoxSize(markup: string) {
@@ -200,14 +202,14 @@ export function scaleNestedSvgMarkup(markup: string, width: number, height: numb
   return scaledMarkup;
 }
 
-function isLegacyQrBackingNode(node: QrSvgElementLike) {
-  const layer = node.getAttribute("data-qr-layer");
+function isLegacyQrBackingNode(node: EmitNode) {
+  const layer = getEmitAttr(node, "data-qr-layer");
 
   if (layer?.startsWith("background-")) {
     return true;
   }
 
-  const id = node.getAttribute("id");
+  const id = getEmitAttr(node, "id");
 
   if (id?.includes("clip-path-background-color")) {
     return true;
@@ -215,6 +217,6 @@ function isLegacyQrBackingNode(node: QrSvgElementLike) {
 
   return (
     node.tagName.toLowerCase() === "rect" &&
-    node.getAttribute("clip-path")?.includes("clip-path-background-color") === true
+    getEmitAttr(node, "clip-path")?.includes("clip-path-background-color") === true
   );
 }

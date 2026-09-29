@@ -7,14 +7,15 @@ import {
   readCachedQrEncodeMarkup,
   writeCachedQrEncodeMarkup,
 } from "@/features/qr/rendering/qr-encode-cache";
+import { alignReactQrSvgToModuleGrid } from "@/features/canvas/rendering/qr-artwork";
+import { buildQrEmitExtensions } from "@/features/qr/rendering/emit-extensions";
 import {
-  applyQraftyQrSvgMarkupExtensions,
-  buildDashboardQrNodePayloadFromBaseMarkup,
+  buildDashboardQrNodePayloadFromMarkup,
   createDashboardSurfaceQrState,
   stripXmlDeclaration,
 } from "@/features/qr/rendering/qr-svg-markup";
 
-function renderReactQrBaseMarkup(state: QraftyState) {
+function renderReactQrMarkup(state: QraftyState) {
   const dashboardState = createDashboardSurfaceQrState(state);
   const cacheKey = getQrEncodeCacheKey(dashboardState);
   const cached = readCachedQrEncodeMarkup(cacheKey);
@@ -23,19 +24,21 @@ function renderReactQrBaseMarkup(state: QraftyState) {
     return cached;
   }
 
-  const markup = stripXmlDeclaration(emitReactQrCodeMarkup(toReactQrCodeProps(dashboardState)));
+  const extensions = buildQrEmitExtensions(dashboardState);
+  const markup = alignReactQrSvgToModuleGrid(
+    stripXmlDeclaration(emitReactQrCodeMarkup(toReactQrCodeProps(dashboardState), extensions)),
+    extensions?.width,
+    extensions?.height,
+  );
   writeCachedQrEncodeMarkup(cacheKey, markup);
 
   return markup;
 }
 
 export async function buildDashboardQrNodePayload(state: QraftyState) {
-  return buildDashboardQrNodePayloadFromBaseMarkup(renderReactQrBaseMarkup(state), state);
+  return buildDashboardQrNodePayloadFromMarkup(renderReactQrMarkup(state), state);
 }
 
 export function renderDashboardQrSvgMarkup(state: QraftyState) {
-  return applyQraftyQrSvgMarkupExtensions(
-    renderReactQrBaseMarkup(state),
-    createDashboardSurfaceQrState(state),
-  );
+  return renderReactQrMarkup(state);
 }

@@ -1,13 +1,18 @@
-import type { QrSvgElementLike } from "../svg-element";
-
+import type {
+  DotMatrixMetrics,
+  DotMatrixShapeLike,
+  QrSvgElementLike,
+} from "@qrafty/qr-internal/core";
 import {
-  SVG_NS,
+  collectDotMatrixAnchors,
+  collectDotMatrixMetricsFromAnchors,
+  getDotMatrixAnchor,
+  getFallbackDotMatrixMetricsFromAnchors,
+  resolveDotMatrixAnchorCoordinates,
   splitSvgPathData,
-  getClipPathId,
-  isSvgElementLike,
-  getDotNumericAttribute,
-  getSmallestPositiveDelta,
-} from "./svg-dom-utils";
+} from "@qrafty/qr-internal/core";
+
+import { getClipPathId, isSvgElementLike, SVG_NS } from "./svg-dom-utils";
 
 const DOTS_CLIP_PATH_PREFIX = "clip-path-dot-color-";
 
@@ -25,37 +30,7 @@ export type DotPathLayer = {
   shapes: QrSvgElementLike[];
 };
 
-export type DotMatrixMetrics = {
-  cellSize: number;
-  maxCol: number;
-  maxRow: number;
-  maxX: number;
-  maxY: number;
-  originX: number;
-  originY: number;
-};
-
-export type DotMatrixCoordinates = {
-  col: number;
-  row: number;
-};
-
-export type DotPaletteShapeGroup = {
-  coordinates: DotMatrixCoordinates | null;
-  fallbackIndex: number;
-  shapes: QrSvgElementLike[];
-};
-
-export type DotPaletteGroupAssignment = {
-  group: DotPaletteShapeGroup;
-  paletteIndex: number;
-};
-
-type DotMatrixAnchor = {
-  size?: number;
-  x: number;
-  y: number;
-};
+export type { DotMatrixMetrics };
 
 export function getQrModuleClipLayers(svg: QrSvgElementLike): DotClipLayer[] {
   return Array.from(svg.querySelectorAll("rect"))
@@ -124,145 +99,33 @@ export function getQrModulePathLayers(svg: QrSvgElementLike): DotPathLayer[] {
     .filter((layer): layer is DotPathLayer => layer !== null);
 }
 
-export function collectDotMatrixMetrics(dotShapes: QrSvgElementLike[]): DotMatrixMetrics | null {
-  const anchors = dotShapes
-    .map((shape) => getDotMatrixAnchor(shape))
-    .filter((anchor): anchor is DotMatrixAnchor => anchor !== null);
-
-  if (anchors.length === 0) {
-    return null;
-  }
-
-  const explicitSizes = anchors
-    .map((anchor) => anchor.size)
-    .filter((size): size is number => size !== undefined && Number.isFinite(size) && size > 0);
-  const cellSize =
-    explicitSizes.length > 0
-      ? Math.min(...explicitSizes)
-      : getSmallestPositiveDelta([
-          ...anchors.map((anchor) => anchor.x),
-          ...anchors.map((anchor) => anchor.y),
-        ]);
-
-  if (!Number.isFinite(cellSize) || cellSize <= 0) {
-    return null;
-  }
-
-  const originX = Math.min(...anchors.map((anchor) => anchor.x));
-  const originY = Math.min(...anchors.map((anchor) => anchor.y));
-  const coordinates = anchors.map((anchor) => ({
-    col: Math.max(0, Math.round((anchor.x - originX) / cellSize)),
-    row: Math.max(0, Math.round((anchor.y - originY) / cellSize)),
-  }));
-
+function toShapeLike(shape: QrSvgElementLike): DotMatrixShapeLike {
   return {
-    cellSize,
-    maxCol: Math.max(...coordinates.map((coordinate) => coordinate.col)),
-    maxRow: Math.max(...coordinates.map((coordinate) => coordinate.row)),
-    maxX: Math.max(...anchors.map((anchor) => anchor.x + (anchor.size ?? cellSize))),
-    maxY: Math.max(...anchors.map((anchor) => anchor.y + (anchor.size ?? cellSize))),
-    originX,
-    originY,
+    tagName: shape.tagName,
+    getAttribute: (name) => shape.getAttribute(name),
   };
+}
+
+export function collectDotMatrixMetrics(dotShapes: QrSvgElementLike[]): DotMatrixMetrics | null {
+  return collectDotMatrixMetricsFromAnchors(
+    collectDotMatrixAnchors(dotShapes, (shape) => getDotMatrixAnchor(toShapeLike(shape))),
+  );
 }
 
 export function getFallbackDotMatrixMetrics(dotShapes: QrSvgElementLike[]): DotMatrixMetrics {
-  const anchors = dotShapes
-    .map((shape) => getDotMatrixAnchor(shape))
-    .filter((anchor): anchor is DotMatrixAnchor => anchor !== null);
-  const maxX =
-    anchors.length > 0 ? Math.max(...anchors.map((anchor) => anchor.x + (anchor.size ?? 0))) : 0;
-  const maxY =
-    anchors.length > 0 ? Math.max(...anchors.map((anchor) => anchor.y + (anchor.size ?? 0))) : 0;
-
-  return {
-    cellSize: 1,
-    maxCol: 0,
-    maxRow: 0,
-    maxX,
-    maxY,
-    originX: 0,
-    originY: 0,
-  };
+  return getFallbackDotMatrixMetricsFromAnchors(
+    collectDotMatrixAnchors(dotShapes, (shape) => getDotMatrixAnchor(toShapeLike(shape))),
+  );
 }
 
 export function resolveDotMatrixCoordinates(shape: QrSvgElementLike, metrics: DotMatrixMetrics) {
-  const anchor = getDotMatrixAnchor(shape);
+  const anchor = getDotMatrixAnchor(toShapeLike(shape));
 
   if (!anchor) {
     return null;
   }
 
-  return {
-    col: Math.max(0, Math.round((anchor.x - metrics.originX) / metrics.cellSize)),
-    row: Math.max(0, Math.round((anchor.y - metrics.originY) / metrics.cellSize)),
-  };
-}
-
-function getDotMatrixAnchor(shape: QrSvgElementLike): DotMatrixAnchor | null {
-  const anchorTag = shape.tagName.toLowerCase();
-
-  if (anchorTag === "g" || anchorTag === "svg") {
-    const x = getDotNumericAttribute(shape, "data-anchor-x");
-    const y = getDotNumericAttribute(shape, "data-anchor-y");
-
-    if (x !== null && y !== null) {
-      const size = getDotNumericAttribute(shape, "data-anchor-size");
-      return { size: size ?? undefined, x, y };
-    }
-
-    return null;
-  }
-
-  if (shape.tagName.toLowerCase() === "rect") {
-    const x = getDotNumericAttribute(shape, "x");
-    const y = getDotNumericAttribute(shape, "y");
-    const width = getDotNumericAttribute(shape, "width");
-    const height = getDotNumericAttribute(shape, "height");
-
-    if (x !== null && y !== null && width !== null && height !== null) {
-      return { size: Math.min(width, height), x, y };
-    }
-  }
-
-  if (shape.tagName.toLowerCase() === "circle") {
-    const cx = getDotNumericAttribute(shape, "cx");
-    const cy = getDotNumericAttribute(shape, "cy");
-    const r = getDotNumericAttribute(shape, "r");
-
-    if (cx !== null && cy !== null && r !== null) {
-      return { size: r * 2, x: cx - r, y: cy - r };
-    }
-  }
-
-  if (shape.tagName.toLowerCase() === "path") {
-    return getPathAnchor(shape.getAttribute("d"));
-  }
-
-  return null;
-}
-
-function getPathAnchor(pathDefinition: string | null): DotMatrixAnchor | null {
-  if (!pathDefinition) {
-    return null;
-  }
-
-  const match = /M\s*([+-]?(?:\d+\.?\d*|\.\d+))[\s,]+([+-]?(?:\d+\.?\d*|\.\d+))/.exec(
-    pathDefinition,
-  );
-
-  if (!match) {
-    return null;
-  }
-
-  const x = Number(match[1]);
-  const y = Number(match[2]);
-
-  if (!Number.isFinite(x) || !Number.isFinite(y)) {
-    return null;
-  }
-
-  return { size: 1, x: Math.floor(x), y: Math.floor(y) };
+  return resolveDotMatrixAnchorCoordinates(anchor, metrics);
 }
 
 export function removeOrphanedModuleClipPaths(svg: QrSvgElementLike) {

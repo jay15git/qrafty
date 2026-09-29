@@ -38,7 +38,7 @@ import {
 import type { QraftyState } from "@/features/qr/model/state";
 import { getContentValidationOverlayMessage } from "@/features/qr/content/static-payload";
 import type { StaticQrValidationResult } from "@/features/qr/content/static-payload";
-import { getCanvasQrLayerLayout } from "@/features/qr/rendering/svg-extension";
+import { getCanvasQrLayerLayout } from "@/features/qr/rendering/background-shape-layout";
 import { useCanvasQrMarkup } from "@/features/canvas/hooks/use-canvas-qr-markup";
 import type { CanvasQrStateByLayerId } from "@/features/canvas/model/document";
 import {
