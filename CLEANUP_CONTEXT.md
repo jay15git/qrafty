@@ -1,6 +1,6 @@
 # QRafty Deep Cleanup — Context & Execution Plan
 
-> Status: **executed through T4.7.** T1 (`986b114`), T1b (`9235f99`), T1c (`ae0ccc5`), T2 (`0b04881`), T3 (`27d5c2d`), T4.0 (`6c840d1`), T4.1 (`343a7d9`), T4.2 (`5215ebf`), T4.3 (`0c3610f`), T4.4 (`efd9f5f`), T4.5 (`1fe8429b`), T4.6 (`1764773`), T4.7 (`b75591f`). Remaining: plan item 9 (test rewrite) and the T5 manual prop pass.
+> Status: **executed through T4.7 + R2 round.** T1 (`986b114`), T1b (`9235f99`), T1c (`ae0ccc5`), T2 (`0b04881`), T3 (`27d5c2d`), T4.0 (`6c840d1`), T4.1 (`343a7d9`), T4.2 (`5215ebf`), T4.3 (`0c3610f`), T4.4 (`efd9f5f`), T4.5 (`1fe8429b`), T4.6 (`1764773`), T4.7 (`b75591f`), R2.0 (`b732e2e`), R2.1 (`82c0d63`), R2.2/R2.4 (`b1cdc06`), qr-fill merge (`6fdaf99`), Artboard/test fix (`f0ce480`, `d126554`), deep T4.5 fold (`edf4aa1`), dead-export sweep (`b39f5fc`). Remaining: plan item 9 (test rewrite) and the T5 manual prop pass.
 > Every tier is one commit and must leave `pnpm typecheck && pnpm test && pnpm lint && pnpm knip && pnpm exec fallow dead-code && pnpm build` green.
 
 ---
@@ -316,8 +316,39 @@ The §4 estimate assumed several cuts that turned out to be already done, alread
 
 ### Remaining work
 
-- **Deep T4.5** (~3.5–4k): fold the 8 extension modules into emitter options, delete `svg-extension/` + `svg-element.ts`, delete vendored React QR if no runtime consumer remains.
-- **Plan item 9** (test rewrite): targeted audit of implementation-pinning tests only — the suite is the refactor's safety net.
-- **T5 manual pass**: 732 never-set props + 124 soft fields (`.audit-tmp/never-set.txt` + `filter-props` output).
+- ~~**Deep T4.5** (~3.5–4k)~~ **DONE in `edf4aa16`**: `svg-extension/` + `svg-element.ts` + `svg-element.test.ts` + `svg-extension.test.ts` + `dot-matrix-motion` dead modules deleted; emit options (`QrSvgEmitExtensions` via `buildQrEmitExtensions`) replace the IR pass. Byte-parity verified on a 38-state harness before cutover. `svg-extension/` shrunk 3,277→963 LOC — only `dot-matrix-motion.ts` + trimmed `svg-dom-utils`/`svg-shape-bounds`/`dot-matrix-model`/`dot-matrix-palette` survive (they need real `DOMParser` for `adaptExternalQRCodeSVG`). Vendored `react-qr-code` gone.
+- **Plan item 9** (test rewrite): targeted audit of implementation-pinning tests only — the suite is the refactor's safety net. `svg-extension.test.ts` (~1.2k impl-pinning) already gone via the fold; `emit-parity.test.ts` was a temp harness, deleted post-verification.
+- **T5 manual pass**: 732 never-set props + 124 soft fields (`.audit-tmp/never-set.txt` + `filter-props` output). `.audit-tmp/` deleted — re-run scripts from git history if needed.
 - **Radix → Base UI**: deferred separate tier.
-- Housekeeping: `stash@{0}` (stale agent docs — safe to drop), `.audit-tmp/` (delete once T5 review is done).
+- Housekeeping: `stash@{0}` (stale agent docs — safe to drop).
+
+### R2 round (2026-09-29) — what landed
+
+| Commit     | Delta            | Scope                                                                                                                                                                                                                                                                                                                                                                                                     |
+| ---------- | ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `b732e2e`  | +0 / −?          | `onBackgroundTabChange`→`onCanvasBackgroundTabChange` fix + dead build/test-only code                                                                                                                                                                                                                                                                                                                     |
+| `82c0d63`  | +2,108 / −12,044 | Preview subsystem (`use-canvas-preview-state`, `canvas-preview-*`), shader `kind` union, QR tool chain (`qr-clipboard`, `qr-history` remnant, `qr-tool-*`), draft chains (`use-canvas-persistence`, `use-canvas-rehydration`), `domLayers`, dead returns, insert-menu/cropper/loader/family-drawer/fluid-hover, canvas-workspace-chrome consolidation                                                     |
+| `b1cdc06`  | +2,225 / −15,978 | Image-filter mode (`image-filter.ts`, `image-filter-*` test/controls), vendored `react-qr-code` (`packages/qr/vendor/`), theme single-source (cookie + `next-themes` re-export, `BlurFadeThemeTransition` removed), lucide icon prune (97 → ~12 live ids), `next.config.ts` `typescript.ignoreBuildErrors` dropped                                                                                        |
+| `6fdaf99`  | −69 net          | `qr-fill.ts` merged into `settings-bridge.ts` (applyQrFill fan-out)                                                                                                                                                                                                                                                                                                                                       |
+| `f0ce480`  | −213 test        | `Artboard.test.tsx` impl-pinning assertions pruned                                                                                                                                                                                                                                                                                                                                                        |
+| `d126554`  | +3 / −2          | `Artboard` memo missing `state` key (stale-render fix); scroll-area test pins removed                                                                                                                                                                                                                                                                                                                     |
+| `edf4aa16` | +3,108 / −5,249  | **Deep T4.5**: `svg-element.ts` + `svg-extension.ts` + 5 extension modules + `types.ts` + `unified-fill.ts` + dead core (`unified-image`, `unified-gradient`, `gradient-fill-utils`) deleted. Emit-tree (`emit-node.ts` 275 LOC) + `emit-extensions.ts` (1,350 LOC, packages) + `emit-extensions.ts` (191 LOC, features builder) added. `dot-matrix-*` files deduped onto `packages/qr/src/core` generics |
+| `b39f5fc`  | +2 / −28         | Dead exports post-fold: `serializeEmitNodes`, `emit-node`/`svg-utils` barrel re-exports, `qraftyRadialCenterInUserSpace`, `applyPatternModuleImageUrl` export, `buildOuterShapePathOps` export                                                                                                                                                                                                            |
+
+**Final numbers** (measured after fold, excl. vendored/tests):
+
+| Metric      | R2 start | Now              | Delta     |
+| ----------- | -------- | ---------------- | --------- |
+| Product LOC | ~103k    | ~93.8k           | **−9.2k** |
+| Test LOC    | ~20k     | ~17.2k           | **−2.8k** |
+| `pnpm test` | —        | 879/879          | —         |
+| Lint        | —        | 0 err / 121 warn | —         |
+| Knip        | —        | clean            | —         |
+
+### Bugs fixed in R2
+
+- `select/content.tsx` — ref-during-render (React 19 violation); DOM measurement moved to `useLayoutEffect`.
+- `Artboard` memo — `state` added to memo keys (stale-render risk).
+- `emit-markup` — SVG attr-name map (`shapeRendering`/`stopColor`) preserved through the EmitNode rewrite.
+- `emit-extensions` — `xlink:href` namespace handling, merged clip-path `d` joiner (`" "` separator), `getMergeableClipPathData` moved to `dot-matrix-palette` (only consumer).
+- `features/qr/rendering/emit-parity.test.ts` — temp 38-state byte-parity harness, deleted post-verification; replaced by `emit-extensions.test.ts` (behavior-level).
