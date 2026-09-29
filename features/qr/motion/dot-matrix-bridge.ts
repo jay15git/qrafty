@@ -1,5 +1,3 @@
-"use client";
-
 import { adaptCanvasSvgMarkupForDotMatrixMotion } from "@/features/qr/motion/canvas-svg-adapter";
 
 import { renderDashboardQrSvgMarkup } from "@/features/qr/rendering/qr-svg";

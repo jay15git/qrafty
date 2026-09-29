@@ -5,10 +5,7 @@ import { fillFromHex } from "@/features/shell/settings/FillPicker.utils";
 import { degreesToRadians } from "@/features/qr/styles/gradient-controls";
 import type { QraftyGradient } from "@/features/qr/model/state";
 import type { SettingsModel } from "@/features/shell/hooks/use-toolbar-settings-model";
-import type {
-  PatternSettings,
-  PatternSettingsPatch,
-} from "@/features/shell/model/settings-model";
+import type { PatternSettings, PatternSettingsPatch } from "@/features/shell/model/settings-model";
 import {
   applyCardFill,
   applyPatternModuleFill,
@@ -306,8 +303,7 @@ describe("model-level qr fill routing", () => {
       onPatternSettingsChange: (patch: PatternSettingsPatch) => calls.pattern.push(patch),
       onCornersSettingsChange: calls.corners,
       onLogoSettingsChange: calls.logo,
-      onUnifiedQrFillSettingsChange: (patches: UnifiedQrFillPatches) =>
-        calls.unified.push(patches),
+      onUnifiedQrFillSettingsChange: (patches: UnifiedQrFillPatches) => calls.unified.push(patches),
     } as unknown as SettingsModel;
     return { model, calls };
   }

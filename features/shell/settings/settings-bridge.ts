@@ -401,10 +401,7 @@ function unifiedQrFillSettings(model: SettingsModel): UnifiedQrFillSettings {
 }
 
 /** Sends a unified patch set through the atomic handler when available. */
-export function applyQrUnifiedFillPatches(
-  model: SettingsModel,
-  patches: UnifiedQrFillPatches,
-) {
+export function applyQrUnifiedFillPatches(model: SettingsModel, patches: UnifiedQrFillPatches) {
   if (model.onUnifiedQrFillSettingsChange) {
     model.onUnifiedQrFillSettingsChange(patches);
     return;
