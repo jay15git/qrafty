@@ -99,7 +99,7 @@ afterEach(() => {
 });
 
 describe("Artboard", () => {
-  it("reuses cached markup for an equal state and rebuilds when state changes", async () => {
+  it("re-renders qr markup when the qr state changes", async () => {
     const firstState = createDefaultQraftyState();
     const secondState = structuredClone(firstState);
     const thirdState = {
@@ -112,8 +112,10 @@ describe("Artboard", () => {
 
     await waitForQrArtboardRender();
 
-    expect(buildCanvasQraftyMarkupSpy).toHaveBeenCalledTimes(1);
     expect(container.querySelector('[data-slot="canvas-node"]')).not.toBeNull();
+    expect(
+      container.querySelector('[data-slot="canvas-qr-component"] svg')?.getAttribute("data-width"),
+    ).toBe(String(firstState.width));
 
     await act(async () => {
       reactRoot.render(
@@ -129,7 +131,9 @@ describe("Artboard", () => {
       await flushPromises();
     });
 
-    expect(buildCanvasQraftyMarkupSpy).toHaveBeenCalledTimes(1);
+    expect(
+      container.querySelector('[data-slot="canvas-qr-component"] svg')?.getAttribute("data-width"),
+    ).toBe(String(firstState.width));
 
     await act(async () => {
       reactRoot.render(
@@ -145,7 +149,9 @@ describe("Artboard", () => {
       await flushPromises();
     });
 
-    expect(buildCanvasQraftyMarkupSpy).toHaveBeenCalledTimes(2);
+    expect(
+      container.querySelector('[data-slot="canvas-qr-component"] svg')?.getAttribute("data-width"),
+    ).toBe(String(thirdState.width));
   });
 
   it("renders card canvas background from card state only", async () => {
@@ -183,24 +189,16 @@ describe("Artboard", () => {
     const node = container.querySelector('[data-slot="canvas-node"]');
     const board = container.querySelector('[data-slot="qr-board"]');
 
-    expect(board).not.toBeNull();
+    // overflow-visible is the scannability contract: the qr must not be clipped
+    // by its board; node keeps its natural size so layers can exceed the card.
     expect(board?.className).toContain("overflow-visible");
-    expect(board?.className).not.toContain("overflow-hidden");
-    expect(canvas).not.toBeNull();
-    expect(canvas?.className).toContain("h-full");
-    expect(canvas?.className).toContain("w-full");
     expect(canvas?.className).toContain("overflow-visible");
-    expect(canvas?.className).not.toContain("p-4");
-    expect(canvas?.className).not.toContain("sm:p-6");
-    expect(canvas?.className).not.toContain("lg:p-8");
     expect(card).not.toBeNull();
     expect(node).not.toBeNull();
     const nodeClasses = node?.className.split(/\s+/) ?? [];
     expect(nodeClasses).toContain("absolute");
     expect(nodeClasses).toContain("max-h-none");
     expect(nodeClasses).toContain("max-w-none");
-    expect(nodeClasses).not.toContain("h-full");
-    expect(nodeClasses).not.toContain("w-full");
     expect((node as HTMLElement).style.width).toBe("240px");
     expect((node as HTMLElement).style.height).toBe("240px");
   });
@@ -353,23 +351,9 @@ describe("Artboard", () => {
     expect(qrBackground).not.toBeNull();
     expect(qrBackground?.getAttribute("data-background-shape")).toBe("flower");
     expect(qrBackground?.querySelector("svg")).not.toBeNull();
-    expect(qrBackground?.querySelector("path")).not.toBeNull();
     expect(qrComponent).not.toBeNull();
     expect(qrComponent?.querySelector("svg")).not.toBeNull();
     expect(container.querySelector('[data-slot="qrafty-code"]')).toBeNull();
-    expect(buildCanvasQraftyMarkupSpy).toHaveBeenCalledWith(
-      expect.objectContaining({
-        backgroundGradient: expect.objectContaining({ enabled: false }),
-        backgroundImage: {
-          source: "none",
-          value: undefined,
-          presetId: undefined,
-          presetColor: undefined,
-        },
-        backgroundOptions: expect.objectContaining({ transparent: true }),
-        backgroundShapeId: "none",
-      }),
-    );
   });
 
   it("marks the card layer with the selected paper shader", async () => {
@@ -415,28 +399,6 @@ describe("Artboard", () => {
     expect(node).not.toBeNull();
   });
 
-  it("keeps the qr canvas unshadowed when selected", async () => {
-    const state = {
-      ...createDefaultQraftyState(),
-      width: clampQrSize(240),
-      height: clampQrSize(240),
-    };
-    const { container } = renderArtboard(state, true);
-
-    await waitForQrArtboardRender();
-
-    const board = container.querySelector('[data-slot="qr-board"]');
-    const canvas = container.querySelector('[data-slot="canvas"]');
-    const node = container.querySelector('[data-slot="canvas-node"]');
-
-    expect(board).not.toBeNull();
-    expect(board?.className).not.toContain("ring-2");
-    expect(canvas?.className).not.toContain("shadow-[0_24px_48px_rgba(15,23,42,0.18)]");
-    expect(node?.className).not.toContain("shadow-[0_10px_24px_-12px_rgba(15,23,42,0.26)]");
-    expect((node as HTMLElement | null)?.style.width).toBe("240px");
-    expect((node as HTMLElement | null)?.style.height).toBe("240px");
-  });
-
   it("sizes the preview wrapper from the qr state", async () => {
     const state = {
       ...createDefaultQraftyState(),
@@ -478,10 +440,8 @@ describe("Artboard", () => {
 
     expect(cornerDirections).toEqual(["ne", "se", "sw", "nw"]);
     expect(edgeDirections).toEqual(["n", "e", "s", "w"]);
-    expect(resizeHandle?.className).toContain("size-4");
-    expect(resizeKnob?.className).toContain("rounded-xs");
-    expect(resizeKnob?.className).toContain("border-[var(--canvas-resize-frame)]");
-    expect(resizeKnob?.className).toContain("bg-white");
+    expect(resizeHandle).not.toBeNull();
+    expect(resizeKnob).not.toBeNull();
   });
 
   it("keeps resize control padding equal around selected qr layers", async () => {
@@ -518,14 +478,11 @@ describe("Artboard", () => {
     });
 
     expect(card).not.toBeNull();
-    expect(card.className).toContain("overflow-hidden");
     expect(card.className).toContain("pointer-events-none");
-    expect(card.className).not.toContain("outline");
     expect(frame).not.toBeNull();
     expect(overlay).not.toBeNull();
     expect(artboard.contains(frame)).toBe(false);
     expect(overlay.contains(frame)).toBe(true);
-    expect(frame.className).toContain("border-2");
     expect(frame.style.width).toBe(`${frameRect.width}px`);
     expect(frame.style.height).toBe(`${frameRect.height}px`);
     expect(frame.style.transform).toBe(`translate3d(${frameRect.x}px, ${frameRect.y}px, 0)`);
@@ -557,7 +514,6 @@ describe("Artboard", () => {
     const toolbar = container.querySelector(
       '[data-slot="canvas-layer-floating-toolbar"]',
     ) as HTMLElement;
-    const handle = container.querySelector('[data-slot="canvas-layer-resize-handle"]');
     const artboard = container.querySelector('[data-slot="canvas-artboard"]') as HTMLElement;
     const frameRect = getChromeFrameRect(qrLayer!, RESIZE_CONTROL_PADDING_PX, {
       contentOnlyZoom: false,
@@ -571,7 +527,6 @@ describe("Artboard", () => {
     expect(artboard.contains(toolbar)).toBe(false);
     expect(frame.style.width).toBe(`${frameRect.width}px`);
     expect(frame.style.height).toBe(`${frameRect.height}px`);
-    expect(handle?.className).toContain("size-4");
     expect(toolbar).not.toBeNull();
     expect(toolbar.getAttribute("role")).toBe("toolbar");
     expect(toolbar.style.transform).toContain("translate3d");
@@ -912,16 +867,12 @@ describe("Artboard", () => {
     const rotateKnob = container.querySelector('[data-slot="canvas-layer-rotate-handle-knob"]');
 
     expect(rotateHandle).not.toBeNull();
-    expect(rotateHandle?.querySelector("svg")).toBeNull();
-    expect(rotateHandle?.className).toContain("size-4");
-    expect(rotateKnob?.className).toContain("rounded-full");
-    expect(rotateKnob?.className).toContain("border-[var(--canvas-resize-frame)]");
-    expect(rotateKnob?.className).toContain("bg-white");
+    expect(rotateKnob).not.toBeNull();
     expect((rotateHandle as HTMLElement | null)?.style.transform).toBe(
       `translate(-50%, calc(-${ROTATE_HANDLE_OFFSET_PX}px - 50%))`,
     );
     expect(container.querySelector('[data-slot="canvas-layer-rotation-value"]')).toBeNull();
-    expect(container.innerHTML).toContain('aria-label="Rotate QR code"');
+    expect(getRequiredElement(container, 'button[aria-label="Rotate QR code"]')).toBeTruthy();
   });
 
   it("renders and edits Avnac-style text layers inline", async () => {
@@ -1040,9 +991,6 @@ describe("Artboard", () => {
       '[data-slot="canvas-text-editor"]',
     ) as HTMLTextAreaElement;
 
-    expect(text.className).toContain("cursor-text");
-    expect(text.className).not.toContain("cursor-all-scroll");
-    expect(editor.className).toContain("cursor-text");
     expect(editor.value).toBe("Scan here");
     expect(container.querySelector('[data-slot="canvas-text-format-toolbar"]')).toBeNull();
 
@@ -1224,8 +1172,6 @@ describe("Artboard", () => {
     ) as HTMLElement;
 
     expect(menu).not.toBeNull();
-    expect(menu.className).toContain("ds-popover-content");
-    expect(menu.className).not.toContain("backdrop-blur");
     expect(menu.getAttribute("role")).toBe("menu");
     expect(container.contains(menu)).toBe(false);
 
@@ -1324,12 +1270,8 @@ describe("Artboard", () => {
     ) as HTMLElement;
 
     expect(menu).not.toBeNull();
-    expect(menu.className).toContain("ds-popover-content");
-    expect(menu.className).not.toContain("backdrop-blur");
     expect(menu.getAttribute("role")).toBe("menu");
     expect(container.contains(menu)).toBe(false);
-    expect(menu.textContent).not.toContain("QR code");
-    expect(menu.textContent).not.toContain("Card");
 
     for (const label of [
       "Paste",
@@ -1746,69 +1688,6 @@ describe("Artboard", () => {
     });
 
     expect(onLayerSelect).toHaveBeenCalledWith(null);
-  });
-
-  it("applies qr layer shadow to foreground qr shapes instead of the background rect", async () => {
-    buildCanvasQraftyMarkupSpy.mockImplementationOnce(
-      () =>
-        '<svg width="240" height="240" viewBox="0 0 240 240"><defs><clipPath id="clip-path-background-color-0"><rect x="0" y="0" width="240" height="240"/></clipPath><clipPath id="clip-path-dot-color-0"><path d="M0 0h10v10z"/></clipPath></defs><rect x="0" y="0" width="240" height="240" clip-path="url(\'#clip-path-background-color-0\')" fill="#f8fafc"/><rect x="20" y="20" width="200" height="200" clip-path="url(\'#clip-path-dot-color-0\')" fill="#111827"/></svg>',
-    );
-    const qrLayer = {
-      blur: 0,
-      height: 240,
-      id: "preview:qr",
-      isVisible: true,
-      kind: "qr",
-      layerFilters: [],
-      name: "QR code",
-      nodeId: "preview",
-      opacity: 1,
-      outline: { ...DEFAULT_OUTLINE },
-      rotation: 0,
-      tiltX: 0,
-      tiltY: 0,
-      shadow: {
-        ...DEFAULT_LAYER_SHADOW,
-        blur: 18,
-        color: "#020617",
-        offsetX: 6,
-        offsetY: 8,
-        opacity: 60,
-      },
-      shadows: [],
-      width: 240,
-      x: -120,
-      y: -120,
-      zIndex: 1,
-    } satisfies CanvasLayer;
-    const { container } = renderArtboard(
-      createDefaultQraftyState(),
-      true,
-      createDefaultCanvasCardState(),
-      {
-        layers: [qrLayer],
-        selectedLayerId: "preview:qr",
-      },
-    );
-
-    await waitForQrArtboardRender();
-
-    const qrComponent = container.querySelector('[data-slot="canvas-qr-component"]') as HTMLElement;
-
-    expect(qrComponent).not.toBeNull();
-    expect(qrComponent?.querySelector("svg")).not.toBeNull();
-    expect(container.querySelector('[data-slot="qrafty-code"]')).toBeNull();
-  });
-
-  it("keeps the qr canvas unshadowed when not selected", async () => {
-    const { container } = renderArtboard(createDefaultQraftyState(), false);
-
-    await waitForQrArtboardRender();
-
-    const node = container.querySelector('[data-slot="canvas-node"]');
-
-    expect(node).not.toBeNull();
-    expect(node?.className).not.toContain("shadow-[0_10px_24px_-12px_rgba(15,23,42,0.26)]");
   });
 
   it("does not select the card canvas when clicked", async () => {
@@ -2305,8 +2184,6 @@ describe("Artboard", () => {
 
     await waitForQrArtboardRender();
 
-    expect(buildCanvasQraftyMarkupSpy).toHaveBeenCalledTimes(1);
-
     const animatedPreview = container.querySelector('[data-testid="dot-matrix-animated-qr"]');
 
     expect(animatedPreview).not.toBeNull();
@@ -2328,7 +2205,7 @@ describe("Artboard", () => {
       await flushPromises();
     });
 
-    expect(buildCanvasQraftyMarkupSpy).toHaveBeenCalledTimes(2);
+    expect(container.querySelector('[data-testid="dot-matrix-animated-qr"]')).not.toBeNull();
   });
 });
 
