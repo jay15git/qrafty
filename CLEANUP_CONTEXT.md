@@ -1,6 +1,6 @@
 # QRafty Deep Cleanup — Context & Execution Plan
 
-> Status: **plan only — nothing executed yet.** Tree is clean at `22429fe2` (plus this file and `.audit-tmp/`).
+> Status: **executed through T4.7.** T1 (`986b114`), T1b (`9235f99`), T1c (`ae0ccc5`), T2 (`0b04881`), T3 (`27d5c2d`), T4.0 (`6c840d1`), T4.1 (`343a7d9`), T4.2 (`5215ebf`), T4.3 (`0c3610f`), T4.4 (`efd9f5f`), T4.5 (`1fe8429b`), T4.6 (`1764773`), T4.7 (`b75591f`). Remaining: plan item 9 (test rewrite) and the T5 manual prop pass.
 > Every tier is one commit and must leave `pnpm typecheck && pnpm test && pnpm lint && pnpm knip && pnpm exec fallow dead-code && pnpm build` green.
 
 ---
