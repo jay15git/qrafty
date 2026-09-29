@@ -2,17 +2,14 @@ import {
   cloneCanvasCardPaperShaderState,
   createDefaultCanvasCardPaperShader,
 } from "@/features/canvas/model/card-state";
-import {
-  DEFAULT_DRAFTING_OUTLINE,
-  legacyShadowToShadowLayer,
-} from "@/features/canvas/model/effects";
+import { DEFAULT_OUTLINE, legacyShadowToShadowLayer } from "@/features/canvas/model/effects";
 import { createUniformCornerRadii } from "@/features/canvas/model/corner-radius";
 import {
-  DEFAULT_DRAFTING_IMAGE_LAYER,
-  DEFAULT_DRAFTING_LAYER_SHADOW,
-  DEFAULT_DRAFTING_SHADER_LAYER,
-  DEFAULT_DRAFTING_SHAPE_LAYER,
-  DEFAULT_DRAFTING_TEXT_LAYER,
+  DEFAULT_IMAGE_LAYER,
+  DEFAULT_LAYER_SHADOW,
+  DEFAULT_SHADER_LAYER,
+  DEFAULT_SHAPE_LAYER,
+  DEFAULT_TEXT_LAYER,
   getCanvasCardLayerId,
   getCanvasQrLayerId,
   type CanvasLayer,
@@ -32,10 +29,10 @@ export function cloneCanvasLayer(layer: CanvasLayer): CanvasLayer {
       : undefined,
     children: layer.children?.map(cloneCanvasLayer),
     layerFilters: (layer.layerFilters ?? []).map((filter) => ({ ...filter })),
-    outline: { ...(layer.outline ?? DEFAULT_DRAFTING_OUTLINE) },
-    shadow: { ...(layer.shadow ?? DEFAULT_DRAFTING_LAYER_SHADOW) },
+    outline: { ...(layer.outline ?? DEFAULT_OUTLINE) },
+    shadow: { ...(layer.shadow ?? DEFAULT_LAYER_SHADOW) },
     shadows: (
-      layer.shadows ?? [legacyShadowToShadowLayer(layer.shadow ?? DEFAULT_DRAFTING_LAYER_SHADOW)]
+      layer.shadows ?? [legacyShadowToShadowLayer(layer.shadow ?? DEFAULT_LAYER_SHADOW)]
     ).map((shadow) => ({ ...shadow })),
     textRuns: layer.textRuns?.map((run) => ({ ...run })),
     illustrationColorStops: layer.illustrationColorStops?.map((stop) => ({ ...stop })),
@@ -77,49 +74,49 @@ function fallbackLayerKindDefaults(kind: CanvasLayerKind): Partial<CanvasLayer> 
       return {
         height: 48,
         y: -24,
-        fill: DEFAULT_DRAFTING_TEXT_LAYER.fill,
-        fontFamily: DEFAULT_DRAFTING_TEXT_LAYER.fontFamily,
-        fontId: DEFAULT_DRAFTING_TEXT_LAYER.fontId,
-        fontSize: DEFAULT_DRAFTING_TEXT_LAYER.fontSize,
-        fontStyle: DEFAULT_DRAFTING_TEXT_LAYER.fontStyle,
-        fontWeight: DEFAULT_DRAFTING_TEXT_LAYER.fontWeight,
-        letterSpacing: DEFAULT_DRAFTING_TEXT_LAYER.letterSpacing,
-        lineHeight: DEFAULT_DRAFTING_TEXT_LAYER.lineHeight,
-        text: DEFAULT_DRAFTING_TEXT_LAYER.text,
-        textAlign: DEFAULT_DRAFTING_TEXT_LAYER.textAlign,
-        underline: DEFAULT_DRAFTING_TEXT_LAYER.underline,
+        fill: DEFAULT_TEXT_LAYER.fill,
+        fontFamily: DEFAULT_TEXT_LAYER.fontFamily,
+        fontId: DEFAULT_TEXT_LAYER.fontId,
+        fontSize: DEFAULT_TEXT_LAYER.fontSize,
+        fontStyle: DEFAULT_TEXT_LAYER.fontStyle,
+        fontWeight: DEFAULT_TEXT_LAYER.fontWeight,
+        letterSpacing: DEFAULT_TEXT_LAYER.letterSpacing,
+        lineHeight: DEFAULT_TEXT_LAYER.lineHeight,
+        text: DEFAULT_TEXT_LAYER.text,
+        textAlign: DEFAULT_TEXT_LAYER.textAlign,
+        underline: DEFAULT_TEXT_LAYER.underline,
       };
     case "image":
       return {
-        cornerRadius: DEFAULT_DRAFTING_IMAGE_LAYER.cornerRadius,
-        cornerRadii: createUniformCornerRadii(DEFAULT_DRAFTING_IMAGE_LAYER.cornerRadius),
+        cornerRadius: DEFAULT_IMAGE_LAYER.cornerRadius,
+        cornerRadii: createUniformCornerRadii(DEFAULT_IMAGE_LAYER.cornerRadius),
         height: 180,
         width: 180,
         x: -90,
         y: -90,
-        imageFit: DEFAULT_DRAFTING_IMAGE_LAYER.imageFit,
-        imageSource: DEFAULT_DRAFTING_IMAGE_LAYER.imageSource,
-        imageValue: DEFAULT_DRAFTING_IMAGE_LAYER.imageValue,
+        imageFit: DEFAULT_IMAGE_LAYER.imageFit,
+        imageSource: DEFAULT_IMAGE_LAYER.imageSource,
+        imageValue: DEFAULT_IMAGE_LAYER.imageValue,
       };
     case "shape":
       return {
-        cornerRadius: DEFAULT_DRAFTING_SHAPE_LAYER.cornerRadius,
-        cornerRadii: createUniformCornerRadii(DEFAULT_DRAFTING_SHAPE_LAYER.cornerRadius),
+        cornerRadius: DEFAULT_SHAPE_LAYER.cornerRadius,
+        cornerRadii: createUniformCornerRadii(DEFAULT_SHAPE_LAYER.cornerRadius),
         height: 180,
         width: 180,
         x: -90,
         y: -90,
-        fill: DEFAULT_DRAFTING_SHAPE_LAYER.fill,
-        shapeId: DEFAULT_DRAFTING_SHAPE_LAYER.shapeId,
-        stroke: DEFAULT_DRAFTING_SHAPE_LAYER.stroke,
-        strokeOpacity: DEFAULT_DRAFTING_SHAPE_LAYER.strokeOpacity,
-        strokeStyle: DEFAULT_DRAFTING_SHAPE_LAYER.strokeStyle,
-        strokeWidth: DEFAULT_DRAFTING_SHAPE_LAYER.strokeWidth,
+        fill: DEFAULT_SHAPE_LAYER.fill,
+        shapeId: DEFAULT_SHAPE_LAYER.shapeId,
+        stroke: DEFAULT_SHAPE_LAYER.stroke,
+        strokeOpacity: DEFAULT_SHAPE_LAYER.strokeOpacity,
+        strokeStyle: DEFAULT_SHAPE_LAYER.strokeStyle,
+        strokeWidth: DEFAULT_SHAPE_LAYER.strokeWidth,
       };
     case "shader":
       return {
-        cornerRadius: DEFAULT_DRAFTING_SHADER_LAYER.cornerRadius,
-        cornerRadii: createUniformCornerRadii(DEFAULT_DRAFTING_SHADER_LAYER.cornerRadius),
+        cornerRadius: DEFAULT_SHADER_LAYER.cornerRadius,
+        cornerRadii: createUniformCornerRadii(DEFAULT_SHADER_LAYER.cornerRadius),
         height: 180,
         width: 180,
         x: -90,
@@ -132,7 +129,7 @@ function fallbackLayerKindDefaults(kind: CanvasLayerKind): Partial<CanvasLayer> 
 }
 
 export function createFallbackLayer(nodeId: string, kind: CanvasLayerKind): CanvasLayer {
-  const defaultShadow = { ...DEFAULT_DRAFTING_LAYER_SHADOW };
+  const defaultShadow = { ...DEFAULT_LAYER_SHADOW };
 
   return {
     blur: 0,
@@ -155,7 +152,7 @@ export function createFallbackLayer(nodeId: string, kind: CanvasLayerKind): Canv
     name: FALLBACK_LAYER_NAMES[kind],
     nodeId,
     opacity: 1,
-    outline: { ...DEFAULT_DRAFTING_OUTLINE },
+    outline: { ...DEFAULT_OUTLINE },
     rotation: 0,
     tiltX: 0,
     tiltY: 0,

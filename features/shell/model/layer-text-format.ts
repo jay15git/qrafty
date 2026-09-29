@@ -1,8 +1,5 @@
 import { resolveCanvasFont } from "@/features/canvas/model/fonts";
-import {
-  DEFAULT_DRAFTING_TEXT_LAYER,
-  type CanvasLayer,
-} from "@/features/canvas/model/layers/shared";
+import { DEFAULT_TEXT_LAYER, type CanvasLayer } from "@/features/canvas/model/layers/shared";
 import { getLayerFontWeight, getNearestFontWeight } from "@/features/shell/model/font-weight";
 
 /** Resolved text-format state shared by the desktop + mobile layer toolbars. */
@@ -13,10 +10,10 @@ export function getTextLayerFormatState(layer: CanvasLayer) {
   }).weights;
 
   return {
-    fontStyle: layer.fontStyle ?? DEFAULT_DRAFTING_TEXT_LAYER.fontStyle,
+    fontStyle: layer.fontStyle ?? DEFAULT_TEXT_LAYER.fontStyle,
     fontWeight: getLayerFontWeight(layer.fontWeight, supportedWeights),
     supportedWeights,
-    textAlign: layer.textAlign ?? DEFAULT_DRAFTING_TEXT_LAYER.textAlign,
+    textAlign: layer.textAlign ?? DEFAULT_TEXT_LAYER.textAlign,
     underline: Boolean(layer.underline),
   };
 }
@@ -35,8 +32,7 @@ export function toggleTextBoldPatch(layer: CanvasLayer): Partial<CanvasLayer> {
 
 export function toggleTextItalicPatch(layer: CanvasLayer): Partial<CanvasLayer> {
   return {
-    fontStyle:
-      (layer.fontStyle ?? DEFAULT_DRAFTING_TEXT_LAYER.fontStyle) === "italic" ? "normal" : "italic",
+    fontStyle: (layer.fontStyle ?? DEFAULT_TEXT_LAYER.fontStyle) === "italic" ? "normal" : "italic",
     textRuns: undefined,
   };
 }

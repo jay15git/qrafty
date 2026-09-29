@@ -21,7 +21,7 @@ import {
   applyLogoPresetSelection,
 } from "@/features/qr/model/actions";
 import type { QraftyGradient, QraftyState } from "@/features/qr/model/state";
-import type { LogoSettingsPatch } from "@/features/shell/model/toolbar-types";
+import type { LogoSettingsPatch } from "@/features/shell/model/settings-model";
 import type { CanvasAssetSourceMode } from "@/features/canvas/components/canvas-reducer";
 
 export function useQrLogoActions({

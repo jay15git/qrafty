@@ -3,7 +3,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 
 import {
-  DEFAULT_DRAFTING_FONT_ID,
+  DEFAULT_FONT_ID,
   DRAFTING_FONT_REGISTRY,
   getCanvasFontByFamily,
   getCanvasFontCssFamily,
@@ -20,7 +20,7 @@ describe("canvas font registry", () => {
   });
 
   it("resolves local, Fontshare, and system fonts", () => {
-    expect(resolveCanvasFont({ fontId: DEFAULT_DRAFTING_FONT_ID })).toMatchObject({
+    expect(resolveCanvasFont({ fontId: DEFAULT_FONT_ID })).toMatchObject({
       family: "Satoshi",
       source: "local",
     });
@@ -82,8 +82,8 @@ describe("canvas font registry", () => {
   });
 
   it("injects local Satoshi font-face CSS once", async () => {
-    await loadCanvasFont(DEFAULT_DRAFTING_FONT_ID);
-    await loadCanvasFont(DEFAULT_DRAFTING_FONT_ID);
+    await loadCanvasFont(DEFAULT_FONT_ID);
+    await loadCanvasFont(DEFAULT_FONT_ID);
 
     const styles = document.head.querySelectorAll("style#canvas-font-local-satoshi");
 

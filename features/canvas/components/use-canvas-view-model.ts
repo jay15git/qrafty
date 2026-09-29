@@ -9,10 +9,10 @@ import { useCanvasBoards } from "@/features/canvas/components/use-canvas-boards"
 import { useCanvasActions } from "@/features/canvas/components/use-canvas-actions";
 import { buildCanvasWorkspaceController } from "@/features/canvas/components/chrome-controller";
 import { type CanvasBoardToolbarVariant } from "@/features/canvas/components/Canvas";
-import type { ToolbarToolId } from "@/features/shell/model/toolbar-types";
+import type { SettingsToolId } from "@/features/shell/model/settings-model";
 
 type CanvasSurfaceViewModelInput = {
-  initialActiveTool?: ToolbarToolId;
+  initialActiveTool?: SettingsToolId;
   boardToolbarVariant: CanvasBoardToolbarVariant;
 };
 

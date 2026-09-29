@@ -5,8 +5,8 @@ import {
   resolveLayerCornerRadii,
 } from "@/features/canvas/model/corner-radius";
 import {
-  DEFAULT_DRAFTING_TEXT_COLOR,
-  DEFAULT_DRAFTING_TEXT_LAYER,
+  DEFAULT_TEXT_COLOR,
+  DEFAULT_TEXT_LAYER,
   type CanvasLayer,
   type CanvasTextRun,
 } from "@/features/canvas/model/layers/shared";
@@ -402,9 +402,9 @@ const TEXT_ALIGN_ANCHORS: Record<string, string> = {
 
 function getCanvasTextLayerSvg(layer: CanvasLayer, options?: Pick<LayeredSvgOptions, "clipDefs">) {
   const filter = getCanvasLayerFilterAttr(layer);
-  const fontSize = layer.fontSize ?? DEFAULT_DRAFTING_TEXT_LAYER.fontSize;
-  const lineHeight = layer.lineHeight ?? DEFAULT_DRAFTING_TEXT_LAYER.lineHeight;
-  const textAlign = layer.textAlign ?? DEFAULT_DRAFTING_TEXT_LAYER.textAlign;
+  const fontSize = layer.fontSize ?? DEFAULT_TEXT_LAYER.fontSize;
+  const lineHeight = layer.lineHeight ?? DEFAULT_TEXT_LAYER.lineHeight;
+  const textAlign = layer.textAlign ?? DEFAULT_TEXT_LAYER.textAlign;
   const anchor = TEXT_ALIGN_ANCHORS[textAlign] ?? "start";
   const x = textAlign === "center" ? layer.width / 2 : textAlign === "right" ? layer.width : 0;
   const hasTextRuns =
@@ -414,7 +414,7 @@ function getCanvasTextLayerSvg(layer: CanvasLayer, options?: Pick<LayeredSvgOpti
   const fillPaint =
     shouldRenderShapeFillGradient(layer) && layer.fill?.kind === "gradient"
       ? paintToSvgPaint(layer.fill, `${getSvgId(layer.id)}-text-fill-gradient`)
-      : { def: "", fill: paintSolidColor(layer.fill, DEFAULT_DRAFTING_TEXT_COLOR) };
+      : { def: "", fill: paintSolidColor(layer.fill, DEFAULT_TEXT_COLOR) };
   if (fillPaint.def && options?.clipDefs) {
     options.clipDefs.push(fillPaint.def);
   }
@@ -433,10 +433,10 @@ function getCanvasTextLayerSvg(layer: CanvasLayer, options?: Pick<LayeredSvgOpti
     .join("");
   const textAttrs = hasTextRuns
     ? ""
-    : `fill="${escapeXml(fillPaint.fill)}" font-family="${escapeXml(getCanvasFontCssFamily({ fontFamily: layer.fontFamily, fontId: layer.fontId }))}" font-size="${fontSize}" font-style="${layer.fontStyle ?? DEFAULT_DRAFTING_TEXT_LAYER.fontStyle}" font-weight="${layer.fontWeight ?? DEFAULT_DRAFTING_TEXT_LAYER.fontWeight}" `;
+    : `fill="${escapeXml(fillPaint.fill)}" font-family="${escapeXml(getCanvasFontCssFamily({ fontFamily: layer.fontFamily, fontId: layer.fontId }))}" font-size="${fontSize}" font-style="${layer.fontStyle ?? DEFAULT_TEXT_LAYER.fontStyle}" font-weight="${layer.fontWeight ?? DEFAULT_TEXT_LAYER.fontWeight}" `;
   const decoration = !hasTextRuns && layer.underline ? ` text-decoration="underline"` : "";
 
-  return `<g opacity="${layer.opacity}" transform="${getCanvasLayerSvgTransform(layer)}"${filter}><text ${textAttrs}letter-spacing="${layer.letterSpacing ?? DEFAULT_DRAFTING_TEXT_LAYER.letterSpacing}" text-anchor="${anchor}"${decoration}>${tspans}</text></g>`;
+  return `<g opacity="${layer.opacity}" transform="${getCanvasLayerSvgTransform(layer)}"${filter}><text ${textAttrs}letter-spacing="${layer.letterSpacing ?? DEFAULT_TEXT_LAYER.letterSpacing}" text-anchor="${anchor}"${decoration}>${tspans}</text></g>`;
 }
 
 function splitCanvasTextRunsByLine(layer: CanvasLayer) {
@@ -473,7 +473,7 @@ function getCanvasTextLayerRuns(layer: CanvasLayer): CanvasTextRun[] {
 function getCanvasTextRunSvg(layer: CanvasLayer, run: CanvasTextRun, layerFillPaint: string) {
   const decoration = (run.underline ?? layer.underline) ? ` text-decoration="underline"` : "";
 
-  return `<tspan fill="${escapeXml(run.fill ?? layerFillPaint)}" font-family="${escapeXml(getCanvasFontCssFamily({ fontFamily: run.fontFamily ?? layer.fontFamily, fontId: run.fontId ?? layer.fontId }))}" font-size="${run.fontSize ?? layer.fontSize ?? DEFAULT_DRAFTING_TEXT_LAYER.fontSize}" font-style="${run.fontStyle ?? layer.fontStyle ?? DEFAULT_DRAFTING_TEXT_LAYER.fontStyle}" font-weight="${run.fontWeight ?? layer.fontWeight ?? DEFAULT_DRAFTING_TEXT_LAYER.fontWeight}"${decoration}>${escapeXml(run.text)}</tspan>`;
+  return `<tspan fill="${escapeXml(run.fill ?? layerFillPaint)}" font-family="${escapeXml(getCanvasFontCssFamily({ fontFamily: run.fontFamily ?? layer.fontFamily, fontId: run.fontId ?? layer.fontId }))}" font-size="${run.fontSize ?? layer.fontSize ?? DEFAULT_TEXT_LAYER.fontSize}" font-style="${run.fontStyle ?? layer.fontStyle ?? DEFAULT_TEXT_LAYER.fontStyle}" font-weight="${run.fontWeight ?? layer.fontWeight ?? DEFAULT_TEXT_LAYER.fontWeight}"${decoration}>${escapeXml(run.text)}</tspan>`;
 }
 
 function getCanvasLayerSvgTransform(layer: CanvasLayer) {

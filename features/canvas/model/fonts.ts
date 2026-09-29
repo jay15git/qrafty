@@ -29,7 +29,7 @@ type CanvasFontRegistryEntry = {
 
 const DRAFTING_FONT_FALLBACK = "system-ui, Arial, sans-serif";
 
-export const DEFAULT_DRAFTING_FONT_ID = "local:satoshi";
+export const DEFAULT_FONT_ID = "local:satoshi";
 
 const STATIC_FONT_ENTRIES: readonly CanvasFontRegistryEntry[] = [
   {
@@ -52,7 +52,7 @@ const STATIC_FONT_ENTRIES: readonly CanvasFontRegistryEntry[] = [
     ].join("\n"),
     fallback: DRAFTING_FONT_FALLBACK,
     family: "Satoshi",
-    id: DEFAULT_DRAFTING_FONT_ID,
+    id: DEFAULT_FONT_ID,
     label: "Satoshi",
     source: "local",
     styles: ["normal", "italic"],
@@ -166,7 +166,7 @@ export function resolveCanvasFont(
   return (
     getCanvasFontById(options.fontId) ??
     getCanvasFontByFamily(options.fontFamily) ??
-    getCanvasFontById(DEFAULT_DRAFTING_FONT_ID)!
+    getCanvasFontById(DEFAULT_FONT_ID)!
   );
 }
 
@@ -206,7 +206,7 @@ export function groupCanvasFonts(query?: string) {
 }
 
 export function loadCanvasFont(fontId: string | null | undefined): Promise<void> {
-  const font = getCanvasFontById(fontId) ?? getCanvasFontById(DEFAULT_DRAFTING_FONT_ID)!;
+  const font = getCanvasFontById(fontId) ?? getCanvasFontById(DEFAULT_FONT_ID)!;
 
   if (typeof document === "undefined") {
     return Promise.resolve();

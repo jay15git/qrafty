@@ -3,14 +3,14 @@
 import { useSearchParams } from "next/navigation";
 
 import { Workspace } from "@/features/shell/components/Workspace";
-import type { ThemeMode, ToolbarToolId } from "@/features/shell/components/WorkspaceChrome";
+import type { ThemeMode, SettingsToolId } from "@/features/shell/components/WorkspaceChrome";
 
 type WorkspacePageClientProps = {
   fontClassName: string;
   initialTheme: ThemeMode;
 };
 
-function resolveInitialTool(source: string | null): ToolbarToolId | undefined {
+function resolveInitialTool(source: string | null): SettingsToolId | undefined {
   return source === "prompt" || source === "blank" ? "content" : undefined;
 }
 

@@ -4,11 +4,8 @@ import {
   resizeCanvasLayer,
   type ResizeDirection,
 } from "@/features/canvas/components/canvas-layer-geometry";
-import {
-  DEFAULT_DRAFTING_LAYER_SHADOW,
-  type CanvasLayer,
-} from "@/features/canvas/model/layers/shared";
-import { DEFAULT_DRAFTING_OUTLINE } from "@/features/canvas/model/effects";
+import { DEFAULT_LAYER_SHADOW, type CanvasLayer } from "@/features/canvas/model/layers/shared";
+import { DEFAULT_OUTLINE } from "@/features/canvas/model/effects";
 
 // Base QR layer: 200x200 at (100, 100). Opposite edges sit at 300/300.
 // QR layers are always re-squared: width === height after every resize.
@@ -23,11 +20,11 @@ function buildQrLayer(): CanvasLayer {
     name: "QR code",
     nodeId: "node-1",
     opacity: 1,
-    outline: { ...DEFAULT_DRAFTING_OUTLINE },
+    outline: { ...DEFAULT_OUTLINE },
     rotation: 0,
     tiltX: 0,
     tiltY: 0,
-    shadow: { ...DEFAULT_DRAFTING_LAYER_SHADOW, color: "#000000" },
+    shadow: { ...DEFAULT_LAYER_SHADOW, color: "#000000" },
     shadows: [],
     width: 200,
     x: 100,

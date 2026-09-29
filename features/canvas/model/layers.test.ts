@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  DEFAULT_DRAFTING_IMAGE_LAYER,
-  DEFAULT_DRAFTING_SHAPE_LAYER,
-  DEFAULT_DRAFTING_TEXT_LAYER,
+  DEFAULT_IMAGE_LAYER,
+  DEFAULT_SHAPE_LAYER,
+  DEFAULT_TEXT_LAYER,
   isProtectedCanvasLayerId,
-  DEFAULT_DRAFTING_LAYER_SHADOW,
+  DEFAULT_LAYER_SHADOW,
   type CanvasLayer,
 } from "@/features/canvas/model/layers/shared";
 import { cloneCanvasLayer } from "@/features/canvas/model/layers/fallback";
@@ -33,7 +33,7 @@ import {
 } from "@/features/canvas/model/layers/operations";
 import { groupCanvasLayers, ungroupCanvasLayer } from "@/features/canvas/model/layers/group";
 import { createDefaultCanvasCardState } from "@/features/canvas/model/card-state";
-import { DEFAULT_DRAFTING_OUTLINE } from "@/features/canvas/model/effects";
+import { DEFAULT_OUTLINE } from "@/features/canvas/model/effects";
 import { createDefaultQraftyState } from "@/features/qr/model/state";
 import { solidPaint } from "@/features/canvas/model/paint";
 
@@ -375,19 +375,19 @@ describe("canvas layer state actions", () => {
     );
 
     expect(normalized.at(-1)).toMatchObject({
-      fill: DEFAULT_DRAFTING_TEXT_LAYER.fill,
-      fontFamily: DEFAULT_DRAFTING_TEXT_LAYER.fontFamily,
-      fontId: DEFAULT_DRAFTING_TEXT_LAYER.fontId,
+      fill: DEFAULT_TEXT_LAYER.fill,
+      fontFamily: DEFAULT_TEXT_LAYER.fontFamily,
+      fontId: DEFAULT_TEXT_LAYER.fontId,
       fontSize: 300,
       fontStyle: "normal",
-      fontWeight: DEFAULT_DRAFTING_TEXT_LAYER.fontWeight,
+      fontWeight: DEFAULT_TEXT_LAYER.fontWeight,
       kind: "text",
       letterSpacing: 200,
       lineHeight: 4,
       name: "Text",
       opacity: 1,
-      text: DEFAULT_DRAFTING_TEXT_LAYER.text,
-      textAlign: DEFAULT_DRAFTING_TEXT_LAYER.textAlign,
+      text: DEFAULT_TEXT_LAYER.text,
+      textAlign: DEFAULT_TEXT_LAYER.textAlign,
       underline: false,
     });
   });
@@ -497,8 +497,8 @@ describe("canvas layer state actions", () => {
     expect(groupLayer).toMatchObject({
       children: [
         {
-          fill: DEFAULT_DRAFTING_TEXT_LAYER.fill,
-          fontFamily: DEFAULT_DRAFTING_TEXT_LAYER.fontFamily,
+          fill: DEFAULT_TEXT_LAYER.fill,
+          fontFamily: DEFAULT_TEXT_LAYER.fontFamily,
           id: "nested-text",
           kind: "text",
           name: "Text",
@@ -581,7 +581,7 @@ describe("canvas layer state actions", () => {
     });
 
     expect(imageLayer).toMatchObject({
-      cornerRadius: DEFAULT_DRAFTING_IMAGE_LAYER.cornerRadius,
+      cornerRadius: DEFAULT_IMAGE_LAYER.cornerRadius,
       imageFit: "cover",
       imageSource: "url",
       imageValue: "https://example.com/photo.png",
@@ -770,11 +770,11 @@ function createLayer(
     name: id,
     nodeId: "preview",
     opacity: 1,
-    outline: { ...DEFAULT_DRAFTING_OUTLINE },
+    outline: { ...DEFAULT_OUTLINE },
     rotation: 0,
     tiltX: 0,
     tiltY: 0,
-    shadow: { ...DEFAULT_DRAFTING_LAYER_SHADOW },
+    shadow: { ...DEFAULT_LAYER_SHADOW },
     shadows: [],
     width: 40,
     x: 0,

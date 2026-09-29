@@ -9,10 +9,7 @@ import type {
   CanvasShadowLayerState,
 } from "@/features/canvas/model/effects";
 import type { CanvasFilterEffect } from "@/features/canvas/model/filters";
-import {
-  DEFAULT_DRAFTING_SHAPE_LAYER,
-  type CanvasLayer,
-} from "@/features/canvas/model/layers/shared";
+import { DEFAULT_SHAPE_LAYER, type CanvasLayer } from "@/features/canvas/model/layers/shared";
 import {
   layerSupportsCornerRadius,
   resolveCornerRadii,
@@ -93,10 +90,10 @@ function getLayerBorderSnapshot(
 
   if (layer.kind === "shape") {
     return {
-      color: layer.stroke ?? DEFAULT_DRAFTING_SHAPE_LAYER.stroke ?? "#171717",
-      opacity: layer.strokeOpacity ?? DEFAULT_DRAFTING_SHAPE_LAYER.strokeOpacity ?? 100,
-      style: layer.strokeStyle ?? DEFAULT_DRAFTING_SHAPE_LAYER.strokeStyle ?? "solid",
-      width: layer.strokeWidth ?? DEFAULT_DRAFTING_SHAPE_LAYER.strokeWidth ?? 0,
+      color: layer.stroke ?? DEFAULT_SHAPE_LAYER.stroke ?? "#171717",
+      opacity: layer.strokeOpacity ?? DEFAULT_SHAPE_LAYER.strokeOpacity ?? 100,
+      style: layer.strokeStyle ?? DEFAULT_SHAPE_LAYER.strokeStyle ?? "solid",
+      width: layer.strokeWidth ?? DEFAULT_SHAPE_LAYER.strokeWidth ?? 0,
     };
   }
 
@@ -152,11 +149,11 @@ export function getAppearanceSnapshot(
   }
 
   const isRectShape =
-    layer.kind === "shape" && (layer.shapeId ?? DEFAULT_DRAFTING_SHAPE_LAYER.shapeId) === "rect";
+    layer.kind === "shape" && (layer.shapeId ?? DEFAULT_SHAPE_LAYER.shapeId) === "rect";
   const cornerRadii = resolveCornerRadii(
     layer.cornerRadii,
     layer.cornerRadius ??
-      (layer.kind === "image" ? 0 : isRectShape ? DEFAULT_DRAFTING_SHAPE_LAYER.cornerRadius : 0),
+      (layer.kind === "image" ? 0 : isRectShape ? DEFAULT_SHAPE_LAYER.cornerRadius : 0),
   );
 
   return {

@@ -2,7 +2,7 @@
 
 import {
   applyCanvasCardPaperShaderPreset,
-  DEFAULT_DRAFTING_PAPER_SHADER_IMAGE,
+  DEFAULT_PAPER_SHADER_IMAGE,
   type CanvasCardPaperShaderState,
 } from "@/features/canvas/model/card-state";
 import {
@@ -141,7 +141,7 @@ function PaperShaderParamControl({
           onClick={() =>
             onChange({
               source: "sample",
-              value: DEFAULT_DRAFTING_PAPER_SHADER_IMAGE,
+              value: DEFAULT_PAPER_SHADER_IMAGE,
             })
           }
         >

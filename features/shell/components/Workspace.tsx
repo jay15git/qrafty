@@ -5,7 +5,7 @@ import BlurFadeThemeTransition from "@/components/ui/BlurFadeThemeTransition";
 import {
   WorkspaceChrome,
   type ThemeMode,
-  type ToolbarToolId,
+  type SettingsToolId,
 } from "@/features/shell/components/WorkspaceChrome";
 import { THEME_COOKIE, THEME_STORAGE_KEY } from "@/features/shell/model/theme";
 import { SettingsThemeContext } from "@/features/shell/settings/theme-context";
@@ -21,7 +21,7 @@ import { useCallback, useEffect, useState } from "react";
 type WorkspaceProps = {
   fontClassName?: string;
   initialTheme?: ThemeMode;
-  initialActiveTool?: ToolbarToolId;
+  initialActiveTool?: SettingsToolId;
 };
 
 const DEPLOYMENT_COMMIT_SHA =

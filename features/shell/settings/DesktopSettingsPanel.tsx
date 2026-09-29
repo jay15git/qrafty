@@ -1,7 +1,7 @@
 "use client";
 
 import { WallpaperPanel } from "@/features/shell/components/WallpaperPanel";
-import type { SettingsModel, ToolbarToolId } from "@/features/shell/components/WorkspaceChrome";
+import type { SettingsModel, SettingsToolId } from "@/features/shell/components/WorkspaceChrome";
 import { SettingsPanel } from "@/features/shell/settings/SettingsPanel";
 import { SettingsThemeContext } from "@/features/shell/settings/theme-context";
 import { cn } from "@/lib/utils";
@@ -13,7 +13,7 @@ export function DesktopSettingsPanel({
   className,
   model,
 }: {
-  activeTool: ToolbarToolId | null;
+  activeTool: SettingsToolId | null;
   className?: string;
   model: SettingsModel;
 }) {

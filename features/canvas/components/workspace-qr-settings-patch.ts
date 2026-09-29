@@ -2,7 +2,7 @@ import type {
   CornersSettings,
   LogoSettings,
   PatternSettingsPatch,
-} from "@/features/shell/model/toolbar-types";
+} from "@/features/shell/model/settings-model";
 import type { QraftyState } from "@/features/qr/model/state";
 export function applyPatternSettingsPatchToQraftyState(
   state: QraftyState,

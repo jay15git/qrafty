@@ -21,7 +21,7 @@ import {
 } from "@/features/canvas/model/card-state";
 import { cornerRadiiToCss, resolveLayerCornerRadii } from "@/features/canvas/model/corner-radius";
 import {
-  DEFAULT_DRAFTING_SHAPE_LAYER,
+  DEFAULT_SHAPE_LAYER,
   type CanvasLayer,
   type CanvasTextRun,
 } from "@/features/canvas/model/layers/shared";
@@ -536,7 +536,7 @@ function CanvasNestedShapeLayerView({
   return (
     <div
       key={layer.id}
-      data-shape-id={layer.shapeId ?? DEFAULT_DRAFTING_SHAPE_LAYER.shapeId}
+      data-shape-id={layer.shapeId ?? DEFAULT_SHAPE_LAYER.shapeId}
       data-slot="canvas-shape-layer"
       data-layer-id={layer.id}
       data-selected={isLayerSelected ? "true" : "false"}
@@ -1014,7 +1014,7 @@ function CanvasShapeLayerView({
       layer={layer}
       isSelected={isLayerSelected}
       onActivate={(additive) => onActivateLayerSelection(layer, { additive })}
-      data-shape-id={layer.shapeId ?? DEFAULT_DRAFTING_SHAPE_LAYER.shapeId}
+      data-shape-id={layer.shapeId ?? DEFAULT_SHAPE_LAYER.shapeId}
       data-slot="canvas-shape-layer"
       data-layer-id={layer.id}
       data-selected={isLayerSelected ? "true" : "false"}

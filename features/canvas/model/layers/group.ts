@@ -1,14 +1,8 @@
-import {
-  DEFAULT_DRAFTING_OUTLINE,
-  legacyShadowToShadowLayer,
-} from "@/features/canvas/model/effects";
+import { DEFAULT_OUTLINE, legacyShadowToShadowLayer } from "@/features/canvas/model/effects";
 import { cloneCanvasLayer } from "@/features/canvas/model/layers/fallback";
 import { getLayerBounds, normalizeLayerZIndexes } from "@/features/canvas/model/layers/operations";
 import { patchCanvasLayer } from "@/features/canvas/model/layers/patch";
-import {
-  DEFAULT_DRAFTING_LAYER_SHADOW,
-  type CanvasLayer,
-} from "@/features/canvas/model/layers/shared";
+import { DEFAULT_LAYER_SHADOW, type CanvasLayer } from "@/features/canvas/model/layers/shared";
 
 export function groupCanvasLayers(
   layers: CanvasLayer[],
@@ -44,12 +38,12 @@ export function groupCanvasLayers(
       name: options.name,
       nodeId: selectedLayers[0]?.nodeId ?? layers[0]?.nodeId ?? "preview",
       opacity: 1,
-      outline: { ...DEFAULT_DRAFTING_OUTLINE },
+      outline: { ...DEFAULT_OUTLINE },
       rotation: 0,
       tiltX: 0,
       tiltY: 0,
-      shadow: { ...DEFAULT_DRAFTING_LAYER_SHADOW },
-      shadows: [legacyShadowToShadowLayer(DEFAULT_DRAFTING_LAYER_SHADOW)],
+      shadow: { ...DEFAULT_LAYER_SHADOW },
+      shadows: [legacyShadowToShadowLayer(DEFAULT_LAYER_SHADOW)],
       width: bounds.right - bounds.left,
       x: bounds.left,
       y: bounds.top,

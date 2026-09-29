@@ -222,7 +222,7 @@ function resolveMobilePanelTools(controller: MobilePanelController): LayerPanelT
     onAppearancePatch: controller?.onAppearancePatch,
     onElementLayerPatch: controller?.onElementLayerPatch,
     onInsertLayer: controller?.onInsertLayer,
-    onSelectSizeTemplate: controller?.onSceneTemplateSizeTemplateSelect,
+    onSelectSizeTemplate: controller?.onCanvasSizeTemplateSelect,
     onTransformLayerPatch: controller?.onTransformLayerPatch,
     selectedElementLayer: controller?.selectedElementLayer,
     selectedTransformLayer: controller?.selectedTransformLayer,
@@ -274,7 +274,7 @@ function MobileLayerLayoutTool({
   controller: MobilePanelController;
   tools: LayerPanelTools;
 }) {
-  const onSelectSizeTemplate = controller?.onSceneTemplateSizeTemplateSelect;
+  const onSelectSizeTemplate = controller?.onCanvasSizeTemplateSelect;
   if (!tools.hasLayout || !onSelectSizeTemplate) {
     return null;
   }
@@ -284,7 +284,7 @@ function MobileLayerLayoutTool({
       ariaLabel="Canvas size"
       content={
         <LazyCanvasRatioPresetSections
-          selectedPresetId={controller?.sceneTemplateSettings?.sizeSettings?.sizePresetId}
+          selectedPresetId={controller?.canvasSizeSettings?.sizeSettings?.sizePresetId}
           onSelectTemplate={onSelectSizeTemplate}
         />
       }

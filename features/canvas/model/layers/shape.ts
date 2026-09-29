@@ -2,7 +2,7 @@ import { normalizeBorderStyle } from "@/features/canvas/model/effects";
 import { normalizePaint } from "@/features/canvas/model/paint";
 import {
   clamp,
-  DEFAULT_DRAFTING_SHAPE_LAYER,
+  DEFAULT_SHAPE_LAYER,
   legacyLayerFillPaint,
   normalizeCanvasLayerBorderSides,
   normalizeHexColor,
@@ -24,10 +24,10 @@ export function normalizeShapeCanvasLayer(
   return {
     ...normalizeSharedCanvasLayerFields(context),
     borderSides: normalizeCanvasLayerBorderSides(value.borderSides, fallback.borderSides),
-    ...normalizeLayerCornerRadiusFields(value, fallback, DEFAULT_DRAFTING_SHAPE_LAYER.cornerRadius),
+    ...normalizeLayerCornerRadiusFields(value, fallback, DEFAULT_SHAPE_LAYER.cornerRadius),
     fill:
       legacyLayerFillPaint(value) ??
-      normalizePaint(value.fill, fallback.fill ?? DEFAULT_DRAFTING_SHAPE_LAYER.fill),
+      normalizePaint(value.fill, fallback.fill ?? DEFAULT_SHAPE_LAYER.fill),
     imageFit:
       value.imageFit === "contain" || value.imageFit === "cover"
         ? value.imageFit
@@ -36,24 +36,21 @@ export function normalizeShapeCanvasLayer(
     imageValue: typeof value.imageValue === "string" ? value.imageValue : fallback.imageValue,
     kind: "shape",
     shapeId: normalizeElementShapeId(value.shapeId, fallback.shapeId),
-    stroke: normalizeHexColor(value.stroke, fallback.stroke ?? DEFAULT_DRAFTING_SHAPE_LAYER.stroke),
+    stroke: normalizeHexColor(value.stroke, fallback.stroke ?? DEFAULT_SHAPE_LAYER.stroke),
     strokeOpacity: clamp(
       readFiniteNumber(
         value.strokeOpacity,
-        fallback.strokeOpacity ?? DEFAULT_DRAFTING_SHAPE_LAYER.strokeOpacity,
+        fallback.strokeOpacity ?? DEFAULT_SHAPE_LAYER.strokeOpacity,
       ),
       0,
       100,
     ),
     strokeStyle: normalizeBorderStyle(
       value.strokeStyle,
-      fallback.strokeStyle ?? DEFAULT_DRAFTING_SHAPE_LAYER.strokeStyle,
+      fallback.strokeStyle ?? DEFAULT_SHAPE_LAYER.strokeStyle,
     ),
     strokeWidth: clamp(
-      readFiniteNumber(
-        value.strokeWidth,
-        fallback.strokeWidth ?? DEFAULT_DRAFTING_SHAPE_LAYER.strokeWidth,
-      ),
+      readFiniteNumber(value.strokeWidth, fallback.strokeWidth ?? DEFAULT_SHAPE_LAYER.strokeWidth),
       0,
       64,
     ),
@@ -142,5 +139,5 @@ export function normalizeElementShapeId(
     return value as CanvasElementShapeId;
   }
 
-  return fallback ?? DEFAULT_DRAFTING_SHAPE_LAYER.shapeId;
+  return fallback ?? DEFAULT_SHAPE_LAYER.shapeId;
 }

@@ -4,7 +4,7 @@ import { ExportDownloadPopover } from "@/features/shell/components/ExportDownloa
 import { UtilityToolbar } from "@/features/shell/components/UtilityToolbar";
 import { RedoIcon, UndoIcon } from "@/features/shell/components/toolbar-icons";
 import type { SettingsModel } from "@/features/shell/hooks/use-toolbar-settings-model";
-import type { ThemeMode } from "@/features/shell/model/toolbar-types";
+import type { ThemeMode } from "@/features/shell/model/settings-model";
 import { cn } from "@/lib/utils";
 
 export function MobileTopBar({

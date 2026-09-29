@@ -8,14 +8,14 @@ import { createCanvasShapeLayer } from "@/features/canvas/model/layers/factories
 import { createFallbackLayer } from "@/features/canvas/model/layers/fallback";
 import { getAppearanceSnapshot } from "@/features/shell/model/appearance";
 import type { SettingsModel } from "@/features/shell/hooks/use-toolbar-settings-model";
-import type { ToolbarController } from "@/features/shell/model/toolbar-types";
+import type { SettingsController } from "@/features/shell/model/settings-model";
 import {
   MobileDrawerNavigationProvider,
   useMobileDrawerNavigation,
 } from "@/features/shell/settings/MobileDrawerNavigationContext";
 import { MobileSettingsDensityContext } from "@/features/shell/settings/MobileSettingsDensityContext";
 import { renderWithAsyncJsdomRoot } from "@/test-utils/jsdom-react-root";
-import { createToolbarController as createController } from "@/test-utils/toolbar-controller";
+import { createSettingsController as createController } from "@/test-utils/settings-controller";
 
 const NODE_ID = "test-node";
 
@@ -32,7 +32,7 @@ function NavigationProbe({
   return null;
 }
 
-function createModel(controllerOverrides: Partial<ToolbarController> = {}): SettingsModel {
+function createModel(controllerOverrides: Partial<SettingsController> = {}): SettingsModel {
   return {
     actualActiveTool: "content",
     actualTheme: "dark",
@@ -127,7 +127,7 @@ describe("MobileLayerToolbar", () => {
               insertNodeId: NODE_ID,
               onAppearancePatch: vi.fn(),
               onInsertLayer: vi.fn(),
-              onSceneTemplateSizeTemplateSelect: vi.fn(),
+              onCanvasSizeTemplateSelect: vi.fn(),
               onTransformLayerPatch: vi.fn(),
               selectedElementLayer: layer,
               selectedLayerIds: [layer.id],
@@ -201,7 +201,7 @@ describe("MobileLayerToolbar", () => {
             insertNodeId: NODE_ID,
             onAppearancePatch: vi.fn(),
             onInsertLayer: vi.fn(),
-            onSceneTemplateSizeTemplateSelect: vi.fn(),
+            onCanvasSizeTemplateSelect: vi.fn(),
             selectedAppearanceLayer: card,
             selectedElementLayer: null,
             selectedLayerIds: [],

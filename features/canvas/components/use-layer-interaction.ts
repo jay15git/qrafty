@@ -3,12 +3,9 @@
 import { useEffect, useRef, useState, type MouseEvent, type PointerEvent } from "react";
 
 import { type CanvasCardState } from "@/features/canvas/model/card-state";
-import {
-  DEFAULT_DRAFTING_LAYER_SHADOW,
-  type CanvasLayer,
-} from "@/features/canvas/model/layers/shared";
+import { DEFAULT_LAYER_SHADOW, type CanvasLayer } from "@/features/canvas/model/layers/shared";
 import { clampLayerGeometryToCanvas } from "@/features/canvas/model/layers/card-qr";
-import { DEFAULT_DRAFTING_OUTLINE } from "@/features/canvas/model/effects";
+import { DEFAULT_OUTLINE } from "@/features/canvas/model/effects";
 import { RESIZE_SNAP_THRESHOLD_PX } from "@/features/canvas/components/canvas-layer-chrome.constants";
 import {
   getLayerRotationLabel,
@@ -394,12 +391,12 @@ export function useLayerInteraction({
         name: "Selection",
         nodeId: "selection",
         opacity: 1,
-        outline: { ...DEFAULT_DRAFTING_OUTLINE },
+        outline: { ...DEFAULT_OUTLINE },
         rotation: 0,
         shadows: [],
         tiltX: 0,
         tiltY: 0,
-        shadow: { ...DEFAULT_DRAFTING_LAYER_SHADOW, color: "#000000" },
+        shadow: { ...DEFAULT_LAYER_SHADOW, color: "#000000" },
         zIndex: 0,
       },
       interaction.resizeDirection ?? "se",

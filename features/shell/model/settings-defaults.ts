@@ -1,7 +1,7 @@
 import { DEFAULT_BRAND_ICON_COLOR } from "@/features/qr/assets/brand-icon-svg";
 import {
   createDefaultCanvasCardPaperShader,
-  DEFAULT_DRAFTING_CARD_STATE,
+  DEFAULT_CARD_STATE,
 } from "@/features/canvas/model/card-state";
 import {
   DEFAULT_DOT_MATRIX_ANIMATION,
@@ -19,9 +19,9 @@ import type {
   LogoSettings,
   MotionSettings,
   PatternSettings,
-  SceneTemplateSettings,
+  CanvasSizeSettings,
   ShapeSettings,
-} from "@/features/shell/model/toolbar-types";
+} from "@/features/shell/model/settings-model";
 
 const DEFAULT_DESKTOP_DOTS_GRADIENT: QraftyGradient = {
   enabled: true,
@@ -130,12 +130,12 @@ export const DEFAULT_DESKTOP_CORNERS_SETTINGS: CornersSettings = {
 
 export const DEFAULT_DESKTOP_SHAPE_SETTINGS: ShapeSettings = {
   backgroundShapeId: "none",
-  bottomSpace: DEFAULT_DRAFTING_CARD_STATE.bottomSpace,
-  cardFill: DEFAULT_DRAFTING_CARD_STATE.fill,
-  cardHeight: DEFAULT_DRAFTING_CARD_STATE.height,
-  cardRadius: DEFAULT_DRAFTING_CARD_STATE.cornerRadius,
-  cardWidth: DEFAULT_DRAFTING_CARD_STATE.width,
-  lockAspectRatio: DEFAULT_DRAFTING_CARD_STATE.lockAspectRatio,
+  bottomSpace: DEFAULT_CARD_STATE.bottomSpace,
+  cardFill: DEFAULT_CARD_STATE.fill,
+  cardHeight: DEFAULT_CARD_STATE.height,
+  cardRadius: DEFAULT_CARD_STATE.cornerRadius,
+  cardWidth: DEFAULT_CARD_STATE.width,
+  lockAspectRatio: DEFAULT_CARD_STATE.lockAspectRatio,
   shapeColorMode: "solid",
   shapeGradient: {
     enabled: true,
@@ -153,13 +153,13 @@ export const DEFAULT_DESKTOP_SHAPE_SETTINGS: ShapeSettings = {
   shapeShadowOffsetY: DEFAULT_BACKGROUND_SHAPE_OPTIONS.shadowOffsetY,
   shapeShadowOpacity: DEFAULT_BACKGROUND_SHAPE_OPTIONS.shadowOpacity,
   shapeSolidColor: "#18181b",
-  shadowBlur: DEFAULT_DRAFTING_CARD_STATE.shadow.blur,
-  shadowColor: DEFAULT_DRAFTING_CARD_STATE.shadow.color,
-  shadowOffsetX: DEFAULT_DRAFTING_CARD_STATE.shadow.offsetX,
-  shadowOffsetY: DEFAULT_DRAFTING_CARD_STATE.shadow.offsetY,
-  shadowOpacity: DEFAULT_DRAFTING_CARD_STATE.shadow.opacity,
-  sizeMode: DEFAULT_DRAFTING_CARD_STATE.sizeMode,
-  sizePresetId: DEFAULT_DRAFTING_CARD_STATE.sizePresetId,
+  shadowBlur: DEFAULT_CARD_STATE.shadow.blur,
+  shadowColor: DEFAULT_CARD_STATE.shadow.color,
+  shadowOffsetX: DEFAULT_CARD_STATE.shadow.offsetX,
+  shadowOffsetY: DEFAULT_CARD_STATE.shadow.offsetY,
+  shadowOpacity: DEFAULT_CARD_STATE.shadow.opacity,
+  sizeMode: DEFAULT_CARD_STATE.sizeMode,
+  sizePresetId: DEFAULT_CARD_STATE.sizePresetId,
 };
 
 export const DEFAULT_DESKTOP_MOTION_SETTINGS: MotionSettings = {
@@ -182,8 +182,8 @@ export const DEFAULT_DESKTOP_IMAGE_SETTINGS: ImageSettings = {
 };
 
 export const DEFAULT_DESKTOP_BACKGROUND_SETTINGS: BackgroundSettings = {
-  paperShader: createDefaultCanvasCardPaperShader(DEFAULT_DRAFTING_CARD_STATE.paperShader.shaderId),
-  styleMode: DEFAULT_DRAFTING_CARD_STATE.styleMode,
+  paperShader: createDefaultCanvasCardPaperShader(DEFAULT_CARD_STATE.paperShader.shaderId),
+  styleMode: DEFAULT_CARD_STATE.styleMode,
 };
 
 const DEFAULT_DESKTOP_LAYERS: LayerRow[] = [
@@ -195,11 +195,11 @@ const DEFAULT_DESKTOP_LAYERS: LayerRow[] = [
     kind: "card",
     name: "QR Shape",
     opacity: 100,
-    shadowBlur: DEFAULT_DRAFTING_CARD_STATE.shadow.blur,
-    shadowColor: DEFAULT_DRAFTING_CARD_STATE.shadow.color,
-    shadowOffsetX: DEFAULT_DRAFTING_CARD_STATE.shadow.offsetX,
-    shadowOffsetY: DEFAULT_DRAFTING_CARD_STATE.shadow.offsetY,
-    shadowOpacity: DEFAULT_DRAFTING_CARD_STATE.shadow.opacity,
+    shadowBlur: DEFAULT_CARD_STATE.shadow.blur,
+    shadowColor: DEFAULT_CARD_STATE.shadow.color,
+    shadowOffsetX: DEFAULT_CARD_STATE.shadow.offsetX,
+    shadowOffsetY: DEFAULT_CARD_STATE.shadow.offsetY,
+    shadowOpacity: DEFAULT_CARD_STATE.shadow.opacity,
     tiltX: 0,
     tiltY: 0,
     width: 384,
@@ -262,7 +262,7 @@ export const DEFAULT_DESKTOP_EXPORT_SETTINGS: ExportSettings = {
   videoLongEdge: 1080,
 };
 
-export const DEFAULT_DESKTOP_SCENE_TEMPLATE_SETTINGS: SceneTemplateSettings = {
+export const DEFAULT_DESKTOP_SCENE_TEMPLATE_SETTINGS: CanvasSizeSettings = {
   sizeSettings: {
     cardHeight: 810,
     cardWidth: 1080,

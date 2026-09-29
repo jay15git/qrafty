@@ -1,7 +1,4 @@
-import {
-  DEFAULT_DRAFTING_TEXT_LAYER,
-  type CanvasLayer,
-} from "@/features/canvas/model/layers/shared";
+import { DEFAULT_TEXT_LAYER, type CanvasLayer } from "@/features/canvas/model/layers/shared";
 import { getCanvasFontCssFamily } from "@/features/canvas/model/fonts";
 
 let measureCanvas: HTMLCanvasElement | null = null;
@@ -13,20 +10,20 @@ export type CanvasTextLayout = {
 };
 
 function getCanvasTextLineHeight(layer: CanvasLayer): number {
-  const raw = layer.lineHeight ?? DEFAULT_DRAFTING_TEXT_LAYER.lineHeight;
+  const raw = layer.lineHeight ?? DEFAULT_TEXT_LAYER.lineHeight;
 
   if (!Number.isFinite(raw)) {
-    return DEFAULT_DRAFTING_TEXT_LAYER.lineHeight;
+    return DEFAULT_TEXT_LAYER.lineHeight;
   }
 
   return Math.max(0.6, Math.min(4, raw));
 }
 
 function getCanvasTextLetterSpacing(layer: CanvasLayer): number {
-  const raw = layer.letterSpacing ?? DEFAULT_DRAFTING_TEXT_LAYER.letterSpacing;
+  const raw = layer.letterSpacing ?? DEFAULT_TEXT_LAYER.letterSpacing;
 
   if (!Number.isFinite(raw)) {
-    return DEFAULT_DRAFTING_TEXT_LAYER.letterSpacing;
+    return DEFAULT_TEXT_LAYER.letterSpacing;
   }
 
   return raw;
@@ -40,14 +37,14 @@ export function getCanvasTextFontFamily(layer: CanvasLayer): string {
 }
 
 function getCanvasTextFont(layer: CanvasLayer): string {
-  return `${layer.fontStyle ?? DEFAULT_DRAFTING_TEXT_LAYER.fontStyle} ${layer.fontWeight ?? DEFAULT_DRAFTING_TEXT_LAYER.fontWeight} ${layer.fontSize ?? DEFAULT_DRAFTING_TEXT_LAYER.fontSize}px ${getCanvasTextFontFamily(layer)}`;
+  return `${layer.fontStyle ?? DEFAULT_TEXT_LAYER.fontStyle} ${layer.fontWeight ?? DEFAULT_TEXT_LAYER.fontWeight} ${layer.fontSize ?? DEFAULT_TEXT_LAYER.fontSize}px ${getCanvasTextFontFamily(layer)}`;
 }
 export function layoutCanvasText(
   layer: CanvasLayer,
   ctx?: CanvasRenderingContext2D | null,
 ): CanvasTextLayout {
   const measure = ctx ?? getMeasureContext();
-  const fontSize = layer.fontSize ?? DEFAULT_DRAFTING_TEXT_LAYER.fontSize;
+  const fontSize = layer.fontSize ?? DEFAULT_TEXT_LAYER.fontSize;
   const lineHeight = fontSize * getCanvasTextLineHeight(layer);
   const paragraphs = (layer.text ?? "").split(/\r?\n/);
 
@@ -189,7 +186,7 @@ function splitCanvasTextTokenToFit(
 }
 
 function roughWrapText(layer: CanvasLayer, paragraphs: string[]): string[] {
-  const fontSize = layer.fontSize ?? DEFAULT_DRAFTING_TEXT_LAYER.fontSize;
+  const fontSize = layer.fontSize ?? DEFAULT_TEXT_LAYER.fontSize;
   const maxChars = Math.max(
     1,
     Math.floor(layer.width / Math.max(1, fontSize * 0.58 + getCanvasTextLetterSpacing(layer))),

@@ -33,8 +33,8 @@ import {
   toggleTextUnderlinePatch,
 } from "@/features/shell/model/layer-text-format";
 import {
-  DEFAULT_DRAFTING_IMAGE_LAYER,
-  DEFAULT_DRAFTING_TEXT_LAYER,
+  DEFAULT_IMAGE_LAYER,
+  DEFAULT_TEXT_LAYER,
   type CanvasLayer,
   type CanvasTextAlign,
 } from "@/features/canvas/model/layers/shared";
@@ -257,7 +257,7 @@ export function TextAlignmentSettings({
   onPatch: (patch: Partial<CanvasLayer>) => void;
   onSelect?: () => void;
 }) {
-  const textAlign = layer.textAlign ?? DEFAULT_DRAFTING_TEXT_LAYER.textAlign;
+  const textAlign = layer.textAlign ?? DEFAULT_TEXT_LAYER.textAlign;
 
   return (
     <div
@@ -296,7 +296,7 @@ export function TextSizeSettings({
   layer: CanvasLayer;
   onPatch: (patch: Partial<CanvasLayer>) => void;
 }) {
-  const fontSize = layer.fontSize ?? DEFAULT_DRAFTING_TEXT_LAYER.fontSize;
+  const fontSize = layer.fontSize ?? DEFAULT_TEXT_LAYER.fontSize;
   const isEmojiLayer = isCanvasEmojiLayer(layer);
 
   function applySize(size: number) {
@@ -410,7 +410,7 @@ function ImageFitSettings({
   layer: CanvasLayer;
   onPatch: (patch: Partial<CanvasLayer>) => void;
 }) {
-  const imageFit = layer.imageFit ?? DEFAULT_DRAFTING_IMAGE_LAYER.imageFit;
+  const imageFit = layer.imageFit ?? DEFAULT_IMAGE_LAYER.imageFit;
   const opacityPercent = Math.round(layer.opacity * 100);
 
   return (

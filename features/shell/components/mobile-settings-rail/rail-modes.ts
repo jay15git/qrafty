@@ -10,7 +10,7 @@ import {
   SETTINGS_FILL_RADIAL_PRESETS,
   SETTINGS_FILL_SOLID_PRESETS,
 } from "@/features/shell/settings/settings-fill-presets";
-import type { PatternSettings } from "@/features/shell/model/toolbar-types";
+import type { PatternSettings } from "@/features/shell/model/settings-model";
 
 export const QR_COLOR_FILL_MODES = [
   { id: "solid", label: "Solid" },

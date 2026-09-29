@@ -4,7 +4,7 @@ import { createCanvasTextLayer } from "@/features/canvas/model/layers/factories"
 const EMOJI_LAYER_TEXT_PATTERN =
   /^(?:\p{Extended_Pictographic}(?:\uFE0F|\u200D\p{Extended_Pictographic})*)+$/u;
 
-const DEFAULT_DRAFTING_EMOJI_LAYER = {
+const DEFAULT_EMOJI_LAYER = {
   fontFamily: "'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif",
   fontSize: 52,
   height: 60,
@@ -62,11 +62,11 @@ export function createCanvasEmojiLayer(
   emoji: string,
   options: Partial<CanvasLayer> = {},
 ) {
-  const fontSize = options.fontSize ?? DEFAULT_DRAFTING_EMOJI_LAYER.fontSize;
+  const fontSize = options.fontSize ?? DEFAULT_EMOJI_LAYER.fontSize;
   const frame = getCanvasEmojiLayerFrame(fontSize);
 
   return createCanvasTextLayer(nodeId, {
-    ...DEFAULT_DRAFTING_EMOJI_LAYER,
+    ...DEFAULT_EMOJI_LAYER,
     ...frame,
     ...options,
     fontId: undefined,

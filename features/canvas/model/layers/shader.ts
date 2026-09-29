@@ -5,7 +5,7 @@ import {
 } from "@/features/canvas/model/card-state";
 import type { PaperShaderId } from "@/features/canvas/rendering/paper-shader-definitions";
 import {
-  DEFAULT_DRAFTING_SHADER_LAYER,
+  DEFAULT_SHADER_LAYER,
   isRecord,
   normalizeCanvasLayerBorderSides,
   normalizeLayerCornerRadiusFields,
@@ -24,11 +24,7 @@ export function normalizeShaderCanvasLayer(
   return {
     ...normalizeSharedCanvasLayerFields(context),
     borderSides: normalizeCanvasLayerBorderSides(value.borderSides, fallback.borderSides),
-    ...normalizeLayerCornerRadiusFields(
-      value,
-      fallback,
-      DEFAULT_DRAFTING_SHADER_LAYER.cornerRadius,
-    ),
+    ...normalizeLayerCornerRadiusFields(value, fallback, DEFAULT_SHADER_LAYER.cornerRadius),
     kind: "shader",
     paperShader: normalizeLayerPaperShader(value.paperShader, fallbackPaperShader),
   } satisfies CanvasLayer;

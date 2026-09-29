@@ -36,7 +36,7 @@ import { type QrInputType } from "@/features/qr/content/input-options";
 import type { ScanSafetyResult } from "@/features/qr/scan-safety/types";
 import type { Paint } from "@/features/canvas/model/paint";
 export type ComposeSidebarPanel = "wallpapers" | null;
-export type ToolbarToolId =
+export type SettingsToolId =
   | "layout"
   | "content"
   | "pattern"
@@ -51,7 +51,7 @@ export type ToolbarToolId =
   | "layers"
   | "export";
 
-export type SceneTemplateSettings = {
+export type CanvasSizeSettings = {
   sizeSettings: CardSizeSettings;
 };
 
@@ -222,8 +222,8 @@ export type ExportSettings = {
   videoLongEdge: VideoExportLongEdge;
 };
 
-export type ToolbarController = {
-  activeTool: ToolbarToolId | null;
+export type SettingsController = {
+  activeTool: SettingsToolId | null;
   canRedo?: boolean;
   canUndo?: boolean;
   contentType: QrInputType;
@@ -239,7 +239,7 @@ export type ToolbarController = {
   backgroundSettings: BackgroundSettings;
   layersSettings: LayersSettings;
   exportSettings: ExportSettings;
-  sceneTemplateSettings: SceneTemplateSettings;
+  canvasSizeSettings: CanvasSizeSettings;
   insertNodeId?: string;
   composeSidebarPanel?: ComposeSidebarPanel;
   selectedElementLayer?: CanvasLayer | null;
@@ -257,7 +257,7 @@ export type ToolbarController = {
   onElementLayerPatch?: (patch: Partial<CanvasLayer>) => void;
   onAppearancePatch?: (patch: Partial<CanvasLayer>) => void;
   onTransformLayerPatch?: (patch: Partial<CanvasLayer>) => void;
-  onActiveToolChange: (toolId: ToolbarToolId) => void;
+  onActiveToolChange: (toolId: SettingsToolId) => void;
   onRedo?: () => void;
   onUndo?: () => void;
   onContentTypeChange: (type: QrInputType) => void;
@@ -283,8 +283,8 @@ export type ToolbarController = {
   canDeleteLayer?: (layerId: string) => boolean;
   onExportSettingsChange: (patch: Partial<ExportSettings>) => void;
   onExportDownload: () => void;
-  onSceneTemplateSizeChange?: (patch: Partial<SceneTemplateSettings["sizeSettings"]>) => void;
-  onSceneTemplateSizeTemplateSelect?: (
+  onCanvasSizeChange?: (patch: Partial<CanvasSizeSettings["sizeSettings"]>) => void;
+  onCanvasSizeTemplateSelect?: (
     template: import("@/features/canvas/model/size-templates").SizeTemplate,
   ) => void;
   exportDownloadError?: string | null;

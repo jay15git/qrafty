@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  DEFAULT_DRAFTING_CARD_STATE,
-  type CanvasCardState,
-} from "@/features/canvas/model/card-state";
+import { DEFAULT_CARD_STATE, type CanvasCardState } from "@/features/canvas/model/card-state";
 import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
 import {
   CanvasLayerView,
@@ -49,7 +46,7 @@ export type CanvasWorkspaceProps = {
 
 export function CanvasWorkspace({
   activeQrLayerId,
-  cardState = DEFAULT_DRAFTING_CARD_STATE,
+  cardState = DEFAULT_CARD_STATE,
   contentPan,
   contentOnlyZoom = false,
   contentValidation,

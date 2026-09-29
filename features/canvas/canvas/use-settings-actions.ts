@@ -36,8 +36,8 @@ import type {
   LogoSettingsPatch,
   PatternSettingsPatch,
   ShapeSettings,
-} from "@/features/shell/model/toolbar-types";
-import type { CornersSettings } from "@/features/shell/model/toolbar-types";
+} from "@/features/shell/model/settings-model";
+import type { CornersSettings } from "@/features/shell/model/settings-model";
 import type { UnifiedQrFillPatches } from "@/features/shell/settings/settings-bridge";
 import {
   applyCornersSettingsPatchToQraftyState,
@@ -59,7 +59,7 @@ import type {
 } from "@/features/canvas/components/canvas-reducer";
 import type { useQrLogoActions } from "@/features/canvas/canvas/use-qr-logo-actions";
 import {
-  DEFAULT_DRAFTING_STUDIO_STATE,
+  DEFAULT_STUDIO_STATE,
   type CanvasDownloadExtension,
 } from "@/features/canvas/components/canvas.constants";
 
@@ -602,7 +602,7 @@ export function useSettingsActions({
     setSelectedDotMatrixAnimation(
       (current) =>
         setDotMatrixAnimationOptions(
-          { ...DEFAULT_DRAFTING_STUDIO_STATE, dotMatrixAnimation: current },
+          { ...DEFAULT_STUDIO_STATE, dotMatrixAnimation: current },
           patch,
         ).dotMatrixAnimation,
     );

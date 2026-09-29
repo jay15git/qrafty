@@ -15,7 +15,7 @@ import {
   DRAFTING_SHAPE_PRIMITIVES,
 } from "@/features/canvas/model/element-shapes";
 import {
-  DEFAULT_DRAFTING_SHAPE_LAYER,
+  DEFAULT_SHAPE_LAYER,
   type CanvasElementShapeId,
 } from "@/features/canvas/model/layers/shared";
 import type { QrBackgroundShapeDefinition } from "@/features/qr/styles/background-shapes";
@@ -107,8 +107,8 @@ export function ElementShapeOptionGrid({
   decorativeDataSlot = "canvas-element-shape-decorative-grid",
   onSelect,
   optionsDataSlot,
-  selectedShapeId = DEFAULT_DRAFTING_SHAPE_LAYER.shapeId,
-  shapeFill = DEFAULT_DRAFTING_SHAPE_LAYER.fill.solid ?? "#18181b",
+  selectedShapeId = DEFAULT_SHAPE_LAYER.shapeId,
+  shapeFill = DEFAULT_SHAPE_LAYER.fill.solid ?? "#18181b",
   variant,
 }: ElementShapeOptionGridProps) {
   if (variant === "settings") {

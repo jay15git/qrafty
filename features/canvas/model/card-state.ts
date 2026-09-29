@@ -79,7 +79,7 @@ export type CanvasCardPaperShaderState = {
   speed: number;
 };
 
-export const DEFAULT_DRAFTING_PAPER_SHADER_IMAGE =
+export const DEFAULT_PAPER_SHADER_IMAGE =
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 900'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop stop-color='%23f8fafc'/%3E%3Cstop offset='.48' stop-color='%2394a3b8'/%3E%3Cstop offset='1' stop-color='%23111827'/%3E%3C/linearGradient%3E%3CradialGradient id='r' cx='.32' cy='.28' r='.55'%3E%3Cstop stop-color='%23f59e0b' stop-opacity='.95'/%3E%3Cstop offset='.58' stop-color='%23ec4899' stop-opacity='.62'/%3E%3Cstop offset='1' stop-color='%230f172a' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Crect width='1200' height='900' fill='url(%23g)'/%3E%3Ccircle cx='360' cy='250' r='310' fill='url(%23r)'/%3E%3Crect x='590' y='170' width='390' height='540' rx='48' fill='%23ffffff' fill-opacity='.28'/%3E%3Cpath d='M145 715 C310 575 410 805 590 635 S865 535 1055 680' fill='none' stroke='%23ffffff' stroke-width='46' stroke-linecap='round' opacity='.7'/%3E%3C/svg%3E";
 
 export type CanvasCardSizeMode = "auto" | "fixed";
@@ -166,7 +166,7 @@ function resolveDefaultCanvasCardState() {
   return cachedDefaultCanvasCardState;
 }
 
-export const DEFAULT_DRAFTING_CARD_STATE = new Proxy({} as CanvasCardState, {
+export const DEFAULT_CARD_STATE = new Proxy({} as CanvasCardState, {
   get(_target, prop, receiver) {
     return Reflect.get(resolveDefaultCanvasCardState(), prop, receiver);
   },
@@ -185,7 +185,7 @@ export function cloneCanvasCardState(state: CanvasCardState): CanvasCardState {
 export function normalizeCanvasCardState(
   state: Partial<CanvasCardState> | CanvasCardState,
 ): CanvasCardState {
-  const fallback = DEFAULT_DRAFTING_CARD_STATE;
+  const fallback = DEFAULT_CARD_STATE;
   const sizePresetId =
     typeof state.sizePresetId === "string" && state.sizePresetId.length > 0
       ? state.sizePresetId
@@ -244,7 +244,7 @@ function clampCardNumber(value: unknown, fallback: number, min: number, max: num
 export function normalizeCanvasCardBorder(
   border: Partial<CanvasCardBorderState> | undefined,
 ): CanvasCardBorderState {
-  const fallback = DEFAULT_DRAFTING_CARD_STATE.border;
+  const fallback = DEFAULT_CARD_STATE.border;
   const width = Math.max(0, border?.width ?? fallback.width);
   const color = border?.color ?? fallback.color;
   const opacity = border?.opacity ?? fallback.opacity;
@@ -266,7 +266,7 @@ export function normalizeCanvasCardShadow(
     return getLegacyCanvasCardShadow(shadow);
   }
 
-  const fallback = DEFAULT_DRAFTING_CARD_STATE.shadow;
+  const fallback = DEFAULT_CARD_STATE.shadow;
 
   return {
     blur: clampShadowNumber(shadow.blur, fallback.blur, 0, 128),
@@ -293,7 +293,7 @@ function getLegacyCanvasCardShadow(shadow: CanvasCardShadowPreset): CanvasCardSh
   switch (shadow) {
     case "none":
       return {
-        ...DEFAULT_DRAFTING_CARD_STATE.shadow,
+        ...DEFAULT_CARD_STATE.shadow,
         blur: 0,
         offsetX: 0,
         offsetY: 0,
@@ -302,7 +302,7 @@ function getLegacyCanvasCardShadow(shadow: CanvasCardShadowPreset): CanvasCardSh
       };
     case "soft":
       return {
-        ...DEFAULT_DRAFTING_CARD_STATE.shadow,
+        ...DEFAULT_CARD_STATE.shadow,
         blur: 30,
         color: "#1d1606",
         offsetX: 0,
@@ -312,7 +312,7 @@ function getLegacyCanvasCardShadow(shadow: CanvasCardShadowPreset): CanvasCardSh
       };
     case "strong":
       return {
-        ...DEFAULT_DRAFTING_CARD_STATE.shadow,
+        ...DEFAULT_CARD_STATE.shadow,
         blur: 54,
         color: "#1d1606",
         offsetX: 0,
@@ -322,12 +322,12 @@ function getLegacyCanvasCardShadow(shadow: CanvasCardShadowPreset): CanvasCardSh
       };
     case "medium":
     default:
-      return { ...DEFAULT_DRAFTING_CARD_STATE.shadow, visible: true };
+      return { ...DEFAULT_CARD_STATE.shadow, visible: true };
   }
 }
 
 export function createDefaultCanvasCardState() {
-  return cloneCanvasCardState(DEFAULT_DRAFTING_CARD_STATE);
+  return cloneCanvasCardState(DEFAULT_CARD_STATE);
 }
 
 export function cloneCanvasCardPaperShaderState(
@@ -351,7 +351,7 @@ export function createDefaultCanvasCardPaperShader(
     image: definition.requiresImage
       ? {
           source: "sample",
-          value: DEFAULT_DRAFTING_PAPER_SHADER_IMAGE,
+          value: DEFAULT_PAPER_SHADER_IMAGE,
         }
       : {
           source: "none",

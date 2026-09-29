@@ -35,14 +35,14 @@ export type CanvasShadowLayerState = {
   visible: boolean;
 };
 
-const DEFAULT_DRAFTING_BORDER_SIDE: CanvasBorderSideValue = {
+const DEFAULT_BORDER_SIDE: CanvasBorderSideValue = {
   color: "#111827",
   opacity: 100,
   style: "solid",
   width: 0,
 };
 
-export const DEFAULT_DRAFTING_OUTLINE: CanvasOutlineState = {
+export const DEFAULT_OUTLINE: CanvasOutlineState = {
   color: "#111827",
   offset: 0,
   opacity: 100,
@@ -51,7 +51,7 @@ export const DEFAULT_DRAFTING_OUTLINE: CanvasOutlineState = {
   width: 0,
 };
 
-const DEFAULT_DRAFTING_SHADOW_LAYER: Omit<CanvasShadowLayerState, "id"> = {
+const DEFAULT_SHADOW_LAYER: Omit<CanvasShadowLayerState, "id"> = {
   blur: 0,
   color: "#111827",
   inset: false,
@@ -73,7 +73,7 @@ export function createDefaultCanvasShadowLayer(
   overrides: Partial<CanvasShadowLayerState> = {},
 ): CanvasShadowLayerState {
   return {
-    ...DEFAULT_DRAFTING_SHADOW_LAYER,
+    ...DEFAULT_SHADOW_LAYER,
     id: createCanvasShadowLayerId(),
     ...overrides,
   };
@@ -83,7 +83,7 @@ export function createUniformPerSideBorder(
   value: Partial<CanvasBorderSideValue> = {},
 ): CanvasPerSideBorderState {
   const side: CanvasBorderSideValue = {
-    ...DEFAULT_DRAFTING_BORDER_SIDE,
+    ...DEFAULT_BORDER_SIDE,
     ...value,
   };
 
@@ -108,7 +108,7 @@ function normalizeShadowKind(_value: unknown, _fallback: CanvasShadowKind): Canv
 
 export function normalizeOutlineState(
   value: unknown,
-  fallback: CanvasOutlineState = DEFAULT_DRAFTING_OUTLINE,
+  fallback: CanvasOutlineState = DEFAULT_OUTLINE,
 ): CanvasOutlineState {
   if (typeof value !== "object" || value === null) {
     return { ...fallback };

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { buildAppearancePatch, getAppearanceSnapshot } from "@/features/shell/model/appearance";
 import { DEFAULT_BACKGROUND_SHAPE_OPTIONS } from "@/features/qr/model/state";
-import { DEFAULT_DRAFTING_CARD_STATE } from "@/features/canvas/model/card-state";
+import { DEFAULT_CARD_STATE } from "@/features/canvas/model/card-state";
 import {
   createCanvasShapeLayer,
   createCanvasTextLayer,
@@ -16,13 +16,13 @@ describe("desktop appearance model", () => {
     const snapshot = getAppearanceSnapshot(
       { ...layer, kind: "card" },
       {
-        cardCornerRadius: DEFAULT_DRAFTING_CARD_STATE.cornerRadius,
+        cardCornerRadius: DEFAULT_CARD_STATE.cornerRadius,
       },
     );
 
-    expect(snapshot.cornerRadius).toBe(DEFAULT_DRAFTING_CARD_STATE.cornerRadius);
+    expect(snapshot.cornerRadius).toBe(DEFAULT_CARD_STATE.cornerRadius);
     expect(snapshot.supportsCornerRadius).toBe(true);
-    expect(snapshot.border.width).toBe(DEFAULT_DRAFTING_CARD_STATE.border.width);
+    expect(snapshot.border.width).toBe(DEFAULT_CARD_STATE.border.width);
   });
 
   it("reads qr layer shadow from the layer model", () => {

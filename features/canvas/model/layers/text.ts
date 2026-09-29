@@ -6,8 +6,8 @@ import {
 import { normalizePaint } from "@/features/canvas/model/paint";
 import {
   clamp,
-  DEFAULT_DRAFTING_TEXT_COLOR,
-  DEFAULT_DRAFTING_TEXT_LAYER,
+  DEFAULT_TEXT_COLOR,
+  DEFAULT_TEXT_LAYER,
   isRecord,
   legacyLayerFillPaint,
   normalizeHexColor,
@@ -25,19 +25,17 @@ export function normalizeTextCanvasLayer(
 ): CanvasLayer {
   const { fallback, value } = context;
   const text =
-    typeof value.text === "string"
-      ? value.text
-      : (fallback.text ?? DEFAULT_DRAFTING_TEXT_LAYER.text);
+    typeof value.text === "string" ? value.text : (fallback.text ?? DEFAULT_TEXT_LAYER.text);
 
   return {
     ...normalizeSharedCanvasLayerFields(context),
     fill:
       legacyLayerFillPaint(value) ??
-      normalizePaint(value.fill, fallback.fill ?? DEFAULT_DRAFTING_TEXT_LAYER.fill),
+      normalizePaint(value.fill, fallback.fill ?? DEFAULT_TEXT_LAYER.fill),
     fontFamily: normalizeTextFontFamily(value, fallback),
     fontId: normalizeTextFontId(value, fallback),
     fontSize: clamp(
-      readFiniteNumber(value.fontSize, fallback.fontSize ?? DEFAULT_DRAFTING_TEXT_LAYER.fontSize),
+      readFiniteNumber(value.fontSize, fallback.fontSize ?? DEFAULT_TEXT_LAYER.fontSize),
       6,
       300,
     ),
@@ -47,16 +45,13 @@ export function normalizeTextCanvasLayer(
     letterSpacing: clamp(
       readFiniteNumber(
         value.letterSpacing,
-        fallback.letterSpacing ?? DEFAULT_DRAFTING_TEXT_LAYER.letterSpacing,
+        fallback.letterSpacing ?? DEFAULT_TEXT_LAYER.letterSpacing,
       ),
       -50,
       200,
     ),
     lineHeight: clamp(
-      readFiniteNumber(
-        value.lineHeight,
-        fallback.lineHeight ?? DEFAULT_DRAFTING_TEXT_LAYER.lineHeight,
-      ),
+      readFiniteNumber(value.lineHeight, fallback.lineHeight ?? DEFAULT_TEXT_LAYER.lineHeight),
       0.6,
       4,
     ),
@@ -66,7 +61,7 @@ export function normalizeTextCanvasLayer(
     underline:
       typeof value.underline === "boolean"
         ? value.underline
-        : (fallback.underline ?? DEFAULT_DRAFTING_TEXT_LAYER.underline),
+        : (fallback.underline ?? DEFAULT_TEXT_LAYER.underline),
   } satisfies CanvasLayer;
 }
 
@@ -77,7 +72,7 @@ function normalizeTextAlign(value: unknown, fallback: unknown): CanvasTextAlign 
 
   return fallback === "center" || fallback === "left" || fallback === "right"
     ? fallback
-    : DEFAULT_DRAFTING_TEXT_LAYER.textAlign;
+    : DEFAULT_TEXT_LAYER.textAlign;
 }
 
 function normalizeTextFontFamily(value: Record<string, unknown>, fallback: CanvasLayer) {
@@ -93,7 +88,7 @@ function normalizeTextFontFamily(value: Record<string, unknown>, fallback: Canva
       : fallback.fontFamily.trim().slice(0, 80);
   }
 
-  return DEFAULT_DRAFTING_TEXT_LAYER.fontFamily;
+  return DEFAULT_TEXT_LAYER.fontFamily;
 }
 
 function normalizeTextFontId(value: Record<string, unknown>, fallback: CanvasLayer) {
@@ -113,7 +108,7 @@ function normalizeTextFontId(value: Record<string, unknown>, fallback: CanvasLay
     return getCanvasFontByFamily(fallback.fontFamily)?.id;
   }
 
-  return DEFAULT_DRAFTING_TEXT_LAYER.fontId;
+  return DEFAULT_TEXT_LAYER.fontId;
 }
 
 function normalizeTextFontWeight(value: unknown, fallback: unknown): CanvasTextFontWeight {
@@ -126,8 +121,8 @@ function normalizeTextFontWeight(value: unknown, fallback: unknown): CanvasTextF
   }
 
   return fallback === "bold" || fallback === "normal" || typeof fallback === "number"
-    ? normalizeTextFontWeight(fallback, DEFAULT_DRAFTING_TEXT_LAYER.fontWeight)
-    : DEFAULT_DRAFTING_TEXT_LAYER.fontWeight;
+    ? normalizeTextFontWeight(fallback, DEFAULT_TEXT_LAYER.fontWeight)
+    : DEFAULT_TEXT_LAYER.fontWeight;
 }
 
 function normalizeTextRuns(
@@ -168,7 +163,7 @@ function normalizeTextRunArray(value: unknown, text: string): CanvasTextRun[] | 
       return {
         fill:
           typeof run.fill === "string"
-            ? normalizeHexColor(run.fill, DEFAULT_DRAFTING_TEXT_COLOR)
+            ? normalizeHexColor(run.fill, DEFAULT_TEXT_COLOR)
             : undefined,
         fontFamily,
         fontId,

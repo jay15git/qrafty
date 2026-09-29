@@ -8,7 +8,7 @@ import type {
   LogoSettings,
   PatternSettings,
   ShapeSettings,
-} from "@/features/shell/model/toolbar-types";
+} from "@/features/shell/model/settings-model";
 import type { QraftyState } from "@/features/qr/model/state";
 import type { CanvasCardState } from "@/features/canvas/model/card-state";
 import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
@@ -32,7 +32,7 @@ export type ToolbarSettingsSnapshots = {
   backgroundSettings: BackgroundSettings;
   layersSettings: LayersSettings;
   exportSettings: ExportSettings;
-  sceneTemplateSettings: {
+  canvasSizeSettings: {
     sizeSettings: {
       cardHeight: number;
       cardWidth: number;
@@ -246,7 +246,7 @@ export function buildToolbarSettingsSnapshots(
     backgroundSettings,
     layersSettings,
     exportSettings,
-    sceneTemplateSettings: {
+    canvasSizeSettings: {
       sizeSettings: {
         cardHeight: selectedCardState.height,
         cardWidth: selectedCardState.width,

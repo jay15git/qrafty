@@ -35,17 +35,14 @@ import {
   createDefaultCanvasCardState,
 } from "@/features/canvas/model/card-state";
 import {
-  DEFAULT_DRAFTING_LAYER_SHADOW,
+  DEFAULT_LAYER_SHADOW,
   getCanvasCardLayerId,
   getCanvasQrLayerId,
   type CanvasLayer,
 } from "@/features/canvas/model/layers/shared";
 import { createDefaultCanvasLayers } from "@/features/canvas/model/layers/card-qr";
 import { createCanvasTextLayer } from "@/features/canvas/model/layers/factories";
-import {
-  createUniformPerSideBorder,
-  DEFAULT_DRAFTING_OUTLINE,
-} from "@/features/canvas/model/effects";
+import { createUniformPerSideBorder, DEFAULT_OUTLINE } from "@/features/canvas/model/effects";
 import {
   createDefaultQraftyState,
   setDotMatrixAnimationOptions,
@@ -266,7 +263,7 @@ describe("Artboard", () => {
       styleMode: "solid",
       padding: 20,
       shadow: {
-        ...DEFAULT_DRAFTING_LAYER_SHADOW,
+        ...DEFAULT_LAYER_SHADOW,
         blur: 30,
         color: "#000000",
         offsetX: 6,
@@ -332,7 +329,7 @@ describe("Artboard", () => {
       ...createDefaultCanvasCardState(),
       fill: solidPaint("#ffffff"),
       shadow: {
-        ...DEFAULT_DRAFTING_LAYER_SHADOW,
+        ...DEFAULT_LAYER_SHADOW,
         blur: 30,
         color: "#000000",
         offsetX: 6,
@@ -1766,12 +1763,12 @@ describe("Artboard", () => {
       name: "QR code",
       nodeId: "preview",
       opacity: 1,
-      outline: { ...DEFAULT_DRAFTING_OUTLINE },
+      outline: { ...DEFAULT_OUTLINE },
       rotation: 0,
       tiltX: 0,
       tiltY: 0,
       shadow: {
-        ...DEFAULT_DRAFTING_LAYER_SHADOW,
+        ...DEFAULT_LAYER_SHADOW,
         blur: 18,
         color: "#020617",
         offsetX: 6,
@@ -2483,11 +2480,11 @@ function createLayer(
     name: kind === "card" ? "Card" : "QR code",
     nodeId: "preview",
     opacity: 1,
-    outline: { ...DEFAULT_DRAFTING_OUTLINE },
+    outline: { ...DEFAULT_OUTLINE },
     rotation: 0,
     tiltX: 0,
     tiltY: 0,
-    shadow: { ...DEFAULT_DRAFTING_LAYER_SHADOW },
+    shadow: { ...DEFAULT_LAYER_SHADOW },
     shadows: [],
     width: 100,
     x: 0,

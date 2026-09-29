@@ -5,20 +5,20 @@ import { type ReactNode } from "react";
 import { Canvas, type CanvasBoardToolbarVariant } from "@/features/canvas/components/Canvas";
 import type {
   ThemeMode,
-  ToolbarController,
-  ToolbarToolId,
+  SettingsController,
+  SettingsToolId,
 } from "@/features/shell/components/WorkspaceChrome";
 import { MobileWorkspaceInsetTransitionBridge } from "@/features/canvas/components/MobileWorkspaceInsetTransitionBridge";
 import { useCanvasViewModel } from "@/features/canvas/components/use-canvas-view-model";
 import { DASHBOARD_QR_NODE_ID } from "@/features/qr/rendering/compose-scene";
 import { cn } from "@/lib/utils";
 
-type CanvasWorkspaceController = ToolbarController;
+type CanvasWorkspaceController = SettingsController;
 
 type CanvasSurfaceProps = {
   theme?: ThemeMode;
   fontClassName?: string;
-  initialActiveTool?: ToolbarToolId;
+  initialActiveTool?: SettingsToolId;
   onThemeChange?: (theme: ThemeMode) => void;
   boardToolbarVariant?: CanvasBoardToolbarVariant;
   renderOverlay?: (controller: CanvasWorkspaceController) => ReactNode;

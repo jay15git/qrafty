@@ -23,7 +23,7 @@ export type CanvasWorkspaceDocument = {
   selectedContentType: QrInputType;
 };
 
-const DEFAULT_DRAFTING_PANE_QR_SIZE = 240;
+const DEFAULT_PANE_QR_SIZE = 240;
 
 export function cloneCanvasWorkspaceDocument(
   document: CanvasWorkspaceDocument,
@@ -51,8 +51,8 @@ export function serializeCanvasWorkspaceDocument(document: CanvasWorkspaceDocume
 export function createDefaultCanvasWorkspaceQrState(): QraftyState {
   const state = createDefaultQraftyState();
 
-  state.width = DEFAULT_DRAFTING_PANE_QR_SIZE;
-  state.height = DEFAULT_DRAFTING_PANE_QR_SIZE;
+  state.width = DEFAULT_PANE_QR_SIZE;
+  state.height = DEFAULT_PANE_QR_SIZE;
 
   return state;
 }

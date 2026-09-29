@@ -13,7 +13,7 @@ import type { QrTypeNumber } from "@/features/qr/model/types";
 import type { QraftyDataModulesStyle } from "@/features/qr/model/state";
 import { POPULAR_BRAND_ICON_IDS } from "@/features/qr/assets/brand-icons";
 import type { SettingsModel } from "@/features/shell/hooks/use-toolbar-settings-model";
-import type { LogoSettings } from "@/features/shell/model/toolbar-types";
+import type { LogoSettings } from "@/features/shell/model/settings-model";
 import { MobileOptionShelf } from "@/features/shell/settings/MobileOptionRail";
 import { useMobileSettingsDensity } from "@/features/shell/settings/MobileSettingsDensityContext";
 import {

@@ -7,7 +7,7 @@
  * `"use client"`, making its data exports unreadable from Server Components).
  *
  * Regenerate after upgrading the library:
- *   node /tmp/gen-paper-presets.cjs
+ *   node scripts/gen-paper-presets.mjs && pnpm prettier --write features/canvas/rendering/paper-shader-presets.generated.ts
  *
  * A drift test in `paper-shader-definitions.test.ts` fails when the snapshot
  * no longer matches the installed library version.

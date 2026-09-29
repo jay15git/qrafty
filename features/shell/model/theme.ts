@@ -1,4 +1,4 @@
-import type { ThemeMode } from "@/features/shell/model/toolbar-types";
+import type { ThemeMode } from "@/features/shell/model/settings-model";
 
 export const THEME_STORAGE_KEY = "qrafty:studio-theme";
 export const THEME_COOKIE = "qrafty-desktop-theme";

@@ -8,8 +8,8 @@ import {
 } from "@/features/canvas/model/corner-radius";
 import { normalizeCanvasCardBorder } from "@/features/canvas/model/card-state";
 import {
-  DEFAULT_DRAFTING_TEXT_COLOR,
-  DEFAULT_DRAFTING_TEXT_LAYER,
+  DEFAULT_TEXT_COLOR,
+  DEFAULT_TEXT_LAYER,
   type CanvasLayer,
   type CanvasTextRun,
 } from "@/features/canvas/model/layers/shared";
@@ -207,14 +207,14 @@ export function getTextRunStyle(
   return {
     color:
       run.fill ??
-      (hasLayerGradient ? "transparent" : paintSolidColor(layer.fill, DEFAULT_DRAFTING_TEXT_COLOR)),
+      (hasLayerGradient ? "transparent" : paintSolidColor(layer.fill, DEFAULT_TEXT_COLOR)),
     fontFamily: getCanvasFontCssFamily({
       fontFamily: run.fontFamily ?? layer.fontFamily,
       fontId: run.fontId ?? layer.fontId,
     }),
-    fontSize: run.fontSize ?? layer.fontSize ?? DEFAULT_DRAFTING_TEXT_LAYER.fontSize,
-    fontStyle: run.fontStyle ?? layer.fontStyle ?? DEFAULT_DRAFTING_TEXT_LAYER.fontStyle,
-    fontWeight: run.fontWeight ?? layer.fontWeight ?? DEFAULT_DRAFTING_TEXT_LAYER.fontWeight,
+    fontSize: run.fontSize ?? layer.fontSize ?? DEFAULT_TEXT_LAYER.fontSize,
+    fontStyle: run.fontStyle ?? layer.fontStyle ?? DEFAULT_TEXT_LAYER.fontStyle,
+    fontWeight: run.fontWeight ?? layer.fontWeight ?? DEFAULT_TEXT_LAYER.fontWeight,
     textDecorationLine: (run.underline ?? layer.underline) ? "underline" : "none",
   };
 }

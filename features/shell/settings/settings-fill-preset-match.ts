@@ -1,7 +1,7 @@
 import { formatFill, parseFill } from "@/components/ui/fill-picker/lib/gradient";
 import { applyShapeFill, readShapeFillCss } from "@/features/shell/settings/settings-bridge";
 import { SETTINGS_FILL_PRESETS } from "@/features/shell/settings/settings-fill-presets";
-import { DEFAULT_DESKTOP_SHAPE_SETTINGS } from "@/features/shell/model/toolbar-defaults";
+import { DEFAULT_DESKTOP_SHAPE_SETTINGS } from "@/features/shell/model/settings-defaults";
 
 /** Match presets against shape fill after the same storage path as CardSection. */
 function canonicalShapeFillCssFromPreset(preset: string): string | null {

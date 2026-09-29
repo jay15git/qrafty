@@ -9,7 +9,7 @@ import {
   type UnifiedQrFillPatches,
   type UnifiedQrFillSettings,
 } from "@/features/shell/settings/settings-bridge";
-import type { PatternSettings } from "@/features/shell/model/toolbar-types";
+import type { PatternSettings } from "@/features/shell/model/settings-model";
 
 function unifiedQrSettings(model: SettingsModel): UnifiedQrFillSettings {
   return {

@@ -13,8 +13,8 @@ import {
 import type {
   ExportMediaKind,
   ExportSettings,
-  ToolbarController,
-} from "@/features/shell/model/toolbar-types";
+  SettingsController,
+} from "@/features/shell/model/settings-model";
 import type { SettingsModel } from "@/features/shell/hooks/use-toolbar-settings-model";
 import {
   clampVideoExportDuration,
@@ -161,7 +161,7 @@ function ExportDownloadButton({
   disabled,
   exportInProgress,
 }: {
-  controller?: ToolbarController;
+  controller?: SettingsController;
   disabled: boolean;
   exportInProgress: boolean;
 }) {

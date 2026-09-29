@@ -1,4 +1,4 @@
-import type { ToolbarToolId } from "@/features/shell/model/toolbar-types";
+import type { SettingsToolId } from "@/features/shell/model/settings-model";
 
 export const SETTINGS_SECTIONS = [
   "Content",
@@ -26,7 +26,7 @@ export function getSettingsSectionLabel(section: SettingsSectionId): string {
   return SETTINGS_SECTION_LABELS[section];
 }
 
-export const SECTION_TO_TOOL: Partial<Record<SettingsSectionId, ToolbarToolId>> = {
+export const SECTION_TO_TOOL: Partial<Record<SettingsSectionId, SettingsToolId>> = {
   Content: "content",
   QR: "pattern",
   Color: "pattern",

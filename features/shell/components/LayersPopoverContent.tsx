@@ -15,7 +15,7 @@ import {
   LAYER_KIND_LABELS,
   type LayerRow,
   type LayersSettings,
-} from "@/features/shell/model/toolbar-types";
+} from "@/features/shell/model/settings-model";
 import { isMandatoryLayerRow } from "@/features/canvas/components/canvas-operations";
 import { cn } from "@/lib/utils";
 

@@ -13,19 +13,19 @@ import {
   DEFAULT_DESKTOP_PATTERN_SETTINGS,
   DEFAULT_DESKTOP_SCENE_TEMPLATE_SETTINGS,
   DEFAULT_DESKTOP_SHAPE_SETTINGS,
-} from "@/features/shell/model/toolbar-defaults";
-import type { ToolbarController } from "@/features/shell/model/toolbar-types";
+} from "@/features/shell/model/settings-defaults";
+import type { SettingsController } from "@/features/shell/model/settings-model";
 import { createCanvasTextLayer } from "@/features/canvas/model/layers/factories";
 
 /**
- * Builds a complete `ToolbarController` for tests. Every field is filled
+ * Builds a complete `SettingsController` for tests. Every field is filled
  * with the same default the settings falls back to, so a test only has to
  * supply the parts it exercises.
  */
-export function createToolbarController(
-  overrides: Partial<ToolbarController> = {},
+export function createSettingsController(
+  overrides: Partial<SettingsController> = {},
   nodeId = "preview",
-): ToolbarController {
+): SettingsController {
   const layer = createCanvasTextLayer(nodeId, { text: "Hello" });
   return {
     activeTool: "content",
@@ -42,7 +42,7 @@ export function createToolbarController(
     backgroundSettings: DEFAULT_DESKTOP_BACKGROUND_SETTINGS,
     layersSettings: DEFAULT_LAYERS_SETTINGS,
     exportSettings: DEFAULT_DESKTOP_EXPORT_SETTINGS,
-    sceneTemplateSettings: DEFAULT_DESKTOP_SCENE_TEMPLATE_SETTINGS,
+    canvasSizeSettings: DEFAULT_DESKTOP_SCENE_TEMPLATE_SETTINGS,
     selectedElementLayer: layer,
     selectedLayerIds: [layer.id],
     onActiveToolChange: vi.fn(),
@@ -84,7 +84,7 @@ const PATCHED_KEYS = {
 } as const;
 
 type ControllerStateKey = keyof Omit<
-  ToolbarController,
+  SettingsController,
   | `on${string}`
   | "canRedo"
   | "canUndo"
@@ -109,25 +109,25 @@ type ControllerStateKey = keyof Omit<
 >;
 
 /**
- * Stateful variant of `createToolbarController` for mounted-component tests:
+ * Stateful variant of `createSettingsController` for mounted-component tests:
  * `on*Change` handlers merge their patch into live state so pressed/selected
  * UI reflects the applied value. Non-function overrides stay controlled — if
  * the caller passes `activeTool`, that value wins every render.
  */
-export function useStatefulToolbarController(
-  overrides: Partial<ToolbarController> = {},
-): ToolbarController {
+export function useStatefulSettingsController(
+  overrides: Partial<SettingsController> = {},
+): SettingsController {
   // `internal` seeds from the initial overrides once; afterwards it only
   // changes through the wrapped `on*` handlers.
-  const [internal, setInternal] = useState<Partial<ToolbarController>>(() =>
-    createToolbarController(overrides),
+  const [internal, setInternal] = useState<Partial<SettingsController>>(() =>
+    createSettingsController(overrides),
   );
   // Non-function overrides are controlled props: their current-render value
   // wins over internal state.
   const controlled = Object.fromEntries(
     Object.entries(overrides).filter(([, value]) => typeof value !== "function"),
-  ) as Partial<ToolbarController>;
-  const controller = { ...internal, ...controlled } as ToolbarController;
+  ) as Partial<SettingsController>;
+  const controller = { ...internal, ...controlled } as SettingsController;
 
   const sync = (key: ControllerStateKey, value: unknown) => {
     setInternal((current) => ({

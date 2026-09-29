@@ -49,9 +49,9 @@ import { ElementShapeOptionGrid } from "@/features/canvas/components/ElementShap
 import { PaperShaderOptionGrid } from "@/features/canvas/components/PaperShaderOptionGrid";
 import { SettingsPaperShaderControls } from "@/features/shell/settings/PaperShaderSettings";
 import {
-  DEFAULT_DRAFTING_IMAGE_LAYER,
-  DEFAULT_DRAFTING_SHAPE_LAYER,
-  DEFAULT_DRAFTING_TEXT_LAYER,
+  DEFAULT_IMAGE_LAYER,
+  DEFAULT_SHAPE_LAYER,
+  DEFAULT_TEXT_LAYER,
   type CanvasLayer,
 } from "@/features/canvas/model/layers/shared";
 import { createDefaultCanvasCardPaperShader } from "@/features/canvas/model/card-state";
@@ -409,7 +409,7 @@ function LayerTextSettings({
               )}
               max={300}
               min={6}
-              value={layer.fontSize ?? DEFAULT_DRAFTING_TEXT_LAYER.fontSize}
+              value={layer.fontSize ?? DEFAULT_TEXT_LAYER.fontSize}
               onValueChange={(fontSize) => patchTextLayer({ fontSize })}
             />
           </div>
@@ -465,8 +465,8 @@ function LayerTextSettings({
               label="Letter spacing"
               max={200}
               min={-50}
-              value={layer.letterSpacing ?? DEFAULT_DRAFTING_TEXT_LAYER.letterSpacing}
-              valueLabel={`${Math.round(layer.letterSpacing ?? DEFAULT_DRAFTING_TEXT_LAYER.letterSpacing)} px`}
+              value={layer.letterSpacing ?? DEFAULT_TEXT_LAYER.letterSpacing}
+              valueLabel={`${Math.round(layer.letterSpacing ?? DEFAULT_TEXT_LAYER.letterSpacing)} px`}
               onChange={(letterSpacing) => patchTextLayer({ letterSpacing })}
             />
             <SettingsSliderRow
@@ -474,8 +474,8 @@ function LayerTextSettings({
               max={4}
               min={0.6}
               step={0.05}
-              value={layer.lineHeight ?? DEFAULT_DRAFTING_TEXT_LAYER.lineHeight}
-              valueLabel={(layer.lineHeight ?? DEFAULT_DRAFTING_TEXT_LAYER.lineHeight).toFixed(2)}
+              value={layer.lineHeight ?? DEFAULT_TEXT_LAYER.lineHeight}
+              valueLabel={(layer.lineHeight ?? DEFAULT_TEXT_LAYER.lineHeight).toFixed(2)}
               onChange={(lineHeight) => patchTextLayer({ lineHeight })}
             />
           </div>
@@ -494,7 +494,7 @@ function LayerShapeSettings({
   layer: CanvasLayer;
   onPatch: (patch: Partial<CanvasLayer>) => void;
 }) {
-  const shapeId = layer.shapeId ?? DEFAULT_DRAFTING_SHAPE_LAYER.shapeId;
+  const shapeId = layer.shapeId ?? DEFAULT_SHAPE_LAYER.shapeId;
   const fillMode = layer.fill?.kind ?? "solid";
 
   return (
@@ -638,7 +638,7 @@ function LayerImageSettings({
         <p className={cn("mb-2", SETTINGS_SECTION_HEADING_CLASS)}>Image fit</p>
         <SegmentTabs
           items={["cover", "contain"]}
-          value={layer.imageFit ?? DEFAULT_DRAFTING_IMAGE_LAYER.imageFit}
+          value={layer.imageFit ?? DEFAULT_IMAGE_LAYER.imageFit}
           onChange={(imageFit) => onPatch({ imageFit: imageFit as "cover" | "contain" })}
         />
       </div>

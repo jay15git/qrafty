@@ -18,7 +18,7 @@ import {
   DEFAULT_DESKTOP_CORNERS_SETTINGS,
   DEFAULT_DESKTOP_LOGO_SETTINGS,
   DEFAULT_DESKTOP_PATTERN_SETTINGS,
-} from "@/features/shell/model/toolbar-defaults";
+} from "@/features/shell/model/settings-defaults";
 import { cssFillToBackgroundStyle } from "@/features/canvas/model/css-fill-style";
 import { paintToCss } from "@/features/canvas/model/paint";
 

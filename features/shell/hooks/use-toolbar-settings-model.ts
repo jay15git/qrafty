@@ -21,15 +21,15 @@ import type {
   PatternSettingsPatch,
   ShapeSettings,
   ThemeMode,
-  ToolbarController,
-  ToolbarToolId,
-} from "@/features/shell/model/toolbar-types";
+  SettingsController,
+  SettingsToolId,
+} from "@/features/shell/model/settings-model";
 
 const noop = () => undefined;
 
 export type SettingsModel = {
-  controller: ToolbarController;
-  actualActiveTool: ToolbarToolId | null;
+  controller: SettingsController;
+  actualActiveTool: SettingsToolId | null;
   actualTheme: ThemeMode;
   actualContentType: QrInputType;
   actualContentValues: StaticQrContentValues;
@@ -44,7 +44,7 @@ export type SettingsModel = {
   actualBackgroundSettings: BackgroundSettings;
   actualLayersSettings: LayersSettings;
   actualExportSettings: ExportSettings;
-  onActiveToolChange: (toolId: ToolbarToolId) => void;
+  onActiveToolChange: (toolId: SettingsToolId) => void;
   onThemeChange: (theme: ThemeMode) => void;
   onContentTypeChange: (type: QrInputType) => void;
   onContentPasteApply: (type: QrInputType, values: StaticQrContentValues) => void;
@@ -66,7 +66,7 @@ export type SettingsModel = {
 };
 
 /**
- * Thin view-model over the workspace `ToolbarController`: renames the
+ * Thin view-model over the workspace `SettingsController`: renames the
  * controller fields to the `actual*`/handler shape the settings UI expects.
  * No local state — the controller is the single source of truth.
  */
@@ -75,7 +75,7 @@ export function useToolbarSettingsModel({
   theme = "dark",
   onThemeChange = noop,
 }: {
-  controller: ToolbarController;
+  controller: SettingsController;
   theme?: ThemeMode;
   onThemeChange?: (theme: ThemeMode) => void;
 }): SettingsModel {

@@ -1,7 +1,7 @@
 import type { SettingsModel } from "@/features/shell/hooks/use-toolbar-settings-model";
 import type { SettingsSectionId } from "@/features/shell/settings/settings-panel-meta";
 import type { QrInputType } from "@/features/qr/content/input-options";
-import type { PatternSettings, PatternSettingsPatch } from "@/features/shell/model/toolbar-types";
+import type { PatternSettings, PatternSettingsPatch } from "@/features/shell/model/settings-model";
 
 /**
  * State captured when a family opens. The corner cross restores it (discard);

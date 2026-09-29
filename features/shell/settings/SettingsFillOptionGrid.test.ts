@@ -8,7 +8,7 @@ import {
 } from "@/features/shell/settings/settings-bridge";
 import { getActiveFillPresetForStoredValue } from "@/features/shell/settings/settings-fill-preset-match";
 import { SETTINGS_FILL_PRESETS } from "@/features/shell/settings/settings-fill-presets";
-import { DEFAULT_DESKTOP_SHAPE_SETTINGS } from "@/features/shell/model/toolbar-defaults";
+import { DEFAULT_DESKTOP_SHAPE_SETTINGS } from "@/features/shell/model/settings-defaults";
 import { paintToCss } from "@/features/canvas/model/paint";
 
 function readStoredShapeFillCss(preset: string) {

@@ -17,7 +17,7 @@ export const DRAFTING_CORNER_RADIUS_KEYS: CanvasCornerRadiusKey[] = [
 
 export const DRAFTING_CORNER_RADIUS_MAX = 512;
 
-const DEFAULT_DRAFTING_CORNER_RADII: CanvasCornerRadiiState = {
+const DEFAULT_CORNER_RADII: CanvasCornerRadiiState = {
   bottomLeft: 0,
   bottomRight: 0,
   linked: true,
@@ -48,7 +48,7 @@ export function createUniformCornerRadii(
 
 export function normalizeCornerRadiiState(
   value: unknown,
-  fallback: CanvasCornerRadiiState = DEFAULT_DRAFTING_CORNER_RADII,
+  fallback: CanvasCornerRadiiState = DEFAULT_CORNER_RADII,
   legacyCornerRadius?: number,
 ): CanvasCornerRadiiState {
   if (typeof value !== "object" || value === null) {

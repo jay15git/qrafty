@@ -3,7 +3,7 @@ import {
   type CanvasIllustrationColorStop,
 } from "@/features/canvas/assets/illustration-recolor";
 import {
-  DEFAULT_DRAFTING_IMAGE_LAYER,
+  DEFAULT_IMAGE_LAYER,
   isRecord,
   normalizeCanvasLayerBorderSides,
   normalizeImageSourceMode,
@@ -21,16 +21,16 @@ export function normalizeImageCanvasLayer(
   return {
     ...normalizeSharedCanvasLayerFields(context),
     borderSides: normalizeCanvasLayerBorderSides(value.borderSides, fallback.borderSides),
-    ...normalizeLayerCornerRadiusFields(value, fallback, DEFAULT_DRAFTING_IMAGE_LAYER.cornerRadius),
+    ...normalizeLayerCornerRadiusFields(value, fallback, DEFAULT_IMAGE_LAYER.cornerRadius),
     imageFit:
       value.imageFit === "contain" || value.imageFit === "cover"
         ? value.imageFit
-        : (fallback.imageFit ?? DEFAULT_DRAFTING_IMAGE_LAYER.imageFit),
+        : (fallback.imageFit ?? DEFAULT_IMAGE_LAYER.imageFit),
     imageSource: normalizeImageSourceMode(value.imageSource, fallback.imageSource),
     imageValue:
       typeof value.imageValue === "string"
         ? value.imageValue
-        : (fallback.imageValue ?? DEFAULT_DRAFTING_IMAGE_LAYER.imageValue),
+        : (fallback.imageValue ?? DEFAULT_IMAGE_LAYER.imageValue),
     illustrationColorStops: normalizeIllustrationColorStops(
       value.illustrationColorStops,
       fallback.illustrationColorStops,

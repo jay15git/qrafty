@@ -17,7 +17,7 @@ import { WorkspaceChrome } from "@/features/shell/components/WorkspaceChrome";
 import { DesktopSettingsShell } from "@/features/shell/components/DesktopSettingsShell";
 import { CuelumeProvider } from "@/features/shell/hooks/use-cuelume";
 import { getAppearanceSnapshot } from "@/features/shell/model/appearance";
-import { DEFAULT_LAYERS_SETTINGS } from "@/features/shell/model/toolbar-defaults";
+import { DEFAULT_LAYERS_SETTINGS } from "@/features/shell/model/settings-defaults";
 import {
   DEFAULT_BACKGROUND_SHAPE_OPTIONS,
   QR_DOT_MATRIX_SQUARE_LOADER_OPTIONS,
@@ -29,16 +29,16 @@ import {
   SETTINGS_FILL_SOLID_PRESETS,
 } from "@/features/shell/settings/settings-fill-presets";
 import { getCardGeneratedShaderDefinitions } from "@/features/canvas/rendering/paper-shader-definitions";
-import type { ToolbarToolId } from "@/features/shell/model/toolbar-types";
+import type { SettingsToolId } from "@/features/shell/model/settings-model";
 import {
   createCanvasShapeLayer,
   createCanvasTextLayer,
 } from "@/features/canvas/model/layers/factories";
 import { renderWithAsyncJsdomRoot } from "@/test-utils/jsdom-react-root";
 import {
-  createToolbarController,
-  useStatefulToolbarController,
-} from "@/test-utils/toolbar-controller";
+  createSettingsController,
+  useStatefulSettingsController,
+} from "@/test-utils/settings-controller";
 
 const NODE_ID = "test-node";
 
@@ -110,16 +110,16 @@ describe("WorkspaceChrome", () => {
   });
 
   it("keeps the open accordion section when canvas activeTool changes", async () => {
-    let setActiveTool: ((toolId: ToolbarToolId) => void) | null = null;
+    let setActiveTool: ((toolId: SettingsToolId) => void) | null = null;
 
     function AccordionStickyProbe() {
-      const [activeTool, setTool] = useState<ToolbarToolId>("content");
+      const [activeTool, setTool] = useState<SettingsToolId>("content");
 
       useEffect(() => {
         setActiveTool = setTool;
       }, []);
 
-      const controller = useStatefulToolbarController({
+      const controller = useStatefulSettingsController({
         activeTool,
         onActiveToolChange: setTool,
       });
@@ -843,7 +843,7 @@ async function renderPrototype({
   controller,
   theme = "dark",
 }: {
-  controller?: Parameters<typeof createToolbarController>[0];
+  controller?: Parameters<typeof createSettingsController>[0];
   theme?: "light" | "dark";
 } = {}) {
   return renderWithAsyncJsdomRoot(
@@ -857,10 +857,10 @@ function PrototypeChrome({
   overrides,
   theme,
 }: {
-  overrides?: Parameters<typeof createToolbarController>[0];
+  overrides?: Parameters<typeof createSettingsController>[0];
   theme?: "light" | "dark";
 }) {
-  const controller = useStatefulToolbarController(overrides);
+  const controller = useStatefulSettingsController(overrides);
   return <WorkspaceChrome controller={controller} theme={theme} />;
 }
 

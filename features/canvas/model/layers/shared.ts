@@ -5,7 +5,7 @@ import {
 } from "@/features/canvas/model/card-state";
 import {
   createDefaultCanvasShadowLayer,
-  DEFAULT_DRAFTING_OUTLINE,
+  DEFAULT_OUTLINE,
   type CanvasBorderStyle,
   type CanvasOutlineState,
   type CanvasPerSideBorderState,
@@ -23,7 +23,7 @@ import {
   syncLegacyBlurFromFilters,
   type CanvasFilterEffect,
 } from "@/features/canvas/model/filters";
-import { DEFAULT_DRAFTING_FONT_ID } from "@/features/canvas/model/fonts";
+import { DEFAULT_FONT_ID } from "@/features/canvas/model/fonts";
 import type { QrBackgroundShapeId } from "@/features/qr/styles/background-shapes";
 import { clampBackgroundShapeTilt } from "@/features/qr/model/state";
 import {
@@ -118,7 +118,7 @@ export type CanvasLayerDistributeAction = "horizontal" | "vertical";
 const DRAFTING_CARD_LAYER_SUFFIX = ":card";
 const DRAFTING_QR_LAYER_SUFFIX = ":qr";
 
-export const DEFAULT_DRAFTING_LAYER_SHADOW: CanvasCardShadowState = {
+export const DEFAULT_LAYER_SHADOW: CanvasCardShadowState = {
   blur: 0,
   color: "#111827",
   inset: false,
@@ -129,12 +129,12 @@ export const DEFAULT_DRAFTING_LAYER_SHADOW: CanvasCardShadowState = {
   spread: 0,
   visible: false,
 };
-export const DEFAULT_DRAFTING_TEXT_COLOR = "#171717";
+export const DEFAULT_TEXT_COLOR = "#171717";
 
-export const DEFAULT_DRAFTING_TEXT_LAYER = {
-  fill: solidPaint(DEFAULT_DRAFTING_TEXT_COLOR),
+export const DEFAULT_TEXT_LAYER = {
+  fill: solidPaint(DEFAULT_TEXT_COLOR),
   fontFamily: "Satoshi",
-  fontId: DEFAULT_DRAFTING_FONT_ID,
+  fontId: DEFAULT_FONT_ID,
   fontSize: 32,
   fontStyle: "normal",
   fontWeight: "normal",
@@ -145,14 +145,14 @@ export const DEFAULT_DRAFTING_TEXT_LAYER = {
   underline: false,
 } as const;
 
-export const DEFAULT_DRAFTING_IMAGE_LAYER = {
+export const DEFAULT_IMAGE_LAYER = {
   cornerRadius: 0,
   imageFit: "cover",
   imageSource: "none",
   imageValue: "",
 } as const satisfies Partial<CanvasLayer>;
 
-export const DEFAULT_DRAFTING_SHAPE_LAYER = {
+export const DEFAULT_SHAPE_LAYER = {
   cornerRadius: 16,
   fill: solidPaint("#E8E8E8"),
   shapeId: "rounded-square",
@@ -162,7 +162,7 @@ export const DEFAULT_DRAFTING_SHAPE_LAYER = {
   strokeWidth: 0,
 } as const satisfies Partial<CanvasLayer>;
 
-export const DEFAULT_DRAFTING_SHADER_LAYER = {
+export const DEFAULT_SHADER_LAYER = {
   cornerRadius: 0,
 } as const satisfies Partial<CanvasLayer>;
 
@@ -282,7 +282,7 @@ export function normalizeSharedCanvasLayerFields({
     name: typeof value.name === "string" && value.name.trim() ? value.name : fallback.name,
     nodeId,
     opacity: clamp(readFiniteNumber(value.opacity, fallback.opacity), 0, 1),
-    outline: normalizeOutlineState(value.outline, fallback.outline ?? DEFAULT_DRAFTING_OUTLINE),
+    outline: normalizeOutlineState(value.outline, fallback.outline ?? DEFAULT_OUTLINE),
     rotation: readFiniteNumber(value.rotation, fallback.rotation),
     scaleX: normalizeFlipScale(value.scaleX, fallback.scaleX ?? 1),
     scaleY: normalizeFlipScale(value.scaleY, fallback.scaleY ?? 1),
@@ -425,7 +425,7 @@ export function normalizeImageSourceMode(
     return value;
   }
 
-  return fallback ?? DEFAULT_DRAFTING_IMAGE_LAYER.imageSource;
+  return fallback ?? DEFAULT_IMAGE_LAYER.imageSource;
 }
 
 export function clamp(value: number, min: number, max: number) {

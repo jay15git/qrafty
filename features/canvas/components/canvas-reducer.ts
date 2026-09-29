@@ -24,20 +24,20 @@ import {
   type CanvasQrStateByLayerId,
 } from "@/features/canvas/model/document";
 import {
-  DEFAULT_DRAFTING_STUDIO_STATE,
+  DEFAULT_STUDIO_STATE,
   type CanvasDownloadExtension,
 } from "@/features/canvas/components/canvas.constants";
 import type { CanvasBoardTool } from "@/features/canvas/components/Canvas";
 import type {
-  ToolbarToolId,
+  SettingsToolId,
   ComposeSidebarPanel,
 } from "@/features/shell/components/WorkspaceChrome";
 import { getDefaultStaticQrValues } from "@/features/qr/content/static-payload";
 import type { VideoExportLongEdge } from "@/features/qr/export/video-export";
 import { DEFAULT_QR_INPUT_TYPE, type QrInputType } from "@/features/qr/content/input-options";
 import type { AssetSourceMode } from "@/features/qr/model/state";
-import type { ExportMediaKind } from "@/features/shell/model/toolbar-types";
-import { DEFAULT_DESKTOP_EXPORT_SETTINGS } from "@/features/shell/model/toolbar-defaults";
+import type { ExportMediaKind } from "@/features/shell/model/settings-model";
+import { DEFAULT_DESKTOP_EXPORT_SETTINGS } from "@/features/shell/model/settings-defaults";
 import type { CanvasDownloadTarget } from "@/features/canvas/components/canvas-operations";
 import type { QraftyState } from "@/features/qr/model/state";
 
@@ -50,7 +50,7 @@ import type { QraftyState } from "@/features/qr/model/state";
  * `setSelected*` setters translate to QR patches.
  */
 export type CanvasSurfaceState = QrDraftFields & {
-  desktopRailTool: ToolbarToolId | null;
+  desktopRailTool: SettingsToolId | null;
   composeSidebarPanel: ComposeSidebarPanel;
   selectedContentType: QrInputType;
   contentValuesByType: CanvasContentValuesByType;
@@ -128,7 +128,7 @@ export type CanvasSurfaceSetters = {
 };
 
 export function createInitialCanvasSurfaceState(
-  initialActiveTool?: ToolbarToolId,
+  initialActiveTool?: SettingsToolId,
 ): StoredCanvasSurfaceState {
   const defaultQrState = createDefaultCanvasWorkspaceQrState();
   const defaultCardState = createDefaultCanvasCardState();
@@ -141,7 +141,7 @@ export function createInitialCanvasSurfaceState(
     contentValuesByType: {
       [DEFAULT_QR_INPUT_TYPE]: {
         ...getDefaultStaticQrValues(DEFAULT_QR_INPUT_TYPE),
-        url: DEFAULT_DRAFTING_STUDIO_STATE.data,
+        url: DEFAULT_STUDIO_STATE.data,
       },
     },
     contentTypeByLayerId: {
@@ -152,22 +152,17 @@ export function createInitialCanvasSurfaceState(
     selectedModuleFillImageSourceMode: "upload",
     selectedModuleFillRemoteUrl: "",
     selectedBackgroundAssetSourceMode:
-      DEFAULT_DRAFTING_STUDIO_STATE.backgroundImage.source === "url" ? "url" : "upload",
+      DEFAULT_STUDIO_STATE.backgroundImage.source === "url" ? "url" : "upload",
     selectedBackgroundRemoteUrl:
-      DEFAULT_DRAFTING_STUDIO_STATE.backgroundImage.source === "url"
-        ? (DEFAULT_DRAFTING_STUDIO_STATE.backgroundImage.value ?? "")
+      DEFAULT_STUDIO_STATE.backgroundImage.source === "url"
+        ? (DEFAULT_STUDIO_STATE.backgroundImage.value ?? "")
         : "",
-    selectedLogoPresetValue: DEFAULT_DRAFTING_STUDIO_STATE.logo.value,
-    selectedLogoAssetSourceMode:
-      DEFAULT_DRAFTING_STUDIO_STATE.logo.source === "url" ? "url" : "upload",
+    selectedLogoPresetValue: DEFAULT_STUDIO_STATE.logo.value,
+    selectedLogoAssetSourceMode: DEFAULT_STUDIO_STATE.logo.source === "url" ? "url" : "upload",
     selectedLogoRemoteUrl:
-      DEFAULT_DRAFTING_STUDIO_STATE.logo.source === "url"
-        ? (DEFAULT_DRAFTING_STUDIO_STATE.logo.value ?? "")
-        : "",
+      DEFAULT_STUDIO_STATE.logo.source === "url" ? (DEFAULT_STUDIO_STATE.logo.value ?? "") : "",
     selectedLogoUploadValue:
-      DEFAULT_DRAFTING_STUDIO_STATE.logo.source === "upload"
-        ? (DEFAULT_DRAFTING_STUDIO_STATE.logo.value ?? "")
-        : "",
+      DEFAULT_STUDIO_STATE.logo.source === "upload" ? (DEFAULT_STUDIO_STATE.logo.value ?? "") : "",
     selectedValueSegmentsText: "",
     ...qrStateToDraftBuffers(defaultQrState),
     activeQrLayerId: primaryQrLayerId,
@@ -475,7 +470,7 @@ function createCanvasSurfaceSetters(dispatch: Dispatch<CanvasSurfaceAction>): Ca
 }
 
 export function useCanvasSurfaceReducer(
-  initialActiveTool?: ToolbarToolId,
+  initialActiveTool?: SettingsToolId,
 ): [CanvasSurfaceState, Dispatch<CanvasSurfaceAction>, CanvasSurfaceSetters] {
   const [state, dispatch] = useReducer(
     canvasReducer,

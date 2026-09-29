@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { TransitionLink } from "glimm/next";
 
-import type { ThemeMode } from "@/features/shell/model/toolbar-types";
+import type { ThemeMode } from "@/features/shell/model/settings-model";
 import { cn } from "@/lib/utils";
 
 const homeSweep = { palette: "berry", midpoint: 0.92 } as const;

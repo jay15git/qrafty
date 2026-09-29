@@ -23,11 +23,11 @@ import type {
   LogoSettings,
   MotionSettings,
   PatternSettings,
-  SceneTemplateSettings,
+  CanvasSizeSettings,
   ShapeSettings,
-  ToolbarController,
-  ToolbarToolId,
-} from "@/features/shell/model/toolbar-types";
+  SettingsController,
+  SettingsToolId,
+} from "@/features/shell/model/settings-model";
 import type { ScanSafetyResult } from "@/features/qr/scan-safety/types";
 import type {
   StaticQrContentValue,
@@ -37,7 +37,7 @@ import type {
 import type { QrInputType } from "@/features/qr/content/input-options";
 
 /**
- * Assembles the `ToolbarController` the settings and toolbars consume.
+ * Assembles the `SettingsController` the settings and toolbars consume.
  *
  * The controller is the workspace's public interface, so it is built in
  * concern-sized groups rather than one 200-line literal. Groups that only
@@ -46,7 +46,7 @@ import type { QrInputType } from "@/features/qr/content/input-options";
  */
 
 type CoreControllerParams = {
-  activeTool: ToolbarToolId | null;
+  activeTool: SettingsToolId | null;
   appearanceSnapshot: AppearanceSnapshot | null;
   canRedo: boolean;
   canUndo: boolean;
@@ -55,7 +55,7 @@ type CoreControllerParams = {
   contentValues: StaticQrContentValues;
   contentType: QrInputType;
   insertNodeId: string;
-  onActiveToolChange: (toolId: ToolbarToolId) => void;
+  onActiveToolChange: (toolId: SettingsToolId) => void;
   onContentPasteApply: (type: QrInputType, values: StaticQrContentValues) => void;
   onContentTypeChange: (type: QrInputType) => void;
   onContentValueChange: (field: string, value: StaticQrContentValue) => void;
@@ -75,15 +75,15 @@ type QrSettingsControllerParams = {
   imageSettings: ImageSettings;
   logoSettings: LogoSettings;
   motionSettings: MotionSettings;
-  onBackgroundSettingsChange: ToolbarController["onBackgroundSettingsChange"];
-  onCornersSettingsChange: ToolbarController["onCornersSettingsChange"];
-  onEncodingSettingsChange: ToolbarController["onEncodingSettingsChange"];
-  onImageSettingsChange: ToolbarController["onImageSettingsChange"];
-  onLogoSettingsChange: ToolbarController["onLogoSettingsChange"];
-  onMotionSettingsChange: ToolbarController["onMotionSettingsChange"];
-  onPatternSettingsChange: ToolbarController["onPatternSettingsChange"];
-  onShapeSettingsChange: ToolbarController["onShapeSettingsChange"];
-  onUnifiedQrFillSettingsChange: ToolbarController["onUnifiedQrFillSettingsChange"];
+  onBackgroundSettingsChange: SettingsController["onBackgroundSettingsChange"];
+  onCornersSettingsChange: SettingsController["onCornersSettingsChange"];
+  onEncodingSettingsChange: SettingsController["onEncodingSettingsChange"];
+  onImageSettingsChange: SettingsController["onImageSettingsChange"];
+  onLogoSettingsChange: SettingsController["onLogoSettingsChange"];
+  onMotionSettingsChange: SettingsController["onMotionSettingsChange"];
+  onPatternSettingsChange: SettingsController["onPatternSettingsChange"];
+  onShapeSettingsChange: SettingsController["onShapeSettingsChange"];
+  onUnifiedQrFillSettingsChange: SettingsController["onUnifiedQrFillSettingsChange"];
   patternSettings: PatternSettings;
   shapeSettings: ShapeSettings;
 };
@@ -92,10 +92,10 @@ type SceneControllerParams = {
   onBackgroundTabChange: (tab: "shader" | "image" | "color") => void;
   onCloseComposeSidebar: () => void;
   onOpenComposeSidebar: (panel: "wallpapers") => void;
-  onSceneTemplateSizeChange: ToolbarController["onSceneTemplateSizeChange"];
-  onSceneTemplateSizeTemplateSelect: ToolbarController["onSceneTemplateSizeTemplateSelect"];
+  onCanvasSizeChange: SettingsController["onCanvasSizeChange"];
+  onCanvasSizeTemplateSelect: SettingsController["onCanvasSizeTemplateSelect"];
   onSelectWallpaper: (imagePath: string) => void;
-  sceneTemplateSettings: SceneTemplateSettings;
+  canvasSizeSettings: CanvasSizeSettings;
 };
 
 type CanvasControllerParams = {
@@ -105,7 +105,7 @@ type CanvasControllerParams = {
 };
 
 type ElementControllerParams = {
-  onAppearancePatch: ToolbarController["onAppearancePatch"];
+  onAppearancePatch: SettingsController["onAppearancePatch"];
   onLayerChange: (layerId: string, patch: Partial<CanvasLayer>) => void;
   propertiesTransformLayer: CanvasLayer | null;
   selectedElementLayer: CanvasLayer | null;
@@ -122,7 +122,7 @@ type ExportControllerParams = {
   exportSettings: ExportSettings;
   onExportCancel: () => void;
   onExportDownload: () => void;
-  onExportSettingsChange: ToolbarController["onExportSettingsChange"];
+  onExportSettingsChange: SettingsController["onExportSettingsChange"];
 };
 
 type LayersControllerParams = {
@@ -131,11 +131,11 @@ type LayersControllerParams = {
   onLayerAction: (layerIds: string[], action: CanvasLayerMenuAction) => void;
   onLayerCopy: () => void;
   onLayersReorder: (orderedIds: string[]) => void;
-  onLayersSettingsChange: ToolbarController["onLayersSettingsChange"];
+  onLayersSettingsChange: SettingsController["onLayersSettingsChange"];
   selectedLayerIds: string[];
 };
 
-type ToolbarControllerParams = {
+type SettingsControllerParams = {
   canvas: CanvasControllerParams;
   core: CoreControllerParams;
   element: ElementControllerParams;
@@ -205,7 +205,7 @@ function buildLayersController({
   };
 }
 
-function buildToolbarController({
+function buildSettingsController({
   canvas,
   core,
   element,
@@ -213,7 +213,7 @@ function buildToolbarController({
   layers,
   qrSettings,
   scene,
-}: ToolbarControllerParams): ToolbarController {
+}: SettingsControllerParams): SettingsController {
   return {
     ...core,
     ...qrSettings,
@@ -226,7 +226,7 @@ function buildToolbarController({
 }
 
 /**
- * Workspace-level wrapper around `buildToolbarController`: takes the view
+ * Workspace-level wrapper around `buildSettingsController`: takes the view
  * model's reducer state, setters, and composed sub-hook results, derives the
  * settings snapshots, and wires every `on*` callback to the matching action.
  * Keeps `useCanvasViewModel` free of controller assembly.
@@ -245,7 +245,7 @@ export function buildCanvasWorkspaceController({
   scanSafetyResult: ScanSafetyResult | undefined;
   setters: CanvasSurfaceSetters;
   state: CanvasSurfaceState;
-}): ToolbarController {
+}): SettingsController {
   const {
     composeSidebarPanel,
     desktopRailTool,
@@ -371,7 +371,7 @@ export function buildCanvasWorkspaceController({
     backgroundSettings: desktopBackgroundSettings,
     layersSettings: desktopLayersSettings,
     exportSettings: desktopExportSettings,
-    sceneTemplateSettings: desktopSceneTemplateSettings,
+    canvasSizeSettings: desktopCanvasSizeSettings,
   } = buildToolbarSettingsSnapshots({
     activeCanvasLayers,
     activeCanvasLayerRows,
@@ -437,7 +437,7 @@ export function buildCanvasWorkspaceController({
     selectedValueSegmentsText,
   });
 
-  return buildToolbarController({
+  return buildSettingsController({
     core: {
       activeTool: desktopRailTool,
       appearanceSnapshot: desktopAppearanceSnapshot,
@@ -517,7 +517,7 @@ export function buildCanvasWorkspaceController({
         setComposeSidebarPanel(panel);
         selectSingleLayer(null);
       },
-      onSceneTemplateSizeChange: (patch) => {
+      onCanvasSizeChange: (patch) => {
         updateDesktopShapeSettings({
           cardHeight: patch.cardHeight,
           cardWidth: patch.cardWidth,
@@ -526,7 +526,7 @@ export function buildCanvasWorkspaceController({
           sizePresetId: patch.sizePresetId,
         });
       },
-      onSceneTemplateSizeTemplateSelect: (template) => {
+      onCanvasSizeTemplateSelect: (template) => {
         const canvasSize = getCanvasSizeFromTemplate(template);
         updateDesktopShapeSettings({
           cardHeight: canvasSize.height,
@@ -540,7 +540,7 @@ export function buildCanvasWorkspaceController({
         updateDesktopImageSettings({ remoteUrl: imagePath, sourceMode: "url" });
         setComposeSidebarPanel(null);
       },
-      sceneTemplateSettings: desktopSceneTemplateSettings,
+      canvasSizeSettings: desktopCanvasSizeSettings,
     },
     canvas: {
       onAddQrCode: () => {

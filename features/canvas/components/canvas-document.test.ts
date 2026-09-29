@@ -5,11 +5,8 @@ import {
   mergeLiveQrStateByLayerId,
   resolveActiveQrLayerIdFromLayers,
 } from "@/features/canvas/components/canvas-document";
-import {
-  DEFAULT_DRAFTING_LAYER_SHADOW,
-  type CanvasLayer,
-} from "@/features/canvas/model/layers/shared";
-import { DEFAULT_DRAFTING_OUTLINE } from "@/features/canvas/model/effects";
+import { DEFAULT_LAYER_SHADOW, type CanvasLayer } from "@/features/canvas/model/layers/shared";
+import { DEFAULT_OUTLINE } from "@/features/canvas/model/effects";
 
 function createQrLayer(id: string): CanvasLayer {
   return {
@@ -22,11 +19,11 @@ function createQrLayer(id: string): CanvasLayer {
     name: "QR code",
     nodeId: id.replace(/:qr$/, ""),
     opacity: 1,
-    outline: { ...DEFAULT_DRAFTING_OUTLINE, color: "#000000" },
+    outline: { ...DEFAULT_OUTLINE, color: "#000000" },
     rotation: 0,
     tiltX: 0,
     tiltY: 0,
-    shadow: { ...DEFAULT_DRAFTING_LAYER_SHADOW, color: "#000000" },
+    shadow: { ...DEFAULT_LAYER_SHADOW, color: "#000000" },
     shadows: [],
     width: 200,
     x: 0,

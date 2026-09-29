@@ -3,7 +3,7 @@ import type { MutableRefObject } from "react";
 import type { QrFileExtension } from "@/features/qr/model/types";
 import { createDefaultQraftyState } from "@/features/qr/model/state";
 
-export const DEFAULT_DRAFTING_STUDIO_STATE = createDefaultQraftyState();
+export const DEFAULT_STUDIO_STATE = createDefaultQraftyState();
 
 export const DRAFTING_LAYER_PASTE_OFFSET = 24;
 export const DEFAULT_DOWNLOAD_NAME = "qrafty";

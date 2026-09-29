@@ -12,7 +12,7 @@ import { MobileTopBar } from "@/features/shell/components/MobileTopBar";
 import { UTILITY_TOOLBAR_SHELL_CLASS } from "@/features/shell/components/utility-toolbar.constants";
 import { DesktopSettingsPanel } from "@/features/shell/settings/DesktopSettingsPanel";
 import { useToolbarSettingsModel } from "@/features/shell/hooks/use-toolbar-settings-model";
-import type { ThemeMode, ToolbarController } from "@/features/shell/model/toolbar-types";
+import type { ThemeMode, SettingsController } from "@/features/shell/model/settings-model";
 export type {
   ComposeSidebarPanel,
   CornersSettings,
@@ -23,9 +23,9 @@ export type {
   PatternSettings,
   ShapeSettings,
   ThemeMode,
-  ToolbarController,
-  ToolbarToolId,
-} from "@/features/shell/model/toolbar-types";
+  SettingsController,
+  SettingsToolId,
+} from "@/features/shell/model/settings-model";
 
 export type { SettingsModel } from "@/features/shell/hooks/use-toolbar-settings-model";
 
@@ -37,7 +37,7 @@ export function WorkspaceChrome({
   theme,
   onThemeChange,
 }: {
-  controller: ToolbarController;
+  controller: SettingsController;
   theme?: ThemeMode;
   onThemeChange?: (theme: ThemeMode) => void;
 }) {
@@ -56,13 +56,13 @@ export function WorkspaceChrome({
     onElementLayerPatch: controller.onElementLayerPatch,
     onAppearancePatch: controller.onAppearancePatch,
     onInsertLayer: controller.onInsertLayer,
-    onSelectSizeTemplate: controller.onSceneTemplateSizeTemplateSelect,
-    onSizeChange: controller.onSceneTemplateSizeChange,
+    onSelectSizeTemplate: controller.onCanvasSizeTemplateSelect,
+    onSizeChange: controller.onCanvasSizeChange,
     onTransformLayerPatch: controller.onTransformLayerPatch,
     selectedElementLayer: controller.selectedElementLayer,
     selectedTransformLayer: controller.selectedTransformLayer,
-    sizePresetId: controller.sceneTemplateSettings.sizeSettings.sizePresetId,
-    sizeSettings: controller.sceneTemplateSettings.sizeSettings,
+    sizePresetId: controller.canvasSizeSettings.sizeSettings.sizePresetId,
+    sizeSettings: controller.canvasSizeSettings.sizeSettings,
     theme: actualTheme,
   });
   const toolbarRootRef = useRef<HTMLElement | null>(null);

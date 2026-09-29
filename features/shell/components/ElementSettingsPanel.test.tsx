@@ -7,7 +7,7 @@ import {
   LayerStyleSettings,
   TransformSection,
 } from "@/features/shell/components/ElementSettingsPanel";
-import { DEFAULT_LAYERS_SETTINGS } from "@/features/shell/model/toolbar-defaults";
+import { DEFAULT_LAYERS_SETTINGS } from "@/features/shell/model/settings-defaults";
 import { WorkspaceChrome } from "@/features/shell/components/WorkspaceChrome";
 import { CuelumeProvider } from "@/features/shell/hooks/use-cuelume";
 import {
@@ -16,7 +16,7 @@ import {
   createCanvasTextLayer,
 } from "@/features/canvas/model/layers/factories";
 import { renderWithAsyncJsdomRoot } from "@/test-utils/jsdom-react-root";
-import { createToolbarController } from "@/test-utils/toolbar-controller";
+import { createSettingsController } from "@/test-utils/settings-controller";
 
 const NODE_ID = "test-node";
 
@@ -81,7 +81,7 @@ describe("WorkspaceChrome selected element routing", () => {
     const surface = await renderWithAsyncJsdomRoot(
       <CuelumeProvider>
         <WorkspaceChrome
-          controller={createToolbarController(
+          controller={createSettingsController(
             {
               activeTool: null,
               layersSettings: {
@@ -117,7 +117,7 @@ describe("WorkspaceChrome selected element routing", () => {
     const surface = await renderWithAsyncJsdomRoot(
       <CuelumeProvider>
         <WorkspaceChrome
-          controller={createToolbarController(
+          controller={createSettingsController(
             {
               activeTool: null,
               selectedElementLayer: layer,
@@ -138,7 +138,7 @@ describe("WorkspaceChrome selected element routing", () => {
     const surface = await renderWithAsyncJsdomRoot(
       <CuelumeProvider>
         <WorkspaceChrome
-          controller={createToolbarController(
+          controller={createSettingsController(
             {
               activeTool: "logo",
               selectedElementLayer: layer,

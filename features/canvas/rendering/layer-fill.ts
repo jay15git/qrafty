@@ -29,13 +29,13 @@ function clampPickerFillForCanvas(fill: Fill): Fill {
   };
 }
 import {
-  DEFAULT_DRAFTING_SHAPE_LAYER,
-  DEFAULT_DRAFTING_TEXT_LAYER,
+  DEFAULT_SHAPE_LAYER,
+  DEFAULT_TEXT_LAYER,
   type CanvasLayer,
 } from "@/features/canvas/model/layers/shared";
 
 export function getShapeLayerFillCssValue(layer: CanvasLayer) {
-  return paintToPickerCss(layer.fill ?? DEFAULT_DRAFTING_SHAPE_LAYER.fill);
+  return paintToPickerCss(layer.fill ?? DEFAULT_SHAPE_LAYER.fill);
 }
 
 export function patchShapeLayerFillFromPicker(
@@ -46,7 +46,7 @@ export function patchShapeLayerFillFromPicker(
 }
 
 export function getTextLayerFillCssValue(layer: CanvasLayer) {
-  return paintToPickerCss(layer.fill ?? DEFAULT_DRAFTING_TEXT_LAYER.fill);
+  return paintToPickerCss(layer.fill ?? DEFAULT_TEXT_LAYER.fill);
 }
 
 export function patchTextLayerFillFromPicker(layer: CanvasLayer, fill: Fill): Partial<CanvasLayer> {
@@ -73,5 +73,5 @@ export function resolveShapeSvgFill(layer: CanvasLayer): string {
     return `url(#${getShapeLayerGradientId(layer.id)})`;
   }
 
-  return paintSolidColor(paint, paintToCss(DEFAULT_DRAFTING_SHAPE_LAYER.fill));
+  return paintSolidColor(paint, paintToCss(DEFAULT_SHAPE_LAYER.fill));
 }

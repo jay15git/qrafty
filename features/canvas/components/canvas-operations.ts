@@ -3,7 +3,7 @@ import type {
   LayerRow,
   LogoSourceMode,
 } from "@/features/shell/components/WorkspaceChrome";
-import type { ExternalAssetSourceMode } from "@/features/shell/model/toolbar-types";
+import type { ExternalAssetSourceMode } from "@/features/shell/model/settings-model";
 import { type CanvasLayer } from "@/features/canvas/model/layers/shared";
 import { cloneCanvasLayer } from "@/features/canvas/model/layers/fallback";
 import { patchCanvasLayer } from "@/features/canvas/model/layers/patch";
