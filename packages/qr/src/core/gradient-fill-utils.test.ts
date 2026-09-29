@@ -1,3 +1,5 @@
+import type { QrSvgElementLike } from "./svg-element-like";
+
 // @vitest-environment jsdom
 
 import { describe, expect, it } from "vitest";
@@ -11,7 +13,7 @@ describe("gradient fill utils", () => {
       "image/svg+xml",
     );
     const svg = document.documentElement as unknown as SVGElement;
-    const path = svg.querySelector("path") as SVGElement;
+    const path = svg.querySelector("path") as unknown as QrSvgElementLike;
 
     applyDirectGradientFillWithContext(path, "url(#gradient)", { fill: "none", stroke: "#111827" });
 
@@ -25,7 +27,7 @@ describe("gradient fill utils", () => {
       "image/svg+xml",
     );
     const svg = document.documentElement as unknown as SVGElement;
-    const path = svg.querySelector("path") as SVGElement;
+    const path = svg.querySelector("path") as unknown as QrSvgElementLike;
 
     applyDirectGradientFillWithContext(path, "url(#gradient)", { fill: "#111827", stroke: null });
 

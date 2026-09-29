@@ -1,3 +1,5 @@
+import type { QrSvgElementLike } from "../svg-element";
+
 import type { QraftyGradient } from "@/features/qr/model/state";
 import {
   getQraftyGradientCenter,
@@ -6,7 +8,9 @@ import {
 
 export const SVG_NS = "http://www.w3.org/2000/svg";
 
-export function isSvgElementLike(node: Element | null | undefined): node is SVGElement {
+export function isSvgElementLike(
+  node: QrSvgElementLike | null | undefined,
+): node is QrSvgElementLike {
   return (
     node != null &&
     typeof node.getAttribute === "function" &&
@@ -14,7 +18,7 @@ export function isSvgElementLike(node: Element | null | undefined): node is SVGE
   );
 }
 
-export function appendSvgClass(element: SVGElement, className: string) {
+export function appendSvgClass(element: QrSvgElementLike, className: string) {
   const existing = element.getAttribute("class") ?? "";
 
   if (existing.split(/\s+/).includes(className)) {
@@ -35,7 +39,7 @@ export function getClipPathId(clipPath: string | null) {
   return /url\(['"]?#([^'")]+)['"]?\)/.exec(clipPath ?? "")?.[1] ?? null;
 }
 
-export function getOrCreateSvgDefs(svg: SVGElement) {
+export function getOrCreateSvgDefs(svg: QrSvgElementLike) {
   const existingDefs = Array.from(svg.children).find(
     (child) => child.tagName.toLowerCase() === "defs",
   );
@@ -45,12 +49,12 @@ export function getOrCreateSvgDefs(svg: SVGElement) {
   }
 
   const defs = svg.ownerDocument.createElementNS("http://www.w3.org/2000/svg", "defs");
-  svg.insertBefore(defs, svg.firstChild);
+  svg.insertBefore(defs, svg.firstChild ?? null);
 
   return defs;
 }
 
-export function getNumericAttribute(element: Element, name: string) {
+export function getNumericAttribute(element: QrSvgElementLike, name: string) {
   const value = element.getAttribute(name);
 
   if (value === null) {
@@ -62,7 +66,7 @@ export function getNumericAttribute(element: Element, name: string) {
   return Number.isFinite(numericValue) ? numericValue : null;
 }
 
-export function getDotNumericAttribute(shape: SVGElement, attributeName: string) {
+export function getDotNumericAttribute(shape: QrSvgElementLike, attributeName: string) {
   const value = shape.getAttribute(attributeName);
 
   if (value === null) {
@@ -89,8 +93,8 @@ export function getSmallestPositiveDelta(values: number[]) {
   return smallestDelta;
 }
 
-export function getDescendantElements(root: Element): Element[] {
-  const descendants: Element[] = [];
+export function getDescendantElements(root: QrSvgElementLike): QrSvgElementLike[] {
+  const descendants: QrSvgElementLike[] = [];
   const queue = [...Array.from(root.children)];
 
   while (queue.length > 0) {
@@ -117,7 +121,7 @@ export function getPaintServerId(fillValue: string | null) {
   return match?.[2] ?? null;
 }
 
-export function getElementRegion(element: Element) {
+export function getElementRegion(element: QrSvgElementLike) {
   const x = getNumericAttribute(element, "x");
   const y = getNumericAttribute(element, "y");
   const width = getNumericAttribute(element, "width");
@@ -201,7 +205,7 @@ export function getSvgPathSubpathStartPoint(pathData: string | null) {
   return { x, y };
 }
 
-export function getSvgViewBoxRegion(svg: SVGElement) {
+export function getSvgViewBoxRegion(svg: QrSvgElementLike) {
   const viewBox = svg.getAttribute("viewBox");
 
   if (viewBox) {
@@ -249,7 +253,7 @@ export function coerceNonNegativeSvgNumber(value: number, fallback: number) {
   return Math.max(0, value);
 }
 
-export function findDotMatrixLayerAnchor(svg: SVGElement) {
+export function findDotMatrixLayerAnchor(svg: QrSvgElementLike) {
   return (
     Array.from(svg.children).find((child) => {
       if (!isSvgElementLike(child)) {
@@ -261,7 +265,7 @@ export function findDotMatrixLayerAnchor(svg: SVGElement) {
   );
 }
 
-export function removeLegacyDotGradientOverlay(svg: SVGElement) {
+export function removeLegacyDotGradientOverlay(svg: QrSvgElementLike) {
   for (const node of svg.querySelectorAll('[data-qr-layer="dot-gradient"]')) {
     if (node.tagName.toLowerCase() === "g") {
       node.remove();
@@ -274,7 +278,7 @@ export function removeLegacyDotGradientOverlay(svg: SVGElement) {
 }
 
 export function createBackgroundShapeGradient(
-  svg: SVGElement,
+  svg: QrSvgElementLike,
   gradient: QraftyGradient,
   {
     height,

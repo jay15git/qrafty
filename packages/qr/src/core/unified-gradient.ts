@@ -1,14 +1,16 @@
+import type { QrSvgDocumentLike, QrSvgElementLike } from "./svg-element-like";
+
 import type { QraftyQrGradientConfig } from "../types";
 import { applyDirectGradientFill, getModuleGradientCoverRect } from "./gradient-fill-utils";
 import { createCornerGradientElement } from "./finder-gradient-overlays";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 
-function isSvgElementLike(node: Element): node is SVGElement {
+function isSvgElementLike(node: QrSvgElementLike): node is QrSvgElementLike {
   return typeof node.getAttribute === "function" && typeof node.setAttribute === "function";
 }
 
-function cleanupStaleUnifiedGradientLayers(svg: SVGElement) {
+function cleanupStaleUnifiedGradientLayers(svg: QrSvgElementLike) {
   for (const layer of ["corner-frame-gradient", "corner-dot-gradient"]) {
     svg.querySelectorAll(`[data-qr-layer="${layer}"]`).forEach((node) => {
       if (node.tagName.toLowerCase() === "g") {
@@ -22,19 +24,19 @@ function cleanupStaleUnifiedGradientLayers(svg: SVGElement) {
   });
 }
 
-function getOrCreateSvgDefs(svg: SVGElement, document: Document) {
+function getOrCreateSvgDefs(svg: QrSvgElementLike, document: QrSvgDocumentLike) {
   let defs = svg.querySelector("defs");
 
   if (!defs) {
     defs = document.createElementNS(SVG_NS, "defs");
-    svg.insertBefore(defs, svg.firstChild);
+    svg.insertBefore(defs, svg.firstChild ?? null);
   }
 
   return defs;
 }
 
 function ensureUnifiedGradientDefinition(
-  svg: SVGElement,
+  svg: QrSvgElementLike,
   {
     gradient,
     gradientId,
@@ -79,11 +81,11 @@ function ensureUnifiedGradientDefinition(
   return `url(#${gradientId})`;
 }
 
-function getDefaultModulePaintTargets(svg: SVGElement) {
+function getDefaultModulePaintTargets(svg: QrSvgElementLike) {
   return Array.from(svg.querySelectorAll('[data-testid="data-modules"]')).filter(isSvgElementLike);
 }
 
-function applyUnifiedFillToPaintTargets(targets: SVGElement[], gradientRef: string) {
+function applyUnifiedFillToPaintTargets(targets: QrSvgElementLike[], gradientRef: string) {
   for (const target of targets) {
     applyDirectGradientFill(target, gradientRef);
     target.setAttribute("data-qr-layer", "unified-gradient-fill");
@@ -99,7 +101,7 @@ function formatSvgNumber(value: number) {
   return Number(value.toFixed(4)).toString();
 }
 
-function findLogoImage(svg: SVGElement): SVGElement | null {
+function findLogoImage(svg: QrSvgElementLike): QrSvgElementLike | null {
   const found = Array.from(svg.children).find((child) => {
     if (child.tagName.toLowerCase() !== "image") {
       return false;
@@ -113,18 +115,18 @@ function findLogoImage(svg: SVGElement): SVGElement | null {
   return found && isSvgElementLike(found) ? found : null;
 }
 
-function resolveLogoImageHref(logo: SVGElement) {
+function resolveLogoImageHref(logo: QrSvgElementLike) {
   return logo.getAttribute("href") ?? logo.getAttributeNS("http://www.w3.org/1999/xlink", "href");
 }
 
-function hideOriginalPaintTarget(target: SVGElement) {
+function hideOriginalPaintTarget(target: QrSvgElementLike) {
   target.setAttribute("data-qr-layer", "unified-gradient-source");
   target.setAttribute("opacity", "0");
 }
 
 function applyUnifiedGradientLogoFill(
-  svg: SVGElement,
-  document: Document,
+  svg: QrSvgElementLike,
+  document: QrSvgDocumentLike,
   {
     coverRect,
     gradientRef,
@@ -134,7 +136,7 @@ function applyUnifiedGradientLogoFill(
     coverRect: ReturnType<typeof getModuleGradientCoverRect>;
     gradientRef: string;
     gradientId: string;
-    logo: SVGElement;
+    logo: QrSvgElementLike;
   },
 ) {
   if (!coverRect) {
@@ -201,7 +203,7 @@ function applyUnifiedGradientLogoFill(
 }
 
 export function applyUnifiedQrGradientFill(
-  svg: SVGElement,
+  svg: QrSvgElementLike,
   {
     gradient,
     gradientId,
@@ -213,7 +215,7 @@ export function applyUnifiedQrGradientFill(
     gradientId: string;
     gradientLayer?: string;
     margin: number;
-    modulePaintTargets?: SVGElement[];
+    modulePaintTargets?: QrSvgElementLike[];
   },
 ) {
   cleanupStaleUnifiedGradientLayers(svg);

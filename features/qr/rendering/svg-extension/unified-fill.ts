@@ -1,3 +1,5 @@
+import type { QrSvgElementLike } from "../svg-element";
+
 import { getAssetValue, type QraftyState } from "@/features/qr/model/state";
 import { applyUnifiedQrGradientFill, applyUnifiedQrImageFill } from "@qrafty/qr-internal/core";
 import { type QrSvgExtensionFunction } from "./types";
@@ -37,7 +39,7 @@ export function createUnifiedGradientExtension(
 
     const dotClipLayers = getQrModuleClipLayers(svg);
     const dotPathLayers = getQrModulePathLayers(svg);
-    const modulePaintTargets: SVGElement[] = [
+    const modulePaintTargets: QrSvgElementLike[] = [
       ...dotClipLayers.map((layer) => layer.element),
       ...dotPathLayers.map((layer) => layer.element),
     ];
@@ -77,10 +79,10 @@ export function createUnifiedGradientExtension(
   };
 }
 
-function collectModuleUnifiedFillTargets(svg: SVGElement) {
+function collectModuleUnifiedFillTargets(svg: QrSvgElementLike) {
   const dotClipLayers = getQrModuleClipLayers(svg);
   const dotPathLayers = getQrModulePathLayers(svg);
-  const modulePaintTargets: SVGElement[] = [
+  const modulePaintTargets: QrSvgElementLike[] = [
     ...dotClipLayers.map((layer) => layer.element),
     ...dotPathLayers.map((layer) => layer.element),
   ];

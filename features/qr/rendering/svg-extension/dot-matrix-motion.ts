@@ -1,3 +1,5 @@
+import type { QrSvgElementLike } from "../svg-element";
+
 import type { QraftyState } from "@/features/qr/model/state";
 import {
   SVG_NS,
@@ -22,7 +24,7 @@ import {
 import { applyDirectPalettePaint, getActiveDotsPalette } from "./dot-matrix-palette";
 
 export function annotateCanvasSvgForDotMatrixMotion(
-  svg: SVGElement,
+  svg: QrSvgElementLike,
   state?: Pick<QraftyState, "dotsColorMode" | "data" | "dotsPalette">,
 ): number | null {
   materializeDataModulePaths(svg, state);
@@ -33,7 +35,7 @@ export function annotateCanvasSvgForDotMatrixMotion(
   }
 
   const metrics = collectDotMatrixMetrics(dotShapes) ?? getFallbackDotMatrixMetrics(dotShapes);
-  const moduleGroups = new Map<string, SVGElement[]>();
+  const moduleGroups = new Map<string, QrSvgElementLike[]>();
 
   for (const shape of dotShapes) {
     const coordinates = resolveDotMatrixCoordinates(shape, metrics);
@@ -92,7 +94,7 @@ export function annotateCanvasSvgForDotMatrixMotion(
 }
 
 function materializeDataModulePaths(
-  svg: SVGElement,
+  svg: QrSvgElementLike,
   state?: Pick<QraftyState, "dotsColorMode" | "data" | "dotsPalette">,
 ) {
   if (svg.querySelector('[data-qr-layer="dot-matrix-motion-modules"]')) {
@@ -155,7 +157,8 @@ function materializeDataModulePaths(
       group.appendChild(path);
     }
 
-    layer.element.replaceWith(group);
+    layer.element.parentNode?.insertBefore(group, layer.element);
+    layer.element.remove();
   }
 
   if (usesOverlayColorMode) {
@@ -163,7 +166,7 @@ function materializeDataModulePaths(
   }
 }
 
-function expandMergedPaletteFillPaths(svg: SVGElement) {
+function expandMergedPaletteFillPaths(svg: QrSvgElementLike) {
   const document = svg.ownerDocument;
 
   if (!document) {
@@ -201,8 +204,8 @@ function expandMergedPaletteFillPaths(svg: SVGElement) {
 }
 
 function materializeUnifiedImageMotionModules(
-  svg: SVGElement,
-  image: SVGElement,
+  svg: QrSvgElementLike,
+  image: QrSvgElementLike,
   clipLayers: DotClipLayer[],
   pathLayers: DotPathLayer[],
 ) {
@@ -232,7 +235,7 @@ function materializeUnifiedImageMotionModules(
   pattern.setAttribute("width", formatSvgNumber(coverRect.width));
   pattern.setAttribute("height", formatSvgNumber(coverRect.height));
 
-  const patternImage = image.cloneNode(true) as SVGElement;
+  const patternImage = image.cloneNode(true) as QrSvgElementLike;
   patternImage.removeAttribute("id");
   patternImage.removeAttribute("clip-path");
   patternImage.removeAttribute("data-qr-layer");
@@ -249,7 +252,7 @@ function materializeUnifiedImageMotionModules(
   group.setAttribute("data-qr-layer", "dot-matrix-motion-modules");
 
   for (const shape of shapes) {
-    const cell = shape.cloneNode(true) as SVGElement;
+    const cell = shape.cloneNode(true) as QrSvgElementLike;
     cell.removeAttribute("id");
     cell.removeAttribute("clip-path");
     cell.removeAttribute("opacity");
@@ -278,11 +281,11 @@ function materializeUnifiedImageMotionModules(
   }
 
   image.setAttribute("opacity", "0");
-  svg.insertBefore(group, image.nextSibling);
+  svg.insertBefore(group, image.nextSibling ?? null);
 }
 
 function resolveMotionModuleFill(
-  shape: SVGElement,
+  shape: QrSvgElementLike,
   fallbackFill: string,
   state?: Pick<QraftyState, "dotsColorMode">,
 ) {
@@ -297,13 +300,13 @@ function resolveMotionModuleFill(
   return fallbackFill;
 }
 
-function suppressGradientPaletteOverlayLayers(svg: SVGElement) {
+function suppressGradientPaletteOverlayLayers(svg: QrSvgElementLike) {
   for (const layer of svg.querySelectorAll('[data-qr-layer="dot-gradient-fill"]')) {
     layer.setAttribute("opacity", "0");
   }
 }
 
-function collectCanvasDotModuleShapes(svg: SVGElement): SVGElement[] {
+function collectCanvasDotModuleShapes(svg: QrSvgElementLike): QrSvgElementLike[] {
   const fromMaterialized = [
     ...svg.querySelectorAll(
       '[data-qr-layer="dot-matrix-motion-modules"] > path, [data-qr-layer="dot-matrix-motion-modules"] > rect, [data-qr-layer="dot-matrix-motion-modules"] > circle, [data-qr-layer="dot-matrix-motion-modules"] > svg, [data-qr-layer="dot-matrix-motion-modules"] > g[clip-path]',
@@ -331,7 +334,7 @@ function collectCanvasDotModuleShapes(svg: SVGElement): SVGElement[] {
   );
 }
 
-function annotateFinderPatternsForDotMatrix(svg: SVGElement) {
+function annotateFinderPatternsForDotMatrix(svg: QrSvgElementLike) {
   for (const element of svg.querySelectorAll('[data-testid="finder-patterns-outer"]')) {
     if (isSvgElementLike(element)) {
       appendSvgClass(element, "position-ring");

@@ -1,3 +1,5 @@
+import type { QrSvgElementLike } from "./svg-element-like";
+
 // @vitest-environment jsdom
 
 import { describe, expect, it } from "vitest";
@@ -15,7 +17,7 @@ describe("unified qr image fill", () => {
     const document = new DOMParser().parseFromString(svgMarkup, "image/svg+xml");
     const svg = document.documentElement as unknown as SVGElement;
 
-    applyUnifiedQrImageFill(svg, {
+    applyUnifiedQrImageFill(svg as unknown as QrSvgElementLike, {
       imageHref: "https://example.com/texture.png",
       imageId: "qrafty-dots-image",
       margin: 12,
@@ -52,7 +54,7 @@ describe("unified qr image fill", () => {
     const document = new DOMParser().parseFromString(svgMarkup, "image/svg+xml");
     const svg = document.documentElement as unknown as SVGElement;
 
-    applyUnifiedQrImageFill(svg, {
+    applyUnifiedQrImageFill(svg as unknown as QrSvgElementLike, {
       imageHref: "https://example.com/texture.png",
       imageId: "qrafty-dots-image",
       margin: 12,
@@ -92,15 +94,17 @@ describe("unified qr image fill", () => {
     const moduleShapes = ["M12 12h1v1h-1z", "M13 12h1v1h-1z", "M12 13h1v1h-1z"].map((d) => {
       const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
       path.setAttribute("d", d);
-      return path as unknown as SVGElement;
+      return path as unknown as QrSvgElementLike;
     });
 
-    applyUnifiedQrImageFill(svg, {
+    applyUnifiedQrImageFill(svg as unknown as QrSvgElementLike, {
       imageHref: "https://example.com/texture.png",
       imageId: "qrafty-dots-image",
       margin: 12,
       moduleClipShapes: moduleShapes,
-      modulePaintTargets: [svg.querySelector('[data-testid="data-modules"]') as SVGElement],
+      modulePaintTargets: [
+        svg.querySelector('[data-testid="data-modules"]') as unknown as QrSvgElementLike,
+      ],
     });
 
     const clipPath = svg.querySelector("#qrafty-dots-image-clip");
@@ -125,10 +129,12 @@ describe("unified qr image fill", () => {
 
     const document = new DOMParser().parseFromString(svgMarkup, "image/svg+xml");
     const svg = document.documentElement as unknown as SVGElement;
-    const moduleRect = svg.querySelector('[data-testid="data-modules"]') as SVGElement;
-    const moduleShape = svg.querySelector("#module-shape-0 path") as SVGElement;
+    const moduleRect = svg.querySelector(
+      '[data-testid="data-modules"]',
+    ) as unknown as QrSvgElementLike;
+    const moduleShape = svg.querySelector("#module-shape-0 path") as unknown as QrSvgElementLike;
 
-    applyUnifiedQrImageFill(svg, {
+    applyUnifiedQrImageFill(svg as unknown as QrSvgElementLike, {
       imageHref: "https://example.com/texture.png",
       imageId: "qrafty-dots-image",
       margin: 12,

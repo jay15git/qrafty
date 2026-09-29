@@ -1,6 +1,4 @@
-import { ReactQRCode } from "@qrafty/qr-internal/react-qr-code";
-import { createElement } from "react";
-import { renderToStaticMarkup } from "react-dom/server.browser";
+import { emitReactQrCodeMarkup } from "@qrafty/qr-internal/react-qr-code";
 
 import { toReactQrCodeProps } from "@/features/qr/adapters/react-qr-adapter";
 import type { QraftyState } from "@/features/qr/model/state";
@@ -16,7 +14,6 @@ import {
 import {
   createCanvasQrArtworkState,
   sanitizeCanvasQrArtworkMarkup,
-  scaleNestedSvgMarkup,
 } from "@/features/canvas/rendering/qr-artwork";
 
 function renderReactQrBaseMarkupCached(state: QraftyState) {
@@ -27,24 +24,10 @@ function renderReactQrBaseMarkupCached(state: QraftyState) {
     return cached;
   }
 
-  const markup = stripXmlDeclaration(
-    renderToStaticMarkup(createElement(ReactQRCode, toReactQrCodeProps(state))),
-  );
+  const markup = stripXmlDeclaration(emitReactQrCodeMarkup(toReactQrCodeProps(state)));
   writeCachedQrEncodeMarkup(cacheKey, markup);
 
   return markup;
-}
-
-function buildCanvasQraftyPreviewMarkup(
-  state: QraftyState,
-  targetWidth: number,
-  targetHeight: number,
-) {
-  const artworkState = createCanvasQrArtworkState(state);
-  const baseMarkup = renderReactQrBaseMarkupCached(artworkState);
-  const enhanced = applyQraftyQrSvgMarkupExtensions(baseMarkup, artworkState);
-
-  return scaleNestedSvgMarkup(sanitizeCanvasQrArtworkMarkup(enhanced), targetWidth, targetHeight);
 }
 
 export function buildCanvasQraftyMarkup(state: QraftyState) {

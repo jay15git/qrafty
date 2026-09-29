@@ -24,7 +24,12 @@ export function adaptCanvasSvgMarkupForDotMatrixMotion(markup: string, state: Qr
     return undefined;
   }
 
-  if (annotateSvgElementForDotMatrixMotion(svg, state) === null) {
+  if (
+    annotateSvgElementForDotMatrixMotion(
+      svg as unknown as Parameters<typeof annotateSvgElementForDotMatrixMotion>[0],
+      state,
+    ) === null
+  ) {
     return undefined;
   }
 

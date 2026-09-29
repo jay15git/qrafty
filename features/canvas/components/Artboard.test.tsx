@@ -19,8 +19,6 @@ vi.mock("@/features/qr/rendering/qrafty-markup", async (importOriginal) => {
     ...actual,
     buildCanvasQraftyMarkup: (...args: Parameters<typeof buildCanvasQraftyMarkupSpy>) =>
       buildCanvasQraftyMarkupSpy(...args),
-    buildCanvasQraftyPreviewMarkup: (...args: Parameters<typeof buildCanvasQraftyMarkupSpy>) =>
-      buildCanvasQraftyMarkupSpy(...args[0], args[1], args[2]),
   };
 });
 

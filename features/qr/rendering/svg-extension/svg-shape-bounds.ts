@@ -1,3 +1,5 @@
+import type { QrSvgElementLike } from "../svg-element";
+
 import { isSvgElementLike, getDotNumericAttribute } from "./svg-dom-utils";
 
 export type SvgShapeBounds = {
@@ -122,7 +124,7 @@ function getPathDataBounds(pathDefinition: string | null): SvgShapeBounds | null
   return { height: maxY - minY, width: maxX - minX, x: minX, y: minY };
 }
 
-function getBoxShapeBounds(shape: SVGElement): SvgShapeBounds | null {
+function getBoxShapeBounds(shape: QrSvgElementLike): SvgShapeBounds | null {
   const width = getDotNumericAttribute(shape, "width");
   const height = getDotNumericAttribute(shape, "height");
 
@@ -138,7 +140,7 @@ function getBoxShapeBounds(shape: SVGElement): SvgShapeBounds | null {
   };
 }
 
-function getCircleShapeBounds(shape: SVGElement): SvgShapeBounds | null {
+function getCircleShapeBounds(shape: QrSvgElementLike): SvgShapeBounds | null {
   const cx = getDotNumericAttribute(shape, "cx");
   const cy = getDotNumericAttribute(shape, "cy");
   const r = getDotNumericAttribute(shape, "r");
@@ -150,7 +152,7 @@ function getCircleShapeBounds(shape: SVGElement): SvgShapeBounds | null {
   return { height: r * 2, width: r * 2, x: cx - r, y: cy - r };
 }
 
-function getEllipseShapeBounds(shape: SVGElement): SvgShapeBounds | null {
+function getEllipseShapeBounds(shape: QrSvgElementLike): SvgShapeBounds | null {
   const cx = getDotNumericAttribute(shape, "cx");
   const cy = getDotNumericAttribute(shape, "cy");
   const rx = getDotNumericAttribute(shape, "rx");
@@ -174,7 +176,7 @@ function unionShapeBounds(a: SvgShapeBounds, b: SvgShapeBounds): SvgShapeBounds 
   };
 }
 
-function getGroupShapeBounds(shape: SVGElement): SvgShapeBounds | null {
+function getGroupShapeBounds(shape: QrSvgElementLike): SvgShapeBounds | null {
   let combined: SvgShapeBounds | null = null;
 
   for (const child of Array.from(shape.children)) {
@@ -192,16 +194,17 @@ function getGroupShapeBounds(shape: SVGElement): SvgShapeBounds | null {
   return combined;
 }
 
-const SVG_SHAPE_BOUNDS_READERS: Record<string, (shape: SVGElement) => SvgShapeBounds | null> = {
-  circle: getCircleShapeBounds,
-  ellipse: getEllipseShapeBounds,
-  g: getGroupShapeBounds,
-  image: getBoxShapeBounds,
-  path: (shape) => getPathDataBounds(shape.getAttribute("d")),
-  rect: getBoxShapeBounds,
-  svg: getBoxShapeBounds,
-};
+const SVG_SHAPE_BOUNDS_READERS: Record<string, (shape: QrSvgElementLike) => SvgShapeBounds | null> =
+  {
+    circle: getCircleShapeBounds,
+    ellipse: getEllipseShapeBounds,
+    g: getGroupShapeBounds,
+    image: getBoxShapeBounds,
+    path: (shape) => getPathDataBounds(shape.getAttribute("d")),
+    rect: getBoxShapeBounds,
+    svg: getBoxShapeBounds,
+  };
 
-export function getSvgShapeBounds(shape: SVGElement): SvgShapeBounds | null {
+export function getSvgShapeBounds(shape: QrSvgElementLike): SvgShapeBounds | null {
   return SVG_SHAPE_BOUNDS_READERS[shape.tagName.toLowerCase()]?.(shape) ?? null;
 }

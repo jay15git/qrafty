@@ -1,3 +1,5 @@
+import type { QrSvgElementLike } from "../svg-element";
+
 import {
   SVG_NS,
   splitSvgPathData,
@@ -12,15 +14,15 @@ const DOTS_CLIP_PATH_PREFIX = "clip-path-dot-color-";
 const QR_MODULE_CLIP_PATH_PREFIXES = [DOTS_CLIP_PATH_PREFIX];
 
 export type DotClipLayer = {
-  element: SVGRectElement;
+  element: QrSvgElementLike;
   fill: string;
-  shapes: SVGElement[];
+  shapes: QrSvgElementLike[];
 };
 
 export type DotPathLayer = {
-  element: SVGPathElement;
+  element: QrSvgElementLike;
   fill: string;
-  shapes: SVGPathElement[];
+  shapes: QrSvgElementLike[];
 };
 
 export type DotMatrixMetrics = {
@@ -41,7 +43,7 @@ export type DotMatrixCoordinates = {
 export type DotPaletteShapeGroup = {
   coordinates: DotMatrixCoordinates | null;
   fallbackIndex: number;
-  shapes: SVGElement[];
+  shapes: QrSvgElementLike[];
 };
 
 export type DotPaletteGroupAssignment = {
@@ -55,7 +57,7 @@ type DotMatrixAnchor = {
   y: number;
 };
 
-export function getQrModuleClipLayers(svg: SVGElement): DotClipLayer[] {
+export function getQrModuleClipLayers(svg: QrSvgElementLike): DotClipLayer[] {
   return Array.from(svg.querySelectorAll("rect"))
     .map((element) => {
       const clipPathId = getClipPathId(element.getAttribute("clip-path"));
@@ -75,7 +77,7 @@ export function getQrModuleClipLayers(svg: SVGElement): DotClipLayer[] {
         return null;
       }
 
-      const shapes = Array.from(clipPath.children).filter((child): child is SVGElement =>
+      const shapes = Array.from(clipPath.children).filter((child): child is QrSvgElementLike =>
         isSvgElementLike(child),
       );
 
@@ -92,7 +94,7 @@ export function getQrModuleClipLayers(svg: SVGElement): DotClipLayer[] {
     .filter((layer): layer is DotClipLayer => layer !== null);
 }
 
-export function getQrModulePathLayers(svg: SVGElement): DotPathLayer[] {
+export function getQrModulePathLayers(svg: QrSvgElementLike): DotPathLayer[] {
   return Array.from(svg.querySelectorAll("path"))
     .map((element) => {
       if (element.getAttribute("data-testid") !== "data-modules") {
@@ -122,7 +124,7 @@ export function getQrModulePathLayers(svg: SVGElement): DotPathLayer[] {
     .filter((layer): layer is DotPathLayer => layer !== null);
 }
 
-export function collectDotMatrixMetrics(dotShapes: SVGElement[]): DotMatrixMetrics | null {
+export function collectDotMatrixMetrics(dotShapes: QrSvgElementLike[]): DotMatrixMetrics | null {
   const anchors = dotShapes
     .map((shape) => getDotMatrixAnchor(shape))
     .filter((anchor): anchor is DotMatrixAnchor => anchor !== null);
@@ -164,7 +166,7 @@ export function collectDotMatrixMetrics(dotShapes: SVGElement[]): DotMatrixMetri
   };
 }
 
-export function getFallbackDotMatrixMetrics(dotShapes: SVGElement[]): DotMatrixMetrics {
+export function getFallbackDotMatrixMetrics(dotShapes: QrSvgElementLike[]): DotMatrixMetrics {
   const anchors = dotShapes
     .map((shape) => getDotMatrixAnchor(shape))
     .filter((anchor): anchor is DotMatrixAnchor => anchor !== null);
@@ -184,7 +186,7 @@ export function getFallbackDotMatrixMetrics(dotShapes: SVGElement[]): DotMatrixM
   };
 }
 
-export function resolveDotMatrixCoordinates(shape: SVGElement, metrics: DotMatrixMetrics) {
+export function resolveDotMatrixCoordinates(shape: QrSvgElementLike, metrics: DotMatrixMetrics) {
   const anchor = getDotMatrixAnchor(shape);
 
   if (!anchor) {
@@ -197,7 +199,7 @@ export function resolveDotMatrixCoordinates(shape: SVGElement, metrics: DotMatri
   };
 }
 
-function getDotMatrixAnchor(shape: SVGElement): DotMatrixAnchor | null {
+function getDotMatrixAnchor(shape: QrSvgElementLike): DotMatrixAnchor | null {
   const anchorTag = shape.tagName.toLowerCase();
 
   if (anchorTag === "g" || anchorTag === "svg") {
@@ -263,7 +265,7 @@ function getPathAnchor(pathDefinition: string | null): DotMatrixAnchor | null {
   return { size: 1, x: Math.floor(x), y: Math.floor(y) };
 }
 
-export function removeOrphanedModuleClipPaths(svg: SVGElement) {
+export function removeOrphanedModuleClipPaths(svg: QrSvgElementLike) {
   for (const clipPath of svg.querySelectorAll("clipPath")) {
     const clipPathId = clipPath.getAttribute("id") ?? "";
 

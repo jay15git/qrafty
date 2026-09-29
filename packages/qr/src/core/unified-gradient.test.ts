@@ -1,3 +1,5 @@
+import type { QrSvgElementLike } from "./svg-element-like";
+
 // @vitest-environment jsdom
 
 import { describe, expect, it } from "vitest";
@@ -15,7 +17,7 @@ describe("unified qr gradient fill", () => {
     const document = new DOMParser().parseFromString(svgMarkup, "image/svg+xml");
     const svg = document.documentElement as unknown as SVGElement;
 
-    applyUnifiedQrGradientFill(svg, {
+    applyUnifiedQrGradientFill(svg as unknown as QrSvgElementLike, {
       gradient: {
         type: "linear",
         rotation: Math.PI / 2,
@@ -46,7 +48,7 @@ describe("unified qr gradient fill", () => {
     const document = new DOMParser().parseFromString(svgMarkup, "image/svg+xml");
     const svg = document.documentElement as unknown as SVGElement;
 
-    applyUnifiedQrGradientFill(svg, {
+    applyUnifiedQrGradientFill(svg as unknown as QrSvgElementLike, {
       gradient: {
         type: "linear",
         rotation: Math.PI / 2,

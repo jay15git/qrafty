@@ -1,3 +1,5 @@
+import type { QrSvgElementLike } from "../svg-element";
+
 import { type QrSvgExtensionOptions, type QrSvgExtensionFunction } from "./types";
 import { getOrCreateSvgDefs } from "./svg-dom-utils";
 
@@ -44,7 +46,7 @@ export function createBackgroundImageExtension(
 }
 
 function addRoundedBackgroundImageClip(
-  svg: SVGElement,
+  svg: QrSvgElementLike,
   backgroundRound: number,
   options: QrSvgExtensionOptions,
 ) {
@@ -78,7 +80,7 @@ function addRoundedBackgroundImageClip(
   return clipPathId;
 }
 
-function getBackgroundImageInsertReference(svg: SVGElement) {
+function getBackgroundImageInsertReference(svg: QrSvgElementLike) {
   const children = Array.from(svg.children);
   const backgroundRectIndex = children.findIndex(
     (child) =>

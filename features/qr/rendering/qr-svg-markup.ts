@@ -4,6 +4,7 @@ import {
   createAlignedCornerGradientExtension,
   getQrRenderedDimensions,
 } from "@/features/qr/rendering/svg-extension";
+import { parseSvgIrMarkup, serializeSvgElement } from "@/features/qr/rendering/svg-element";
 import { clampQrSize, type QraftyState } from "@/features/qr/model/state";
 import { alignReactQrSvgToModuleGrid } from "@/features/canvas/rendering/qr-artwork";
 
@@ -22,17 +23,20 @@ export function stripXmlDeclaration(markup: string) {
 }
 
 export function applyQraftyQrSvgMarkupExtensions(markup: string, state: QraftyState) {
-  let result = markup;
   const extension = buildQrExtension(state);
-
-  if (extension) {
-    result = applyQrSvgExtension(result, extension, state);
-  }
-
   const cornerExtension = createAlignedCornerGradientExtension(state);
+  let result = markup;
 
-  if (cornerExtension) {
-    result = applyQrSvgExtension(result, cornerExtension, state);
+  if (extension || cornerExtension) {
+    const svg = parseSvgIrMarkup(markup);
+    const options = {
+      height: clampQrSize(state.height),
+      width: clampQrSize(state.width),
+    };
+
+    extension?.(svg, options);
+    cornerExtension?.(svg, options);
+    result = serializeSvgElement(svg);
   }
 
   const renderedDimensions = getQrRenderedDimensions(state);
@@ -51,25 +55,4 @@ export function buildDashboardQrNodePayloadFromBaseMarkup(
     naturalHeight: getQrRenderedDimensions(dashboardState).height,
     naturalWidth: getQrRenderedDimensions(dashboardState).width,
   };
-}
-
-function applyQrSvgExtension(
-  markup: string,
-  extension: (svg: SVGElement, options: { height?: number; width?: number }) => void,
-  state: QraftyState,
-) {
-  const parser = new DOMParser();
-  const document = parser.parseFromString(markup, "image/svg+xml");
-  const svg = document.documentElement as unknown as SVGElement;
-
-  if (svg.tagName.toLowerCase() !== "svg" || document.querySelector("parsererror")) {
-    throw new Error("QR SVG data is unavailable.");
-  }
-
-  extension(svg, {
-    height: clampQrSize(state.height),
-    width: clampQrSize(state.width),
-  });
-
-  return new XMLSerializer().serializeToString(svg);
 }

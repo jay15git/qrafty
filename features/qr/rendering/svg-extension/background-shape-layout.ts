@@ -1,3 +1,5 @@
+import type { QrSvgElementLike } from "../svg-element";
+
 import type { CSSProperties } from "react";
 import {
   getQrBackgroundShapeContentFrame,
@@ -35,7 +37,7 @@ export function coerceQrMarginCells(margin: number) {
  * background shape, quiet zone, and stroke align with the encoded modules.
  */
 export function getCellSpaceBackgroundMetrics(
-  svg: SVGElement,
+  svg: QrSvgElementLike,
   options: QrSvgExtensionOptions,
   shapeOptions: ReturnType<typeof normalizeBackgroundShapeOptions>,
   layout: {
@@ -346,7 +348,7 @@ export function getBackgroundShapeTransform(
   return getBackgroundShapeSkewTransform(baseTransform, shapeOptions, centerX, centerY);
 }
 
-export function getQrSvgNumCells(svg: SVGElement) {
+export function getQrSvgNumCells(svg: QrSvgElementLike) {
   const viewBox = svg.getAttribute("viewBox");
 
   if (viewBox) {

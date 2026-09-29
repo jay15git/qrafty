@@ -1,6 +1,8 @@
+import type { QrSvgElementLike } from "./svg-element-like";
+
 import { getQrSvgNumCells } from "./finder-gradient-overlays";
 
-export function getModuleGradientCoverRect(svg: SVGElement, margin: number) {
+export function getModuleGradientCoverRect(svg: QrSvgElementLike, margin: number) {
   const numCells = getQrSvgNumCells(svg);
 
   if (numCells === null) {
@@ -37,7 +39,7 @@ function hasReplaceablePaint(value: string | null) {
 }
 
 export function applyDirectGradientFillWithContext(
-  element: SVGElement,
+  element: QrSvgElementLike,
   gradientRef: string,
   inherited: SvgPaintContext,
 ) {
@@ -60,13 +62,11 @@ export function applyDirectGradientFillWithContext(
   }
 
   for (const child of element.children) {
-    if (child instanceof SVGElement) {
-      applyDirectGradientFillWithContext(child, gradientRef, nextInherited);
-    }
+    applyDirectGradientFillWithContext(child, gradientRef, nextInherited);
   }
 }
 
-export function applyDirectGradientFill(element: SVGElement, gradientRef: string) {
+export function applyDirectGradientFill(element: QrSvgElementLike, gradientRef: string) {
   applyDirectGradientFillWithContext(element, gradientRef, {
     fill: null,
     stroke: null,

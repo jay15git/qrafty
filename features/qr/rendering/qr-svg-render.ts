@@ -1,6 +1,4 @@
-import { ReactQRCode } from "@qrafty/qr-internal/react-qr-code";
-import { createElement } from "react";
-import { renderToStaticMarkup } from "react-dom/server.browser";
+import { emitReactQrCodeMarkup } from "@qrafty/qr-internal/react-qr-code";
 
 import { toReactQrCodeProps } from "@/features/qr/adapters/react-qr-adapter";
 import { type QraftyState } from "@/features/qr/model/state";
@@ -25,9 +23,7 @@ function renderReactQrBaseMarkup(state: QraftyState) {
     return cached;
   }
 
-  const markup = stripXmlDeclaration(
-    renderToStaticMarkup(createElement(ReactQRCode, toReactQrCodeProps(dashboardState))),
-  );
+  const markup = stripXmlDeclaration(emitReactQrCodeMarkup(toReactQrCodeProps(dashboardState)));
   writeCachedQrEncodeMarkup(cacheKey, markup);
 
   return markup;

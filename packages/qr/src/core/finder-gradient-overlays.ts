@@ -1,3 +1,5 @@
+import type { QrSvgDocumentLike, QrSvgElementLike } from "./svg-element-like";
+
 import type { QraftyQrGradientConfig } from "../types";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
@@ -11,11 +13,11 @@ type FinderCornerRegion = {
   y: number;
 };
 
-function isSvgElementLike(node: Element): node is SVGElement {
+function isSvgElementLike(node: QrSvgElementLike): node is QrSvgElementLike {
   return typeof node.getAttribute === "function" && typeof node.setAttribute === "function";
 }
 
-function getNumericAttribute(element: Element, name: string) {
+function getNumericAttribute(element: QrSvgElementLike, name: string) {
   const value = element.getAttribute(name);
 
   if (value === null) {
@@ -27,7 +29,7 @@ function getNumericAttribute(element: Element, name: string) {
   return Number.isFinite(numericValue) ? numericValue : null;
 }
 
-export function getQrSvgNumCells(svg: SVGElement) {
+export function getQrSvgNumCells(svg: QrSvgElementLike) {
   const viewBox = svg.getAttribute("viewBox");
 
   if (viewBox) {
@@ -162,7 +164,7 @@ function getLinearGradientEndpoints({
 }
 
 export function createCornerGradientElement(
-  document: Document,
+  document: QrSvgDocumentLike,
   gradient: QraftyQrGradientConfig,
   {
     height,
@@ -216,12 +218,12 @@ export function createCornerGradientElement(
   return gradientElement;
 }
 
-function findDotMatrixLayerAnchor(svg: SVGElement) {
+function findDotMatrixLayerAnchor(svg: QrSvgElementLike) {
   return Array.from(svg.children).find((child) => child.tagName.toLowerCase() === "image") ?? null;
 }
 
 function applyFinderGradientOverlay(
-  svg: SVGElement,
+  svg: QrSvgElementLike,
   {
     gradient,
     gradientIdPrefix,
@@ -288,7 +290,7 @@ function applyFinderGradientOverlay(
     clipPath.setAttribute("data-qr-layer", `${groupLayer}-clip`);
 
     for (const pattern of patterns) {
-      const clonedPattern = pattern.cloneNode(true) as SVGElement;
+      const clonedPattern = pattern.cloneNode(true) as QrSvgElementLike;
       clonedPattern.removeAttribute("clip-path");
       clonedPattern.removeAttribute("opacity");
       clipPath.appendChild(clonedPattern);
@@ -321,7 +323,7 @@ function applyFinderGradientOverlay(
 }
 
 function applyPortableFinderGradientOverlays(
-  svg: SVGElement,
+  svg: QrSvgElementLike,
   {
     finderInnerGradient,
     finderOuterGradient,

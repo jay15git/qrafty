@@ -1,3 +1,5 @@
+import type { QrSvgElementLike } from "./svg-element";
+
 import { describe, expect, it } from "vitest";
 
 import {
@@ -371,7 +373,7 @@ describe("qr rendering helpers", () => {
     const svg = createStubElement("svg");
     svg.setAttribute("viewBox", "0 0 57 57");
 
-    expect(getQrSvgNumCells(svg as unknown as SVGElement)).toBe(57);
+    expect(getQrSvgNumCells(svg as unknown as QrSvgElementLike)).toBe(57);
   });
 
   it("keeps logo-only changes on the upstream image path instead of the extension pipeline", () => {
@@ -432,7 +434,7 @@ describe("qr rendering helpers", () => {
       rows: 2,
     });
 
-    extension(svg as unknown as SVGElement, {
+    extension(svg as unknown as QrSvgElementLike, {
       height,
       width,
     });
@@ -470,7 +472,7 @@ describe("qr rendering helpers", () => {
       rows: 4,
     });
 
-    extension(svg as unknown as SVGElement, {
+    extension(svg as unknown as QrSvgElementLike, {
       height,
       width,
     });
@@ -533,7 +535,7 @@ describe("qr rendering helpers", () => {
     );
     svg.appendChild(pathLayer);
 
-    extension(svg as unknown as SVGElement, {
+    extension(svg as unknown as QrSvgElementLike, {
       height: 120,
       width: 120,
     });
@@ -580,7 +582,7 @@ describe("qr rendering helpers", () => {
     cornerLayer.setAttribute("fill", "#111827");
     svg.appendChild(cornerLayer);
 
-    extension(svg as unknown as SVGElement, {
+    extension(svg as unknown as QrSvgElementLike, {
       height,
       width,
     });
@@ -620,7 +622,7 @@ describe("qr rendering helpers", () => {
     svg.appendChild(createStubElement("rect"));
     svg.appendChild(createStubElement("path"));
 
-    extension(svg as unknown as SVGElement, {
+    extension(svg as unknown as QrSvgElementLike, {
       height: 100,
       width: 100,
     });
@@ -654,7 +656,7 @@ describe("qr rendering helpers", () => {
     svg.appendChild(createStubElement("rect"));
     svg.appendChild(createStubElement("path"));
 
-    extension(svg as unknown as SVGElement, {
+    extension(svg as unknown as QrSvgElementLike, {
       height: 120,
       width: 160,
     });
@@ -689,7 +691,7 @@ describe("qr rendering helpers", () => {
     svg.appendChild(createStubElement("rect"));
     svg.appendChild(createStubElement("path"));
 
-    extension(svg as unknown as SVGElement, {
+    extension(svg as unknown as QrSvgElementLike, {
       height: 320,
       width: 320,
     });
@@ -724,7 +726,7 @@ describe("qr rendering helpers", () => {
     svg.appendChild(createStubElement("rect"));
     svg.appendChild(createStubElement("path"));
 
-    extension(svg as unknown as SVGElement, {
+    extension(svg as unknown as QrSvgElementLike, {
       height: 320,
       width: 320,
     });
@@ -768,7 +770,7 @@ describe("qr rendering helpers", () => {
     const qrPath = createStubElement("path");
     svg.appendChild(qrPath);
 
-    extension(svg as unknown as SVGElement, {
+    extension(svg as unknown as QrSvgElementLike, {
       height: 320,
       width: 320,
     });
@@ -828,7 +830,7 @@ describe("qr rendering helpers", () => {
     const qrPath = createStubElement("path");
     svg.appendChild(qrPath);
 
-    extension(svg as unknown as SVGElement, {
+    extension(svg as unknown as QrSvgElementLike, {
       height: 320,
       width: 320,
     });
@@ -887,11 +889,11 @@ describe("qr rendering helpers", () => {
     hiddenSvg.appendChild(createStubElement("rect"));
     hiddenSvg.appendChild(createStubElement("path"));
 
-    buildQrExtension(visibleShadowState)?.(visibleSvg as unknown as SVGElement, {
+    buildQrExtension(visibleShadowState)?.(visibleSvg as unknown as QrSvgElementLike, {
       height: 320,
       width: 320,
     });
-    buildQrExtension(hiddenShadowState)?.(hiddenSvg as unknown as SVGElement, {
+    buildQrExtension(hiddenShadowState)?.(hiddenSvg as unknown as QrSvgElementLike, {
       height: 320,
       width: 320,
     });
@@ -929,7 +931,7 @@ describe("qr rendering helpers", () => {
     svg.appendChild(createStubElement("rect"));
     svg.appendChild(createStubElement("path"));
 
-    extension(svg as unknown as SVGElement, {
+    extension(svg as unknown as QrSvgElementLike, {
       height: 320,
       width: 320,
     });
@@ -965,7 +967,7 @@ describe("qr rendering helpers", () => {
     svg.appendChild(createStubElement("rect"));
     svg.appendChild(createStubElement("path"));
 
-    extension(svg as unknown as SVGElement, {
+    extension(svg as unknown as QrSvgElementLike, {
       height: 320,
       width: 320,
     });
@@ -1015,7 +1017,7 @@ describe("qr rendering helpers", () => {
       svg,
     });
 
-    extension(svg as unknown as SVGElement, {
+    extension(svg as unknown as QrSvgElementLike, {
       height: 240,
       width: 240,
     });
@@ -1071,7 +1073,7 @@ describe("qr rendering helpers", () => {
       svg,
     });
 
-    extension(svg as unknown as SVGElement, {
+    extension(svg as unknown as QrSvgElementLike, {
       height: 280,
       width: 280,
     });

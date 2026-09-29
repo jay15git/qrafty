@@ -1,3 +1,5 @@
+import type { QrSvgElementLike } from "../svg-element";
+
 import {
   getQrBackgroundShapeContentFrame,
   type QrBackgroundShapeDefinition,
@@ -102,9 +104,9 @@ export function createBackgroundShapeExtension(
 }
 
 function applyBackgroundShapeStroke(
-  element: Element,
+  element: QrSvgElementLike,
   shapeOptions: ReturnType<typeof normalizeBackgroundShapeOptions>,
-  svg: SVGElement,
+  svg: QrSvgElementLike,
   clipPathId: string,
   strokeLayerTag: string,
   strokeScale = 1,
@@ -133,7 +135,7 @@ function applyBackgroundShapeStroke(
   element.setAttribute("stroke-width", formatSvgNumber(renderedStrokeWidth * 2));
 
   const clipPath = ownerDocument.createElementNS("http://www.w3.org/2000/svg", "clipPath");
-  const clipShape = element.cloneNode(false) as Element;
+  const clipShape = element.cloneNode(false) as QrSvgElementLike;
 
   clipPath.setAttribute("id", clipPathId);
   clipPath.setAttribute("data-qr-layer", strokeLayerTag);
@@ -154,7 +156,7 @@ function applyBackgroundShapeStroke(
   return group;
 }
 
-function applySvgRenderBounds(svg: SVGElement, metrics: BackgroundRenderMetrics) {
+function applySvgRenderBounds(svg: QrSvgElementLike, metrics: BackgroundRenderMetrics) {
   svg.setAttribute("width", formatSvgNumber(metrics.outerWidth));
   svg.setAttribute("height", formatSvgNumber(metrics.outerHeight));
   svg.setAttribute(
@@ -163,7 +165,12 @@ function applySvgRenderBounds(svg: SVGElement, metrics: BackgroundRenderMetrics)
   );
 }
 
-function wrapQrContent(svg: SVGElement, translateX: number, translateY: number, contentScale = 1) {
+function wrapQrContent(
+  svg: QrSvgElementLike,
+  translateX: number,
+  translateY: number,
+  contentScale = 1,
+) {
   const hasScale = Math.abs(contentScale - 1) > 1e-9;
   const transform = hasScale
     ? `translate(${formatSvgNumber(translateX)} ${formatSvgNumber(translateY)}) scale(${formatSvgNumber(contentScale)})`
@@ -198,7 +205,7 @@ function wrapQrContent(svg: SVGElement, translateX: number, translateY: number, 
   return group;
 }
 
-function getFirstDrawableSvgChild(svg: SVGElement) {
+function getFirstDrawableSvgChild(svg: QrSvgElementLike) {
   return (
     Array.from(svg.children).find(
       (child) => child.tagName.toLowerCase() !== "defs" && !isManagedBackgroundLayer(child),
@@ -206,7 +213,7 @@ function getFirstDrawableSvgChild(svg: SVGElement) {
   );
 }
 
-function isManagedBackgroundLayer(node: Element) {
+function isManagedBackgroundLayer(node: QrSvgElementLike) {
   const layer = node.getAttribute("data-qr-layer");
 
   return Boolean(layer?.startsWith("background-"));
@@ -284,7 +291,7 @@ export function createBackgroundSurfaceExtension(
   };
 }
 
-function getQrBackgroundSurfaceRect(svg: SVGElement) {
+function getQrBackgroundSurfaceRect(svg: QrSvgElementLike) {
   return Array.from(svg.children).find(
     (child) =>
       child.tagName.toLowerCase() === "rect" &&
@@ -294,7 +301,7 @@ function getQrBackgroundSurfaceRect(svg: SVGElement) {
 }
 
 function applyBackgroundSurfaceRect(
-  rect: Element,
+  rect: QrSvgElementLike,
   region: BackgroundRenderMetrics["backingRegion"],
   radius: number,
 ) {
@@ -315,7 +322,7 @@ function createBackgroundSurfaceBlurRect({
   radius: number;
   region: BackgroundRenderMetrics["backingRegion"];
   shapeOptions: ReturnType<typeof normalizeBackgroundShapeOptions>;
-  svg: SVGElement;
+  svg: QrSvgElementLike;
 }) {
   if (!hasActiveBackgroundShapeShadow(shapeOptions)) {
     return null;
@@ -364,7 +371,7 @@ function createBackgroundShapeBlurPath({
   d: string;
   metrics: BackgroundRenderMetrics;
   shapeOptions: ReturnType<typeof normalizeBackgroundShapeOptions>;
-  svg: SVGElement;
+  svg: QrSvgElementLike;
   transform: string;
 }) {
   if (!hasActiveBackgroundShapeShadow(shapeOptions)) {
@@ -412,7 +419,7 @@ function hasActiveBackgroundShapeShadow(
 }
 
 function applyBackgroundShapeShadowSourceStroke(
-  node: Element,
+  node: QrSvgElementLike,
   shapeOptions: ReturnType<typeof normalizeBackgroundShapeOptions>,
 ) {
   if (shapeOptions.strokeWidth <= 0) {
@@ -443,7 +450,7 @@ function createBackgroundShapeShadowFilter({
     y: number;
   };
   shapeOptions: ReturnType<typeof normalizeBackgroundShapeOptions>;
-  svg: SVGElement;
+  svg: QrSvgElementLike;
 }) {
   const document = svg.ownerDocument;
   const filter = document.createElementNS("http://www.w3.org/2000/svg", "filter");
@@ -482,7 +489,7 @@ function createBackgroundShapeShadowFilter({
 }
 
 function getBackgroundShapeFill(
-  svg: SVGElement,
+  svg: QrSvgElementLike,
   state: Pick<QraftyState, "backgroundGradient" | "backgroundOptions">,
   width: number,
   height: number,

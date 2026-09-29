@@ -1,3 +1,5 @@
+import type { QrSvgElementLike } from "../svg-element";
+
 import type { QraftyState } from "@/features/qr/model/state";
 import {
   buildCustomCornerDotTransform,
@@ -29,7 +31,7 @@ type FinderInnerElementRegion = {
   y: number;
 };
 
-function getFinderInnerElementRegion(element: SVGElement): FinderInnerElementRegion | null {
+function getFinderInnerElementRegion(element: QrSvgElementLike): FinderInnerElementRegion | null {
   const tagName = element.tagName.toLowerCase();
 
   if (tagName === "rect") {
@@ -178,7 +180,7 @@ export function createDotsGradientExtension(
 
     const dotClipLayers = getQrModuleClipLayers(svg);
     const dotPathLayers = getQrModulePathLayers(svg);
-    const paintTargets: SVGElement[] = [
+    const paintTargets: QrSvgElementLike[] = [
       ...dotClipLayers.map((layer) => layer.element),
       ...dotPathLayers.map((layer) => layer.element),
     ];
@@ -235,7 +237,7 @@ export function createDotsGradientExtension(
   };
 }
 
-function getDataModulesPathMetrics(svg: SVGElement) {
+function getDataModulesPathMetrics(svg: QrSvgElementLike) {
   const dataModules = svg.querySelector('[data-testid="data-modules"]');
 
   if (!isSvgElementLike(dataModules)) {

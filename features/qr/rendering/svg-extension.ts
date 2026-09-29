@@ -1,3 +1,5 @@
+import type { QrSvgElementLike } from "./svg-element";
+
 import { getQrBackgroundShapeDefinition } from "@/features/qr/styles/background-shapes";
 import { getAssetValue, type QraftyState } from "@/features/qr/model/state";
 import { type QrSvgExtensionOptions, type QrSvgExtensionFunction } from "./svg-extension/types";
@@ -101,7 +103,7 @@ export function buildQrExtension(state: QraftyState) {
     return null;
   }
 
-  return (svg: SVGElement, options: QrSvgExtensionOptions) => {
+  return (svg: QrSvgElementLike, options: QrSvgExtensionOptions) => {
     for (const extension of extensions) {
       extension(svg, options);
     }

@@ -1,3 +1,5 @@
+import type { QrSvgDocumentLike, QrSvgElementLike } from "./svg-element-like";
+
 import { getModuleGradientCoverRect } from "./gradient-fill-utils";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
@@ -9,11 +11,11 @@ export type ModuleFillCoverRect = {
   y: number;
 };
 
-function isSvgElementLike(node: Element): node is SVGElement {
+function isSvgElementLike(node: QrSvgElementLike): node is QrSvgElementLike {
   return typeof node.getAttribute === "function" && typeof node.setAttribute === "function";
 }
 
-function cleanupStaleUnifiedImageLayers(svg: SVGElement) {
+function cleanupStaleUnifiedImageLayers(svg: QrSvgElementLike) {
   for (const layer of [
     "corner-frame-gradient",
     "corner-dot-gradient",
@@ -40,12 +42,12 @@ function cleanupStaleUnifiedImageLayers(svg: SVGElement) {
   });
 }
 
-function getOrCreateSvgDefs(svg: SVGElement, document: Document) {
+function getOrCreateSvgDefs(svg: QrSvgElementLike, document: QrSvgDocumentLike) {
   let defs = svg.querySelector("defs");
 
   if (!defs) {
     defs = document.createElementNS(SVG_NS, "defs");
-    svg.insertBefore(defs, svg.firstChild);
+    svg.insertBefore(defs, svg.firstChild ?? null);
   }
 
   return defs;
@@ -59,7 +61,7 @@ function formatSvgNumber(value: number) {
   return Number(value.toFixed(4)).toString();
 }
 
-function findLogoImage(svg: SVGElement) {
+function findLogoImage(svg: QrSvgElementLike) {
   return (
     Array.from(svg.children).find((child) => {
       if (child.tagName.toLowerCase() !== "image") {
@@ -73,7 +75,7 @@ function findLogoImage(svg: SVGElement) {
   );
 }
 
-export function getMergeableClipPathData(shape: SVGElement) {
+export function getMergeableClipPathData(shape: QrSvgElementLike) {
   if (shape.getAttribute("transform")) {
     return null;
   }
@@ -101,8 +103,8 @@ export function getMergeableClipPathData(shape: SVGElement) {
   return null;
 }
 
-function cloneShapeForClipPath(source: SVGElement) {
-  const clone = source.cloneNode(true) as SVGElement;
+function cloneShapeForClipPath(source: QrSvgElementLike) {
+  const clone = source.cloneNode(true) as QrSvgElementLike;
 
   clone.removeAttribute("id");
   clone.removeAttribute("fill");
@@ -121,7 +123,7 @@ function cloneShapeForClipPath(source: SVGElement) {
 }
 
 function hideOriginalPaintTarget(
-  target: SVGElement,
+  target: QrSvgElementLike,
   sourceLayer = "unified-image-source",
   hidePaintTargets = true,
 ) {
@@ -132,11 +134,11 @@ function hideOriginalPaintTarget(
   }
 }
 
-function getDefaultModulePaintTargets(svg: SVGElement) {
+function getDefaultModulePaintTargets(svg: QrSvgElementLike) {
   return Array.from(svg.querySelectorAll('[data-testid="data-modules"]')).filter(isSvgElementLike);
 }
 
-function collectFinderPatternMaskTargets(svg: SVGElement) {
+function collectFinderPatternMaskTargets(svg: QrSvgElementLike) {
   const finderOuter = Array.from(
     svg.querySelectorAll('[data-testid="finder-patterns-outer"]'),
   ).filter(isSvgElementLike);
@@ -151,8 +153,8 @@ function collectFinderPatternMaskTargets(svg: SVGElement) {
 }
 
 function collectUnifiedImageMaskTargets(
-  svg: SVGElement,
-  modulePaintTargets: SVGElement[] | undefined,
+  svg: QrSvgElementLike,
+  modulePaintTargets: QrSvgElementLike[] | undefined,
 ) {
   const moduleTargets =
     modulePaintTargets && modulePaintTargets.length > 0
@@ -163,9 +165,9 @@ function collectUnifiedImageMaskTargets(
 }
 
 function collectUnifiedImageClipShapes(
-  svg: SVGElement,
-  modulePaintTargets: SVGElement[] | undefined,
-  moduleClipShapes: SVGElement[] | undefined,
+  svg: QrSvgElementLike,
+  modulePaintTargets: QrSvgElementLike[] | undefined,
+  moduleClipShapes: QrSvgElementLike[] | undefined,
 ) {
   const moduleTargets =
     modulePaintTargets && modulePaintTargets.length > 0
@@ -177,13 +179,13 @@ function collectUnifiedImageClipShapes(
   return [...moduleSources, ...collectFinderPatternMaskTargets(svg)];
 }
 
-function resolveLogoImageHref(logo: SVGElement) {
+function resolveLogoImageHref(logo: QrSvgElementLike) {
   return logo.getAttribute("href") ?? logo.getAttributeNS("http://www.w3.org/1999/xlink", "href");
 }
 
 function applyUnifiedImageLogoFill(
-  svg: SVGElement,
-  document: Document,
+  svg: QrSvgElementLike,
+  document: QrSvgDocumentLike,
   {
     coverRect,
     imageHref,
@@ -193,7 +195,7 @@ function applyUnifiedImageLogoFill(
     coverRect: ModuleFillCoverRect;
     imageHref: string;
     imageId: string;
-    logo: SVGElement;
+    logo: QrSvgElementLike;
   },
 ) {
   const logoHref = resolveLogoImageHref(logo);
@@ -258,7 +260,7 @@ function applyUnifiedImageLogoFill(
 }
 
 export function applyUnifiedQrImageFill(
-  svg: SVGElement,
+  svg: QrSvgElementLike,
   {
     coverRect,
     imageHref,
@@ -276,8 +278,8 @@ export function applyUnifiedQrImageFill(
     hidePaintTargets?: boolean;
     margin: number;
     coverRect?: ModuleFillCoverRect | null;
-    moduleClipShapes?: SVGElement[];
-    modulePaintTargets?: SVGElement[];
+    moduleClipShapes?: QrSvgElementLike[];
+    modulePaintTargets?: QrSvgElementLike[];
     sourceLayer?: string;
   },
 ) {
@@ -309,7 +311,7 @@ export function applyUnifiedQrImageFill(
   const finderCount = collectFinderPatternMaskTargets(svg).length;
   const moduleClipCount = clipShapes.length - finderCount;
   const mergedPathData: string[] = [];
-  const clonedShapes: SVGElement[] = [];
+  const clonedShapes: QrSvgElementLike[] = [];
 
   for (const [index, shape] of clipShapes.entries()) {
     const pathData = index < moduleClipCount ? getMergeableClipPathData(shape) : null;

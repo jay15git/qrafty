@@ -1,3 +1,5 @@
+import type { QrSvgDocumentLike, QrSvgElementLike } from "../svg-element";
+
 import type { QraftyState, QraftyGradient } from "@/features/qr/model/state";
 import { type QrSvgExtensionFunction } from "./types";
 import {
@@ -155,7 +157,7 @@ export function createFinderPatternGradientExtension(
 
       defs.appendChild(gradientElement);
 
-      const painted = element.cloneNode(true) as SVGElement;
+      const painted = element.cloneNode(true) as QrSvgElementLike;
       painted.setAttribute("fill", `url('#${gradientId}')`);
       painted.setAttribute("data-qr-layer", `${groupLayer}-fill`);
       painted.removeAttribute("opacity");
@@ -182,14 +184,14 @@ export function createFinderPatternGradientExtension(
 }
 
 function buildFinderCornerGradientElements(
-  patterns: SVGElement[],
+  patterns: QrSvgElementLike[],
   cornerRegions: FinderCornerRegion[],
-  document: Document,
+  document: QrSvgDocumentLike,
   testId: "finder-patterns-inner" | "finder-patterns-outer",
 ) {
   if (patterns.length === cornerRegions.length) {
     return sortFinderElementsByCornerRegions(patterns, cornerRegions).map(
-      (pattern) => pattern.cloneNode(true) as SVGElement,
+      (pattern) => pattern.cloneNode(true) as QrSvgElementLike,
     );
   }
 
@@ -201,7 +203,7 @@ function buildFinderCornerGradientElements(
 }
 
 function sortFinderElementsByCornerRegions(
-  patterns: SVGElement[],
+  patterns: QrSvgElementLike[],
   cornerRegions: FinderCornerRegion[],
 ) {
   return [...patterns].sort((left, right) => {
@@ -213,15 +215,15 @@ function sortFinderElementsByCornerRegions(
 }
 
 function splitFinderPatternIntoCornerElements(
-  pattern: SVGElement,
+  pattern: QrSvgElementLike,
   cornerRegions: FinderCornerRegion[],
-  document: Document,
+  document: QrSvgDocumentLike,
   testId: "finder-patterns-inner" | "finder-patterns-outer",
 ) {
   const tagName = pattern.tagName.toLowerCase();
 
   if (tagName !== "path") {
-    return cornerRegions.map(() => pattern.cloneNode(true) as SVGElement);
+    return cornerRegions.map(() => pattern.cloneNode(true) as QrSvgElementLike);
   }
 
   const groupedSubpaths = cornerRegions.map(() => [] as string[]);
@@ -249,10 +251,10 @@ function splitFinderPatternIntoCornerElements(
       copyFinderPatternPresentation(pattern, path);
       return path;
     })
-    .filter((element): element is SVGPathElement => element !== null);
+    .filter((element): element is QrSvgElementLike => element !== null);
 }
 
-function copyFinderPatternPresentation(source: SVGElement, target: SVGElement) {
+function copyFinderPatternPresentation(source: QrSvgElementLike, target: QrSvgElementLike) {
   for (const attribute of ["class", "shape-rendering", "style", "transform", "fill-rule"]) {
     const value = source.getAttribute(attribute);
 
@@ -268,7 +270,10 @@ function copyFinderPatternPresentation(source: SVGElement, target: SVGElement) {
   }
 }
 
-function getFinderElementCornerIndex(element: SVGElement, cornerRegions: FinderCornerRegion[]) {
+function getFinderElementCornerIndex(
+  element: QrSvgElementLike,
+  cornerRegions: FinderCornerRegion[],
+) {
   const tagName = element.tagName.toLowerCase();
 
   if (tagName === "rect") {
@@ -391,7 +396,7 @@ function getAlignedCornerGradientRotation(
 }
 
 function alignCornerGradientDirection(
-  svg: SVGElement,
+  svg: QrSvgElementLike,
   {
     gradientIdPrefix,
     rotation,

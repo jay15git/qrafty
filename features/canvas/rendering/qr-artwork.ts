@@ -1,4 +1,9 @@
 import { DEFAULT_BACKGROUND_SHAPE_OPTIONS, type QraftyState } from "@/features/qr/model/state";
+import {
+  parseSvgIrMarkup,
+  serializeSvgElement,
+  type QrSvgElementLike,
+} from "@/features/qr/rendering/svg-element";
 
 export function createCanvasQrArtworkState(state: QraftyState): QraftyState {
   return {
@@ -23,15 +28,9 @@ export function createCanvasQrArtworkState(state: QraftyState): QraftyState {
 }
 
 export function sanitizeCanvasQrArtworkMarkup(markup: string) {
-  if (typeof DOMParser === "undefined" || typeof XMLSerializer === "undefined") {
-    return markup;
-  }
+  const svg = parseSvgIrMarkup(markup);
 
-  const parser = new DOMParser();
-  const document = parser.parseFromString(markup, "image/svg+xml");
-  const svg = document.documentElement;
-
-  if (svg.tagName.toLowerCase() !== "svg" || document.querySelector("parsererror")) {
+  if (svg.tagName.toLowerCase() !== "svg") {
     return markup;
   }
 
@@ -59,7 +58,7 @@ export function sanitizeCanvasQrArtworkMarkup(markup: string) {
     }
   }
 
-  return new XMLSerializer().serializeToString(svg);
+  return serializeSvgElement(svg);
 }
 
 export function parseSvgViewBoxSize(markup: string) {
@@ -86,43 +85,6 @@ function snapDimensionToViewBoxGrid(target: number, viewBoxAxis: number) {
   }
 
   return viewBoxAxis * Math.max(1, Math.round(target / viewBoxAxis));
-}
-
-function parseNestedQrSvgMetrics(markup: string) {
-  const openTags = [...markup.matchAll(/<svg\b([^>]*)>/gi)];
-
-  for (let index = 1; index < openTags.length; index += 1) {
-    const attributes = openTags[index][1];
-    const viewBox = attributes.match(/\bviewBox="([^"]+)"/i)?.[1];
-
-    if (!viewBox) {
-      continue;
-    }
-
-    const parts = viewBox
-      .trim()
-      .split(/[\s,]+/)
-      .map(Number.parseFloat);
-
-    if (parts.length !== 4 || !parts[2] || !parts[3] || parts[2] > 200 || parts[3] > 200) {
-      continue;
-    }
-
-    const displayWidth = Number.parseFloat(attributes.match(/\bwidth="([^"]+)"/i)?.[1] ?? "NaN");
-    const displayHeight = Number.parseFloat(attributes.match(/\bheight="([^"]+)"/i)?.[1] ?? "NaN");
-
-    if (!Number.isFinite(displayWidth) || !Number.isFinite(displayHeight)) {
-      continue;
-    }
-
-    return {
-      displayHeight,
-      displayWidth,
-      moduleUnits: parts[2],
-    };
-  }
-
-  return null;
 }
 
 export function snapLayeredRasterDimensionsToQrModuleGrid({
@@ -238,7 +200,7 @@ export function scaleNestedSvgMarkup(markup: string, width: number, height: numb
   return scaledMarkup;
 }
 
-function isLegacyQrBackingNode(node: Element) {
+function isLegacyQrBackingNode(node: QrSvgElementLike) {
   const layer = node.getAttribute("data-qr-layer");
 
   if (layer?.startsWith("background-")) {

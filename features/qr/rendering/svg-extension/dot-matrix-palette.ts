@@ -1,3 +1,5 @@
+import type { QrSvgDocumentLike, QrSvgElementLike } from "../svg-element";
+
 import type { QraftyState } from "@/features/qr/model/state";
 import { getMergeableClipPathData } from "@qrafty/qr-internal/core";
 import { SVG_NS, findDotMatrixLayerAnchor } from "./svg-dom-utils";
@@ -17,7 +19,7 @@ import {
 type PaletteColorAssignment = {
   color: string;
   paletteIndex: number;
-  shapes: SVGElement[];
+  shapes: QrSvgElementLike[];
 };
 
 export type PalettePaintGroupLayer = "dot-matrix-motion-modules" | "dot-palette";
@@ -37,7 +39,7 @@ export function getActiveDotsPalette(state: Pick<QraftyState, "dotsPalette">) {
 }
 
 function createDotPaletteShapeGroups(
-  shapes: SVGElement[],
+  shapes: QrSvgElementLike[],
   metrics: DotMatrixMetrics | null,
 ): DotPaletteShapeGroup[] {
   const groups = new Map<string, DotPaletteShapeGroup>();
@@ -189,7 +191,7 @@ function hashDotPaletteNumbers(values: number[]) {
 
 function buildPaletteColorAssignments(
   state: Pick<QraftyState, "data" | "dotsPalette">,
-  allDotShapes: SVGElement[],
+  allDotShapes: QrSvgElementLike[],
   metrics: DotMatrixMetrics | null,
 ) {
   const palette = getActiveDotsPalette(state);
@@ -222,7 +224,7 @@ function buildPaletteColorAssignments(
 }
 
 function createPaletteModuleGroup(
-  document: Document,
+  document: QrSvgDocumentLike,
   palette: string[],
   activeAssignments: PaletteColorAssignment[],
   groupLayer: PalettePaintGroupLayer,
@@ -241,7 +243,7 @@ function createPaletteModuleGroup(
     colorGroup.setAttribute("data-qr-palette-index", String(paletteIndex));
 
     const mergedPathData: string[] = [];
-    const paintedShapes: SVGElement[] = [];
+    const paintedShapes: QrSvgElementLike[] = [];
 
     for (const shape of shapes) {
       const pathData = groupLayer === "dot-palette" ? getMergeableClipPathData(shape) : null;
@@ -251,7 +253,7 @@ function createPaletteModuleGroup(
         continue;
       }
 
-      const painted = shape.cloneNode(true) as SVGElement;
+      const painted = shape.cloneNode(true) as QrSvgElementLike;
       painted.removeAttribute("clip-path");
       painted.removeAttribute("opacity");
       paintedShapes.push(painted);
@@ -279,9 +281,9 @@ function createPaletteModuleGroup(
 }
 
 export function applyDirectPalettePaint(
-  svg: SVGElement,
+  svg: QrSvgElementLike,
   state: Pick<QraftyState, "data" | "dotsPalette">,
-  allDotShapes: SVGElement[],
+  allDotShapes: QrSvgElementLike[],
   dotClipLayers: DotClipLayer[],
   dotPathLayers: DotPathLayer[],
   options: { groupLayer: PalettePaintGroupLayer },
