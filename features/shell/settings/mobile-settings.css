@@ -272,13 +272,6 @@
   transform: scale(1.2);
 }
 
-[data-slot="mobile-settings-drawer-root"][data-mobile-settings]
-  .ds-insert-menu-popover
-  .ds-settings-row,
-.ds-portal-surface[data-mobile-settings] .ds-insert-menu-popover .ds-settings-row {
-  min-height: var(--control-height);
-}
-
 /* Layer settings + wallpapers under drawer host */
 [data-slot="mobile-settings-drawer-root"][data-mobile-settings]
   [data-slot="wallpaper-panel"]
