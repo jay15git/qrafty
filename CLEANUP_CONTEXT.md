@@ -252,3 +252,72 @@ Plus for T2/T3: manual `/design` check desktop light/dark + mobile. For T4: gold
 - Templates: `features/canvas/model/scene-templates.ts`, `apply-scene-template.ts`, `template-preview-fit.ts`, `features/canvas/components/SceneBackgroundLayer.tsx`
 - CSS: `app/globals.css`, `features/canvas/workspace-tokens.css`, `features/shell/components/{workspace-toolbar,settings-design-system,settings-toolbar-motion,workspace-entrance}.css`, `workspace-styles.tsx`, `features/shell/settings/{settings,mobile-settings}.css`
 - Rules: `docs/ARCHITECTURE.md`, `AGENTS.md`, `DESIGN.md`, `docs/adr/`
+
+---
+
+## 10. Execution report (what actually landed)
+
+All phases committed on `main`, every commit left the §8 verification suite green. Diff totals per commit:
+
+| Phase | Commit     | Files | +/−           | Scope                                                                                                                                          |
+| ----- | ---------- | ----- | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| T1    | `986b114`  | 80    | +700 / −5,265 | Dead icon-rail chain, `animate-ui` vendor, settings-model fallback, unconsumed controller fields, test-only code                               |
+| T1b   | `9235f99`  | 15    | +40 / −1,135  | Draft persistence removed (IndexedDB/localStorage); reload = fresh document; in-memory undo/redo kept                                          |
+| T1c   | `ae0ccc5`  | 25    | +59 / −528    | Scene-template remnants: `scene-templates.ts`, `apply-scene-template.ts`, preview mode, `sceneCompositionByNodeId`                             |
+| T2    | `0b04881`  | 10    | +380 / −1,009 | Dead CSS rules/slots/tokens; `workspace-styles.tsx` CSS extracted to `features/shell/components/workspace.css`                                 |
+| T3    | `27d5c2d`  | 27    | +130 / −422   | Flat chrome (glass removed, popover-only shadows), token consolidation, `next-themes` single source, docs                                      |
+| T4.0  | `6c840d1`  | 37    | +8,643 / −1   | Golden safety net: 17 fixtures × (`.svg` + `.ir.json`) deterministic export snapshots                                                          |
+| T4.1  | `343a7d9`  | 30    | +1,264 / −922 | One QR store: `qr-draft.ts` projection replaces reducer mirror; `qr-controls.ts` + `use-canvas-persistence.ts` deleted                         |
+| T4.2  | `5215ebf`  | 31    | +264 / −796   | Document v2: dropped all `*ByNodeId` maps + `activeQrNodeId` (board dimension was vestigial); flat `cardState` + `canvasLayers`                |
+| T4.3  | `0c3610f`  | 41    | +676 / −438   | Canonical `Paint` union replaces layer `fill/fillGradient/fillMode` + card `fill` string; legacy fill fold in normalizers                      |
+| T4.4  | `efd9f5f`  | 7     | +252 / −213   | Shared layer tools: `layer-panel-tools.ts` + `layer-text-format.ts`; mobile toolbar reuses desktop pieces                                      |
+| T4.5  | `1fe8429b` | 33    | +1,776 / −286 | Pure QR SVG emitter (`emit-markup.ts`) + SVG IR (`svg-element.ts`); no React SSR / DOMParser / XMLSerializer in export path                    |
+| T4.6  | `1764773`  | 1     | −7            | Residual mobile dedup (rest already absorbed by T4.4); last dead CSS block                                                                     |
+| T4.7  | `b75591f`  | 73    | +470 / −464   | Naming: `sceneTemplate*`→`canvasSize*`, `ToolbarController`→`SettingsController`, `DEFAULT_DRAFTING_*`→`DEFAULT_*`; `gen:paper-presets` script |
+| —     | `92cd3d2`  | 1     | +1 / −1       | Status line (this doc)                                                                                                                         |
+
+**Gross: ~14.7k inserted / ~11.5k deleted.** The insertions are dominated by the golden snapshot fixtures (+8.3k) and the new T4 architecture code (`qr-draft.ts`, `emit-markup.ts`, `svg-element.ts`, parity test).
+
+### Final numbers vs §4 estimate
+
+| Metric                                | Before           | After            | Delta     |
+| ------------------------------------- | ---------------- | ---------------- | --------- |
+| Product LOC (ts/tsx/css, excl. tests) | ~101.6k          | ~96.9k           | **−4.6k** |
+| Test LOC                              | ~20.1k           | ~20.2k           | ~0        |
+| Golden snapshot fixtures (checked in) | 0                | 8.3k             | +8.3k     |
+| `pnpm test`                           | 942/942          | 1023/1023        | +81       |
+| Lint                                  | 0 err / 202 warn | 0 err / 137 warn | −65 warn  |
+
+### Why net is −4.6k, not ~40k
+
+The §4 estimate assumed several cuts that turned out to be already done, already clean, or data that must stay:
+
+- **Fill-picker trim (−6.4k projected)**: all 44 files were already reachable/live before cleanup — nothing to delete.
+- **Mobile CSS/vaul (−2.5k projected)**: `mobile-settings.css` audits at ~1 dead class; the family-drawer wrapper is load-bearing (drawer view stack). Absorbed earlier.
+- **Catalogs → `scripts/` (−5k projected)**: `paper-shader-presets.generated.ts` and `illustration-sets.ts` are runtime data — they stay checked in either way. A real generator (`scripts/gen-paper-presets.mjs`, `pnpm gen:paper-presets`, byte-identical output) replaced the lost `/tmp` one. `illustration-sets.ts` labels are curated keyword lists (multi-word phrases, a `"fork. spoon"` typo, truncated ids) — not filename-derivable, so it is not safely regenerable and stays hand-maintained.
+- **T4.5 (−4k projected)**: _added_ ~1.5k. The plan's "replace the 8 DOM-mutating extensions" was executed as retype-to-IR, not rewrite-to-emitter — extension logic runs verbatim on `QrSvgElementLike` so all golden SVGs stay byte-identical. Folding extension behavior into emitter options (deleting `svg-extension/` entirely) is the remaining ~3.5–4k cut, deferred as the riskiest item.
+- **Vendored `react-qr-code`**: still present — the pure emitter proved byte-parity, but `ReactQRCode` remains exported for preview paths; deleting it is part of the deep T4.5 cut.
+- **Test rewrite (−10k projected)**: not done. Suite is largely behavior-pinned already and doubles as the regression net for the refactor.
+
+### What T4 actually delivered (the point of the phase)
+
+- One QR state store per layer; no `selectedX` mirror fields; `setSelected*` → `UPDATE_QR_DRAFT` patch.
+- Flat document: `layers`, `qrStateByLayerId`, `cardState`, `contentTypeByLayerId` — no parallel node/layer maps.
+- One `Paint` union (`{kind, solid, gradient, image, palette}`) across layers + card, with latent-gradient memory preserved.
+- QR markup path is now `state → props → emit-markup (pure) → [extensions on SVG IR] → serialize` — no React SSR, no DOMParser/XMLSerializer in the export path. Real DOM still used by runtime motion (`seekDotMatrixAnimation`, `canvas-svg-adapter`) by design.
+- `SettingsController` naming aligned to `docs/ARCHITECTURE.md` vocabulary.
+- Golden snapshots pin all of it: 17 fixtures across color modes, motion presets, shaders, layer kinds — byte-identical through every phase.
+
+### Bugs fixed along the way
+
+- `ariaLabel` is carried through the QR draft (T4.1); the old `persistence` fold dropped it.
+- Line-layer stroke derivation fixed during T4.3 to read `DEFAULT_SHAPE_LAYER.fill` (matches pre-Paint behavior; briefly read `.stroke`).
+- T4.5 emulated real DOM quirks the extensions depend on, found via golden diffs: `#id` selectors in the IR parser (a broken match was silently deleting the background + finder-outer paths), `xmlns:ns1`/`ns1:` prefixing for `setAttributeNS`, XML attribute whitespace folding, and self-closing-vs-explicit close-tag serialization.
+
+### Remaining work
+
+- **Deep T4.5** (~3.5–4k): fold the 8 extension modules into emitter options, delete `svg-extension/` + `svg-element.ts`, delete vendored React QR if no runtime consumer remains.
+- **Plan item 9** (test rewrite): targeted audit of implementation-pinning tests only — the suite is the refactor's safety net.
+- **T5 manual pass**: 732 never-set props + 124 soft fields (`.audit-tmp/never-set.txt` + `filter-props` output).
+- **Radix → Base UI**: deferred separate tier.
+- Housekeeping: `stash@{0}` (stale agent docs — safe to drop), `.audit-tmp/` (delete once T5 review is done).
