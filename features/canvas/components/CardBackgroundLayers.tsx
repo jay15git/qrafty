@@ -4,22 +4,17 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 
 import { CardBackgroundImageLayer } from "@/features/canvas/components/CardBackgroundImageLayer";
 import { CanvasCardPaperShaderLayer } from "@/features/canvas/components/CardPaperShaderLayer";
-import type {
-  CanvasCardPaperShaderState,
-  CanvasCardState,
-} from "@/features/canvas/model/card-state";
+import type { CanvasCardState } from "@/features/canvas/model/card-state";
 import { cssFillToBackgroundStyle } from "@/features/canvas/model/css-fill-style";
 import { paintToCss } from "@/features/canvas/model/paint";
 import { cn } from "@/lib/utils";
 
 const CROSSFADE_MS = 180;
 
-type BackgroundMode = "solid" | "paper-shader" | "image" | "image-filter";
+type BackgroundMode = "solid" | "paper-shader" | "image";
 
 type CardBackgroundLayersProps = {
   cardState: CanvasCardState;
-  imageFilterShader: CanvasCardPaperShaderState;
-  isImageFilterMode: boolean;
   isImageMode: boolean;
   isPaperShaderMode: boolean;
   layoutHeight: number;
@@ -28,15 +23,7 @@ type CardBackgroundLayersProps = {
   shaderDisplayWidth: number;
 };
 
-function resolveBackgroundMode(
-  isPaperShaderMode: boolean,
-  isImageMode: boolean,
-  isImageFilterMode: boolean,
-): BackgroundMode {
-  if (isImageFilterMode) {
-    return "image-filter";
-  }
-
+function resolveBackgroundMode(isPaperShaderMode: boolean, isImageMode: boolean): BackgroundMode {
   if (isPaperShaderMode) {
     return "paper-shader";
   }
@@ -150,8 +137,6 @@ function useMountedBackgroundModes(activeMode: BackgroundMode) {
 
 export function CardBackgroundLayers({
   cardState,
-  imageFilterShader,
-  isImageFilterMode,
   isImageMode,
   isPaperShaderMode,
   layoutHeight,
@@ -159,7 +144,7 @@ export function CardBackgroundLayers({
   shaderDisplayHeight,
   shaderDisplayWidth,
 }: CardBackgroundLayersProps) {
-  const activeMode = resolveBackgroundMode(isPaperShaderMode, isImageMode, isImageFilterMode);
+  const activeMode = resolveBackgroundMode(isPaperShaderMode, isImageMode);
   const mountedModes = useMountedBackgroundModes(activeMode);
   const fillStyle = cssFillToBackgroundStyle(paintToCss(cardState.fill));
   const zIndexFor = (mode: BackgroundMode) => (activeMode === mode ? "z-[2]" : "z-[1]");
@@ -200,21 +185,6 @@ export function CardBackgroundLayers({
             layoutHeight={layoutHeight}
             layoutWidth={layoutWidth}
             paperShader={cardState.paperShader}
-          />
-        </CrossfadeShell>
-      ) : null}
-
-      {mountedModes.has("image-filter") ? (
-        <CrossfadeShell
-          active={activeMode === "image-filter"}
-          className={zIndexFor("image-filter")}
-        >
-          <CanvasCardPaperShaderLayer
-            displayHeight={shaderDisplayHeight}
-            displayWidth={shaderDisplayWidth}
-            layoutHeight={layoutHeight}
-            layoutWidth={layoutWidth}
-            paperShader={imageFilterShader}
           />
         </CrossfadeShell>
       ) : null}

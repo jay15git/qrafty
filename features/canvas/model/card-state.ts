@@ -24,9 +24,9 @@ import {
 } from "@/features/canvas/rendering/paper-shader-definitions";
 
 type CanvasCardShadowPreset = "none" | "soft" | "medium" | "strong";
-export type CanvasCardStyleMode = "solid" | "image" | "image-filter" | "paper-shader";
+export type CanvasCardStyleMode = "solid" | "image" | "paper-shader";
 
-type LegacyCanvasCardStyleMode = CanvasCardStyleMode | "pattern";
+type LegacyCanvasCardStyleMode = CanvasCardStyleMode | "image-filter" | "pattern";
 
 function normalizeCanvasCardStyleMode(
   value: LegacyCanvasCardStyleMode | undefined,
@@ -34,6 +34,10 @@ function normalizeCanvasCardStyleMode(
 ): CanvasCardStyleMode {
   if (value === "pattern") {
     return "solid";
+  }
+
+  if (value === "image-filter") {
+    return "image";
   }
 
   return value ?? fallback;
@@ -96,7 +100,6 @@ export type CanvasCardState = {
   enabled: boolean;
   fill: Paint;
   height: number;
-  imageFilter: CanvasCardPaperShaderState;
   lockAspectRatio: boolean;
   padding: number;
   paperShader: CanvasCardPaperShaderState;
@@ -133,7 +136,6 @@ function buildDefaultCanvasCardState(): CanvasCardState {
     enabled: true,
     fill: solidPaint("#ffd80a"),
     height: 1080,
-    imageFilter: createDefaultCanvasCardPaperShader("image-dithering"),
     lockAspectRatio: true,
     padding: 24,
     paperShader: {
@@ -215,9 +217,6 @@ export function normalizeCanvasCardState(
     enabled: state.enabled ?? fallback.enabled,
     fill: normalizePaint(state.fill, fallback.fill) ?? fallback.fill,
     height: clampCardSize(resolvedHeight, fallback.height),
-    imageFilter: state.imageFilter
-      ? cloneCanvasCardPaperShaderState(state.imageFilter)
-      : cloneCanvasCardPaperShaderState(fallback.imageFilter),
     lockAspectRatio: state.lockAspectRatio ?? fallback.lockAspectRatio,
     padding: clampCardNumber(state.padding, fallback.padding, 0, 256),
     paperShader: state.paperShader

@@ -16,18 +16,6 @@ type ShaderCaptureTarget = {
   shader: CanvasCardState["paperShader"];
 };
 
-function resolveCardShaderState(cardState: CanvasCardState) {
-  if (cardState.styleMode === "paper-shader") {
-    return cardState.paperShader;
-  }
-
-  if (cardState.styleMode === "image-filter") {
-    return cardState.imageFilter;
-  }
-
-  return null;
-}
-
 function collectShaderCaptureTargets({
   cardLayer,
   cardState,
@@ -36,7 +24,7 @@ function collectShaderCaptureTargets({
   cardState: CanvasCardState;
 }) {
   const targets: ShaderCaptureTarget[] = [];
-  const cardShader = resolveCardShaderState(cardState);
+  const cardShader = cardState.styleMode === "paper-shader" ? cardState.paperShader : null;
 
   if (cardShader && cardLayer) {
     targets.push({

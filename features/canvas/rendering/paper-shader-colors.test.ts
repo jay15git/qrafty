@@ -13,10 +13,6 @@ describe("paperShaderHasPlayback", () => {
     "waves",
     "dot-grid",
     "paper-texture",
-    "fluted-glass",
-    "image-dithering",
-    "halftone-dots",
-    "halftone-cmyk",
   ] as const;
 
   it.each(staticShaderIds)("returns false for static shader %s", (shaderId) => {

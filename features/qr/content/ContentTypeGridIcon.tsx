@@ -1,5 +1,3 @@
-"use client";
-
 import { HugeiconsIcon } from "@hugeicons/react";
 
 import { getContentTypeIcon } from "@/features/qr/content/content-type-icons";

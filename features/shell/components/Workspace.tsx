@@ -7,7 +7,7 @@ import {
   type ThemeMode,
   type SettingsToolId,
 } from "@/features/shell/components/WorkspaceChrome";
-import { THEME_COOKIE, THEME_STORAGE_KEY } from "@/features/shell/model/theme";
+import { THEME_COOKIE } from "@/features/shell/model/theme";
 import { SettingsThemeContext } from "@/features/shell/settings/theme-context";
 import "@/features/canvas/workspace-tokens.css";
 import "./workspace.css";
@@ -15,7 +15,6 @@ import { WorkspaceEntrance } from "@/features/shell/components/WorkspaceEntrance
 import { CuelumeProvider } from "@/features/shell/hooks/use-cuelume";
 import { WORKSPACE_MOBILE_QUERY, useMediaQuery } from "@/lib/hooks/use-media-query";
 import { cn } from "@/lib/utils";
-import { useTheme } from "next-themes";
 import { useCallback, useEffect, useState } from "react";
 
 type WorkspaceProps = {
@@ -27,13 +26,9 @@ type WorkspaceProps = {
 const DEPLOYMENT_COMMIT_SHA =
   process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA ?? process.env.VERCEL_GIT_COMMIT_SHA ?? undefined;
 
-function hasStoredTheme(): boolean {
-  if (typeof window === "undefined") return false;
-  try {
-    return window.localStorage.getItem(THEME_STORAGE_KEY) !== null;
-  } catch {
-    return false;
-  }
+function applyThemeToDom(theme: ThemeMode) {
+  document.documentElement.classList.toggle("dark", theme === "dark");
+  document.cookie = `${THEME_COOKIE}=${theme}; Path=/; Max-Age=31536000; SameSite=Lax`;
 }
 
 export function Workspace({
@@ -41,35 +36,22 @@ export function Workspace({
   initialTheme = "dark",
   initialActiveTool,
 }: WorkspaceProps) {
-  const { theme: storedTheme, setTheme } = useTheme();
-  // Without a stored preference next-themes reports its "light" default, which
-  // would flip a first-visit dark workspace on mount — trust storedTheme only
-  // when a preference actually exists; explicit toggles take the override path.
-  const [override, setOverride] = useState<ThemeMode | null>(null);
-  const theme: ThemeMode =
-    override ??
-    (hasStoredTheme() && (storedTheme === "light" || storedTheme === "dark")
-      ? storedTheme
-      : initialTheme);
+  // SSR renders the cookie theme; the inline head script has already applied
+  // it to <html>, so this state never fights hydration. LocalStorage is gone —
+  // the cookie is the single persistence channel.
+  const [theme, setTheme] = useState<ThemeMode>(initialTheme);
   const isMobileWorkspace = useMediaQuery(WORKSPACE_MOBILE_QUERY);
 
-  const onThemeChange = useCallback(
-    (next: ThemeMode) => {
-      setOverride(next);
-      setTheme(next);
-    },
-    [setTheme],
-  );
+  const onThemeChange = useCallback((next: ThemeMode) => {
+    setTheme(next);
+    applyThemeToDom(next);
+  }, []);
 
+  // Sync once on mount in case the cookie/theme drifted between SSR and
+  // hydration (e.g. bfcache restore after a toggle on another tab).
   useEffect(() => {
-    if (!hasStoredTheme() && storedTheme !== initialTheme) {
-      // First visit — seed next-themes (localStorage + html class) with the
-      // cookie/SSR theme so the choice persists.
-      setTheme(initialTheme);
-      return;
-    }
-    document.cookie = `${THEME_COOKIE}=${theme}; Path=/; Max-Age=31536000; SameSite=Lax`;
-  }, [theme, storedTheme, initialTheme, setTheme]);
+    applyThemeToDom(theme);
+  }, [theme]);
 
   return (
     <section

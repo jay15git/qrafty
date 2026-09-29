@@ -14,6 +14,5 @@ describe("content type icons", () => {
 
   it("falls back to brand catalog icons when hugeicons has no match", () => {
     expect(getContentTypeIcon("line")).toMatchObject({ kind: "brand" });
-    expect(getContentTypeIcon("signal")).toMatchObject({ kind: "brand" });
   });
 });

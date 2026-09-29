@@ -12,11 +12,9 @@ import {
 import { createDefaultQraftyState } from "@/features/qr/model/state";
 
 describe("brand icon catalog", () => {
-  it("ships the curated brand icon catalog without unavailable brands", () => {
-    expect(BRAND_ICON_CATALOG).toHaveLength(87);
+  it("ships the curated brand icon catalog", () => {
+    expect(BRAND_ICON_CATALOG).toHaveLength(31);
     expect(BRAND_ICON_CATALOG.map((entry) => entry.id)).toContain("whatsapp");
-    expect(BRAND_ICON_CATALOG.map((entry) => entry.id)).toContain("google-pay");
-    expect(BRAND_ICON_CATALOG.map((entry) => entry.id)).not.toContain("linkedin");
   });
 
   it("keeps the available popular brand row ordered for the search-first picker", () => {

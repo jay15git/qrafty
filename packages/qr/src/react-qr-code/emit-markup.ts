@@ -499,7 +499,7 @@ const emitFinderPatternsInner = ({
   return "";
 };
 
-const emitDataModules = ({
+export const emitDataModules = ({
   modules,
   margin,
   settings,

@@ -10,13 +10,9 @@ import {
 } from "react";
 
 import { CardBackgroundLayers } from "@/features/canvas/components/CardBackgroundLayers";
-import { cardBackgroundStyle } from "@/features/canvas/components/card-background-style";
 import { CanvasLayerTiltShell } from "@/features/canvas/components/CanvasLayerTiltShell";
 import { CanvasQrLayerContent } from "@/features/canvas/components/CanvasQrLayerContent";
-import {
-  type CanvasCardPaperShaderState,
-  type CanvasCardState,
-} from "@/features/canvas/model/card-state";
+import type { CanvasCardState } from "@/features/canvas/model/card-state";
 import { cornerRadiiToCss, resolveLayerCornerRadii } from "@/features/canvas/model/corner-radius";
 import {
   DEFAULT_SHAPE_LAYER,
@@ -63,18 +59,6 @@ function layerExportAttrs(kind: CanvasLayer["kind"]) {
   } as const;
 }
 
-function buildCanvasDocumentCardStyle(
-  cardState: CanvasCardState,
-  isImageFilterMode: boolean,
-  isImageMode: boolean,
-  isPaperShaderMode: boolean,
-): CSSProperties {
-  return {
-    ...cardBackgroundStyle(cardState, isImageFilterMode, isImageMode, isPaperShaderMode),
-    borderRadius: cornerRadiiToCss(cardState.cornerRadii),
-  };
-}
-
 function buildCanvasDocumentCardBorderOverlayStyle(
   cardState: CanvasCardState,
 ): CSSProperties | undefined {
@@ -92,8 +76,6 @@ function buildCanvasDocumentCardBorderOverlayStyle(
 
 type CanvasDocumentCardLayerProps = {
   cardState: CanvasCardState;
-  imageFilterShader: CanvasCardPaperShaderState;
-  isImageFilterMode: boolean;
   isImageMode: boolean;
   isPaperShaderMode: boolean;
   isLayerSelected: boolean;
@@ -103,8 +85,6 @@ type CanvasDocumentCardLayerProps = {
 
 export const CanvasDocumentCardLayer = memo(function CanvasDocumentCardLayer({
   cardState,
-  imageFilterShader,
-  isImageFilterMode,
   isImageMode,
   isPaperShaderMode,
   isLayerSelected,
@@ -114,9 +94,11 @@ export const CanvasDocumentCardLayer = memo(function CanvasDocumentCardLayer({
   const layerEffectStyle = useCanvasLayerEffectStyle(layer);
   const shaderDisplaySize = usePreviewShaderDisplaySize(layer.width, layer.height);
   const cardStyle = useMemo(
-    () =>
-      buildCanvasDocumentCardStyle(cardState, isImageFilterMode, isImageMode, isPaperShaderMode),
-    [cardState, isImageFilterMode, isImageMode, isPaperShaderMode],
+    () => ({
+      backgroundColor: "transparent",
+      borderRadius: cornerRadiiToCss(cardState.cornerRadii),
+    }),
+    [cardState],
   );
   const borderOverlayStyle = useMemo(
     () => buildCanvasDocumentCardBorderOverlayStyle(cardState),
@@ -140,8 +122,6 @@ export const CanvasDocumentCardLayer = memo(function CanvasDocumentCardLayer({
       >
         <CardBackgroundLayers
           cardState={cardState}
-          imageFilterShader={imageFilterShader}
-          isImageFilterMode={isImageFilterMode}
           isImageMode={isImageMode}
           isPaperShaderMode={isPaperShaderMode}
           layoutHeight={layer.height}
@@ -166,13 +146,7 @@ export const CanvasDocumentCardLayer = memo(function CanvasDocumentCardLayer({
       key={layer.id}
       data-slot="canvas-card"
       data-layer-id={layer.id}
-      data-card-paper-shader={
-        isPaperShaderMode
-          ? cardState.paperShader.shaderId
-          : isImageFilterMode
-            ? cardState.imageFilter.shaderId
-            : "none"
-      }
+      data-card-paper-shader={isPaperShaderMode ? cardState.paperShader.shaderId : "none"}
       data-card-shadow-blur={layer.shadow.blur}
       data-card-shadow-offset-x={layer.shadow.offsetX}
       data-card-shadow-offset-y={layer.shadow.offsetY}
@@ -194,8 +168,6 @@ export const CanvasDocumentCardLayer = memo(function CanvasDocumentCardLayer({
       <CanvasLayerTiltShell layer={layer}>
         <CardBackgroundLayers
           cardState={cardState}
-          imageFilterShader={imageFilterShader}
-          isImageFilterMode={isImageFilterMode}
           isImageMode={isImageMode}
           isPaperShaderMode={isPaperShaderMode}
           layoutHeight={layer.height}
@@ -223,7 +195,6 @@ function canvasDocumentCardLayerPropsAreEqual(
   return (
     previous.layer === next.layer &&
     previous.cardState === next.cardState &&
-    previous.isImageFilterMode === next.isImageFilterMode &&
     previous.isImageMode === next.isImageMode &&
     previous.isPaperShaderMode === next.isPaperShaderMode &&
     previous.isLayerSelected === next.isLayerSelected &&
@@ -341,8 +312,6 @@ export type CanvasLayerViewSharedProps = {
   activeSelectedLayerIdSet: Set<string>;
   cardState: CanvasCardState;
   contentValidation?: StaticQrValidationResult;
-  imageFilterShader: CanvasCardPaperShaderState;
-  isImageFilterMode: boolean;
   isImageMode: boolean;
   isPaperShaderMode: boolean;
   qrOverlayScale?: number;
@@ -374,8 +343,6 @@ function CanvasNestedGroupLayerView({
   activeSelectedLayerIdSet,
   cardState,
   contentValidation,
-  imageFilterShader,
-  isImageFilterMode,
   isImageMode,
   isPaperShaderMode,
   isLayerSelected,
@@ -408,8 +375,6 @@ function CanvasNestedGroupLayerView({
             activeSelectedLayerIdSet={activeSelectedLayerIdSet}
             cardState={cardState}
             contentValidation={contentValidation}
-            imageFilterShader={imageFilterShader}
-            isImageFilterMode={isImageFilterMode}
             isImageMode={isImageMode}
             isPaperShaderMode={isPaperShaderMode}
             layer={child}
@@ -541,8 +506,6 @@ function CanvasNestedLayerView({
   activeSelectedLayerIdSet,
   cardState,
   contentValidation,
-  imageFilterShader,
-  isImageFilterMode,
   isImageMode,
   isPaperShaderMode,
   layer,
@@ -565,8 +528,6 @@ function CanvasNestedLayerView({
         activeSelectedLayerIdSet={activeSelectedLayerIdSet}
         cardState={cardState}
         contentValidation={contentValidation}
-        imageFilterShader={imageFilterShader}
-        isImageFilterMode={isImageFilterMode}
         isImageMode={isImageMode}
         isPaperShaderMode={isPaperShaderMode}
         qrOverlayScale={qrOverlayScale}
@@ -604,8 +565,6 @@ function CanvasNestedLayerView({
   return (
     <CanvasDocumentCardLayer
       cardState={cardState}
-      imageFilterShader={imageFilterShader}
-      isImageFilterMode={isImageFilterMode}
       isImageMode={isImageMode}
       isPaperShaderMode={isPaperShaderMode}
       isLayerSelected={isLayerSelected}
@@ -647,8 +606,6 @@ function areCanvasLayerViewPropsEqual(previous: CanvasLayerViewProps, next: Canv
   const alwaysComparedKeys = [
     "layer",
     "cardState",
-    "imageFilterShader",
-    "isImageFilterMode",
     "isImageMode",
     "isPaperShaderMode",
     "onRegisterTextEditor",
@@ -720,8 +677,6 @@ function CanvasGroupLayerView({
   activeSelectedLayerIdSet,
   cardState,
   contentValidation,
-  imageFilterShader,
-  isImageFilterMode,
   isImageMode,
   isPaperShaderMode,
   isLayerSelected,
@@ -770,8 +725,6 @@ function CanvasGroupLayerView({
               activeSelectedLayerIdSet={activeSelectedLayerIdSet}
               cardState={cardState}
               contentValidation={contentValidation}
-              imageFilterShader={imageFilterShader}
-              isImageFilterMode={isImageFilterMode}
               isImageMode={isImageMode}
               isPaperShaderMode={isPaperShaderMode}
               layer={child}
@@ -1018,8 +971,6 @@ export const CanvasLayerView = memo(function CanvasLayerView({
   contentValidation,
   editingTextDraft,
   editingTextLayerId,
-  imageFilterShader,
-  isImageFilterMode,
   isImageMode,
   isPaperShaderMode,
   layer,
@@ -1064,8 +1015,6 @@ export const CanvasLayerView = memo(function CanvasLayerView({
         contentValidation={contentValidation}
         editingTextDraft={editingTextDraft}
         editingTextLayerId={editingTextLayerId}
-        imageFilterShader={imageFilterShader}
-        isImageFilterMode={isImageFilterMode}
         isImageMode={isImageMode}
         isPaperShaderMode={isPaperShaderMode}
         onCommitEditingTextDraft={onCommitEditingTextDraft}
@@ -1119,8 +1068,6 @@ export const CanvasLayerView = memo(function CanvasLayerView({
   return (
     <CanvasDocumentCardLayer
       cardState={cardState}
-      imageFilterShader={imageFilterShader}
-      isImageFilterMode={isImageFilterMode}
       isImageMode={isImageMode}
       isPaperShaderMode={isPaperShaderMode}
       isLayerSelected={isLayerSelected}

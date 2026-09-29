@@ -1,6 +1,8 @@
 import type { SVGProps } from "react";
 
-import { DataModules, ReactQRCode } from "@qrafty/qr-internal/react-qr-code";
+import { emitDataModules } from "@qrafty/qr-internal/react-qr-code";
+
+import { EmittedQrCodeSvg } from "@/features/qr/components/EmittedQrCodeSvg";
 
 import {
   buildCustomCornerDotTransform,
@@ -54,26 +56,26 @@ const MODULE_STYLE_PREVIEW_MATRIX = buildModuleStylePreviewMatrix();
 
 function ModuleStylePreview({ color, value }: { color?: string; value: string }) {
   const previewColor = color ?? "currentColor";
+  const modulesMarkup = emitDataModules({
+    gradient: undefined,
+    gradientId: MODULE_STYLE_PREVIEW_GRADIENT_ID,
+    margin: 0,
+    modules: MODULE_STYLE_PREVIEW_MATRIX,
+    settings: { color: previewColor, style: value as never },
+  });
 
   return (
     <svg
       aria-hidden="true"
       className={PREVIEW_ICON_CLASS_NAME}
+      dangerouslySetInnerHTML={{ __html: modulesMarkup }}
       data-preview-kind="dots"
       data-preview-renderer="synthetic-grid"
       data-preview-style={value}
       data-slot="style-preview-fragment"
       viewBox={getModuleStylePreviewViewBox()}
       xmlns="http://www.w3.org/2000/svg"
-    >
-      <DataModules
-        gradient={undefined}
-        gradientId={MODULE_STYLE_PREVIEW_GRADIENT_ID}
-        margin={0}
-        modules={MODULE_STYLE_PREVIEW_MATRIX}
-        settings={{ color: previewColor, style: value as never }}
-      />
-    </svg>
+    />
   );
 }
 
@@ -95,15 +97,18 @@ function FinderPatternPreview({
   viewBox: string;
 }) {
   return (
-    <ReactQRCode
-      background="transparent"
-      boostLevel
-      finderPatternInnerSettings={finderPatternInnerSettings}
-      finderPatternOuterSettings={finderPatternOuterSettings}
-      level="L"
-      marginSize={0}
-      minVersion={1}
-      size={FINDER_PREVIEW_SIZE}
+    <EmittedQrCodeSvg
+      qrProps={{
+        background: "transparent",
+        boostLevel: true,
+        finderPatternInnerSettings,
+        finderPatternOuterSettings,
+        level: "L",
+        marginSize: 0,
+        minVersion: 1,
+        size: FINDER_PREVIEW_SIZE,
+        value: "hi",
+      }}
       svgProps={
         {
           "aria-hidden": "true",
@@ -115,7 +120,6 @@ function FinderPatternPreview({
           viewBox,
         } as SVGProps<SVGSVGElement>
       }
-      value="hi"
     />
   );
 }

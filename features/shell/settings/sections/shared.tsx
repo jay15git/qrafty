@@ -1,5 +1,3 @@
-"use client";
-
 import type { Fill } from "@/components/ui/fill-picker/public-api";
 import type { Paint } from "@/features/canvas/model/paint";
 import { SettingsFillPresetSection } from "@/features/shell/settings/settings-ui";

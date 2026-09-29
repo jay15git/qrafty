@@ -41,6 +41,5 @@ describe("paper-shader preset snapshot", () => {
     expect(getPaperShaderPreset("mesh-gradient").name).toBe("Default");
     expect(getPaperShaderPreset("warp", "Live Ink").name).toBe("Live Ink");
     expect(getPaperShaderDefinition("unknown-id").id).toBe("mesh-gradient");
-    expect(getPaperShaderDefinition("image-dithering").requiresImage).toBe(true);
   });
 });

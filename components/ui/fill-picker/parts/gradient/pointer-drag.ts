@@ -1,5 +1,3 @@
-"use client";
-
 /**
  * Capture-based drag loop shared by the overlay handles and the angle /
  * position pads. Besides the usual pointerup/pointercancel cleanup it

@@ -1,5 +1,3 @@
-"use client";
-
 import "./settings.css";
 
 export {

@@ -1,5 +1,4 @@
 import {
-  createDefaultCanvasCardPaperShader,
   createDefaultCanvasCardState,
   type CanvasCardState,
 } from "@/features/canvas/model/card-state";
@@ -103,28 +102,6 @@ export const GOLDEN_FIXTURES: GoldenFixture[] = [
     });
     return input;
   }),
-
-  fixture(
-    "card-image-filter",
-    () => {
-      const input = base("golden-card-image-filter", ({ cardState }) => {
-        cardState.styleMode = "image-filter";
-        cardState.cardImage = {
-          fit: "cover",
-          opacity: 100,
-          source: "url",
-          value: GOLDEN_PIXEL_PNG,
-        };
-        cardState.imageFilter = {
-          ...createDefaultCanvasCardPaperShader("image-dithering"),
-          paused: true,
-          speed: 0,
-        };
-      });
-      return input;
-    },
-    { shaderSnapshots: cardShaderSnapshot("golden-card-image-filter") },
-  ),
 
   fixture("qr-solid", () =>
     base("golden-qr-solid", ({ state }) => {

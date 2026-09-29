@@ -36,7 +36,7 @@ const eslintConfig = defineConfig([
             },
             {
               name: "qrcode.react",
-              message: "Use the vendored `ReactQRCode` from `@qrafty/qr-internal/react-qr-code`.",
+              message: "Use `emitReactQrCodeMarkup` from `@qrafty/qr-internal/react-qr-code`.",
             },
           ],
           patterns: [

@@ -62,7 +62,7 @@ export function qrFillModeFromPattern(settings: PatternSettings): string {
 
 export function sceneFillModeFromModel(model: SettingsModel): string {
   const styleMode = model.actualBackgroundSettings.styleMode;
-  if (styleMode === "image" || styleMode === "image-filter") {
+  if (styleMode === "image") {
     return "image";
   }
   if (styleMode === "paper-shader") {

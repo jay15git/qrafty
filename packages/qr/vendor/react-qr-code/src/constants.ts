@@ -34,10 +34,7 @@ export const DEFAULT_DATA_MODULES_STYLE: DataModulesStyle = 'square'
 export const CIRCUIT_BOARD_LINE_WIDTH = 0.5
 export const CIRCUIT_BOARD_PAD_RADIUS = 0.5
 
-export const DEFAULT_FILENAME = 'react-qr-code'
 
-export const GRADIENT_ID = 'react-qr-code-gradient'
-export const BG_GRADIENT_ID = 'react-qr-code-bg-gradient'
 
 // This is *very* rough estimate of max amount of QRCode allowed to be covered.
 // It is "wrong" in a lot of ways (area is a terrible way to estimate, it

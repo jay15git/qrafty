@@ -176,7 +176,7 @@ function backgroundTabFromStyleMode(
   styleMode: SettingsModel["actualBackgroundSettings"]["styleMode"],
   cardFill: Paint,
 ): SceneBackgroundTab {
-  if (styleMode === "image" || styleMode === "image-filter") {
+  if (styleMode === "image") {
     return "Image";
   }
 

@@ -1,6 +1,5 @@
 "use client";
 
-import { ReactQRCode } from "@qrafty/qr-internal/react-qr-code";
 import type { ReactNode } from "react";
 
 import {
@@ -11,6 +10,7 @@ import {
 import { ElementShapePrimitivePreview } from "@/features/canvas/components/ElementShapePrimitivePreview";
 import type { InsertMenuFanPreviewItems } from "@/features/canvas/components/insert-menu/InsertMenuFanPreview";
 import type { CanvasShapePrimitiveId } from "@/features/canvas/model/element-shapes";
+import { EmittedQrCodeSvg } from "@/features/qr/components/EmittedQrCodeSvg";
 
 const INSERT_MENU_IMAGE_PREVIEW_SRCS = [
   "/backgrounds/raycast/chromatic-dark-1-preview.webp",
@@ -71,21 +71,23 @@ function InsertMenuIllustrationPreviewCard({ src }: { src: string }) {
 
 function InsertMenuQrPreviewCard({ style }: { style: "square" | "circle" | "rounded" }) {
   return (
-    <ReactQRCode
-      background="transparent"
-      boostLevel
-      dataModulesSettings={{ color: "currentColor", style }}
-      finderPatternInnerSettings={{ color: "currentColor", style: "square" }}
-      finderPatternOuterSettings={{ color: "currentColor", style: "square" }}
-      level="L"
-      marginSize={0}
-      minVersion={1}
-      size={28}
+    <EmittedQrCodeSvg
+      qrProps={{
+        background: "transparent",
+        boostLevel: true,
+        dataModulesSettings: { color: "currentColor", style },
+        finderPatternInnerSettings: { color: "currentColor", style: "square" },
+        finderPatternOuterSettings: { color: "currentColor", style: "square" },
+        level: "L",
+        marginSize: 0,
+        minVersion: 1,
+        size: 28,
+        value: "newqr",
+      }}
       svgProps={{
-        "aria-hidden": true,
+        "aria-hidden": "true",
         className: "size-7 text-[var(--fg)]",
       }}
-      value="newqr"
     />
   );
 }

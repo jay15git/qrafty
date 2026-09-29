@@ -23,7 +23,7 @@ type PaperShaderPreset = {
   params: PaperShaderParams;
 };
 
-type PaperShaderGroup = "background" | "texture" | "border" | "image-filter";
+type PaperShaderGroup = "background" | "texture" | "border";
 
 export type PaperShaderNumberControl = {
   key: string;
@@ -103,7 +103,6 @@ export const COMMON_HIDDEN_PARAMS = [
   "worldWidth",
   "worldHeight",
 ];
-export const IMAGE_SHADER_HIDDEN_PARAMS = [...COMMON_HIDDEN_PARAMS, "image"];
 export const SHADER_FIT_OPTIONS = ["contain", "cover"];
 export const HIGH_RES_SHADER_MAX_PIXEL_COUNT = 6016 * 3384;
 
@@ -144,10 +143,6 @@ export function withColors(
     controls: controls({ key: "colors", order: 90, type: "colors" }, ...items),
     maxColorCount,
   };
-}
-
-export function withImageControls(items: PaperShaderControlDefinition[]) {
-  return controls({ key: "image", order: 0, type: "image" }, ...items);
 }
 
 export type PaperShaderControlConfig = Pick<

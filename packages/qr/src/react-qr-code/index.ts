@@ -1,2 +1,2 @@
-export * from "../../vendor/react-qr-code/index";
-export { emitReactQrCodeMarkup } from "./emit-markup";
+export * from "../../vendor/react-qr-code/src/types/lib";
+export { emitDataModules, emitReactQrCodeMarkup } from "./emit-markup";

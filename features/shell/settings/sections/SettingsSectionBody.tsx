@@ -1,5 +1,3 @@
-"use client";
-
 import type { SettingsModel } from "@/features/shell/hooks/use-toolbar-settings-model";
 import { ElementsSection } from "@/features/shell/settings/ElementsSection";
 import { CardSection } from "@/features/shell/settings/sections/CardSection";

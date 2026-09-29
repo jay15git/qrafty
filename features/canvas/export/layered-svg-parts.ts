@@ -227,12 +227,7 @@ function cardShaderLayerMarkup(
   options?: LayeredSvgOptions,
 ) {
   const clipId = `${getSvgId(layer.id)}-shader-clip`;
-  const shaderState =
-    cardState.styleMode === "paper-shader"
-      ? cardState.paperShader
-      : cardState.styleMode === "image-filter"
-        ? cardState.imageFilter
-        : null;
+  const shaderState = cardState.styleMode === "paper-shader" ? cardState.paperShader : null;
   const shaderSnapshot =
     !options?.omitShaderLayers &&
     shaderState &&

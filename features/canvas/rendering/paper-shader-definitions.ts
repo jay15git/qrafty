@@ -13,7 +13,6 @@
  */
 import { BACKGROUND_SHADER_CONTROL_CONFIG } from "@/features/canvas/rendering/paper-shaders/backgrounds";
 import { BORDER_SHADER_CONTROL_CONFIG } from "@/features/canvas/rendering/paper-shaders/borders";
-import { IMAGE_FILTER_SHADER_CONTROL_CONFIG } from "@/features/canvas/rendering/paper-shaders/image-filters";
 import {
   type PaperShaderControlConfig,
   type PaperShaderDefinition,
@@ -42,7 +41,6 @@ const PAPER_SHADER_CONTROL_CONFIG: Record<string, PaperShaderControlConfig> = {
   ...BACKGROUND_SHADER_CONTROL_CONFIG,
   ...TEXTURE_SHADER_CONTROL_CONFIG,
   ...BORDER_SHADER_CONTROL_CONFIG,
-  ...IMAGE_FILTER_SHADER_CONTROL_CONFIG,
 };
 
 const PAPER_SHADER_DEFINITIONS: PaperShaderDefinition[] = [
@@ -200,68 +198,12 @@ const PAPER_SHADER_DEFINITIONS: PaperShaderDefinition[] = [
     presets: snapshotPresets("water"),
     ...PAPER_SHADER_CONTROL_CONFIG.water,
   },
-  {
-    id: "fluted-glass",
-    label: "Fluted glass",
-    group: "image-filter",
-    presets: snapshotPresets("fluted-glass"),
-    ...PAPER_SHADER_CONTROL_CONFIG["fluted-glass"],
-  },
-  {
-    id: "image-dithering",
-    label: "Image dithering",
-    group: "image-filter",
-    presets: snapshotPresets("image-dithering"),
-    ...PAPER_SHADER_CONTROL_CONFIG["image-dithering"],
-  },
-  {
-    id: "heatmap",
-    label: "Heatmap",
-    group: "image-filter",
-    presets: snapshotPresets("heatmap"),
-    ...PAPER_SHADER_CONTROL_CONFIG.heatmap,
-  },
-  {
-    id: "liquid-metal",
-    label: "Liquid metal",
-    group: "image-filter",
-    presets: snapshotPresets("liquid-metal"),
-    ...PAPER_SHADER_CONTROL_CONFIG["liquid-metal"],
-  },
-  {
-    id: "halftone-dots",
-    label: "Halftone dots",
-    group: "image-filter",
-    presets: snapshotPresets("halftone-dots"),
-    ...PAPER_SHADER_CONTROL_CONFIG["halftone-dots"],
-  },
-  {
-    id: "halftone-cmyk",
-    label: "Halftone CMYK",
-    group: "image-filter",
-    presets: snapshotPresets("halftone-cmyk"),
-    ...PAPER_SHADER_CONTROL_CONFIG["halftone-cmyk"],
-  },
-  {
-    id: "gem-smoke",
-    label: "Gem smoke",
-    group: "image-filter",
-    presets: snapshotPresets("gem-smoke"),
-    ...PAPER_SHADER_CONTROL_CONFIG["gem-smoke"],
-  },
 ] as const;
 
 export type PaperShaderId = string;
 
 export const DEFAULT_PAPER_SHADER_ID: PaperShaderId = "mesh-gradient";
-const CARD_IMAGE_FILTER_SHADER_IDS = [
-  "paper-texture",
-  "fluted-glass",
-  "water",
-  "image-dithering",
-  "halftone-dots",
-  "halftone-cmyk",
-] as const;
+const CARD_SHADER_EXCLUDED_IDS = ["paper-texture", "water"] as const;
 
 export function getPaperShaderDefinition(shaderId: PaperShaderId | string) {
   return (
@@ -284,14 +226,11 @@ export function formatPaperShaderParamLabel(value: string) {
     .replace(/[-_]/g, " ")
     .replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
-
 export function getCardGeneratedShaderDefinitions() {
   return PAPER_SHADER_DEFINITIONS.filter(
     (definition) =>
-      definition.group !== "image-filter" &&
-      !definition.requiresImage &&
-      !CARD_IMAGE_FILTER_SHADER_IDS.includes(
-        definition.id as (typeof CARD_IMAGE_FILTER_SHADER_IDS)[number],
+      !CARD_SHADER_EXCLUDED_IDS.includes(
+        definition.id as (typeof CARD_SHADER_EXCLUDED_IDS)[number],
       ),
   );
 }

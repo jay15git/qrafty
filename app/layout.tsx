@@ -3,7 +3,7 @@ import { Caveat, Geist_Mono } from "next/font/google";
 
 import { AgentationDev } from "@/components/agentation-dev";
 import { GlimmRootProvider } from "@/components/glimm-root-provider";
-import { ThemeProvider } from "@/components/theme-provider";
+import { THEME_INIT_SCRIPT } from "@/features/shell/model/theme";
 import { MotionProvider } from "@/components/motion-provider";
 
 import "./globals.css";
@@ -64,11 +64,10 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="flex min-h-full cursor-default flex-col">
-        <ThemeProvider>
-          <GlimmRootProvider>
-            <MotionProvider>{children}</MotionProvider>
-          </GlimmRootProvider>
-        </ThemeProvider>
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+        <GlimmRootProvider>
+          <MotionProvider>{children}</MotionProvider>
+        </GlimmRootProvider>
         <AgentationDev />
       </body>
     </html>

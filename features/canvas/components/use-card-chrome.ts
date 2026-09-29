@@ -97,9 +97,8 @@ function resolveSnapGuideClipBounds(visibleLayers: CanvasLayer[], chromeSpace: C
 function resolveCardChrome(cardState: CanvasCardState) {
   const isPaperShaderMode = cardState.styleMode === "paper-shader";
   const isImageMode = cardState.styleMode === "image";
-  const isImageFilterMode = cardState.styleMode === "image-filter";
   const cardImageStyle =
-    (isImageMode || isImageFilterMode) && cardState.cardImage.value
+    isImageMode && cardState.cardImage.value
       ? {
           backgroundImage: `url("${cardState.cardImage.value}")`,
           backgroundPosition: "center",
@@ -108,7 +107,7 @@ function resolveCardChrome(cardState: CanvasCardState) {
         }
       : undefined;
   const cardStyle: CSSProperties = {
-    ...(isPaperShaderMode || isImageFilterMode || isImageMode
+    ...(isPaperShaderMode || isImageMode
       ? { backgroundColor: "transparent" }
       : cssFillToBackgroundStyle(paintToCss(cardState.fill))),
     ...cardImageStyle,
@@ -116,23 +115,10 @@ function resolveCardChrome(cardState: CanvasCardState) {
     borderRadius: cornerRadiiToCss(cardState.cornerRadii),
     ...(hasTranslucentCardFill(paintToCss(cardState.fill)) ? { backdropFilter: "blur(16px)" } : {}),
   };
-  const imageFilterShader = {
-    ...cardState.imageFilter,
-    image: {
-      ...cardState.imageFilter.image,
-      source:
-        cardState.cardImage.source === "none"
-          ? cardState.imageFilter.image.source
-          : cardState.cardImage.source,
-      value: cardState.cardImage.value ?? cardState.imageFilter.image.value,
-    },
-  };
 
   return {
     cardImageStyle,
     cardStyle,
-    imageFilterShader,
-    isImageFilterMode,
     isImageMode,
     isPaperShaderMode,
   };
@@ -273,14 +259,8 @@ export function useCardChrome({
       setToolbarWidth(width);
     }
   }, [selectedVisibleLayerIds, chromeSpace.interactionScale, chromeSpace.viewFitScale]);
-  const {
-    cardImageStyle,
-    cardStyle,
-    imageFilterShader,
-    isImageFilterMode,
-    isImageMode,
-    isPaperShaderMode,
-  } = resolveCardChrome(cardState);
+  const { cardImageStyle, cardStyle, isImageMode, isPaperShaderMode } =
+    resolveCardChrome(cardState);
 
   if (
     ratioMorph.width !== cardState.width ||
@@ -309,8 +289,6 @@ export function useCardChrome({
     contentLayers,
     contentTransformStyle,
     hasError,
-    imageFilterShader,
-    isImageFilterMode,
     isImageMode,
     isPaperShaderMode,
     preferLowPowerShaders,

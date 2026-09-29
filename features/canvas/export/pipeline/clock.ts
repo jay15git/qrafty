@@ -57,9 +57,5 @@ export function sceneHasVideoExportContent(cardState: CanvasCardState, state: Qr
     return true;
   }
 
-  if (cardState.styleMode === "paper-shader" && isShaderTimeVarying(cardState.paperShader)) {
-    return true;
-  }
-
-  return cardState.styleMode === "image-filter" && isShaderTimeVarying(cardState.imageFilter);
+  return cardState.styleMode === "paper-shader" && isShaderTimeVarying(cardState.paperShader);
 }

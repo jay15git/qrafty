@@ -1,5 +1,3 @@
-"use client";
-
 import { formatColor } from "@/components/ui/fill-picker/lib/color";
 import type { Gradient } from "@/components/ui/fill-picker/lib/gradient";
 import { getShapeLayerGradientId } from "@/features/canvas/rendering/layer-fill";

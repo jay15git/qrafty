@@ -151,24 +151,13 @@ const CONTENT_TYPE_HUGEICONS: Partial<Record<QrInputType, IconSvgElement>> = {
 
 const CONTENT_TYPE_BRAND_ICON_IDS: Partial<Record<QrInputType, string>> = {
   line: "line",
-  signal: "signal",
   calendly: "calendly",
-  "cal-com": "calendly",
   "booking-com": "booking-com",
   stripe: "stripe",
   razorpay: "razorpay",
   square: "square",
-  "google-forms": "google",
-  venmo: "venmo",
-  "cash-app": "cash-app",
-  "youtube-music": "youtube-music",
-  "apple-music": "apple-music",
   substack: "substack",
-  "paypal-me": "paypal",
   "google-review": "google-maps",
-  "booking-link": "booking-com",
-  "payment-link": "stripe",
-  form: "google",
 };
 
 export function getContentTypeIcon(type: QrInputType): ContentTypeIcon {

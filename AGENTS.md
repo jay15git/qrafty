@@ -96,11 +96,11 @@ This version has breaking changes. Read the relevant guide in `node_modules/next
 
 - Internal QR library lives in `packages/qr/`:
   - `@qrafty/qr` — shared types (`QraftyQrCodeProps`, `QraftyQrConfig`)
-  - `@qrafty/qr/react` — `ReactQRCode` (vendored upstream primitive)
+  - `@qrafty/qr-internal/react-qr-code` — `emitReactQrCodeMarkup` pure SVG emitter
   - `@qrafty/qr/shaders` — paper-shader helpers (`buildPaperShaderRenderProps`, render options)
   - `@qrafty/qr/dot-matrix` — `DotMatrixAnimatedSvg` + the dot-matrix animation modules (`animation-presets`, `animation-keyframes`, `run-dot-matrix-animation`, `loader-to-preset`, …)
 - QRafty-only code (SVG scene emit, export, scene schema, vendored renderers) is imported via `@qrafty/qr-internal/*` paths in `tsconfig.json`. These are **not** in `packages/qr/package.json` exports.
-- Vendored fork: `packages/qr/vendor/react-qr-code`.
+- Vendored emitter helpers (QR math/utils): `packages/qr/vendor/react-qr-code`.
 - Build library: `pnpm build:packages` (or `pnpm --filter @qrafty/qr build`).
 
 ## Search / Editing Gotchas

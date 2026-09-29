@@ -3,7 +3,7 @@ import type { CanvasLayer } from "@/features/canvas/model/layers/shared";
 import { isConicPaintFill } from "@/features/canvas/export/svg-css-fill";
 
 export function resolveCardShaderMode(cardState: CanvasCardState) {
-  return cardState.styleMode === "paper-shader" || cardState.styleMode === "image-filter";
+  return cardState.styleMode === "paper-shader";
 }
 
 export function cardLayerNeedsCanvasFace(layer: CanvasLayer, cardState: CanvasCardState) {
