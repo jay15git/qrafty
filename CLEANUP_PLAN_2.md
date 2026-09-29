@@ -1,19 +1,8 @@
 # QRafty Round-2 Cleanup Plan
 
-> Status: **plan only — nothing executed.** Audit performed 2026-09-29 by five parallel read-only passes over `features/canvas`, `features/shell` + `components`, `features/qr` + `packages/qr`, all CSS, and `app/` + tests + deps. Every "dead" claim was verified by import-site / render-site / `var()`-read greps — knip and fallow were not used.
+> Status: **executed.** Waves committed 2026-09-29: R2.1+R2.2 safe/medium sweep, R2.4 theme single-source + vendored ReactQRCode removal + image-filter cluster + brand-icon prune, `use client` pruning, dead CSS tokens. R2.3 (svg-extension fold) + qr-fill bridge merge in flight.
 >
-> Baseline: product ~103k LOC (ts/tsx/css excl. tests, incl. ~3.2k vendored react-qr-code + ~5.4k generated catalogs), tests ~20k LOC / 126 files, 227 `!important` across 13 CSS files.
-
-## 0. Reality check
-
-The original ~40k estimate is unreachable. T1–T4.7 already removed the easy dead weight; what remains is:
-
-- **~5–6k confirmed dead product code** (this doc, §1)
-- **~3.5–4k** from the deferred deep T4.5 (fold `svg-extension/*` into emitter options)
-- **~4k** of test pruning (§5)
-- **~2.5–4k more** only by cutting working features (§4 — needs product sign-off)
-
-Realistic end state: **~85–88k product, ~16k tests**. Below that requires removing real user-facing features.
+> Result: product ~103k → ~94k LOC; tests ~20k → ~18.3k; suite 895/895; tsc/lint/knip/fallow/build/prettier all green; theme verified live in browser (cookie → html.dark → toggle → SSR persist).
 
 Every tier must leave `pnpm typecheck && pnpm test && pnpm lint && pnpm knip && pnpm exec fallow dead-code && pnpm build && pnpm format:check && pnpm doctor` green.
 
