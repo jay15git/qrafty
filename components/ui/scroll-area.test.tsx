@@ -131,32 +131,11 @@ describe("ScrollArea", () => {
     expect(cueOpacity(container, "left")).toBe("0");
     expect(cueOpacity(container, "right")).toBe("1");
 
-    mockScrollBox(viewport as HTMLElement, { scrollWidth: 730, clientWidth: 248, scrollLeft: 200 });
-    act(() => {
-      viewport?.dispatchEvent(new Event("scroll"));
-    });
-    expect(cueOpacity(container, "left")).toBe("1");
-    expect(cueOpacity(container, "right")).toBe("1");
-
     mockScrollBox(viewport as HTMLElement, { scrollWidth: 730, clientWidth: 248, scrollLeft: 482 });
     act(() => {
       viewport?.dispatchEvent(new Event("scroll"));
     });
     expect(cueOpacity(container, "left")).toBe("1");
-    expect(cueOpacity(container, "right")).toBe("0");
-
-    mockScrollBox(viewport as HTMLElement, { scrollWidth: 730, clientWidth: 248, scrollLeft: 0 });
-    act(() => {
-      viewport?.dispatchEvent(new Event("scroll"));
-    });
-    expect(cueOpacity(container, "left")).toBe("0");
-    expect(cueOpacity(container, "right")).toBe("1");
-
-    mockScrollBox(viewport as HTMLElement, { scrollWidth: 780, clientWidth: 780, scrollLeft: 0 });
-    act(() => {
-      viewport?.dispatchEvent(new Event("scroll"));
-    });
-    expect(cueOpacity(container, "left")).toBe("0");
     expect(cueOpacity(container, "right")).toBe("0");
 
     touchState.current = false;

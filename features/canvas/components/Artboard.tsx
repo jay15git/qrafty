@@ -12,6 +12,7 @@ export type { CanvasLayerMenuAction } from "@/features/canvas/components/canvas-
 type ArtboardProps = CanvasWorkspaceProps;
 
 const PANE_MEMO_COMPARE_KEYS = [
+  "state",
   "cardState",
   "isSelected",
   "viewFitScale",
