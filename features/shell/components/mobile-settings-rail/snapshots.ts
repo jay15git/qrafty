@@ -2,6 +2,7 @@ import type { SettingsModel } from "@/features/shell/hooks/use-toolbar-settings-
 import type { SettingsSectionId } from "@/features/shell/settings/settings-panel-meta";
 import type { QrInputType } from "@/features/qr/content/input-options";
 import type { PatternSettings, PatternSettingsPatch } from "@/features/shell/model/settings-model";
+import { applyQrUnifiedFillPatches } from "@/features/shell/settings/settings-bridge";
 
 /**
  * State captured when a family opens. The corner cross restores it (discard);
@@ -118,17 +119,11 @@ export function restoreFamilySnapshot(
       break;
     case "QR":
     case "Color":
-      if (model.onUnifiedQrFillSettingsChange) {
-        model.onUnifiedQrFillSettingsChange({
-          pattern: patternRestorePatch(snapshot.pattern),
-          corners: cornersRestorePatch(snapshot.corners),
-          logo: logoRestorePatch(snapshot.logo),
-        });
-      } else {
-        model.onPatternSettingsChange(patternRestorePatch(snapshot.pattern));
-        model.onCornersSettingsChange(cornersRestorePatch(snapshot.corners));
-        model.onLogoSettingsChange(logoRestorePatch(snapshot.logo));
-      }
+      applyQrUnifiedFillPatches(model, {
+        pattern: patternRestorePatch(snapshot.pattern),
+        corners: cornersRestorePatch(snapshot.corners),
+        logo: logoRestorePatch(snapshot.logo),
+      });
       break;
     case "Motion":
       model.onMotionSettingsChange(snapshot.motion);

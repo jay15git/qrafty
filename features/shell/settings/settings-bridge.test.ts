@@ -1,18 +1,26 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { formatFill, parseFill, type Fill } from "@/components/ui/fill-picker/public-api";
 import { fillFromHex } from "@/features/shell/settings/FillPicker.utils";
 import { degreesToRadians } from "@/features/qr/styles/gradient-controls";
 import type { QraftyGradient } from "@/features/qr/model/state";
+import type { SettingsModel } from "@/features/shell/hooks/use-toolbar-settings-model";
+import type {
+  PatternSettings,
+  PatternSettingsPatch,
+} from "@/features/shell/model/settings-model";
 import {
   applyCardFill,
   applyPatternModuleFill,
+  applyQrFill,
+  applyQrPaletteSelection,
   applyUnifiedQrFill,
   applyUnifiedQrModuleImageUrl,
   applyUnifiedQrModulePatternPatch,
   fillCssToQraftyGradient,
   qraftyGradientToFillCss,
   readPatternModuleFillCss,
+  type UnifiedQrFillPatches,
 } from "@/features/shell/settings/settings-bridge";
 import {
   DEFAULT_DESKTOP_CORNERS_SETTINGS,
@@ -280,5 +288,65 @@ describe("settings fill bridge", () => {
     expect(patches.corners.cornerDotSolidColor?.toLowerCase()).toBe("#ff0000");
     expect(patches.corners.cornerSquareSolidColor?.toLowerCase()).toBe("#ff0000");
     expect(patches.logo.solidColor?.toLowerCase()).toBe("#ff0000");
+  });
+});
+
+describe("model-level qr fill routing", () => {
+  function createModel(patternOverrides: Partial<PatternSettings> = {}) {
+    const calls = {
+      pattern: [] as PatternSettingsPatch[],
+      corners: vi.fn(),
+      logo: vi.fn(),
+      unified: [] as UnifiedQrFillPatches[],
+    };
+    const model = {
+      actualPatternSettings: { ...DEFAULT_DESKTOP_PATTERN_SETTINGS, ...patternOverrides },
+      actualCornersSettings: DEFAULT_DESKTOP_CORNERS_SETTINGS,
+      actualLogoSettings: DEFAULT_DESKTOP_LOGO_SETTINGS,
+      onPatternSettingsChange: (patch: PatternSettingsPatch) => calls.pattern.push(patch),
+      onCornersSettingsChange: calls.corners,
+      onLogoSettingsChange: calls.logo,
+      onUnifiedQrFillSettingsChange: (patches: UnifiedQrFillPatches) =>
+        calls.unified.push(patches),
+    } as unknown as SettingsModel;
+    return { model, calls };
+  }
+
+  it("routes fills to the pattern setter in split mode", () => {
+    const { model, calls } = createModel({ gradientLinkMode: "split" });
+
+    applyQrFill(model, fillFromHex("#336699"));
+
+    expect(calls.unified).toHaveLength(0);
+    expect(calls.pattern).toHaveLength(1);
+    expect(calls.pattern[0].dotsSolidColor?.toLowerCase()).toBe("#336699");
+    expect(calls.corners).not.toHaveBeenCalled();
+    expect(calls.logo).not.toHaveBeenCalled();
+  });
+
+  it("fans fills out to corners and logo in unified mode", () => {
+    const { model, calls } = createModel({ gradientLinkMode: "unified" });
+
+    applyQrFill(model, fillFromHex("#336699"));
+
+    expect(calls.pattern).toHaveLength(0);
+    expect(calls.unified).toHaveLength(1);
+    expect(calls.unified[0].corners.cornerDotSolidColor?.toLowerCase()).toBe("#336699");
+    expect(calls.unified[0].logo.solidColor?.toLowerCase()).toBe("#336699");
+  });
+
+  it("keeps existing palette colors when the custom preset is picked", () => {
+    const { model, calls } = createModel({
+      gradientLinkMode: "split",
+      dotsPalette: ["#111111", "#222222"],
+    });
+
+    applyQrPaletteSelection(model, "custom");
+    applyQrPaletteSelection(model, { label: "Test", colors: ["#abcdef", "#123456"] });
+
+    expect(calls.pattern[0].dotsPalettePreset).toBe("custom");
+    expect(calls.pattern[0].dotsPalette).toBeUndefined();
+    expect(calls.pattern[1].dotsPalette).toEqual(["#abcdef", "#123456"]);
+    expect(calls.pattern[1].dotsPalettePreset).toBe("Test");
   });
 });

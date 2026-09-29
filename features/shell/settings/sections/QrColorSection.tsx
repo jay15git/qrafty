@@ -5,20 +5,22 @@ import { useState } from "react";
 import { parseFill } from "@/components/ui/fill-picker/public-api";
 import type { SettingsModel } from "@/features/shell/hooks/use-toolbar-settings-model";
 import { QrColorFillControls } from "@/features/shell/settings/QrColorFillControls";
+import type {
+  ModuleImageControl,
+  ModulePatternControl,
+} from "@/features/shell/settings/FillPicker.utils";
 import {
   applyCornerFill,
   applyLogoFill,
-  applyPatternModuleFill,
-  applyPatternModuleImageUrl,
-  applyUnifiedQrFill,
-  applyUnifiedQrModuleImageUrl,
-  applyUnifiedQrModulePatternPatch,
+  applyQrFill,
+  applyQrImageFill,
+  applyQrPalettePatch,
+  applyQrPaletteSelection,
+  applyQrUnifiedFill,
   isPatternModuleImageFill,
   readCornerFillCss,
   readLogoFillCss,
   readPatternModuleFillCss,
-  type UnifiedQrFillPatches,
-  type UnifiedQrFillSettings,
 } from "@/features/shell/settings/settings-bridge";
 import {
   getSettingsSectionTab,
@@ -30,15 +32,32 @@ import {
   SettingsTabPanel,
 } from "@/features/shell/settings/settings-ui";
 
-function QrColorUnifiedSettings({
-  model,
-  unifiedSettings,
-  onApplyUnifiedPatches,
-}: {
-  model: SettingsModel;
-  unifiedSettings: UnifiedQrFillSettings;
-  onApplyUnifiedPatches: (patches: UnifiedQrFillPatches) => void;
-}) {
+function moduleImageControls(model: SettingsModel): ModuleImageControl {
+  return {
+    imageUrl: model.actualPatternSettings.moduleFillImageUrl,
+    onUpload: (imageUrl, sourceMode = "upload") => applyQrImageFill(model, imageUrl, sourceMode),
+    onClear: () => applyQrImageFill(model, "", "upload"),
+  };
+}
+
+function modulePatternControls(model: SettingsModel): ModulePatternControl {
+  const pattern = model.actualPatternSettings;
+  return {
+    selectedPalette: pattern.dotsPalette,
+    selectedPreset: pattern.dotsPalettePreset,
+    onSelect: (preset) => applyQrPaletteSelection(model, preset),
+    onPaletteColorChange: (index, color) =>
+      applyQrPalettePatch(model, {
+        dotsColorMode: "palette",
+        dotsPalettePreset: "custom",
+        dotsPalette: pattern.dotsPalette.map((current, paletteIndex) =>
+          paletteIndex === index ? color : current,
+        ),
+      }),
+  };
+}
+
+function QrColorUnifiedSettings({ model }: { model: SettingsModel }) {
   const { actualPatternSettings } = model;
   const moduleFill = readPatternModuleFillCss(actualPatternSettings);
 
@@ -51,49 +70,12 @@ function QrColorUnifiedSettings({
           : undefined
       }
       moduleFillMode={actualPatternSettings.dotsColorMode}
-      moduleImage={{
-        imageUrl: actualPatternSettings.moduleFillImageUrl,
-        onUpload: (imageUrl, sourceMode = "upload") =>
-          onApplyUnifiedPatches(
-            applyUnifiedQrModuleImageUrl(imageUrl, sourceMode, unifiedSettings),
-          ),
-        onClear: () =>
-          onApplyUnifiedPatches(applyUnifiedQrModuleImageUrl("", "upload", unifiedSettings)),
-      }}
-      modulePattern={{
-        selectedPalette: actualPatternSettings.dotsPalette,
-        selectedPreset: actualPatternSettings.dotsPalettePreset,
-        onSelect: (preset) =>
-          onApplyUnifiedPatches(
-            applyUnifiedQrModulePatternPatch(
-              preset === "custom"
-                ? { dotsColorMode: "palette", dotsPalettePreset: "custom" }
-                : {
-                    dotsColorMode: "palette",
-                    dotsPalette: [...preset.colors],
-                    dotsPalettePreset: preset.label,
-                  },
-              unifiedSettings,
-            ),
-          ),
-        onPaletteColorChange: (index, color) =>
-          onApplyUnifiedPatches(
-            applyUnifiedQrModulePatternPatch(
-              {
-                dotsColorMode: "palette",
-                dotsPalettePreset: "custom",
-                dotsPalette: actualPatternSettings.dotsPalette.map((current, paletteIndex) =>
-                  paletteIndex === index ? color : current,
-                ),
-              },
-              unifiedSettings,
-            ),
-          ),
-      }}
+      moduleImage={moduleImageControls(model)}
+      modulePattern={modulePatternControls(model)}
       persistKey="qr-color-unified"
       qrGradient
       value={moduleFill}
-      onValueChange={(fill) => onApplyUnifiedPatches(applyUnifiedQrFill(fill, unifiedSettings))}
+      onValueChange={(fill) => applyQrFill(model, fill)}
     />
   );
 }
@@ -113,7 +95,6 @@ function QrColorPerPartSettings({
     actualPatternSettings,
     onCornersSettingsChange,
     onLogoSettingsChange,
-    onPatternSettingsChange,
   } = model;
 
   const moduleFill = readPatternModuleFillCss(actualPatternSettings);
@@ -150,40 +131,12 @@ function QrColorPerPartSettings({
                 : undefined
             }
             moduleFillMode={actualPatternSettings.dotsColorMode}
-            moduleImage={{
-              imageUrl: actualPatternSettings.moduleFillImageUrl,
-              onUpload: (imageUrl, sourceMode = "upload") =>
-                onPatternSettingsChange(applyPatternModuleImageUrl(imageUrl, sourceMode)),
-              onClear: () => onPatternSettingsChange(applyPatternModuleImageUrl("", "upload")),
-            }}
-            modulePattern={{
-              selectedPalette: actualPatternSettings.dotsPalette,
-              selectedPreset: actualPatternSettings.dotsPalettePreset,
-              onSelect: (preset) =>
-                onPatternSettingsChange(
-                  preset === "custom"
-                    ? { dotsColorMode: "palette", dotsPalettePreset: "custom" }
-                    : {
-                        dotsColorMode: "palette",
-                        dotsPalette: [...preset.colors],
-                        dotsPalettePreset: preset.label,
-                      },
-                ),
-              onPaletteColorChange: (index, color) =>
-                onPatternSettingsChange({
-                  dotsColorMode: "palette",
-                  dotsPalettePreset: "custom",
-                  dotsPalette: actualPatternSettings.dotsPalette.map((current, paletteIndex) =>
-                    paletteIndex === index ? color : current,
-                  ),
-                }),
-            }}
+            moduleImage={moduleImageControls(model)}
+            modulePattern={modulePatternControls(model)}
             persistKey="qr-color-module"
             qrGradient
             value={moduleFill}
-            onValueChange={(fill) =>
-              onPatternSettingsChange(applyPatternModuleFill(fill, actualPatternSettings))
-            }
+            onValueChange={(fill) => applyQrFill(model, fill)}
           />
         ) : tab === "Eye" || tab === "Frame" ? (
           <QrColorFillControls
@@ -204,32 +157,9 @@ function QrColorPerPartSettings({
 
 export function QrColorSection({ model }: { model: SettingsModel }) {
   const [tab, setTab] = useState(() => getSettingsSectionTab("qr-style", "Module"));
-  const {
-    actualCornersSettings,
-    actualLogoSettings,
-    actualPatternSettings,
-    onCornersSettingsChange,
-    onLogoSettingsChange,
-    onPatternSettingsChange,
-  } = model;
+  const { actualPatternSettings } = model;
 
   const isUnified = actualPatternSettings.gradientLinkMode === "unified";
-  const unifiedSettings: UnifiedQrFillSettings = {
-    pattern: actualPatternSettings,
-    corners: actualCornersSettings,
-    logo: actualLogoSettings,
-  };
-
-  function applyUnifiedPatches(patches: UnifiedQrFillPatches) {
-    if (model.onUnifiedQrFillSettingsChange) {
-      model.onUnifiedQrFillSettingsChange(patches);
-      return;
-    }
-
-    onPatternSettingsChange(patches.pattern);
-    onCornersSettingsChange(patches.corners);
-    onLogoSettingsChange(patches.logo);
-  }
 
   function handleColorSeparatelyChange(checked: boolean) {
     if (!checked) {
@@ -237,15 +167,15 @@ export function QrColorSection({ model }: { model: SettingsModel }) {
       const fill = parseFill(moduleFillCss);
 
       if (fill) {
-        applyUnifiedPatches(applyUnifiedQrFill(fill, unifiedSettings));
+        applyQrUnifiedFill(model, fill);
         return;
       }
 
-      onPatternSettingsChange({ gradientLinkMode: "unified" });
+      model.onPatternSettingsChange({ gradientLinkMode: "unified" });
       return;
     }
 
-    onPatternSettingsChange({ gradientLinkMode: "split" });
+    model.onPatternSettingsChange({ gradientLinkMode: "split" });
   }
 
   function handlePartTabChange(nextTab: string) {
@@ -261,11 +191,7 @@ export function QrColorSection({ model }: { model: SettingsModel }) {
         onChange={handleColorSeparatelyChange}
       />
       {isUnified ? (
-        <QrColorUnifiedSettings
-          model={model}
-          unifiedSettings={unifiedSettings}
-          onApplyUnifiedPatches={applyUnifiedPatches}
-        />
+        <QrColorUnifiedSettings model={model} />
       ) : (
         <QrColorPerPartSettings model={model} tab={tab} onTabChange={handlePartTabChange} />
       )}

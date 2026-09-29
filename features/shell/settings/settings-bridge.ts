@@ -1,3 +1,4 @@
+import type { SettingsModel } from "@/features/shell/hooks/use-toolbar-settings-model";
 import {
   formatFill,
   parseFill,
@@ -389,4 +390,84 @@ export function applyUnifiedQrModulePatternPatch(
     corners: mergeCornerFills(representativeFill, settings.corners),
     logo: applyLogoFill(representativeFill, settings.logo),
   };
+}
+
+function unifiedQrFillSettings(model: SettingsModel): UnifiedQrFillSettings {
+  return {
+    pattern: model.actualPatternSettings,
+    corners: model.actualCornersSettings,
+    logo: model.actualLogoSettings,
+  };
+}
+
+/** Sends a unified patch set through the atomic handler when available. */
+export function applyQrUnifiedFillPatches(
+  model: SettingsModel,
+  patches: UnifiedQrFillPatches,
+) {
+  if (model.onUnifiedQrFillSettingsChange) {
+    model.onUnifiedQrFillSettingsChange(patches);
+    return;
+  }
+  model.onPatternSettingsChange(patches.pattern);
+  model.onCornersSettingsChange(patches.corners);
+  model.onLogoSettingsChange(patches.logo);
+}
+
+/** Applies a fill to module dots — fans out to eye/frame/logo when unified. */
+export function applyQrFill(model: SettingsModel, fill: Fill) {
+  if (model.actualPatternSettings.gradientLinkMode === "unified") {
+    applyQrUnifiedFillPatches(model, applyUnifiedQrFill(fill, unifiedQrFillSettings(model)));
+    return;
+  }
+  model.onPatternSettingsChange(applyPatternModuleFill(fill, model.actualPatternSettings));
+}
+
+/** Forces the unified fan-out (e.g. toggling "Color separately" off). */
+export function applyQrUnifiedFill(model: SettingsModel, fill: Fill) {
+  applyQrUnifiedFillPatches(model, applyUnifiedQrFill(fill, unifiedQrFillSettings(model)));
+}
+
+export function applyQrImageFill(
+  model: SettingsModel,
+  imageUrl: string,
+  sourceMode: PatternSettings["moduleFillImageSourceMode"],
+) {
+  if (model.actualPatternSettings.gradientLinkMode === "unified") {
+    applyQrUnifiedFillPatches(
+      model,
+      applyUnifiedQrModuleImageUrl(imageUrl, sourceMode, unifiedQrFillSettings(model)),
+    );
+    return;
+  }
+  model.onPatternSettingsChange(applyPatternModuleImageUrl(imageUrl, sourceMode));
+}
+
+/** Palette-mode patches are module-only, but unified mode still syncs the rest. */
+export function applyQrPalettePatch(model: SettingsModel, patch: Partial<PatternSettings>) {
+  if (model.actualPatternSettings.gradientLinkMode === "unified") {
+    applyQrUnifiedFillPatches(
+      model,
+      applyUnifiedQrModulePatternPatch(patch, unifiedQrFillSettings(model)),
+    );
+    return;
+  }
+  model.onPatternSettingsChange(patch);
+}
+
+/** Applies a palette picker selection — "custom" keeps the existing colors. */
+export function applyQrPaletteSelection(
+  model: SettingsModel,
+  preset: { label: string; colors: string[] } | "custom",
+) {
+  applyQrPalettePatch(
+    model,
+    preset === "custom"
+      ? { dotsColorMode: "palette", dotsPalettePreset: "custom" }
+      : {
+          dotsColorMode: "palette",
+          dotsPalette: [...preset.colors],
+          dotsPalettePreset: preset.label,
+        },
+  );
 }

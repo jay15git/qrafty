@@ -5,7 +5,13 @@ import type { SettingsModel } from "@/features/shell/hooks/use-toolbar-settings-
 import { useMobileDrawerNavigation } from "@/features/shell/settings/MobileDrawerNavigationContext";
 import { DOTS_PALETTE_PRESETS } from "@/features/shell/settings/pattern-palettes";
 import { PaletteColorBarPreview } from "@/features/shell/settings/PaletteColorBarPreview";
-import { readPatternModuleFillCss } from "@/features/shell/settings/settings-bridge";
+import {
+  applyQrFill,
+  applyQrImageFill,
+  applyQrPalettePatch,
+  applyQrPaletteSelection,
+  readPatternModuleFillCss,
+} from "@/features/shell/settings/settings-bridge";
 import { getActiveFillPresetForStoredValue } from "@/features/shell/settings/settings-fill-preset-match";
 import {
   SETTINGS_PATTERN_OPTION_TILE_INNER,
@@ -15,7 +21,6 @@ import { SegmentTabs } from "@/features/shell/settings/settings-ui";
 import { cn } from "@/lib/utils";
 
 import { LazySettingsFillPicker, LazyPatternColorPickerContent } from "../lazy-details";
-import { applyQrFill, applyQrImageFill, applyQrPalette, applyQrPalettePatch } from "../qr-fill";
 import { MobileRailModeContext, useLatestModel, type MobileRailRowProps } from "../rail-context";
 import {
   fillPresetsForMode,
@@ -93,7 +98,7 @@ export function MobileColorRailRow({ model, openDrawer }: MobileRailRowProps) {
               data-slot="mobile-rail-option"
               title={preset.label}
               type="button"
-              onClick={() => applyQrPalette(modelRef.current, preset)}
+              onClick={() => applyQrPaletteSelection(modelRef.current, preset)}
             >
               <span aria-hidden className={SETTINGS_PATTERN_OPTION_TILE_INNER}>
                 <PaletteColorBarPreview className="size-full" colors={preset.colors} size="md" />
