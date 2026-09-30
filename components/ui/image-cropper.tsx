@@ -626,7 +626,7 @@ function CropOverlay({
 
       <div
         className={cn(
-          "absolute -top-8 left-0 rounded px-2 py-1 text-xs whitespace-nowrap",
+          "absolute -top-8 left-0 rounded px-2 py-1 text-[length:var(--type-caption)] whitespace-nowrap",
           usesDesktopTheme
             ? "bg-[var(--fg)] text-[var(--bg)]"
             : "bg-primary text-primary-foreground",
@@ -941,20 +941,27 @@ function DropzoneEmptyState({
         <p
           className={mutedTextClass({
             compact,
-            base: compact ? "" : "mb-2 line-clamp-2 text-sm",
+            base: compact ? "" : "mb-2 line-clamp-2 text-[length:var(--type-body)]",
           })}
         >
           {isProcessing ? "Processing…" : placeholder}
         </p>
       ) : null}
       {!tile && showFormatHint ? (
-        <p className={mutedTextClass({ compact, base: "line-clamp-1 text-xs" })}>
+        <p
+          className={mutedTextClass({
+            compact,
+            base: "line-clamp-1 text-[length:var(--type-meta)]",
+          })}
+        >
           {compact
             ? `${formats} · ${maxFileSizeMb} MB max`
             : `Supports ${formats} up to ${maxFileSizeMb} MB`}
         </p>
       ) : null}
-      {validationError ? <p className="mt-2 text-xs text-destructive">{validationError}</p> : null}
+      {validationError ? (
+        <p className="mt-2 text-[length:var(--type-caption)] text-destructive">{validationError}</p>
+      ) : null}
     </div>
   );
 }

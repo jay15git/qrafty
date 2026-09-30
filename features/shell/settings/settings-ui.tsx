@@ -7,7 +7,6 @@ export {
 export {
   SettingsAccordion,
   SettingsPanelShell,
-  SettingsScroll,
   SettingsTabPanel,
 } from "@/features/shell/settings/settings-ui/Panel";
 export {

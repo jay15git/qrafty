@@ -6,6 +6,7 @@ import dynamic from "next/dynamic";
 import {
   LANDING_SHADER_ARC_CENTER_Y,
   LANDING_SHADER_ARC_RADIUS,
+  LANDING_SHADER_EDGE_FADE,
 } from "@/features/marketing/landing/landing-shader-config";
 
 const MeshGradient = dynamic(
@@ -149,8 +150,8 @@ export function LandingMeshGradientBackground() {
 
 /**
  * Paper mounts canvas at z-index:-1; lift it so shader is visible as a page background.
- * Filled circle of the same R as the card wheel, hub mirrored above the join —
- * bottom edge is a ∪ through the hero, symmetrical to the carousel ∩.
+ * Circle of the same R as the card wheel, hub mirrored above the join — alpha
+ * mask fades the rim so the ∪ blends into the page instead of clipping hard.
  */
 const landingShaderStyles = `
 .landing-shader-arc {
@@ -159,9 +160,9 @@ const landingShaderStyles = `
   width: auto;
   height: auto;
   transform: none;
-  clip-path: circle(var(--shader-r) at 50% ${LANDING_SHADER_ARC_CENTER_Y});
+  mask-image: ${LANDING_SHADER_EDGE_FADE};
+  -webkit-mask-image: ${LANDING_SHADER_EDGE_FADE};
   overflow: hidden;
-  contain: paint;
 }
 .landing-shader-host {
   contain: paint;

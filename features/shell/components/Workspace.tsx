@@ -18,7 +18,6 @@ import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useState } from "react";
 
 type WorkspaceProps = {
-  fontClassName?: string;
   initialTheme?: ThemeMode;
   initialActiveTool?: SettingsToolId;
 };
@@ -31,11 +30,7 @@ function applyThemeToDom(theme: ThemeMode) {
   document.cookie = `${THEME_COOKIE}=${theme}; Path=/; Max-Age=31536000; SameSite=Lax`;
 }
 
-export function Workspace({
-  fontClassName,
-  initialTheme = "dark",
-  initialActiveTool,
-}: WorkspaceProps) {
+export function Workspace({ initialTheme = "dark", initialActiveTool }: WorkspaceProps) {
   // SSR renders the cookie theme; the inline head script has already applied
   // it to <html>, so this state never fights hydration. LocalStorage is gone —
   // the cookie is the single persistence channel.
@@ -61,7 +56,6 @@ export function Workspace({
       data-slot="workspace"
       data-vercel-git-commit-sha={DEPLOYMENT_COMMIT_SHA}
       className={cn(
-        fontClassName,
         theme === "dark" && "dark",
         "relative h-dvh min-h-0 overflow-hidden bg-(--canvas-bg) text-(--canvas-ink) transition-colors duration-[var(--motion-ui)]",
       )}

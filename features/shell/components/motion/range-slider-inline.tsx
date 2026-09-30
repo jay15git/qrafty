@@ -94,13 +94,13 @@ function InlineSliderOverlay({
     <div aria-hidden="true" className="pointer-events-none absolute inset-0 text-foreground">
       <span
         ref={labelRef}
-        className="absolute left-3 top-1/2 max-w-[40%] -translate-y-1/2 truncate text-sm font-medium leading-5"
+        className="absolute left-3 top-1/2 max-w-[40%] -translate-y-1/2 truncate text-[length:var(--type-meta)] font-medium leading-5"
       >
         {label}
       </span>
       <span
         ref={readoutRef}
-        className="absolute right-3 top-1/2 max-w-[40%] -translate-y-1/2 truncate text-[13px] font-semibold leading-[18px] tracking-tight tabular-nums"
+        className="absolute right-3 top-1/2 max-w-[40%] -translate-y-1/2 truncate text-[length:var(--type-value)] font-semibold leading-[18px] tracking-[var(--tracking-tight)] tabular-nums"
       >
         {readout}
       </span>

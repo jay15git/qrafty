@@ -263,7 +263,9 @@ export function ExportSettingsPanel({ model }: { model: SettingsModel }) {
         </button>
       ) : null}
       {controller?.exportDownloadError ? (
-        <p className="ds-type-meta text-center text-red-500">{controller.exportDownloadError}</p>
+        <p className="ds-type-meta text-center text-[var(--error)]">
+          {controller.exportDownloadError}
+        </p>
       ) : null}
     </div>
   );

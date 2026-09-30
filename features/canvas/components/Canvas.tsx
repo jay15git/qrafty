@@ -71,7 +71,7 @@ export function Canvas({
     <div className="relative flex h-full w-full flex-col">
       <div className="relative min-h-0 flex-1">
         {!activeBoard ? (
-          <div className="grid h-full place-items-center text-sm font-medium text-[var(--canvas-ink-muted)]">
+          <div className="grid h-full place-items-center text-[length:var(--type-control-label)] font-medium text-[var(--canvas-ink-muted)]">
             No QR codes
           </div>
         ) : (

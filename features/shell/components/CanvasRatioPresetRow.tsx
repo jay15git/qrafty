@@ -28,10 +28,7 @@ export function CanvasRatioPresetSections({
     <div className="space-y-3" data-slot="canvas-size-sections">
       {sections.map((section) => (
         <section key={section.group} aria-labelledby={`canvas-size-${section.group}`}>
-          <h3
-            id={`canvas-size-${section.group}`}
-            className="ds-type-label mb-1.5 px-1 font-medium uppercase tracking-[0.05em] text-[var(--muted)]"
-          >
+          <h3 id={`canvas-size-${section.group}`} className="ds-type-heading mb-1.5 px-1">
             {section.label}
           </h3>
           <div
@@ -120,10 +117,7 @@ function CanvasCustomSizeFields({
 
   return (
     <section aria-labelledby="canvas-size-custom" data-slot="canvas-size-custom">
-      <h3
-        id="canvas-size-custom"
-        className="ds-type-label mb-1.5 px-1 font-medium uppercase tracking-[0.05em] text-[var(--muted)]"
-      >
+      <h3 id="canvas-size-custom" className="ds-type-heading mb-1.5 px-1">
         Custom
       </h3>
       <SettingsValueGrid>

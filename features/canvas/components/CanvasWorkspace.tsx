@@ -281,7 +281,7 @@ export function CanvasWorkspace({
           onPointerUp={endMarqueeSelection}
         >
           {hasError ? (
-            <div className="grid h-full place-items-center text-sm font-medium text-[var(--canvas-ink-muted)]">
+            <div className="grid h-full place-items-center text-[length:var(--type-control-label)] font-medium text-[var(--canvas-ink-muted)]">
               Could not generate QR
             </div>
           ) : (

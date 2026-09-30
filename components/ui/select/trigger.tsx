@@ -95,7 +95,9 @@ export const SelectTrigger = forwardRef<HTMLButtonElement, SelectTriggerProps>(
             <path d="M6 9l6 6 6-6" />
           </svg>
         </SelectPrimitive.Trigger>
-        {error && <span className="text-[12px] text-destructive pl-3">{error}</span>}
+        {error && (
+          <span className="text-[length:var(--type-value)] text-destructive pl-3">{error}</span>
+        )}
       </div>
     );
   },

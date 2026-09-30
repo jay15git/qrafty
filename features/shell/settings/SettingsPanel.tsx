@@ -28,11 +28,7 @@ import {
   type SettingsSectionId,
 } from "@/features/shell/settings/settings-panel-meta";
 import { SettingsSectionBody } from "@/features/shell/settings/SettingsSections";
-import {
-  SettingsAccordion,
-  SettingsPanelShell,
-  SettingsScroll,
-} from "@/features/shell/settings/settings-ui";
+import { SettingsAccordion, SettingsPanelShell } from "@/features/shell/settings/settings-ui";
 import type { ScanSafetyResult } from "@/features/qr/scan-safety/types";
 import { cn } from "@/lib/utils";
 
@@ -97,9 +93,9 @@ function scanSafetyBadge(result: ScanSafetyResult | undefined): {
 }
 
 const SCAN_BADGE_TONE_CLASS = {
-  safe: "text-emerald-600 dark:text-emerald-400",
-  unsafe: "text-red-600 dark:text-red-400",
-  pending: "text-amber-600 dark:text-amber-400",
+  safe: "text-[var(--ok)]",
+  unsafe: "text-[var(--error)]",
+  pending: "text-[var(--warn)]",
   muted: "text-[var(--muted)]",
 } as const;
 
@@ -222,21 +218,19 @@ export function SettingsPanel({
 
   return (
     <SettingsPanelShell fillHeight={fillHeight}>
-      <SettingsScroll fillHeight={fillHeight}>
-        <div className="ds-settings-rail-track ds-settings-brand-row" data-slot="brand-mark-anchor">
-          <div className="ds-settings-rail-track__inner">
-            <BrandMark theme={model.actualTheme} />
-          </div>
+      <div className="ds-settings-rail-track ds-settings-brand-row" data-slot="brand-mark-anchor">
+        <div className="ds-settings-rail-track__inner">
+          <BrandMark theme={model.actualTheme} />
         </div>
-        <SettingsAccordion
-          header={<SettingsPanelHeader model={model} />}
-          footer={<SettingsPanelFooter model={model} />}
-          openSection={openSection}
-          renderSection={(section) => <SettingsSectionBody id={section} model={model} />}
-          sections={SETTINGS_SECTIONS}
-          onOpenSectionChange={handleSectionChange}
-        />
-      </SettingsScroll>
+      </div>
+      <SettingsAccordion
+        header={<SettingsPanelHeader model={model} />}
+        footer={<SettingsPanelFooter model={model} />}
+        openSection={openSection}
+        renderSection={(section) => <SettingsSectionBody id={section} model={model} />}
+        sections={SETTINGS_SECTIONS}
+        onOpenSectionChange={handleSectionChange}
+      />
     </SettingsPanelShell>
   );
 }

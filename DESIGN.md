@@ -44,37 +44,49 @@ colors:
   settings-dark-muted: "#6b6b6b"           # --muted, dark settings
 typography:
   settings-body:
-    fontFamily: '"Inter", system-ui, sans-serif'
+    fontFamily: 'var(--font-instrument-sans), system-ui, sans-serif'
     fontSize: "0.8125rem"
     fontWeight: 400
     lineHeight: 1.55
     letterSpacing: "-0.015em"
   settings-value:
-    fontFamily: '"Inter", system-ui, sans-serif'
+    fontFamily: 'var(--font-instrument-sans), system-ui, sans-serif'
     fontSize: "0.75rem"
     fontWeight: 500
     lineHeight: 1
     letterSpacing: "-0.015em"
   settings-label:
-    fontFamily: '"Inter", system-ui, sans-serif'
+    fontFamily: 'var(--font-instrument-sans), system-ui, sans-serif'
     fontSize: "0.6875rem"
     fontWeight: 400
     lineHeight: 1
     letterSpacing: "-0.015em"
+  settings-heading:
+    fontFamily: 'var(--font-instrument-sans), system-ui, sans-serif'
+    fontSize: "0.6875rem"
+    fontWeight: 600
+    lineHeight: 1.3
+    letterSpacing: "0.06em"
+    textTransform: uppercase
   settings-caption:
-    fontFamily: '"Inter", system-ui, sans-serif'
+    fontFamily: 'var(--font-instrument-sans), system-ui, sans-serif'
     fontSize: "0.625rem"
     fontWeight: 500
     lineHeight: 1
+  settings-mono:
+    fontFamily: 'var(--font-plex-mono), ui-monospace, monospace'
+    fontSize: "0.75rem"
+    fontWeight: 500
+    lineHeight: 1
   settings-section:
-    fontFamily: '"Inter", system-ui, sans-serif'
+    fontFamily: 'var(--font-instrument-sans), system-ui, sans-serif'
     fontSize: "1rem"
   workspace-input:
-    fontFamily: '"Inter", system-ui, sans-serif'
+    fontFamily: 'var(--font-instrument-sans), system-ui, sans-serif'
     fontSize: "1rem"
     lineHeight: 1.45
   ui-default:
-    fontFamily: 'system-ui, sans-serif'
+    fontFamily: 'var(--font-instrument-sans), system-ui, sans-serif'
     fontSize: "0.875rem"
     fontWeight: 500
   brand:
@@ -230,24 +242,27 @@ Canvas field drops to pure black (`#000000`), chrome to `#1d1d1d`, ink inverts t
 
 ## Typography
 
-**Settings Font:** Inter (`"Inter", system-ui, sans-serif`, `cv11`/`ss01` features, antialiased) — the entire settings surface.
-**App/marketing fonts:** Manrope (body, `--font-manrope`), Kodchasan (hero support, `--font-kodchasan`), Caveat (brand mark, `--font-caveat-family` — the "QRafty" wordmark at 2rem/600), Geist Mono (`--font-geist-mono`, mapped to `font-mono`).
+**Settings/workspace font:** Instrument Sans (variable, `--font-instrument-sans`, mapped to `--font-sans` and `--font` — the entire settings surface and all floating workspace chrome). IBM Plex Mono (`--font-plex-mono`, mapped to `font-mono` and `--type-mono`) covers hex values, measurements, and key caps.
+**App/marketing fonts:** Manrope (body, `--font-manrope`), Kodchasan (hero support, `--font-kodchasan`), Caveat (brand mark, `--font-caveat-family` — the "QRafty" wordmark at 2rem/600). Satoshi is a canvas layer font only — never UI chrome.
 
-**Character:** small, tight, tabular. The Settings scale runs 10–13px with `-0.015em` tracking and `tabular-nums` on every value — instrument labeling, not editorial prose.
+**Character:** small, instrument-scale, tabular. The Settings scale runs 10–16px with Instrument Sans (which runs narrow, so text roles track normal-to-loose, never tight) and `tabular-nums` on every value — instrument labeling, not editorial prose. Hierarchy is carried by weight + ink, then size.
 
 ### Hierarchy
 
-- **Section** (1rem, `--type-section`): Settings section titles.
-- **Body** (400, 0.8125rem, 1.55, -0.015em): `--type-body` / `.ds-type-body`. Explanatory text inside settings.
-- **Value** (500, 0.75rem, 1, -0.015em, tabular-nums): `--type-value` / `.ds-type-value`. Inputs, readouts, row labels — the workhorse size.
-- **Label/Meta** (400, 0.6875rem, 1): `--type-meta` / `.ds-type-label`. Control labels at 44–46% foreground (`--type-label-color`).
-- **Caption** (500, 0.625rem, 1): `--type-caption` / `.ds-type-caption`, `.ds-type-chip`. Chips and micro-labels.
-- **Workspace input** (1rem, 1.45): `--type-input` / `.ds-type-input` — 16px on canvas inputs to prevent iOS zoom; **control label** (0.875rem, 1.2): `--type-control-label`.
+- **Section** (500, 1rem, 1.3, −0.01em): `--type-section`. Panel and accordion titles — the only role above 14px. Drawer/section headers keep `--type-heading-weight` (600).
+- **Row label** (500, 0.8125rem, 1.15): `--type-body` via `.ds-row-label-text` / `.ds-switch-row > span`. Row and switch labels recede to 75% ink (`--type-row-label-color`) so values read as data.
+- **Value** (500, 0.75rem, 1.15, tabular-nums): `--type-value` / `.ds-type-value`. Inputs, selects, readouts — full-ink workhorse.
+- **Meta** (450, 0.6875rem, 1.15): `--type-meta` / `.ds-type-meta` (`.ds-type-label` is the same role). Control labels and hints at 55% ink (`--type-label-color`).
+- **Caption** (500, 0.625rem, 1.15, +0.01em): `--type-caption` / `.ds-type-caption`, `.ds-type-chip`. Chips, presets, segment labels.
+- **Heading** (600, 0.6875rem, 1.3, +0.08em, uppercase, muted): `--type-heading` / `.ds-type-heading`, used by popover titles and all group headings including `SETTINGS_SECTION_HEADING_CLASS` — hierarchy from caps + tracking, not size.
+- **Mono** (500, 0.75rem, 1.15, +0.02em, tabular-nums): `--type-mono` / `.ds-type-mono`. Hex fields, measurements, key caps.
+- **Workspace input** (1rem, 1.45): `--type-input` / `.ds-type-input` — 16px on canvas inputs to prevent iOS zoom; **control label** (0.875rem, 1.2): `--type-control-label`, also canvas error/empty states.
 - **UI default** (500, 0.875rem): shadcn `text-sm font-medium` on buttons and menus.
 
 ### Named Rules
 
-**The Instrument Scale Rule.** Inside the Settings nothing exceeds 1rem and nothing is lighter than 400. Hierarchy comes from weight (400 label / 500 value) and color (46% fg label / full fg value), never from size jumps.
+**The Instrument Scale Rule.** Inside the Settings nothing exceeds 1rem and nothing is lighter than 400. Hierarchy comes from weight (450 meta / 500 value / 600 heading) and ink (55% label / 75% row-label / 100% value), never from size jumps.
+**The Dark Air Rule.** On `data-theme="dark"` surfaces, meta/label text gains +0.005em tracking and label ink steps up (55%→60%, row-label 75%→80%) — light-on-dark needs a touch more air.
 **The Tabular Rule.** Any rendered number uses `font-variant-numeric: tabular-nums` — values must not jitter while scrubbing.
 
 ## Layout

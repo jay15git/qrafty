@@ -60,9 +60,9 @@ export function IslandCard({ items, trailing }: IslandCardProps) {
         {...attrs}
         className={cn(
           isIconLabel
-            ? "flex h-9 cursor-pointer items-center justify-center gap-2 rounded-full px-3 text-sm font-medium whitespace-nowrap transition-colors hover:text-[var(--chrome-button-hover-fg,currentColor)] disabled:cursor-not-allowed disabled:opacity-40 [&_svg]:size-4"
+            ? "flex h-9 cursor-pointer items-center justify-center gap-2 rounded-full px-3 text-[length:var(--type-body)] font-medium whitespace-nowrap transition-colors hover:text-[var(--chrome-button-hover-fg,currentColor)] disabled:cursor-not-allowed disabled:opacity-40 [&_svg]:size-4"
             : isText
-              ? "flex h-9 cursor-pointer items-center justify-center rounded-full px-3 text-sm font-medium whitespace-nowrap transition-colors hover:text-[var(--chrome-button-hover-fg,currentColor)] disabled:cursor-not-allowed disabled:opacity-40"
+              ? "flex h-9 cursor-pointer items-center justify-center rounded-full px-3 text-[length:var(--type-body)] font-medium whitespace-nowrap transition-colors hover:text-[var(--chrome-button-hover-fg,currentColor)] disabled:cursor-not-allowed disabled:opacity-40"
               : "flex size-9 cursor-pointer items-center justify-center rounded-full transition-colors hover:text-[var(--chrome-button-hover-fg,currentColor)] disabled:cursor-not-allowed disabled:opacity-40 [&_svg]:size-4",
           item.pressed && "text-[var(--chrome-button-hover-fg,currentColor)]",
         )}

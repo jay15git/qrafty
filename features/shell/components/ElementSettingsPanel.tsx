@@ -280,7 +280,7 @@ function TextFontMenu({
       >
         {fontGroups.map((group) => (
           <div className="flex flex-col" key={group.category}>
-            <p className="px-2.5 pt-1.5 pb-0.5 text-[length:var(--type-caption)] font-semibold uppercase tracking-[0.08em] text-[var(--muted)]">
+            <p className="px-2.5 pt-1.5 pb-0.5 ds-type-heading">
               {DRAFTING_FONT_CATEGORY_LABELS[group.category]}
             </p>
             {group.fonts.map((font) => (

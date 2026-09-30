@@ -17,7 +17,7 @@ export const FieldShell = React.forwardRef<HTMLDivElement, React.HTMLAttributes<
       <div
         ref={ref}
         className={cn(
-          "flex h-8 items-stretch overflow-hidden rounded-md border font-mono text-xs shadow-xs",
+          "flex h-8 items-stretch overflow-hidden rounded-md border font-mono text-[length:var(--type-mono)] shadow-xs",
           colorPickerControlShellClass,
           "focus-within:ring-1 focus-within:ring-ring",
           className,

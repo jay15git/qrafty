@@ -113,7 +113,7 @@ function CanvasLayerControlsFrame({
       />
       {isRotating ? (
         <div
-          className="pointer-events-none absolute left-1/2 top-0 rounded-full border border-[var(--chrome-border)] bg-[var(--chrome-bg)] px-2.5 py-1 text-[0.68rem] font-semibold text-[var(--chrome-fg)]"
+          className="pointer-events-none absolute left-1/2 top-0 rounded-full border border-[var(--chrome-border)] bg-[var(--chrome-bg)] px-2.5 py-1 text-[length:var(--type-meta)] font-semibold text-[var(--chrome-fg)]"
           data-slot="canvas-layer-rotation-value"
           style={{
             transform: `translate(-50%, calc(-${ROTATE_HANDLE_OFFSET_PX}px - ${ROTATE_HANDLE_RADIUS_PX}px - ${ROTATE_LABEL_GAP_PX}px - 100%))`,
@@ -217,7 +217,7 @@ function CanvasMultiSelectFrame({
       />
       {isRotating ? (
         <div
-          className="pointer-events-none absolute left-1/2 top-0 rounded-full border border-[var(--chrome-border)] bg-[var(--chrome-bg)] px-2.5 py-1 text-[0.68rem] font-semibold text-[var(--chrome-fg)]"
+          className="pointer-events-none absolute left-1/2 top-0 rounded-full border border-[var(--chrome-border)] bg-[var(--chrome-bg)] px-2.5 py-1 text-[length:var(--type-meta)] font-semibold text-[var(--chrome-fg)]"
           data-slot="canvas-layer-rotation-value"
           style={{
             transform: `translate(-50%, calc(-${ROTATE_HANDLE_OFFSET_PX}px - ${ROTATE_HANDLE_RADIUS_PX}px - ${ROTATE_LABEL_GAP_PX}px - 100%))`,

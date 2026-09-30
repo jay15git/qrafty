@@ -2,7 +2,6 @@ import { AnimatePresence, m, useReducedMotion } from "motion/react";
 import type { ReactNode } from "react";
 
 import { MotionAccordion } from "@/features/shell/components/unlumen-ui/motion-faqs-accordion";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   getSettingsSectionLabel,
   type SettingsSectionId,
@@ -30,24 +29,6 @@ export function SettingsPanelShell({
     >
       {children}
     </aside>
-  );
-}
-
-export function SettingsScroll({
-  children,
-  fillHeight = false,
-}: {
-  children: ReactNode;
-  fillHeight?: boolean;
-}) {
-  return (
-    <ScrollArea
-      className={cn("ds-settings-scroll", fillHeight ? "h-full min-h-0" : "h-[min(72dvh,40rem)]")}
-      persistKey="settings-panel"
-      viewportClassName="px-0"
-    >
-      {children}
-    </ScrollArea>
   );
 }
 
@@ -81,8 +62,7 @@ export function SettingsAccordion({
 
   return (
     <MotionAccordion
-      cardHeight={null}
-      className="ds-settings-accordion w-full min-w-0 max-w-full"
+      className="ds-settings-accordion flex w-full min-w-0 min-h-0 max-w-full flex-1 flex-col"
       gap={0}
       items={items}
       header={header}

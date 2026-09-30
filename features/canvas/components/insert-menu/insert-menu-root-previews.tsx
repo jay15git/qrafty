@@ -107,7 +107,7 @@ export const INSERT_MENU_TEXT_PREVIEWS: InsertMenuFanPreviewItems = [
   </InsertMenuTextPreviewCard>,
   <InsertMenuTextPreviewCard
     key="text-mono"
-    className="font-mono text-sm font-semibold leading-none tracking-tight text-[var(--fg)]"
+    className="font-mono text-[length:var(--type-body)] font-semibold leading-none tracking-tight text-[var(--fg)]"
   >
     01
   </InsertMenuTextPreviewCard>,

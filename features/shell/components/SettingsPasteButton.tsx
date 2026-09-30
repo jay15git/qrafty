@@ -67,7 +67,7 @@ export function SettingsPasteButton({ className, onPaste }: SettingsPasteButtonP
           <ClipboardIcon className="size-3.5" strokeWidth={1.75} />
         </span>
         <span className="ds-icon" data-icon="b">
-          <CheckIcon className="size-3.5 text-emerald-400" strokeWidth={2} />
+          <CheckIcon className="size-3.5 text-[var(--ok)]" strokeWidth={2} />
         </span>
       </span>
     </button>

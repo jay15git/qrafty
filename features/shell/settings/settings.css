@@ -13,14 +13,11 @@
   .ds-portal-surface,
   .ds-popover-content,
   .ds-fill-popover,
+  .ds-insert-menu-popover,
   [data-slot="desktop-settings-panel-host"]
 ) {
-  --type-caption: 0.625rem;
-  --type-meta: 0.6875rem;
-  --type-label: 0.6875rem;
-  --type-value: 0.75rem;
-  --type-section: 1rem;
-  --type-body: 0.8125rem;
+  /* Type sizes, trackings, and weights live on :root in globals.css so the
+     floating canvas chrome shares the scale; only geometry stays here. */
   --space-stack: 0.625rem;
   --space-inline: 0.375rem;
   --control-height: 2.25rem;
@@ -29,6 +26,24 @@
   --preview-tile: 3.5rem;
   --icon-hit: 2rem;
   --row-px: 0.75rem;
+  font-family: var(--font, var(--font-sans, system-ui, sans-serif));
+}
+
+/* Type-color roles — resolve against whichever foreground the surface
+   declares (--fg on settings surfaces, --fg-primary on the element host). */
+:is(
+  .ds-root,
+  .ds-portal-surface,
+  .ds-popover-content,
+  .ds-fill-popover,
+  .ds-insert-menu-popover,
+  [data-slot="desktop-settings-panel-host"]
+) {
+  --type-row-label-color: color-mix(in srgb, var(--fg, var(--fg-primary)) 75%, transparent);
+  --type-label-color: color-mix(in srgb, var(--fg, var(--fg-primary)) 55%, transparent);
+  --type-value-color: var(--fg-primary, var(--fg));
+  --type-heading-color: var(--muted, var(--fg-muted));
+  --type-caption-color: var(--muted, var(--fg-muted));
 }
 
 /* Squircle radii shared by every settings surface; popovers that want the
@@ -72,6 +87,9 @@
   --mass-muted: color-mix(in srgb, var(--fg) 10%, var(--bg));
   --menu-shadow: 0 8px 32px rgb(0 0 0 / 8%);
   --popover-shadow: 0 12px 40px rgb(0 0 0 / 18%);
+  --ok: #15803d;
+  --warn: #b45309;
+  --error: #dc2626;
 }
 
 /* Settings palette — dark values. .ds-root is dark by default
@@ -92,6 +110,9 @@
   --popover-bg: #111111;
   --popover-control: #1a1a1a;
   --popover-line: #252525;
+  --ok: #4ade80;
+  --warn: #fbbf24;
+  --error: #f87171;
 }
 
 /* Theme-invariant constants. */
@@ -131,13 +152,8 @@
 .ds-root {
   color-scheme: dark;
   --overlay: 255 255 255;
-  --font: "Inter", system-ui, sans-serif;
+  --font: var(--font-sans, system-ui, sans-serif);
   --panel-width: 100%;
-  --tracking-tight: -0.015em;
-  --type-label-weight: 400;
-  --type-value-weight: 500;
-  --type-label-color: color-mix(in srgb, var(--fg) 46%, transparent);
-  --type-value-color: var(--fg);
 
   /* Surface-specific shadcn roles; the shared map lives in the :is() above. */
   --popover: var(--surface);
@@ -166,7 +182,31 @@
   --scroll-edge-fade-color: #000000;
 }
 
+/* Light-on-dark compensation: a touch more air on small text, a step more
+   ink on receded labels. */
+:is(
+  .ds-root,
+  .ds-portal-surface,
+  .ds-popover-content,
+  .ds-fill-popover,
+  .ds-insert-menu-popover
+)[data-theme="dark"] {
+  --type-label-color: color-mix(in srgb, var(--fg, var(--fg-primary)) 60%, transparent);
+  --type-row-label-color: color-mix(in srgb, var(--fg, var(--fg-primary)) 80%, transparent);
+}
+:is(
+    .ds-root,
+    .ds-portal-surface,
+    .ds-popover-content,
+    .ds-fill-popover,
+    .ds-insert-menu-popover
+  )[data-theme="dark"]
+  :is(.ds-type-label, .ds-type-meta) {
+  letter-spacing: 0.005em;
+}
+
 .ds-settings-panel {
+  position: relative;
   width: var(--panel-width);
   flex-shrink: 0;
   border: 1px solid color-mix(in srgb, var(--line) 80%, transparent);
@@ -212,8 +252,10 @@
   background: transparent;
 }
 
-.ds-root.ds-embedded[data-theme] .ds-settings-scroll,
-.ds-root.ds-embedded[data-theme] .ds-settings-scroll [data-slot="scroll-area-viewport"] {
+.ds-root.ds-embedded[data-theme] [data-slot="settings-panel-scroll"],
+.ds-root.ds-embedded[data-theme]
+  [data-slot="settings-panel-scroll"]
+  [data-slot="scroll-area-viewport"] {
   background: transparent;
 }
 
@@ -310,7 +352,6 @@
   padding-inline: var(--row-px);
   font-size: var(--type-value);
   font-weight: var(--type-value-weight);
-  letter-spacing: var(--tracking-tight);
 }
 
 :is(.ds-content-type-select, .ds-fill-picker-select)
@@ -358,7 +399,7 @@
   font-size: var(--type-caption);
   font-weight: 500;
   line-height: 1;
-  letter-spacing: var(--tracking-tight);
+  letter-spacing: var(--tracking-label);
 }
 
 .ds-preview-tile {
@@ -421,32 +462,45 @@
 .ds-type-caption {
   font-size: var(--type-caption);
   font-weight: 500;
-  line-height: 1;
-  letter-spacing: var(--tracking-tight);
+  line-height: 1.15;
+  letter-spacing: var(--tracking-label);
   color: var(--type-label-color);
 }
 
-.ds-type-label {
-  font-size: var(--type-meta);
-  font-weight: var(--type-label-weight);
-  line-height: 1;
-  letter-spacing: var(--tracking-tight);
-  color: var(--type-label-color);
-}
-
+.ds-type-label,
 .ds-type-meta {
   font-size: var(--type-meta);
-  font-weight: var(--type-label-weight);
-  line-height: 1;
-  letter-spacing: var(--tracking-tight);
+  font-weight: var(--type-meta-weight);
+  line-height: 1.15;
   color: var(--type-label-color);
 }
 
 .ds-type-value {
   font-size: var(--type-value);
   font-weight: var(--type-value-weight);
-  line-height: 1;
-  letter-spacing: var(--tracking-tight);
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+  color: var(--type-value-color);
+}
+
+/* Popover titles and group headings: caps + wide tracking — the smallest
+   weight that still reads as a heading at settings density. */
+.ds-type-heading {
+  font-size: var(--type-heading);
+  font-weight: var(--type-heading-weight);
+  line-height: 1.3;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--type-heading-color);
+}
+
+/* Monospace data role — hex values, measurements, key caps. */
+.ds-type-mono {
+  font-family: var(--font-mono, ui-monospace, SFMono-Regular, monospace);
+  font-size: var(--type-mono);
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: var(--tracking-mono);
   font-variant-numeric: tabular-nums;
   color: var(--type-value-color);
 }
@@ -487,9 +541,8 @@
    component's text-sm / text-[13px] pair. */
 .ds-settings-inline-slider > div[aria-hidden="true"]:nth-of-type(2) > span:nth-child(1) {
   font-size: var(--type-meta);
-  font-weight: var(--type-label-weight);
+  font-weight: var(--type-meta-weight);
   line-height: 1;
-  letter-spacing: var(--tracking-tight);
   color: var(--type-value-color);
 }
 
@@ -498,16 +551,14 @@
   font-weight: var(--type-value-weight);
   line-height: 1;
   font-variant-numeric: tabular-nums;
-  letter-spacing: var(--tracking-tight);
   color: var(--type-value-color);
 }
 
 .ds-row-label-text {
   font-size: var(--type-body);
   font-weight: var(--type-value-weight);
-  line-height: 1;
-  letter-spacing: var(--tracking-tight);
-  color: var(--type-value-color);
+  line-height: 1.15;
+  color: var(--type-row-label-color);
 }
 
 /* ── Row controls ────────────────────────────────────────────────── */
@@ -595,7 +646,7 @@
 .ds-type-chip {
   font-size: var(--type-caption);
   font-weight: 500;
-  letter-spacing: var(--tracking-tight);
+  letter-spacing: var(--tracking-label);
 }
 
 .ds-preview-tile-size {
@@ -622,9 +673,8 @@
   align-items: center;
   font-size: var(--type-body);
   font-weight: var(--type-value-weight);
-  letter-spacing: var(--tracking-tight);
-  line-height: 1;
-  color: var(--type-value-color) !important;
+  line-height: 1.15;
+  color: var(--type-row-label-color) !important;
 }
 
 /* Track + thumb follow the same tokens as the portalled switches. */
@@ -692,7 +742,6 @@
   font-weight: var(--type-value-weight);
   line-height: 1;
   font-variant-numeric: tabular-nums;
-  letter-spacing: var(--tracking-tight);
   color: var(--type-value-color) !important;
   box-shadow: none !important;
   outline: none;
@@ -869,10 +918,6 @@
 }
 
 /* Pin QRafty to the top chrome row; spacer keeps accordion stack vertically centered. */
-.ds-settings-scroll [data-slot="scroll-area-viewport"] {
-  position: relative;
-}
-
 .ds-settings-brand-row {
   flex-shrink: 0;
   /* Spacer mirrors the canvas top inset so the settings card centers in the
@@ -905,21 +950,18 @@
   flex-direction: column;
   align-items: stretch;
   width: min(100%, 19.2rem);
-  margin-inline: auto;
+  margin: auto;
   padding: 0.375rem 0.375rem 0;
   border-radius: 2rem;
-  /* Matches the canvas card's max height: viewport minus the top chrome inset
-   * and the artboard's vertical fit insets (2 × 24px). */
   height: calc(100dvh - var(--canvas-inset-top, 3.5rem) - 3rem);
+  /* The card clips: sections scroll inside a contained ScrollArea between the
+   * pinned header and footer rows — no native scrollbar may cross the
+   * rounded corners. */
   background: var(--card-white, #ffffff);
-  overflow-x: hidden;
-  overflow-y: auto;
-  /* Reserve the scrollbar lane so content doesn't reflow when an open
-   * section grows the card past its fixed height. */
-  scrollbar-gutter: stable;
+  overflow: hidden;
 }
 
-.ds-settings-accordion > div > [data-slot="motion-accordion-item"] {
+.ds-settings-accordion [data-slot="motion-accordion-item"] {
   position: relative;
   width: 100%;
   border-radius: 0 !important;
@@ -928,8 +970,7 @@
 
 /* Short, quiet separators — inset from both edges instead of full-bleed. */
 .ds-settings-accordion
-  > div
-  > [data-slot="motion-accordion-item"]
+  [data-slot="motion-accordion-item"]
   + [data-slot="motion-accordion-item"]::before {
   content: "";
   position: absolute;
@@ -1056,10 +1097,11 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   text-align: center;
-  font-size: var(--type-meta);
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  color: var(--fg);
+  font-size: var(--type-heading);
+  font-weight: var(--type-heading-weight);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--type-heading-color);
 }
 
 .ds-settings-popover-close {
@@ -1121,7 +1163,7 @@
   padding-inline: 0;
 }
 
-.ds-settings-accordion > div > [data-slot="motion-accordion-item"] > button {
+.ds-settings-accordion [data-slot="motion-accordion-item"] > button {
   position: relative;
   gap: 0.625rem;
   padding: 1rem 1.125rem;
@@ -1129,7 +1171,7 @@
 
 /* Extend each trigger's hit zone into the gap above its card so the
  * pointer + click area stays continuous between sections. */
-.ds-settings-accordion > div > [data-slot="motion-accordion-item"] > button::before {
+.ds-settings-accordion [data-slot="motion-accordion-item"] > button::before {
   content: "";
   position: absolute;
   top: calc(-1 * var(--accordion-gap, 8px));
@@ -1138,7 +1180,7 @@
   height: var(--accordion-gap, 8px);
 }
 
-.ds-settings-accordion > div > [data-slot="motion-accordion-item"] > button > span:first-child {
+.ds-settings-accordion [data-slot="motion-accordion-item"] > button > span:first-child {
   display: inline-flex;
   align-items: center;
   gap: 0.625rem;
@@ -1162,28 +1204,27 @@
   height: 1.125rem;
 }
 
-.ds-settings-accordion > div > [data-slot="motion-accordion-item"] > button > span:last-child {
+.ds-settings-accordion [data-slot="motion-accordion-item"] > button > span:last-child {
   width: 2rem;
   height: 2rem;
   color: var(--muted);
   opacity: 0.42;
 }
 
-.ds-settings-accordion > div > [data-slot="motion-accordion-item"] > button > span:last-child svg {
+.ds-settings-accordion [data-slot="motion-accordion-item"] > button > span:last-child svg {
   width: 18px;
   height: 18px;
 }
 
-.ds-settings-accordion > div > [data-slot="motion-accordion-item"] > button:hover > span:last-child,
+.ds-settings-accordion [data-slot="motion-accordion-item"] > button:hover > span:last-child,
 .ds-settings-accordion
-  > div
-  > [data-slot="motion-accordion-item"]
+  [data-slot="motion-accordion-item"]
   > button:focus-visible
   > span:last-child {
   opacity: 0.62;
 }
 
-.ds-settings-accordion > div > [data-slot="motion-accordion-item"] > [role="region"] > div {
+.ds-settings-accordion [data-slot="motion-accordion-item"] > [role="region"] > div {
   padding-inline: 0.875rem;
   padding-bottom: 0.875rem;
 }
@@ -1276,26 +1317,25 @@
   background: var(--surface);
 }
 
-.ds-settings-accordion > div > [data-slot="motion-accordion-item"] {
+.ds-settings-accordion [data-slot="motion-accordion-item"] {
   background: transparent;
   box-shadow: none;
 }
 
-.ds-settings-accordion > div > [data-slot="motion-accordion-item"] {
+.ds-settings-accordion [data-slot="motion-accordion-item"] {
   transition:
     filter var(--motion-ui) var(--ease-out),
     opacity var(--motion-ui) var(--ease-out);
 }
 
 /* Pinned header/footer stay sharp — only the section rows dim. */
-.ds-settings-accordion[data-popover-open="true"] > div > [data-slot="motion-accordion-item"] {
+.ds-settings-accordion[data-popover-open="true"] [data-slot="motion-accordion-item"] {
   filter: blur(1.25px);
   opacity: 0.38;
 }
 
 .ds-settings-accordion:has([data-focused="true"]):not([data-popover-open="true"])
-  > div
-  > [data-slot="motion-accordion-item"]:not([data-focused="true"]) {
+  [data-slot="motion-accordion-item"]:not([data-focused="true"]) {
   filter: blur(1.25px);
   opacity: 0.38;
 }
@@ -1309,8 +1349,8 @@
 
 /* Radix Viewport injects a display:table wrap; our ScrollArea then wraps
  * children in [data-slot="scroll-area-inner"]. Flex + min-height must land
- * on the inner so short rails can center and tall ones still scroll. */
-.ds-settings-scroll [data-slot="scroll-area-viewport"] > div {
+ * on the inner so the section list fills the card and tall lists scroll. */
+[data-slot="settings-panel-scroll"] [data-slot="scroll-area-viewport"] > div {
   display: flex !important;
   flex-direction: column;
   min-height: 100%;
@@ -1318,18 +1358,13 @@
   width: 100% !important;
 }
 
-.ds-settings-scroll [data-slot="scroll-area-inner"] {
+[data-slot="settings-panel-scroll"] [data-slot="scroll-area-inner"] {
   display: flex;
   flex: 1 0 auto;
   flex-direction: column;
-  justify-content: center;
   min-height: 100%;
   min-width: 0;
   width: 100%;
-}
-
-.ds-settings-scroll .ds-settings-accordion {
-  flex-shrink: 0;
 }
 
 /* ── Popovers (portalled outside .ds-root) ───────────────── */
@@ -1409,11 +1444,6 @@
   --bg: var(--surface);
   --radius-md: 20px;
   --radius-lg: 20px;
-  --tracking-tight: -0.015em;
-  --type-label-weight: 400;
-  --type-value-weight: 500;
-  --type-label-color: color-mix(in srgb, var(--fg) 44%, transparent);
-  --type-value-color: var(--fg);
   --popover: var(--bg);
   --primary: var(--fg);
   --primary-foreground: var(--bg);
@@ -1432,7 +1462,6 @@
   --control: var(--popover-control);
   --control-hover: var(--popover-control);
   --line: var(--popover-line);
-  --type-label-color: color-mix(in srgb, var(--fg) 46%, transparent);
 }
 
 /* Flat toolbar popovers — settings-panel tokens, no border. Keep the subtle
@@ -1685,7 +1714,7 @@
 .ds-insert-menu-panel-heading {
   min-width: 0;
   font-size: var(--type-section);
-  font-weight: 500;
+  font-weight: var(--type-heading-weight);
   letter-spacing: var(--tracking-tight);
   line-height: 1.3;
   color: var(--fg);
@@ -2255,7 +2284,7 @@
   .ds-preview-tile,
   .ds-tabs-pill,
   .ds-tab,
-  .ds-settings-accordion > div > div,
+  .ds-settings-accordion [data-slot="motion-accordion-item"] > div,
   .ds-root [data-slot="switch"],
   .ds-root [data-slot="switch-thumb"] {
     transition: none !important;

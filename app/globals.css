@@ -3,8 +3,9 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  --font-sans: var(--font-instrument-sans), system-ui, sans-serif;
   --font-caveat: var(--font-caveat-family), cursive;
-  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
+  --font-mono: var(--font-plex-mono), ui-monospace, SFMono-Regular, monospace;
   --color-hover: var(--hover);
   --color-active: var(--active);
   --color-selected: var(--selected);
@@ -108,6 +109,25 @@
   --settings-preview-col: 4.75rem;
   --style-preview-tile-bg: #15161a;
   --style-preview-inset: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+
+  /* Workspace type scale — shared by the settings instrument surface and the
+     floating canvas chrome (both portal to document.body, so these live on
+     :root, not on a component host). Instrument Sans runs narrow, so text
+     roles track loose, not tight. */
+  --type-caption: 0.625rem;
+  --type-meta: 0.6875rem;
+  --type-value: 0.75rem;
+  --type-heading: 0.6875rem;
+  --type-section: 1rem;
+  --type-body: 0.8125rem;
+  --type-mono: 0.75rem;
+  --tracking-tight: -0.01em;
+  --tracking-label: 0.01em;
+  --tracking-mono: 0.02em;
+  --tracking-caps: 0.08em;
+  --type-heading-weight: 600;
+  --type-meta-weight: 450;
+  --type-value-weight: 500;
 }
 
 .dark {

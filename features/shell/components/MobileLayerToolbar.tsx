@@ -127,7 +127,9 @@ function MobileLayerToolbarButton({
     >
       {children}
       {label ? (
-        <span className="whitespace-nowrap text-[11px] font-medium leading-none">{label}</span>
+        <span className="whitespace-nowrap text-[length:var(--type-meta)] font-medium leading-none">
+          {label}
+        </span>
       ) : null}
     </button>
   );

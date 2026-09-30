@@ -1,33 +1,35 @@
 body:has([data-slot="chrome-root"]) {
   --chrome-bg: rgb(29 29 29);
   --chrome-border: rgb(255 255 255 / 0.06);
-  --chrome-fg: rgb(255 255 255 / 0.72);
-  --chrome-button-hover-bg: rgb(255 255 255 / 0.11);
-  --chrome-button-hover-fg: rgb(255 255 255);
-  --chrome-button-focus-ring: rgb(255 255 255 / 0.45);
-  --fg-primary: rgba(255, 255, 255, 0.94);
-  --fg-secondary: rgba(255, 255, 255, 0.76);
-  --fg-tertiary: rgba(255, 255, 255, 0.5);
-  --fg-muted: rgba(255, 255, 255, 0.42);
+  --chrome-ink: rgb(255 255 255);
+  --chrome-fg: color-mix(in srgb, var(--chrome-ink) 72%, transparent);
+  --chrome-button-hover-bg: color-mix(in srgb, var(--chrome-ink) 11%, transparent);
+  --chrome-button-hover-fg: var(--chrome-ink);
+  --chrome-button-focus-ring: color-mix(in srgb, var(--chrome-ink) 45%, transparent);
+  --fg-primary: color-mix(in srgb, var(--chrome-ink) 94%, transparent);
+  --fg-secondary: color-mix(in srgb, var(--chrome-ink) 76%, transparent);
+  --fg-tertiary: color-mix(in srgb, var(--chrome-ink) 50%, transparent);
+  --fg-muted: color-mix(in srgb, var(--chrome-ink) 42%, transparent);
   --fg-label: var(--fg-secondary);
   --error: rgba(248, 113, 113, 0.92);
-  --option-selected-bg: rgba(255, 255, 255, 0.14);
+  --option-selected-bg: color-mix(in srgb, var(--chrome-ink) 14%, transparent);
 }
 
 body:has([data-slot="chrome-root"][data-shell-theme="light"]) {
   --chrome-bg: rgb(255 255 255);
   --chrome-border: rgb(15 23 42 / 0.12);
-  --chrome-fg: rgb(15 23 42 / 0.76);
-  --chrome-button-hover-bg: rgb(15 23 42 / 0.08);
-  --chrome-button-hover-fg: rgb(15 23 42 / 0.95);
-  --chrome-button-focus-ring: rgb(15 23 42 / 0.36);
-  --fg-primary: rgba(15, 23, 42, 0.9);
-  --fg-secondary: rgba(15, 23, 42, 0.66);
-  --fg-tertiary: rgba(15, 23, 42, 0.44);
-  --fg-muted: rgba(15, 23, 42, 0.38);
-  --fg-label: rgba(15, 23, 42, 0.85);
+  --chrome-ink: rgb(15 23 42);
+  --chrome-fg: color-mix(in srgb, var(--chrome-ink) 76%, transparent);
+  --chrome-button-hover-bg: color-mix(in srgb, var(--chrome-ink) 8%, transparent);
+  --chrome-button-hover-fg: color-mix(in srgb, var(--chrome-ink) 95%, transparent);
+  --chrome-button-focus-ring: color-mix(in srgb, var(--chrome-ink) 36%, transparent);
+  --fg-primary: color-mix(in srgb, var(--chrome-ink) 90%, transparent);
+  --fg-secondary: color-mix(in srgb, var(--chrome-ink) 66%, transparent);
+  --fg-tertiary: color-mix(in srgb, var(--chrome-ink) 44%, transparent);
+  --fg-muted: color-mix(in srgb, var(--chrome-ink) 38%, transparent);
+  --fg-label: color-mix(in srgb, var(--chrome-ink) 85%, transparent);
   --error: rgba(220, 38, 38, 0.88);
-  --option-selected-bg: rgba(15, 23, 42, 0.08);
+  --option-selected-bg: color-mix(in srgb, var(--chrome-ink) 8%, transparent);
 }
 
 [data-shell-theme="light"] {
@@ -71,7 +73,7 @@ body:has([data-slot="chrome-root"][data-shell-theme="light"]) {
 [data-slot="layer-effects-popover"],
 [data-slot="toolbar-popover"] {
   --type-value: 0.8125rem;
-  --type-label: 0.6875rem;
+  --type-meta: 0.6875rem;
   --type-caption: 0.625rem;
 }
 

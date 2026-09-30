@@ -129,7 +129,7 @@ function FormatSelect({
         aria-label="Color format"
         value={format}
         onChange={(e) => onChange(e.target.value as ColorFormat)}
-        className="h-full appearance-none bg-transparent pl-2 pr-5 font-mono text-xs uppercase tracking-wide outline-none"
+        className="h-full appearance-none bg-transparent pl-2 pr-5 font-mono text-[length:var(--type-mono)] uppercase tracking-[var(--tracking-mono)] outline-none"
       >
         {formats.map((f) => (
           <option key={f} value={f}>

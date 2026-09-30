@@ -118,7 +118,7 @@ export function KeyboardShortcutsPopoverContent({
           })}
         </div>
         <div className="min-w-0 text-center">
-          <h2 className="text-[length:var(--type-section)] font-semibold text-[var(--fg)]">
+          <h2 className="text-[length:var(--type-section)] font-medium text-[var(--fg)]">
             Shortcuts
           </h2>
         </div>
@@ -140,14 +140,12 @@ export function KeyboardShortcutsPopoverContent({
                 className="p-2.5"
                 key={group.title}
               >
-                <h3 className="px-1 pb-1.5 text-[length:var(--type-meta)] font-semibold text-[var(--muted)]">
-                  {group.title}
-                </h3>
+                <h3 className="px-1 pb-1.5 ds-type-heading">{group.title}</h3>
                 <div className="grid gap-1">
                   {group.shortcuts.map(([keys, description]) => (
                     <div
                       key={keys}
-                      className="grid grid-cols-[minmax(10rem,12.5rem)_1fr] items-center gap-3 rounded-[7px] px-2 py-1.5 text-[12px]"
+                      className="grid grid-cols-[minmax(10rem,12.5rem)_1fr] items-center gap-3 rounded-[7px] px-2 py-1.5 text-[length:var(--type-value)]"
                     >
                       <span
                         className="flex min-w-0 flex-wrap items-center gap-1.5 justify-self-start"
@@ -159,7 +157,7 @@ export function KeyboardShortcutsPopoverContent({
                             key={`${keys}-${comboIndex}`}
                           >
                             {comboIndex > 0 ? (
-                              <span className="px-0.5 text-[10px] font-semibold text-[var(--muted)]">
+                              <span className="px-0.5 text-[length:var(--type-caption)] font-semibold text-[var(--muted)]">
                                 /
                               </span>
                             ) : null}

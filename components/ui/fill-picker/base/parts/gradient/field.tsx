@@ -43,7 +43,7 @@ interface FieldSelectProps {
   };
   /**
    * Class applied to the popup (Base UI `Select.Popup`). Defaults to a
-   * `font-mono text-xs tracking-wide` block so item rows match the
+   * `font-mono text-xs tracking-[var(--tracking-mono)]` block so item rows match the
    * trigger font.
    */
   contentClassName?: string;
@@ -135,7 +135,7 @@ export const FieldSelect = React.forwardRef<HTMLButtonElement, FieldSelectProps>
             ref={ref}
             aria-label={ariaLabel}
             className={cn(
-              "flex items-center justify-between gap-2 font-mono text-xs tracking-wide outline-none",
+              "flex items-center justify-between gap-2 font-mono text-[length:var(--type-mono)] tracking-[var(--tracking-mono)] outline-none",
               "data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50",
               inline
                 ? "h-full rounded-none border-0 bg-transparent px-2 focus-visible:ring-0"
@@ -158,7 +158,7 @@ export const FieldSelect = React.forwardRef<HTMLButtonElement, FieldSelectProps>
                 data-theme={portalSurface.portaledSurfaceDataTheme}
                 className={cn(
                   "min-w-[var(--anchor-width)] overflow-hidden rounded-md border p-1 shadow-md outline-none",
-                  "font-mono text-xs tracking-wide",
+                  "font-mono text-[length:var(--type-mono)] tracking-[var(--tracking-mono)]",
                   colorPickerPopupSurfaceClass,
                   colorPickerControlBorderClass,
                   portalSurface.portaledSurfaceClassName,
@@ -194,7 +194,7 @@ export const FieldSelectItem = React.forwardRef<HTMLDivElement, FieldSelectItemP
         ref={ref}
         value={value}
         className={cn(
-          "relative flex w-full cursor-default items-center gap-2 rounded-sm py-1.5 pr-8 pl-2 text-sm outline-none select-none",
+          "relative flex w-full cursor-default items-center gap-2 rounded-sm py-1.5 pr-8 pl-2 text-[length:var(--type-body)] outline-none select-none",
           "data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground",
           "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
           className,

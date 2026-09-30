@@ -7,12 +7,9 @@ export const SETTINGS_RADIUS_CLASS = "rounded-[length:var(--radius-control)]";
 const SETTINGS_FG_SECONDARY = "text-[var(--fg-secondary)]";
 const SETTINGS_FG_MUTED = "text-[var(--fg-muted)]";
 export const SETTINGS_TYPE_VALUE_CLASS = "text-[length:var(--type-value)] leading-[1.45]";
-const SETTINGS_TYPE_LABEL_CLASS = "text-[length:var(--type-label)]";
+const SETTINGS_TYPE_LABEL_CLASS = "text-[length:var(--type-meta)]";
 const SETTINGS_TYPE_CAPTION_CLASS = "text-[length:var(--type-caption)]";
-export const SETTINGS_SECTION_HEADING_CLASS = cn(
-  "mb-0 truncate pl-0.5 font-medium uppercase tracking-[0.05em] text-[var(--fg-muted)]",
-  SETTINGS_TYPE_LABEL_CLASS,
-);
+export const SETTINGS_SECTION_HEADING_CLASS = cn("mb-0 truncate pl-0.5 ds-type-heading");
 const SETTINGS_VALUE_CLASS = cn(
   "font-medium tabular-nums text-[var(--fg-primary)]",
   SETTINGS_TYPE_VALUE_CLASS,

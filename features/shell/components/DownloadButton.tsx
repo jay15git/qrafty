@@ -30,9 +30,7 @@ export const DownloadButton = forwardRef<HTMLButtonElement, DownloadButtonProps>
         {...props}
       >
         <HugeiconsIcon icon={Download02Icon} size={16} color="currentColor" strokeWidth={2} />
-        {label ? (
-          <span className="text-[length:var(--type-value,0.8125rem)] font-medium">{label}</span>
-        ) : null}
+        {label ? <span className="text-[length:var(--type-body)] font-medium">{label}</span> : null}
       </button>
     );
   },

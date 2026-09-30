@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Caveat, Geist_Mono } from "next/font/google";
+import { Caveat, IBM_Plex_Mono, Instrument_Sans } from "next/font/google";
 
 import { AgentationDev } from "@/components/agentation-dev";
 import { GlimmRootProvider } from "@/components/glimm-root-provider";
@@ -14,9 +14,15 @@ const brandFont = Caveat({
   weight: ["600", "700"],
 });
 
-const monoFont = Geist_Mono({
-  variable: "--font-geist-mono",
+const uiFont = Instrument_Sans({
+  variable: "--font-instrument-sans",
   subsets: ["latin"],
+});
+
+const monoFont = IBM_Plex_Mono({
+  variable: "--font-plex-mono",
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
 });
 
 export const metadata: Metadata = {
@@ -60,7 +66,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${brandFont.variable} ${monoFont.variable} h-full antialiased`}
+      className={`${brandFont.variable} ${uiFont.variable} ${monoFont.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <body className="flex min-h-full cursor-default flex-col">

@@ -11,5 +11,9 @@ const LANDING_SHADER_WHEEL_OFFSET = "12vh";
  */
 export const LANDING_SHADER_ARC_CENTER_Y = `calc(100% - ${LANDING_SHADER_WHEEL_OFFSET} - ${LANDING_SHADER_ARC_RADIUS})`;
 
-/** Soft lip only — keep the shader fill, fade the last % of the circle into page ground. */
-export const LANDING_SHADER_FADE_OVERLAY = `radial-gradient(circle ${LANDING_SHADER_ARC_RADIUS} at 50% ${LANDING_SHADER_ARC_CENTER_Y}, transparent 0%, transparent 92%, rgba(239, 238, 236, 0.55) 97%, #efeeec 100%)`;
+/**
+ * Alpha mask on the shader host — true falloff, not a page-colored wash.
+ * Opaque to 60% of R, fades to transparent at the rim.
+ * Widen/shrink the fade by moving the 60% stop.
+ */
+export const LANDING_SHADER_EDGE_FADE = `radial-gradient(circle ${LANDING_SHADER_ARC_RADIUS} at 50% ${LANDING_SHADER_ARC_CENTER_Y}, #000 0%, #000 60%, transparent 100%)`;

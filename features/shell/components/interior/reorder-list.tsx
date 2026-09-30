@@ -294,7 +294,7 @@ function ReorderListRow<T>({
             type="button"
             data-reorder-grip
             className={cn(
-              "grid size-7 shrink-0 cursor-grab place-items-center rounded-lg text-muted-foreground/70 active:cursor-grabbing",
+              "grid size-7 shrink-0 cursor-grab place-items-center rounded-lg text-[var(--fg-muted)] active:cursor-grabbing",
               lifted && "cursor-grabbing",
               gripClassName,
             )}

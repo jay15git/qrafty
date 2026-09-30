@@ -351,7 +351,10 @@ export const SelectContent = forwardRef<HTMLDivElement, SelectContentProps>(
                 >
                   <div
                     ref={containerRef}
-                    className={cn("relative flex flex-col gap-0.5 p-1", listClassName)}
+                    className={cn(
+                      "relative flex flex-col gap-0.5 p-1 cursor-pointer",
+                      listClassName,
+                    )}
                   >
                     <SelectOverlays
                       open={open}

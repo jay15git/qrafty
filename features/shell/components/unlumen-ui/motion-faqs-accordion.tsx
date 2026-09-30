@@ -3,6 +3,7 @@
 import * as React from "react";
 import { ChevronRight } from "lucide-react";
 import { m } from "motion/react";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 import { CUELUME_BUTTON } from "@/features/shell/audio/cuelume";
 import {
@@ -29,11 +30,9 @@ export interface MotionAccordionProps {
   openIndex?: number | null;
   onOpenIndexChange?: (index: number | null) => void;
   /**
-   * Pins the whole accordion card to a fixed pixel height. Open panels are
-   * capped so every section header stays visible; tall panels scroll inside.
+   * The card is a fixed-height flex column: `header` and `footer` render as
+   * pinned rows outside the scrollable section list.
    */
-  cardHeight?: number | null;
-  /** Pinned content rendered at the top of the card, inside the surface. */
   header?: React.ReactNode;
   /** Pinned content rendered at the bottom of the card, inside the surface. */
   footer?: React.ReactNode;
@@ -45,14 +44,12 @@ function AccordionItem({
   onToggle,
   itemId,
   panelId,
-  maxPanelHeight,
 }: {
   item: MotionAccordionItem;
   isOpen: boolean;
   onToggle: () => void;
   itemId: string;
   panelId: string;
-  maxPanelHeight?: number | null;
 }) {
   const contentRef = React.useRef<HTMLDivElement>(null);
   const [contentH, setContentH] = React.useState(0);
@@ -74,17 +71,11 @@ function AccordionItem({
     return () => ro.disconnect();
   }, []);
 
-  const panelHeight = maxPanelHeight != null ? Math.min(contentH, maxPanelHeight) : contentH;
-  const panelScrolls = isOpen && contentH > panelHeight + 1;
-
   return (
     <div
       data-slot="motion-accordion-item"
       data-focused={isOpen ? "true" : undefined}
-      className={cn(
-        "rounded-[30px] bg-surface text-foreground shadow-xs",
-        maxPanelHeight != null && "shrink-0",
-      )}
+      className="rounded-[30px] bg-surface text-foreground shadow-xs"
     >
       <button
         id={itemId}
@@ -95,7 +86,7 @@ function AccordionItem({
         {...CUELUME_BUTTON}
         className="flex w-full cursor-pointer select-none items-center justify-between gap-4 text-left"
       >
-        <span className="inline-flex min-w-0 items-center gap-2 font-medium tracking-tight">
+        <span className="inline-flex min-w-0 items-center gap-2">
           {item.icon ? (
             <span aria-hidden className="ds-settings-section-icon-slot">
               {item.icon}
@@ -130,7 +121,7 @@ function AccordionItem({
         aria-labelledby={itemId}
         initial={false}
         animate={{
-          gridTemplateRows: isOpen ? `${panelHeight}px` : "0px",
+          gridTemplateRows: isOpen ? `${contentH}px` : "0px",
           opacity: isOpen ? 1 : 0,
         }}
         transition={{
@@ -139,14 +130,7 @@ function AccordionItem({
         }}
         style={{ display: "grid" }}
       >
-        <div
-          ref={contentRef}
-          className="min-h-0"
-          style={{
-            overflow: "hidden",
-            overflowY: panelScrolls ? "auto" : "hidden",
-          }}
-        >
+        <div ref={contentRef} className="min-h-0 overflow-hidden">
           <m.div
             animate={{ y: isOpen ? 0 : -8 }}
             transition={{
@@ -171,7 +155,6 @@ export function MotionAccordion({
   className,
   openIndex = null,
   onOpenIndexChange,
-  cardHeight = null,
   header,
   footer,
 }: MotionAccordionProps) {
@@ -215,92 +198,50 @@ export function MotionAccordion({
 
   const accordionRef = React.useRef<HTMLDivElement>(null);
 
-  // Space left for the open panel once every header + card chrome is paid for.
-  const [panelCapPx, setPanelCapPx] = React.useState<number | null>(null);
-
-  React.useLayoutEffect(() => {
-    const el = accordionRef.current;
-    if (!el || cardHeight == null) {
-      setPanelCapPx(null);
-      return;
-    }
-
-    const measure = () => {
-      let headers = 0;
-      el.querySelectorAll<HTMLElement>(
-        ':scope > [data-slot="motion-accordion-item"] > button',
-      ).forEach((button) => {
-        headers += button.offsetHeight;
-      });
-      const style = getComputedStyle(el);
-      const padY = parseFloat(style.paddingTop) + parseFloat(style.paddingBottom);
-      const headerH =
-        el.querySelector<HTMLElement>('[data-slot="motion-accordion-header"]')?.offsetHeight ?? 0;
-      const footerH =
-        el.querySelector<HTMLElement>('[data-slot="motion-accordion-footer"]')?.offsetHeight ?? 0;
-      setPanelCapPx(
-        Math.max(
-          0,
-          cardHeight -
-            headers -
-            padY -
-            headerH -
-            footerH -
-            gap * Math.max(0, items.length - 1 + (header ? 1 : 0) + (footer ? 1 : 0)),
-        ),
-      );
-    };
-
-    measure();
-    const ro = new ResizeObserver(measure);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, [cardHeight, gap, items.length, header, footer]);
-
-  const maxPanelHeight = cardHeight == null ? null : (panelCapPx ?? cardHeight);
-
   return (
     <SettingsAccordionPopoverProvider cardRef={accordionRef}>
       <SettingsAccordionPopoverOpenMarker className={cn("w-full min-w-0 max-w-full", className)}>
         <div
           ref={accordionRef}
-          className="flex flex-col rounded-[34px] p-3"
+          className="flex flex-col overflow-hidden rounded-[34px] p-3"
           style={
             {
               gap,
-              height: cardHeight ?? undefined,
               "--accordion-gap": `${gap}px`,
             } as React.CSSProperties
           }
         >
           {header ? (
-            <div
-              data-slot="motion-accordion-header"
-              className="sticky -top-1.5 z-10 shrink-0 bg-inherit"
-            >
+            <div data-slot="motion-accordion-header" className="z-10 shrink-0">
               {header}
             </div>
           ) : null}
-          {items.map((item, i) => {
-            const itemKey = getStableItemKey(item);
+          <ScrollArea
+            className="min-h-0 flex-1"
+            data-slot="settings-panel-scroll"
+            persistKey="settings-panel"
+            scrollFade={false}
+            viewportClassName="px-0"
+          >
+            <div className="flex flex-col" style={{ gap }}>
+              {items.map((item, i) => {
+                const itemKey = getStableItemKey(item);
 
-            return (
-              <AccordionItem
-                key={itemKey}
-                item={item}
-                isOpen={currentOpenIndex === i}
-                onToggle={() => toggle(i)}
-                itemId={`${baseId}-trigger-${i}`}
-                panelId={`${baseId}-panel-${i}`}
-                maxPanelHeight={maxPanelHeight}
-              />
-            );
-          })}
+                return (
+                  <AccordionItem
+                    key={itemKey}
+                    item={item}
+                    isOpen={currentOpenIndex === i}
+                    onToggle={() => toggle(i)}
+                    itemId={`${baseId}-trigger-${i}`}
+                    panelId={`${baseId}-panel-${i}`}
+                  />
+                );
+              })}
+            </div>
+          </ScrollArea>
           {footer ? (
-            <div
-              data-slot="motion-accordion-footer"
-              className="sticky bottom-0 z-10 mt-auto shrink-0 bg-inherit"
-            >
+            <div data-slot="motion-accordion-footer" className="z-10 shrink-0">
               {footer}
             </div>
           ) : null}
