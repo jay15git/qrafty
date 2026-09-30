@@ -227,7 +227,7 @@ describe("WorkspaceChrome", () => {
 
     expect(surface.container.querySelector('[data-slot="document-toolbar"]')).toBeNull();
     expect(utilityToolbar?.querySelector('[data-slot="download-trigger"]')).not.toBeNull();
-    expect(utilityToolbar?.querySelector('[data-slot="workspace-options-trigger"]')).not.toBeNull();
+    expect(utilityToolbar?.querySelector('[data-slot="workspace-options-trigger"]')).toBeNull();
     expect(utilityToolbar?.querySelector('[data-slot="save-trigger"]')).toBeNull();
     expect(utilityToolbar?.querySelector('[data-slot="keyboard-shortcuts-trigger"]')).toBeNull();
     expect(utilityToolbar?.querySelector('[data-slot="theme-toggle"]')).toBeNull();
@@ -271,7 +271,6 @@ describe("WorkspaceChrome", () => {
     expect(surface.container.querySelector('[data-slot="action-toolbar"]')).toBeNull();
     expect(surface.container.querySelector('[data-slot="dynamic-island-anchor"]')).not.toBeNull();
     expect(getRequiredButton(utilityToolbar as HTMLElement, "Download")).not.toBeNull();
-    expect(getRequiredButton(utilityToolbar as HTMLElement, "More options")).not.toBeNull();
     expect(utilityToolbar?.querySelector('[data-slot="save-trigger"]')).toBeNull();
 
     await act(async () => {

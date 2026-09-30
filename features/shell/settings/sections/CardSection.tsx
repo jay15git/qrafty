@@ -172,6 +172,12 @@ export function CardSection({ model }: { model: SettingsModel }) {
         selected={actualShapeSettings.backgroundShapeId}
         onSelect={(backgroundShapeId) => onShapeSettingsChange({ backgroundShapeId })}
       />
+      <SettingsSlider
+        label="Padding"
+        max={100}
+        value={actualShapeSettings.shapePadding}
+        onChange={(shapePadding) => onShapeSettingsChange({ shapePadding })}
+      />
       <SettingsLabeledSelect
         items={BACKGROUND_FILL_MODE_TABS}
         label="Fill"
@@ -183,12 +189,6 @@ export function CardSection({ model }: { model: SettingsModel }) {
         mode={fillMode}
         value={cardFill}
         applyFill={(fill) => onShapeSettingsChange(applyShapeFill(fill, actualShapeSettings))}
-      />
-      <SettingsSlider
-        label="Padding"
-        max={192}
-        value={actualShapeSettings.shapePadding}
-        onChange={(shapePadding) => onShapeSettingsChange({ shapePadding })}
       />
     </div>
   );

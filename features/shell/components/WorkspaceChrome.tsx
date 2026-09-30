@@ -126,7 +126,12 @@ export function WorkspaceChrome({
           </div>
           <div data-slot="utility-toolbar-anchor">
             <UtilityToolbar data-slot="utility-toolbar" className="pointer-events-auto gap-0 p-0">
-              <ExportDownloadPopover model={model} theme={actualTheme} />
+              <ExportDownloadPopover
+                model={model}
+                downloadLabel="Download"
+                showWorkspaceOptions={false}
+                theme={actualTheme}
+              />
             </UtilityToolbar>
           </div>
           <DesktopSettingsShell

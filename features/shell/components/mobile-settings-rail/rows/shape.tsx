@@ -141,7 +141,7 @@ export function MobileShapeRailFooter({ model }: MobileRailRowProps) {
         <div className="ds-mobile-settings-rail__slider">
           <SettingsSlider
             label="Padding"
-            max={192}
+            max={100}
             value={model.actualShapeSettings.shapePadding}
             onChange={(shapePadding) => model.onShapeSettingsChange({ shapePadding })}
           />

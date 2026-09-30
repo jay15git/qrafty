@@ -930,15 +930,7 @@
 .ds-settings-accordion
   > div
   > [data-slot="motion-accordion-item"]
-  + [data-slot="motion-accordion-item"]::before,
-.ds-settings-accordion
-  > div
-  > [data-slot="motion-accordion-header"]
-  + [data-slot="motion-accordion-item"]::before,
-.ds-settings-accordion
-  > div
-  > [data-slot="motion-accordion-item"]
-  + [data-slot="motion-accordion-footer"]::before {
+  + [data-slot="motion-accordion-item"]::before {
   content: "";
   position: absolute;
   top: 0;

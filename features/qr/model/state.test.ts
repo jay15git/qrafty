@@ -302,7 +302,7 @@ describe("QRafty state helpers", () => {
   it("clamps background shape padding to the supported pixel range", () => {
     expect(clampBackgroundShapePaddingPx(-12)).toBe(0);
     expect(clampBackgroundShapePaddingPx(96)).toBe(96);
-    expect(clampBackgroundShapePaddingPx(240)).toBe(192);
+    expect(clampBackgroundShapePaddingPx(240)).toBe(100);
     expect(clampBackgroundShapePaddingPx(Number.NaN)).toBe(0);
   });
 

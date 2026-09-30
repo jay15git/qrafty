@@ -77,9 +77,13 @@ function WorkspaceOptionsMenu({ model, theme }: { model: SettingsModel; theme: T
 export function ExportDownloadPopover({
   model,
   theme,
+  downloadLabel,
+  showWorkspaceOptions = true,
 }: {
   model: SettingsModel;
   theme: ThemeMode;
+  downloadLabel?: string;
+  showWorkspaceOptions?: boolean;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -90,9 +94,9 @@ export function ExportDownloadPopover({
         className="ds-resize inline-flex items-center rounded-full bg-[var(--chrome-bg)] p-1"
       >
         <PopoverTrigger asChild>
-          <DownloadButton data-state={open ? "open" : "closed"} />
+          <DownloadButton data-state={open ? "open" : "closed"} label={downloadLabel} />
         </PopoverTrigger>
-        <WorkspaceOptionsMenu model={model} theme={theme} />
+        {showWorkspaceOptions ? <WorkspaceOptionsMenu model={model} theme={theme} /> : null}
       </div>
       <PopoverContent
         align="end"
