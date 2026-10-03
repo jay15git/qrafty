@@ -31,7 +31,7 @@ This version has breaking changes. Read the relevant guide in `node_modules/next
 - The top-right download control (`ExportDownloadPopover.tsx`, shared by desktop `UtilityToolbar` and `MobileTopBar`) is a pill of two icon buttons: `data-slot="download-trigger"` opens the export popover; `data-slot="workspace-options-trigger"` opens `data-slot="workspace-options-menu"` with Sound (`useCuelume`) and Dark mode (`BlurFadeThemeTransition`, falling back to `model.onThemeChange`) switches.
 - Element-layer settings use `features/shell/components/ElementSettingsPanel.tsx` with `SettingsFillPopover` / `SettingsFillPicker` (`features/shell/settings/FillPicker.tsx`).
 - Shared workspace helpers live in `features/canvas/components/canvas-operations.ts` and `features/canvas/components/canvas-layer-geometry.ts`.
-- `use-canvas-view-model.ts` is the workspace state machine. Its pure derivations live in `canvas-resolvers.ts`, the scan-safety probe in `use-canvas-scan-safety.ts`, and the `SettingsController` assembly in `chrome-controller.ts` (grouped by concern: core / qrSettings / scene / canvas / element / export / layers). Add new controller fields to the matching group, not to the hook.
+- `use-canvas-view-model.ts` is the workspace state machine. Its pure derivations live in `canvas-resolvers.ts`, and the `SettingsController` assembly in `chrome-controller.ts` (grouped by concern: core / qrSettings / scene / canvas / element / export / layers). Add new controller fields to the matching group, not to the hook.
 - `lib/utils.ts` only provides `cn()`.
 
 ## MCP Tools

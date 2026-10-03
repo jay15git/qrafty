@@ -18,7 +18,7 @@ The workspace is a single drafting surface rather than a stack of forms — the 
 
 - Independent shape sets for modules, eyes (corners), and frames, plus custom corner-dot shapes.
 - Solid, linear gradient, radial gradient, palette, and image fills, with a unified-fill mode that pushes one treatment across every QR part.
-- Logo and image embedding, background shapes, and scan-safety checks that flag styling which would break the code.
+- Logo and image embedding and background shapes.
 
 **Canvas**
 

@@ -383,27 +383,6 @@ describe("WorkspaceChrome", () => {
     expect(surface.container.querySelector('[data-slot="layer-border-trigger"]')).not.toBeNull();
   });
 
-  it("shows the scan safety badge in the settings panel header", async () => {
-    const surface = await renderPrototype({
-      controller: {
-        scanSafetyResult: {
-          status: "invalid",
-          summary: "Not scannable",
-          expectedText: "https://example.com",
-          decodedText: null,
-          score: 0,
-        },
-      },
-    });
-    const settings = getRequiredElement(surface.container, '[data-slot="desktop-settings-panel"]');
-    const badge = settings.querySelector('[data-slot="scan-safety-badge"]');
-
-    expect(surface.container.querySelector('[data-slot="scan-safety-trigger"]')).toBeNull();
-    expect(badge).not.toBeNull();
-    expect(badge?.getAttribute("data-status")).toBe("invalid");
-    expect(badge?.textContent).toContain("Scan Unsafe");
-  });
-
   it("renders the mobile settings rail instead of the desktop settings", async () => {
     stubMatchMedia(true);
     const surface = await renderPrototype();

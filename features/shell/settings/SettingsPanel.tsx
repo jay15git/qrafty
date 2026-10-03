@@ -1,16 +1,7 @@
 "use client";
 
-import { useState, type ComponentProps, type ReactNode } from "react";
-import {
-  BadgeAlertIcon,
-  BadgeCheckIcon,
-  BadgeMinusIcon,
-  BadgeXIcon,
-  MoonIcon,
-  SunIcon,
-  Volume2Icon,
-  VolumeXIcon,
-} from "lucide-react";
+import { useState, type ComponentProps } from "react";
+import { MoonIcon, SunIcon, Volume2Icon, VolumeXIcon } from "lucide-react";
 import { KeyboardIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 
@@ -29,7 +20,6 @@ import {
 } from "@/features/shell/settings/settings-panel-meta";
 import { SettingsSectionBody } from "@/features/shell/settings/SettingsSections";
 import { SettingsAccordion, SettingsPanelShell } from "@/features/shell/settings/settings-ui";
-import type { ScanSafetyResult } from "@/features/qr/scan-safety/types";
 import { cn } from "@/lib/utils";
 
 const PANEL_ICON_BUTTON_CLASS =
@@ -52,56 +42,8 @@ function PanelIconButton({
   );
 }
 
-function scanSafetyBadge(result: ScanSafetyResult | undefined): {
-  icon: ReactNode;
-  label: string;
-  tone: "safe" | "unsafe" | "pending" | "muted";
-} {
-  const iconClass = "size-4 shrink-0";
-  switch (result?.status) {
-    case "valid":
-      return {
-        icon: <BadgeCheckIcon className={iconClass} />,
-        label: "Scan Safe",
-        tone: "safe",
-      };
-    case "invalid":
-      return {
-        icon: <BadgeXIcon className={iconClass} />,
-        label: "Scan Unsafe",
-        tone: "unsafe",
-      };
-    case "pending":
-      return {
-        icon: <BadgeAlertIcon className={iconClass} />,
-        label: "Checking…",
-        tone: "pending",
-      };
-    case "skipped":
-      return {
-        icon: <BadgeMinusIcon className={iconClass} />,
-        label: "No content",
-        tone: "muted",
-      };
-    default:
-      return {
-        icon: <BadgeAlertIcon className={iconClass} />,
-        label: "Unavailable",
-        tone: "muted",
-      };
-  }
-}
-
-const SCAN_BADGE_TONE_CLASS = {
-  safe: "text-[var(--ok)]",
-  unsafe: "text-[var(--error)]",
-  pending: "text-[var(--warn)]",
-  muted: "text-[var(--muted)]",
-} as const;
-
 function SettingsPanelHeader({ model }: { model: SettingsModel }) {
   const controller = model.controller;
-  const badge = scanSafetyBadge(controller?.scanSafetyResult);
 
   return (
     <div
@@ -116,18 +58,6 @@ function SettingsPanelHeader({ model }: { model: SettingsModel }) {
       >
         <UndoIcon className="size-4" />
       </PanelIconButton>
-      <div
-        aria-live="polite"
-        className={cn(
-          "flex items-center gap-1.5 text-[length:var(--type-value)] font-medium",
-          SCAN_BADGE_TONE_CLASS[badge.tone],
-        )}
-        data-slot="scan-safety-badge"
-        data-status={controller?.scanSafetyResult?.status ?? "unavailable"}
-      >
-        {badge.icon}
-        <span>{badge.label}</span>
-      </div>
       <PanelIconButton
         aria-label="Redo"
         data-slot="redo-trigger"

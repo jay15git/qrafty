@@ -33,7 +33,6 @@ import {
   type QraftyDataModulesStyle,
 } from "@/features/qr/model/state";
 import { type QrInputType } from "@/features/qr/content/input-options";
-import type { ScanSafetyResult } from "@/features/qr/scan-safety/types";
 import type { Paint } from "@/features/canvas/model/paint";
 export type ComposeSidebarPanel = "wallpapers" | null;
 export type SettingsToolId =
@@ -293,5 +292,4 @@ export type SettingsController = {
   exportProgressLabel?: string | null;
   exportProgressRatio?: number | null;
   onExportCancel?: () => void;
-  scanSafetyResult?: ScanSafetyResult;
 };

@@ -189,8 +189,8 @@ describe("Artboard", () => {
     const node = container.querySelector('[data-slot="canvas-node"]');
     const board = container.querySelector('[data-slot="qr-board"]');
 
-    // overflow-visible is the scannability contract: the qr must not be clipped
-    // by its board; node keeps its natural size so layers can exceed the card.
+    // overflow-visible keeps layers and qr artwork unclipped by their board;
+    // node keeps its natural size so layers can exceed the card.
     expect(board?.className).toContain("overflow-visible");
     expect(canvas?.className).toContain("overflow-visible");
     expect(card).not.toBeNull();

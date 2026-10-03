@@ -68,7 +68,6 @@
     "knip": "^6.16.1",
     "postcss": "^8.5.26",
     "prettier": "^3.9.7",
-    "qr": "^0.7.0",
     "react-doctor": "^0.9.14",
     "svg-path-commander": "^2.3.3",
     "tailwindcss": "^4",

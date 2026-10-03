@@ -98,7 +98,6 @@ type ControllerStateKey = keyof Omit<
   | "exportProgressLabel"
   | "exportProgressRatio"
   | "exportDownloadError"
-  | "scanSafetyResult"
   | "insertNodeId"
   | "composeSidebarPanel"
   | "selectedElementLayer"

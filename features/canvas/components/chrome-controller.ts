@@ -28,7 +28,6 @@ import type {
   SettingsController,
   SettingsToolId,
 } from "@/features/shell/model/settings-model";
-import type { ScanSafetyResult } from "@/features/qr/scan-safety/types";
 import type {
   StaticQrContentValue,
   StaticQrContentValues,
@@ -61,7 +60,6 @@ type CoreControllerParams = {
   onContentValueChange: (field: string, value: StaticQrContentValue) => void;
   onRedo: () => void;
   onUndo: () => void;
-  scanSafetyResult: ScanSafetyResult | undefined;
   selectedAppearanceLayer: CanvasLayer | null;
   selectedElementLayer: CanvasLayer | null;
   selectedLayerIds: string[];
@@ -235,14 +233,12 @@ export function buildCanvasWorkspaceController({
   actions,
   boards,
   activeQr,
-  scanSafetyResult,
   setters,
   state,
 }: {
   actions: CanvasWorkspaceActions;
   boards: CanvasBoards;
   activeQr: ActiveQrApi;
-  scanSafetyResult: ScanSafetyResult | undefined;
   setters: CanvasSurfaceSetters;
   state: CanvasSurfaceState;
 }): SettingsController {
@@ -456,7 +452,6 @@ export function buildCanvasWorkspaceController({
       onContentValueChange: handleCanvasContentValueChange,
       onRedo: handleRedoCanvasWorkspace,
       onUndo: handleUndoCanvasWorkspace,
-      scanSafetyResult,
       selectedAppearanceLayer: appearanceTargetLayer,
       selectedElementLayer,
       selectedLayerIds,

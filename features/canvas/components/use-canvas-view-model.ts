@@ -3,7 +3,6 @@
 import { useRef } from "react";
 
 import { useCanvasSurfaceReducer } from "@/features/canvas/components/canvas-reducer";
-import { useCanvasScanSafety } from "@/features/canvas/components/use-canvas-scan-safety";
 import { useActiveQr } from "@/features/canvas/components/use-active-qr";
 import { useCanvasBoards } from "@/features/canvas/components/use-canvas-boards";
 import { useCanvasActions } from "@/features/canvas/components/use-canvas-actions";
@@ -30,23 +29,10 @@ export function useCanvasViewModel({ initialActiveTool }: CanvasSurfaceViewModel
     setters,
     state,
   });
-  const scanSafetyResult = useCanvasScanSafety({
-    activeCanvasLayers: boards.activeCanvasLayers,
-    activeQrLayerId: state.activeQrLayerId,
-    canvasQraftyState: activeQr.canvasQraftyState,
-    qrCanvasLayers: boards.qrCanvasLayers,
-    qrStateByLayerId: state.qrStateByLayerId,
-    resolveTargetDimensions: actions.resolveWorkspaceExportTargetDimensions,
-    selectedCardState: state.selectedCardState,
-    selectedContentIsValid: activeQr.selectedContentValidation.isValid,
-    selectedDownloadExtension: state.selectedDownloadExtension,
-    selectedDownloadTarget: state.selectedDownloadTarget,
-  });
   const desktopController = buildCanvasWorkspaceController({
     actions,
     boards,
     activeQr,
-    scanSafetyResult,
     setters,
     state,
   });
