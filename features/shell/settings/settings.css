@@ -331,11 +331,20 @@
 .ds-content-type-select--split {
   display: flex;
   align-items: center;
+  gap: var(--row-px);
+}
+
+/* The value box stretches to fill the row so its edges land on the same
+   content columns as the boxed rows; the label keeps the text inset. */
+.ds-content-type-select--split > .ds-row-label-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .ds-content-type-select--split > div {
-  width: 50%;
-  flex-shrink: 0;
+  flex: 1 1 0%;
   margin-left: auto;
 }
 
@@ -665,7 +674,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-  padding: 0 var(--row-px) !important;
+  padding: 0 0 0 var(--row-px) !important;
 }
 
 .ds-switch-row > span {

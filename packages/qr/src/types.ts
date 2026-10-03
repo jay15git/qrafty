@@ -18,7 +18,7 @@ export type QraftyQrGradientConfig = {
   type: "linear" | "radial";
   rotation?: number;
   center?: { x: number; y: number };
-  stops: [{ offset: number; color: string }, { offset: number; color: string }];
+  stops: { offset: number; color: string }[];
 };
 
 export type QraftyQrLogoConfig = {

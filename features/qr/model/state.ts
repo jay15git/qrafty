@@ -28,7 +28,7 @@ export type QraftyGradient = {
   enabled: boolean;
   type: QrGradientType;
   rotation: number;
-  colorStops: [QraftyGradientStop, QraftyGradientStop];
+  colorStops: QraftyGradientStop[];
   /** Normalized radial center in 0..1. Defaults to the box center. */
   center?: QraftyGradientCenter;
 };

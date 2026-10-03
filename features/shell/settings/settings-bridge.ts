@@ -44,21 +44,18 @@ function parseStopColor(color: string) {
 }
 
 function qraftyStopsToFillStops(gradient: QraftyGradient): GradientStop[] {
-  const start = gradient.colorStops[0];
-  const end = gradient.colorStops[1] ?? start;
+  const stops = gradient.colorStops.length
+    ? gradient.colorStops
+    : [
+        { offset: 0, color: "#000000" },
+        { offset: 1, color: "#ffffff" },
+      ];
 
-  return [
-    {
-      id: "studio-start",
-      color: parseStopColor(start.color),
-      position: start.offset,
-    },
-    {
-      id: "studio-end",
-      color: parseStopColor(end.color),
-      position: end.offset,
-    },
-  ];
+  return stops.map((stop, index) => ({
+    id: `studio-stop-${index}`,
+    color: parseStopColor(stop.color),
+    position: stop.offset,
+  }));
 }
 
 function qraftyGradientToFill(gradient: QraftyGradient): Fill {
@@ -149,23 +146,15 @@ export function readLogoFillCss(settings: LogoSettings): string {
 
 function fillGradientToQrafty(gradient: Gradient, fallback: QraftyGradient): QraftyGradient {
   const stops = [...gradient.stops].sort((a, b) => a.position - b.position);
-  const first = stops[0];
-  const second = stops[stops.length - 1] ?? first;
 
-  if (!first || !second) {
+  if (stops.length === 0) {
     return fallback;
   }
 
-  const colorStops: QraftyGradient["colorStops"] = [
-    {
-      offset: Math.min(1, Math.max(0, first.position)),
-      color: formatColor(first.color, "hex"),
-    },
-    {
-      offset: Math.min(1, Math.max(0, second.position)),
-      color: formatColor(second.color, "hex"),
-    },
-  ];
+  const colorStops: QraftyGradient["colorStops"] = stops.map((stop) => ({
+    offset: Math.min(1, Math.max(0, stop.position)),
+    color: formatColor(stop.color, "hex"),
+  }));
 
   if (gradient.type === "linear") {
     return {
@@ -205,13 +194,16 @@ export function fillCssToQraftyGradient(css: string, fallback: QraftyGradient): 
 
   if (!parsed || parsed.kind === "color") {
     const hex = fillPreviewHex(css);
+    const fallbackStops = fallback.colorStops.length
+      ? fallback.colorStops
+      : [
+          { offset: 0, color: hex },
+          { offset: 1, color: hex },
+        ];
     return {
       ...fallback,
       enabled: false,
-      colorStops: [
-        { ...fallback.colorStops[0], color: hex },
-        { ...fallback.colorStops[1], color: hex },
-      ],
+      colorStops: fallbackStops.map((stop) => ({ ...stop, color: hex })),
     };
   }
 

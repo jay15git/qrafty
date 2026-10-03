@@ -65,6 +65,47 @@ describe("settings fill bridge", () => {
     expect(back.colorStops[1].color.toLowerCase()).toBe("#eeeeee");
   });
 
+  it("round-trips multi-stop gradients without clamping to first/last", () => {
+    const multi: QraftyGradient = {
+      enabled: true,
+      type: "linear",
+      rotation: degreesToRadians(90),
+      colorStops: [
+        { offset: 0, color: "#ff4f00" },
+        { offset: 0.45, color: "#e01eaf" },
+        { offset: 0.8, color: "#4338ca" },
+        { offset: 1, color: "#0f172a" },
+      ],
+    };
+
+    const css = qraftyGradientToFillCss(multi);
+    const parsed = parseFill(css);
+    expect(parsed?.kind).toBe("gradient");
+
+    const back = fillCssToQraftyGradient(css, SAMPLE_GRADIENT);
+    expect(back.colorStops).toHaveLength(4);
+    expect(back.colorStops.map((stop) => stop.offset)).toEqual([0, 0.45, 0.8, 1]);
+    expect(back.colorStops[1].color.toLowerCase()).toBe("#e01eaf");
+  });
+
+  it("keeps the stop count when a solid color disables the gradient", () => {
+    const multi: QraftyGradient = {
+      enabled: true,
+      type: "linear",
+      rotation: 0,
+      colorStops: [
+        { offset: 0, color: "#ff4f00" },
+        { offset: 0.5, color: "#e01eaf" },
+        { offset: 1, color: "#4338ca" },
+      ],
+    };
+
+    const disabled = fillCssToQraftyGradient("#336699", multi);
+    expect(disabled.enabled).toBe(false);
+    expect(disabled.colorStops).toHaveLength(3);
+    expect(disabled.colorStops.every((stop) => stop.color === "#336699")).toBe(true);
+  });
+
   it("keeps image module fills out of fill-picker CSS", () => {
     const css = readPatternModuleFillCss({
       dotsColorMode: "image",

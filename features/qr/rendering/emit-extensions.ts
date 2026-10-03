@@ -124,16 +124,13 @@ export function buildQrEmitExtensions(state: QraftyState): QrSvgEmitExtensions |
             ? state.dataModulesGradient.center
             : undefined,
         rotation: state.dataModulesGradient.rotation,
-        stops: [
-          {
-            color: state.dataModulesGradient.colorStops[0]?.color ?? "#000000",
-            offset: state.dataModulesGradient.colorStops[0]?.offset ?? 0,
-          },
-          {
-            color: state.dataModulesGradient.colorStops[1]?.color ?? "#ffffff",
-            offset: state.dataModulesGradient.colorStops[1]?.offset ?? 1,
-          },
-        ],
+        stops: (state.dataModulesGradient.colorStops.length
+          ? state.dataModulesGradient.colorStops
+          : [
+              { color: "#000000", offset: 0 },
+              { color: "#ffffff", offset: 1 },
+            ]
+        ).map((stop) => ({ color: stop.color, offset: stop.offset })),
         type: state.dataModulesGradient.type,
       },
       kind: "gradient",

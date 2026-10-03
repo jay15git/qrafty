@@ -7,27 +7,6 @@ import {
 } from "@/features/canvas/model/paint";
 import { normalizeFillForQrTarget } from "@/features/shell/settings/FillPicker.utils";
 
-/**
- * The QR-style SVG defs path only supports linear/radial two-stop gradients.
- * Clamp picker output the way `fillCssToQraftyGradient` used to: conic →
- * radial, exotic radials → circle, multi-stop ramps → first + last stops.
- */
-function clampPickerFillForCanvas(fill: Fill): Fill {
-  const normalized = normalizeFillForQrTarget(fill);
-
-  if (normalized.kind !== "gradient" || normalized.gradient.stops.length <= 2) {
-    return normalized;
-  }
-
-  const stops = [...normalized.gradient.stops].sort((a, b) => a.position - b.position);
-  const first = stops[0];
-  const last = stops[stops.length - 1];
-
-  return {
-    kind: "gradient",
-    gradient: { ...normalized.gradient, stops: [first, last] },
-  };
-}
 import {
   DEFAULT_SHAPE_LAYER,
   DEFAULT_TEXT_LAYER,
@@ -42,7 +21,7 @@ export function patchShapeLayerFillFromPicker(
   layer: CanvasLayer,
   fill: Fill,
 ): Partial<CanvasLayer> {
-  return { fill: paintFromPickerFill(clampPickerFillForCanvas(fill), layer.fill) };
+  return { fill: paintFromPickerFill(normalizeFillForQrTarget(fill), layer.fill) };
 }
 
 export function getTextLayerFillCssValue(layer: CanvasLayer) {
@@ -50,7 +29,7 @@ export function getTextLayerFillCssValue(layer: CanvasLayer) {
 }
 
 export function patchTextLayerFillFromPicker(layer: CanvasLayer, fill: Fill): Partial<CanvasLayer> {
-  return { fill: paintFromPickerFill(clampPickerFillForCanvas(fill), layer.fill) };
+  return { fill: paintFromPickerFill(normalizeFillForQrTarget(fill), layer.fill) };
 }
 
 export function getShapeLayerGradientId(layerId: string) {

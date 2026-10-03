@@ -200,13 +200,17 @@ export function paintFromQraftyGradient(gradient: QraftyGradient): Paint | undef
     return undefined;
   }
 
-  const start = gradient.colorStops[0];
-  const end = gradient.colorStops[1] ?? start;
   const fallbackColor = { l: 0, c: 0, h: 0, alpha: 1 } as const;
-  const stops: Gradient["stops"] = [
-    { color: parseColor(start.color) ?? fallbackColor, position: start.offset },
-    { color: parseColor(end.color) ?? fallbackColor, position: end.offset },
-  ];
+  const colorStops = gradient.colorStops.length
+    ? gradient.colorStops
+    : [
+        { offset: 0, color: "#000000" },
+        { offset: 1, color: "#ffffff" },
+      ];
+  const stops: Gradient["stops"] = colorStops.map((stop) => ({
+    color: parseColor(stop.color) ?? fallbackColor,
+    position: stop.offset,
+  }));
 
   const parsed: Gradient =
     gradient.type === "radial"
